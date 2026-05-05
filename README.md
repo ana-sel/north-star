@@ -52,7 +52,33 @@ See [personal-navigation-os-spec.md](personal-navigation-os-spec.md) and [person
   - Bottom tabs per spec §9: **Chat | Today | Boards | Habits | More** (Chat/Today/Boards/Habits are placeholders for later phases)
   - **Approval review flow** in React Native: list pending → modal with redacted prompt + redaction map + cost → Approve / Reject
   - Talks to backend via `mobile/src/config/api.ts` (`API_BASE_URL`, `DEV_USER_ID` — JWT/SecureStore wires in later)
-- [ ] **Phase 6+** — Full agents (Capture / Goal Architect / Mission / Focus / Review), goal tree, Kanban, Habits, Health, Money, Reviews, Files (per spec §8 / §9)
+- [x] **Phase 7** — Cards + Capture Agent
+  - Backend: `GET/POST/PATCH/DELETE /cards` (privacy-level aware)
+  - Backend: `POST /agents/capture` — Capture Agent (local-only via gateway, returns a structured card draft; falls back to a raw-thought draft if local model is unavailable)
+  - Mobile **Chat** screen: send a thought → see a draft → save as card
+  - Mobile **Boards** screen: live list of your cards (Kanban columns + drag come later)
+  - 32 unit tests passing (8 new for the capture parser)
+- [x] **Phase 8** — Kanban + status transitions
+  - Backend: `PATCH /cards/{id}` auto-bumps `moved_count` on every status change, stamps `completed_at` on entering DONE, clears it on leaving DONE
+  - `moved_count` exposed on `CardOut` for stuck-card detection
+  - Mobile **Boards** screen rebuilt as horizontal Kanban: **Inbox · Planned · Today · Doing · Done** (subset of `CardStatus` per spec §9)
+  - Tap any card → modal with destination columns → optimistic move with rollback on error
+  - Stuck-card visual: orange border + `stuck × N` badge when `moved_count ≥ 3` (spec §2 stuck-card detection)
+  - 39 unit tests passing (7 new for status-transition logic)
+- [x] **Phase 9** — Today screen + Focus Agent
+  - Backend: `POST /agents/focus` — Focus Agent picks 1–3 cards from open candidates given current energy (local-only via gateway)
+  - Reads only `card_titles` + `energy_summary` (matches `focus_agent` policy `can_read`)
+  - Heuristic fallback when local model unavailable: prefer cards whose `energy_required` matches current energy
+  - Mobile **Today** screen: Low / Medium / High energy picker → "Pick my top 1–3" → suggestions with reasons → one-tap "Move to Today"
+  - Below the picker: live list of cards already in TODAY status (pull-to-refresh)
+  - 49 unit tests passing (10 new for the focus parser + fallback)
+- [x] **Phase 10** — Card detail screen
+  - Mobile **CardDetail** modal: full view + edit of any card (title, description, type, status, life area, energy, priority) + delete with confirmation
+  - Tap any card on Boards or Today to open it; long-press on Boards still opens the quick MoveModal
+  - Navigation restructured: tabs are now wrapped in a root native stack so any tab can `push` shared modals
+  - Boards uses `useFocusEffect` to refetch on tab return so edits propagate without manual refresh
+  - Reuses existing `GET /cards/{id}` + `PATCH /cards/{id}` + `DELETE /cards/{id}` (no new backend code)
+- [ ] **Phase 11+** — Goal tree, Habits, Health, Money, Reviews, Files (per spec §8 / §9)
 
 ---
 
