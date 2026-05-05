@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>North Star — Approval queue (dev)</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1115;
+      --panel: #181c24;
+      --text: #e6e6e6;
+      --muted: #a3a8b3;
+      --accent: #6cb3ff;
+      --warn: #ffb86b;
+      --danger: #ff6b6b;
+      --ok: #67d09d;
+      --border: #262b35;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 760px;
+      margin-inline: auto;
+      padding: 24px 16px 64px;
+    }
+    h1 { font-weight: 600; font-size: 22px; margin: 0 0 4px; }
+    p.lede { color: var(--muted); margin: 0 0 24px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+    input {
+      width: 100%; padding: 8px 10px;
+      background: var(--panel); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+    button {
+      cursor: pointer; padding: 8px 14px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--panel);
+      color: var(--text); font-size: 14px;
+    }
+    button.primary { background: var(--accent); color: #0a0d12; border-color: transparent; }
+    button.danger  { background: var(--danger); color: #1a0808; border-color: transparent; }
+    button.ghost   { background: transparent; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px; margin: 10px 0;
+    }
+    .card .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 11px; letter-spacing: 0.02em; text-transform: uppercase;
+    }
+    .badge.sensitive       { background: #4a2a2a; color: #ffb3b3; }
+    .badge.never_external  { background: #5a1a1a; color: #ffd6d6; }
+    .badge.private         { background: #2c3a4a; color: #b8d2ee; }
+    .badge.normal          { background: #2a3a2c; color: #b8e8c4; }
+    .meta { color: var(--muted); font-size: 12px; }
+    pre {
+      background: #0a0d12; border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; line-height: 1.45;
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 280px; overflow: auto;
+    }
+    details { margin-top: 8px; }
+    details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+    .empty { color: var(--muted); font-style: italic; padding: 20px 0; }
+    .toast {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      opacity: 0; pointer-events: none; transition: opacity .15s ease;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>Approval queue</h1>
+  <p class="lede">
+    Phase 4 dev preview. Every external AI call is paused here so you can
+    inspect the redacted prompt before approving. Originals never reach this page.
+  </p>
+
+  <div class="row">
+    <div style="flex:1; min-width:280px;">
+      <label for="user_id">User ID (UUID)</label>
+      <input id="user_id" placeholder="e.g. 00000000-0000-0000-0000-000000000001" />
+    </div>
+    <div style="align-self:flex-end;">
+      <button id="refresh" class="primary">Load pending</button>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const list = $('list');
+    const toast = $('toast');
+    const userInput = $('user_id');
+
+    // Persist user_id between page reloads.
+    const STORE_KEY = 'northstar.user_id';
+    userInput.value = localStorage.getItem(STORE_KEY) || '';
+    userInput.addEventListener('change', () =>
+      localStorage.setItem(STORE_KEY, userInput.value.trim()));
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function fmtDate(s) {
+      try { return new Date(s).toLocaleString(); } catch { return s; }
+    }
+
+    async function loadPending() {
+      const userId = userInput.value.trim();
+      if (!userId) { showToast('Enter a user_id first.'); return; }
+      list.innerHTML = '<div class="empty">Loading…</div>';
+      try {
+        const res = await fetch(`/approvals?user_id=${encodeURIComponent(userId)}&status=pending`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const items = await res.json();
+        if (!items.length) {
+          list.innerHTML = '<div class="empty">No pending approvals.</div>';
+          return;
+        }
+        // Fetch full detail for each item in parallel (small lists).
+        const details = await Promise.all(
+          items.map(it => fetch(`/approvals/${it.id}`).then(r => r.json()))
+        );
+        list.innerHTML = '';
+        details.forEach(renderCard);
+      } catch (err) {
+        list.innerHTML = `<div class="empty">Failed to load: ${err}</div>`;
+      }
+    }
+
+    function renderCard(d) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.id = d.id;
+      card.innerHTML = `
+        <div class="head">
+          <div>
+            <strong>${escapeHtml(d.agent_id)}</strong>
+            <span class="meta">→ ${escapeHtml(d.provider)}/${escapeHtml(d.model)}</span>
+          </div>
+          <span class="badge ${escapeHtml(d.privacy_level)}">${escapeHtml(d.privacy_level)}</span>
+        </div>
+        <div class="meta" style="margin-top:6px;">
+          Estimated cost: £${Number(d.estimated_cost_gbp).toFixed(4)}
+          · Expires ${fmtDate(d.expires_at)}
+        </div>
+        <details open>
+          <summary>What will be sent (redacted preview)</summary>
+          <pre>${escapeHtml(d.redacted_prompt)}</pre>
+        </details>
+        <details>
+          <summary>Redaction map (placeholders → category)</summary>
+          <pre>${escapeHtml(JSON.stringify(d.redaction_map, null, 2))}</pre>
+        </details>
+        <div class="row" style="margin-top:12px;">
+          <button class="primary" data-action="approve">Approve & send</button>
+          <button class="danger"  data-action="reject">Reject</button>
+          <button class="ghost"   data-action="refresh">Refresh list</button>
+        </div>
+        <div class="result" style="margin-top:10px;"></div>
+      `;
+      card.querySelector('[data-action="approve"]').addEventListener('click', () => approve(d.id, card));
+      card.querySelector('[data-action="reject"]').addEventListener('click', () => reject(d.id, card));
+      card.querySelector('[data-action="refresh"]').addEventListener('click', loadPending);
+      list.appendChild(card);
+    }
+
+    async function approve(id, card) {
+      const buttons = card.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = true);
+      try {
+        const res = await fetch(`/approvals/${id}/approve`, { method: 'POST' });
+        const data = await res.json();
+        const result = card.querySelector('.result');
+        if (!res.ok) {
+          result.innerHTML = `<pre>Error: ${escapeHtml(data.detail || JSON.stringify(data))}</pre>`;
+        } else {
+          result.innerHTML = `<pre>${escapeHtml(data.text || '(no text returned)')}</pre>`;
+        }
+        showToast('Done.');
+      } finally {
+        buttons.forEach(b => b.disabled = false);
+      }
+    }
+
+    async function reject(id, card) {
+      const buttons = card.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = true);
+      try {
+        const res = await fetch(`/approvals/${id}/reject`, { method: 'POST' });
+        if (res.ok) {
+          card.style.opacity = 0.4;
+          showToast('Rejected.');
+        } else {
+          showToast('Reject failed.');
+        }
+      } finally {
+        buttons.forEach(b => b.disabled = false);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    $('refresh').addEventListener('click', loadPending);
+    if (userInput.value) loadPending();
+  </script>
+</body>
+</html>
