@@ -10,12 +10,18 @@ import { HabitsScreen } from "../screens/HabitsScreen";
 import { MoreScreen } from "../screens/MoreScreen";
 import { ApprovalsListScreen } from "../screens/ApprovalsListScreen";
 import { ApprovalDetailScreen } from "../screens/ApprovalDetailScreen";
+import { CardDetailScreen } from "../screens/CardDetailScreen";
 
 import { colors } from "../theme";
-import type { MoreStackParamList, RootTabParamList } from "./types";
+import type {
+  MoreStackParamList,
+  RootStackParamList,
+  RootTabParamList,
+} from "./types";
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const MoreStack = createNativeStackNavigator<MoreStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const navTheme = {
   ...DarkTheme,
@@ -62,25 +68,47 @@ function MoreNavigator() {
 export function RootNavigator() {
   return (
     <NavigationContainer theme={navTheme}>
-      <Tab.Navigator
+      <RootStack.Navigator
         screenOptions={{
           headerStyle: { backgroundColor: colors.surface },
           headerTintColor: colors.text,
-          tabBarStyle: { backgroundColor: colors.surface },
-          tabBarActiveTintColor: colors.primary,
-          tabBarInactiveTintColor: colors.textMuted,
         }}
       >
-        <Tab.Screen name="Chat" component={ChatScreen} />
-        <Tab.Screen name="Today" component={TodayScreen} />
-        <Tab.Screen name="Boards" component={BoardsScreen} />
-        <Tab.Screen name="Habits" component={HabitsScreen} />
-        <Tab.Screen
-          name="More"
-          component={MoreNavigator}
+        <RootStack.Screen
+          name="Tabs"
+          component={TabsNavigator}
           options={{ headerShown: false }}
         />
-      </Tab.Navigator>
+        <RootStack.Screen
+          name="CardDetail"
+          component={CardDetailScreen}
+          options={{ title: "Card", presentation: "modal" }}
+        />
+      </RootStack.Navigator>
     </NavigationContainer>
+  );
+}
+
+function TabsNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTintColor: colors.text,
+        tabBarStyle: { backgroundColor: colors.surface },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+      }}
+    >
+      <Tab.Screen name="Chat" component={ChatScreen} />
+      <Tab.Screen name="Today" component={TodayScreen} />
+      <Tab.Screen name="Boards" component={BoardsScreen} />
+      <Tab.Screen name="Habits" component={HabitsScreen} />
+      <Tab.Screen
+        name="More"
+        component={MoreNavigator}
+        options={{ headerShown: false }}
+      />
+    </Tab.Navigator>
   );
 }
