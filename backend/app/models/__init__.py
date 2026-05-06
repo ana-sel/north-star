@@ -3,6 +3,8 @@
 from app.models.user import User
 from app.models.card import Card
 from app.models.diary_entry import DiaryEntry
+from app.models.energy import EnergyLog
+from app.models.habit import Habit, HabitLog
 from app.models.health_log import HealthLog
 from app.models.money_transaction import MoneyTransaction
 from app.models.file import File
@@ -15,6 +17,9 @@ __all__ = [
     "User",
     "Card",
     "DiaryEntry",
+    "EnergyLog",
+    "Habit",
+    "HabitLog",
     "HealthLog",
     "MoneyTransaction",
     "File",

@@ -19,6 +19,7 @@ import {
   pickFocus,
   updateCard,
 } from "../api/cards";
+import { EnergyLog, latestEnergy, listEnergy, logEnergy } from "../api/energy";
 import { DEV_USER_ID } from "../config/api";
 import type { RootStackParamList } from "../navigation/types";
 import { colors, spacing } from "../theme";
@@ -51,6 +52,8 @@ export function TodayScreen() {
   const [loadingToday, setLoadingToday] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [recentEnergy, setRecentEnergy] = useState<EnergyLog[]>([]);
+
   const loadToday = useCallback(async () => {
     try {
       setTodayCards(await listCards(DEV_USER_ID, "today"));
@@ -62,9 +65,33 @@ export function TodayScreen() {
     }
   }, []);
 
+  const loadEnergy = useCallback(async () => {
+    try {
+      const [latest, rows] = await Promise.all([
+        latestEnergy(DEV_USER_ID),
+        listEnergy(DEV_USER_ID, 7),
+      ]);
+      if (latest) setEnergy(latest.level);
+      setRecentEnergy(rows);
+    } catch {
+      /* non-fatal */
+    }
+  }, []);
+
   useEffect(() => {
     loadToday();
-  }, [loadToday]);
+    loadEnergy();
+  }, [loadToday, loadEnergy]);
+
+  async function selectEnergy(level: EnergyLevel) {
+    setEnergy(level);
+    try {
+      await logEnergy(DEV_USER_ID, level);
+      loadEnergy();
+    } catch {
+      /* non-fatal — UI already reflects choice */
+    }
+  }
 
   async function onPick() {
     setPicking(true);
@@ -120,7 +147,7 @@ export function TodayScreen() {
             <Pressable
               key={e.value}
               style={[styles.energyButton, selected && styles.energyButtonOn]}
-              onPress={() => setEnergy(e.value)}
+              onPress={() => selectEnergy(e.value)}
             >
               <Text
                 style={[styles.energyText, selected && styles.energyTextOn]}
@@ -131,6 +158,29 @@ export function TodayScreen() {
           );
         })}
       </View>
+
+      {recentEnergy.length > 0 ? (
+        <View style={styles.energyHistoryRow}>
+          <Text style={styles.energyHistoryLabel}>Last 7 days:</Text>
+          {recentEnergy.slice(0, 7).map((log) => (
+            <View
+              key={log.id}
+              style={[
+                styles.energyDot,
+                log.level === "low" && styles.energyDotLow,
+                log.level === "medium" && styles.energyDotMed,
+                log.level === "high" && styles.energyDotHigh,
+              ]}
+            />
+          ))}
+          <Pressable
+            style={styles.insightsLink}
+            onPress={() => navigation.navigate("EnergyInsights")}
+          >
+            <Text style={styles.insightsLinkText}>Insights →</Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       <Pressable
         style={[styles.pickButton, picking && styles.pickDisabled]}
@@ -224,6 +274,28 @@ const styles = StyleSheet.create({
   },
   energyText: { color: colors.textMuted, fontWeight: "600" },
   energyTextOn: { color: "#fff" },
+  energyHistoryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: -spacing.xs,
+  },
+  energyHistoryLabel: {
+    color: colors.textMuted,
+    fontSize: 11,
+    marginRight: spacing.xs,
+  },
+  energyDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.border,
+  },
+  energyDotLow: { backgroundColor: "#d29922" },
+  energyDotMed: { backgroundColor: "#2f81f7" },
+  energyDotHigh: { backgroundColor: "#3fb950" },
+  insightsLink: { marginLeft: "auto" },
+  insightsLinkText: { color: colors.primary, fontSize: 12, fontWeight: "600" },
   pickButton: {
     backgroundColor: colors.primary,
     padding: spacing.md,

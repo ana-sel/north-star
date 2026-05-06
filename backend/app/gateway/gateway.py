@@ -51,7 +51,7 @@ from app.gateway.redactor import (
     RegexRedactor,
     VocabularyRedactor,
 )
-from app.gateway.scanner import StubScanner
+from app.gateway.scanner import RealScanner, StubScanner
 from app.gateway.schemas import (
     ApprovalPreview,
     FinalStatus,
@@ -118,7 +118,7 @@ class LocalAIGateway:
                 model=settings.redactor_semantic_model,
             ),
         )
-        self._scanner = StubScanner()
+        self._scanner = RealScanner() if settings.scanner_enabled else StubScanner()
 
     # ------------------------------------------------------------------
     # Public API

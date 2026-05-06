@@ -47,3 +47,23 @@ class OllamaProvider(BaseProvider):
             output_tokens=output_tokens,
             estimated_cost_gbp=Decimal("0"),  # local => zero cost
         )
+
+    async def embed(
+        self,
+        text: str,
+        model: str = "nomic-embed-text",
+    ) -> list[float]:
+        """Generate an embedding vector via Ollama /api/embed."""
+        url = f"{self.base_url}/api/embed"
+        payload = {"model": model, "input": text}
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                data = resp.json()
+        except httpx.HTTPError as exc:
+            raise ProviderError(f"Ollama embed failed: {exc}") from exc
+        embeddings = data.get("embeddings")
+        if not embeddings or not isinstance(embeddings, list):
+            raise ProviderError("Ollama embed returned no embeddings")
+        return embeddings[0]

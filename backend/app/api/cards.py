@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -29,9 +29,31 @@ from app.enums import (
     PrivacyLevel,
 )
 from app.models.card import Card
+from app.db import SessionLocal
 
 
 router = APIRouter(prefix="/cards", tags=["cards"])
+
+
+async def _embed_card(
+    card_id: uuid.UUID,
+    user_id: uuid.UUID,
+    title: str,
+    description: str | None,
+) -> None:
+    """Background task: embed card text into pgvector."""
+    from app.services.embedding_service import embed_entity
+
+    text = title
+    if description:
+        text = f"{title}\n{description}"
+    db = SessionLocal()
+    try:
+        await embed_entity(db, user_id, "card", card_id, text)
+    except Exception:
+        pass  # Embedding is best-effort; never block the user
+    finally:
+        db.close()
 
 
 # ----------------------------------------------------------------------
@@ -53,6 +75,7 @@ class CardOut(BaseModel):
     estimated_minutes: int | None
     due_date: datetime | None
     moved_count: int
+    mission_scores: dict
     created_at: datetime
     updated_at: datetime
     completed_at: datetime | None
@@ -99,17 +122,24 @@ class CardUpdate(BaseModel):
 def list_cards(
     user_id: uuid.UUID = Query(...),
     status_filter: CardStatus | None = Query(default=None, alias="status"),
+    card_type: CardType | None = Query(default=None),
     db: Session = Depends(get_db),
 ) -> list[Card]:
     stmt = select(Card).where(Card.user_id == user_id)
     if status_filter is not None:
         stmt = stmt.where(Card.status == status_filter)
+    if card_type is not None:
+        stmt = stmt.where(Card.type == card_type)
     stmt = stmt.order_by(Card.created_at.desc())
     return list(db.execute(stmt).scalars())
 
 
 @router.post("", response_model=CardOut, status_code=status.HTTP_201_CREATED)
-def create_card(payload: CardCreate, db: Session = Depends(get_db)) -> Card:
+async def create_card(
+    payload: CardCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> Card:
     card = Card(
         user_id=payload.user_id,
         parent_id=payload.parent_id,
@@ -128,7 +158,149 @@ def create_card(payload: CardCreate, db: Session = Depends(get_db)) -> Card:
     db.add(card)
     db.commit()
     db.refresh(card)
+    background_tasks.add_task(_embed_card, card.id, card.user_id, card.title, card.description)
     return card
+
+
+# ----------------------------------------------------------------------
+# Goal tree (spec §3 hierarchy: Vision → Goal → Project → Task)
+# ----------------------------------------------------------------------
+class CardTreeNode(BaseModel):
+    """A card with its children eagerly nested.
+
+    Mirrors `CardOut` exactly + `children`. We re-declare instead of
+    extending so the response shape stays explicit in OpenAPI.
+    """
+
+    id: uuid.UUID
+    parent_id: uuid.UUID | None
+    title: str
+    description: str | None
+    level: str
+    type: str
+    status: str
+    life_area: str | None
+    energy_required: str
+    priority: str
+    moved_count: int
+    completed_at: datetime | None
+    children: list["CardTreeNode"] = Field(default_factory=list)
+
+
+# Tree levels map to spec §3. Anything below "project" is treated as
+# leaf detail and excluded from the tree view (those still show up on
+# Boards / Today). Adjustable via query param.
+_DEFAULT_TREE_LEVELS = (
+    CardLevel.VISION,
+    CardLevel.GOAL,
+    CardLevel.PROJECT,
+    CardLevel.MILESTONE,
+)
+
+
+@router.get("/tree", response_model=list[CardTreeNode])
+def get_card_tree(
+    user_id: uuid.UUID = Query(...),
+    include_tasks: bool = Query(default=False),
+    db: Session = Depends(get_db),
+) -> list[CardTreeNode]:
+    """Return the user's goal tree as a list of root nodes.
+
+    A "root" is any card whose `parent_id` is null. Children are nested
+    via `parent_id`. By default only Vision/Goal/Project/Milestone are
+    included; pass `include_tasks=true` to fold tasks in as leaves.
+    """
+    levels = list(_DEFAULT_TREE_LEVELS)
+    if include_tasks:
+        levels.extend([CardLevel.TASK, CardLevel.SUBTASK, CardLevel.FOCUS_BLOCK])
+
+    stmt = (
+        select(Card)
+        .where(Card.user_id == user_id)
+        .where(Card.level.in_([lvl.value for lvl in levels]))
+        .order_by(Card.created_at.asc())
+    )
+    cards = list(db.execute(stmt).scalars())
+    return _build_tree(cards)
+
+
+def _build_tree(cards: list[Card]) -> list[CardTreeNode]:
+    """Pure helper — turn a flat list of cards into nested CardTreeNodes.
+
+    Cards whose `parent_id` is missing from the input set become roots
+    (this includes orphans whose parent is at a level that was filtered
+    out — surfacing them prevents accidental data hiding).
+    """
+    by_id: dict[uuid.UUID, CardTreeNode] = {
+        c.id: CardTreeNode(
+            id=c.id,
+            parent_id=c.parent_id,
+            title=c.title,
+            description=c.description,
+            level=c.level if isinstance(c.level, str) else c.level.value,
+            type=c.type if isinstance(c.type, str) else c.type.value,
+            status=c.status if isinstance(c.status, str) else c.status.value,
+            life_area=(
+                c.life_area
+                if c.life_area is None or isinstance(c.life_area, str)
+                else c.life_area.value
+            ),
+            energy_required=(
+                c.energy_required
+                if isinstance(c.energy_required, str)
+                else c.energy_required.value
+            ),
+            priority=c.priority if isinstance(c.priority, str) else c.priority.value,
+            moved_count=c.moved_count or 0,
+            completed_at=c.completed_at,
+        )
+        for c in cards
+    }
+    roots: list[CardTreeNode] = []
+    for c in cards:
+        node = by_id[c.id]
+        if c.parent_id and c.parent_id in by_id:
+            by_id[c.parent_id].children.append(node)
+        else:
+            roots.append(node)
+    return roots
+
+
+class SearchResult(BaseModel):
+    card: CardOut
+    distance: float
+
+
+@router.get("/search", response_model=list[SearchResult])
+async def search_cards(
+    user_id: uuid.UUID = Query(...),
+    q: str = Query(..., min_length=1, max_length=500),
+    limit: int = Query(default=10, ge=1, le=50),
+    db: Session = Depends(get_db),
+) -> list[SearchResult]:
+    """Semantic search over cards using pgvector embeddings."""
+    from app.services.embedding_service import search_similar
+
+    results = await search_similar(
+        db, user_id=user_id, query_text=q, entity_type="card", limit=limit
+    )
+    if not results:
+        return []
+
+    # Fetch matching cards
+    card_ids = [uuid.UUID(r["entity_id"]) for r in results]
+    cards_map: dict[uuid.UUID, Card] = {}
+    for card_id in card_ids:
+        card = db.get(Card, card_id)
+        if card:
+            cards_map[card.id] = card
+
+    out: list[SearchResult] = []
+    for r in results:
+        cid = uuid.UUID(r["entity_id"])
+        if cid in cards_map:
+            out.append(SearchResult(card=cards_map[cid], distance=r["distance"]))
+    return out
 
 
 @router.get("/{card_id}", response_model=CardOut)
@@ -140,9 +312,10 @@ def get_card(card_id: uuid.UUID, db: Session = Depends(get_db)) -> Card:
 
 
 @router.patch("/{card_id}", response_model=CardOut)
-def update_card(
+async def update_card(
     card_id: uuid.UUID,
     payload: CardUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> Card:
     card = db.get(Card, card_id)
@@ -157,6 +330,9 @@ def update_card(
 
     db.commit()
     db.refresh(card)
+    # Re-embed if title or description changed
+    if "title" in fields or "description" in fields:
+        background_tasks.add_task(_embed_card, card.id, card.user_id, card.title, card.description)
     return card
 
 

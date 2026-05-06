@@ -28,6 +28,136 @@ export function MoreScreen() {
           styles.row,
           pressed && { backgroundColor: colors.border },
         ]}
+        onPress={() => nav.navigate("Goals")}
+      >
+        <Text style={styles.rowTitle}>Goals</Text>
+        <Text style={styles.rowSubtitle}>
+          Vision → Goal → Project → Milestone tree.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Review")}
+      >
+        <Text style={styles.rowTitle}>Review</Text>
+        <Text style={styles.rowSubtitle}>
+          Daily / weekly reflection on card activity.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Productivity")}
+      >
+        <Text style={styles.rowTitle}>Productivity</Text>
+        <Text style={styles.rowSubtitle}>
+          Cards completed, completion rate, habit coverage.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Learning")}
+      >
+        <Text style={styles.rowTitle}>Learning</Text>
+        <Text style={styles.rowSubtitle}>
+          Skills, research cards, study habits.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Healing")}
+      >
+        <Text style={styles.rowTitle}>Healing</Text>
+        <Text style={styles.rowSubtitle}>
+          Diary, mood/energy, healing habits — local only.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Research")}
+      >
+        <Text style={styles.rowTitle}>Research</Text>
+        <Text style={styles.rowSubtitle}>
+          Research-typed cards — progress and patterns.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Diary")}
+      >
+        <Text style={styles.rowTitle}>Diary</Text>
+        <Text style={styles.rowSubtitle}>
+          Private reflections — stays on device.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Health")}
+      >
+        <Text style={styles.rowTitle}>Health</Text>
+        <Text style={styles.rowSubtitle}>
+          Sleep, weight, calories, mood — one row per day.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Money")}
+      >
+        <Text style={styles.rowTitle}>Money</Text>
+        <Text style={styles.rowSubtitle}>
+          Transactions, categories, 30-day net.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Files")}
+      >
+        <Text style={styles.rowTitle}>Files</Text>
+        <Text style={styles.rowSubtitle}>
+          Private storage — stays on device.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
         onPress={() => nav.navigate("ApprovalsList")}
       >
         <Text style={styles.rowTitle}>Approvals</Text>

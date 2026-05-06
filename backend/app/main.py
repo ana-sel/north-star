@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,13 +7,30 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api import agents as agents_api
 from app.api import approvals as approvals_api
+from app.api import auth as auth_api
 from app.api import cards as cards_api
 from app.api import gateway as gateway_api
+from app.api import habits as habits_api
+from app.api import energy as energy_api
+from app.api import health as health_api
+from app.api import money as money_api
+from app.api import files as files_api
+from app.api import diary as diary_api
+from app.scheduler import start_scheduler, stop_scheduler
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    yield
+    stop_scheduler()
+
 
 app = FastAPI(
     title="North Star",
     description="Private AI-powered Personal Navigation OS — backend.",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # Dev-only CORS: Expo web preview runs on http://localhost:8081 (or :19006)
@@ -26,10 +44,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_api.router)
 app.include_router(gateway_api.router)
 app.include_router(approvals_api.router)
 app.include_router(cards_api.router)
 app.include_router(agents_api.router)
+app.include_router(habits_api.router)
+app.include_router(energy_api.router)
+app.include_router(health_api.router)
+app.include_router(money_api.router)
+app.include_router(files_api.router)
+app.include_router(diary_api.router)
 
 # Dev-only: serve the approval demo HTML at /static.
 _static_dir = Path(__file__).resolve().parent.parent / "static"
