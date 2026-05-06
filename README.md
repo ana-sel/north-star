@@ -78,7 +78,14 @@ See [personal-navigation-os-spec.md](personal-navigation-os-spec.md) and [person
   - Navigation restructured: tabs are now wrapped in a root native stack so any tab can `push` shared modals
   - Boards uses `useFocusEffect` to refetch on tab return so edits propagate without manual refresh
   - Reuses existing `GET /cards/{id}` + `PATCH /cards/{id}` + `DELETE /cards/{id}` (no new backend code)
-- [ ] **Phase 11+** — Goal tree, Habits, Health, Money, Reviews, Files (per spec §8 / §9)
+- [x] **Phase 11** — Goal tree (spec §3 Vision → Goal → Project → Milestone)
+  - Backend: `GET /cards/tree?user_id=...&include_tasks=...` returns nested `CardTreeNode[]`
+  - Pure `_build_tree` helper handles orphans (parent filtered out → promoted to root)
+  - Mobile **Goals** screen (More tab): indented tree, "+ Add goal" at root, "+" on each row to add a child at the next level down
+  - Tapping a row opens CardDetail; "Include tasks" toggle folds task-level cards into the tree
+  - 56 unit tests passing (7 new for tree builder)
+- [x] **Boards drag-and-drop** — real DnD via `PanResponder` + `Animated` (no new deps); tap = detail, long-press = quick modal, drag = column move
+- [ ] **Phase 12+** — Habits, Energy log, Reviews, Health, Money, Files (per spec §8 / §9)
 
 ---
 

@@ -22,6 +22,13 @@ RequestType = Literal[
     "mission_score",
     "focus_pick",
     "review",
+    "energy_insight",
+    "health_insight",
+    "money_insight",
+    "productivity_insight",
+    "learning_insight",
+    "healing_insight",
+    "research_insight",
     "chat",
     "embed",
 ]

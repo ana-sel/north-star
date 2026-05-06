@@ -16,10 +16,13 @@ import {
   CardStatus,
   CardType,
   LifeArea,
+  MissionResponse,
   deleteCard,
   getCard,
+  scoreMission,
   updateCard,
 } from "../api/cards";
+import { DEV_USER_ID } from "../config/api";
 import type { RootStackParamList } from "../navigation/types";
 import { colors, spacing } from "../theme";
 
@@ -171,6 +174,53 @@ export function CardDetailScreen({ route, navigation }: Props) {
     ]);
   }
 
+  const [missionLoading, setMissionLoading] = useState(false);
+  const [mission, setMission] = useState<MissionResponse | null>(null);
+  const [missionError, setMissionError] = useState<string | null>(null);
+
+  // Hydrate from persisted scores when the card loads.
+  useEffect(() => {
+    if (!card?.mission_scores) return;
+    const ms = card.mission_scores;
+    const keys = Object.keys(ms).filter((k) => k !== "overall");
+    if (keys.length === 0) return;
+    const scores: Record<string, { score: number; note: string | null }> = {};
+    for (const k of keys) {
+      const e = ms[k];
+      if (e && typeof e === "object" && typeof e.score === "number") {
+        scores[k] = { score: e.score, note: e.note ?? null };
+      }
+    }
+    if (Object.keys(scores).length === 0) return;
+    setMission({
+      card_id: card.id,
+      scores,
+      overall:
+        typeof ms.overall === "number"
+          ? ms.overall
+          : Object.values(scores).reduce((a, b) => a + b.score, 0) /
+            Math.max(1, Object.keys(scores).length),
+      used_ai: false,
+      audit_log_id: null,
+      error: null,
+    });
+  }, [card?.id]);
+
+  async function onScoreMission() {
+    if (!card) return;
+    setMissionLoading(true);
+    setMissionError(null);
+    try {
+      const resp = await scoreMission(DEV_USER_ID, card.id);
+      setMission(resp);
+      if (resp.error) setMissionError(resp.error);
+    } catch (e: any) {
+      setMissionError(e?.message ?? "Failed");
+    } finally {
+      setMissionLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <View style={styles.loading}>
@@ -282,6 +332,53 @@ export function CardDetailScreen({ route, navigation }: Props) {
       </View>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <View style={styles.missionBlock}>
+        <View style={styles.missionHeader}>
+          <Text style={styles.missionTitle}>Mission filter</Text>
+          {mission ? (
+            <Text style={styles.missionOverall}>
+              {mission.overall.toFixed(1)} / 10
+            </Text>
+          ) : null}
+        </View>
+        {mission ? (
+          <View style={{ gap: 4 }}>
+            {Object.entries(mission.scores).map(([k, v]) => (
+              <View key={k} style={styles.missionRow}>
+                <Text style={styles.missionLabel}>{k.replace(/_/g, " ")}</Text>
+                <Text style={styles.missionScore}>{v.score}/10</Text>
+                {v.note ? (
+                  <Text style={styles.missionNote} numberOfLines={2}>
+                    {v.note}
+                  </Text>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.missionEmpty}>
+            Not scored yet. Run the Mission Agent to evaluate this card
+            against the seven personal-mission filters.
+          </Text>
+        )}
+        {missionError ? (
+          <Text style={styles.error}>{missionError}</Text>
+        ) : null}
+        <Pressable
+          style={[styles.missionBtn, missionLoading && styles.disabled]}
+          onPress={onScoreMission}
+          disabled={missionLoading}
+        >
+          <Text style={styles.missionBtnText}>
+            {missionLoading
+              ? "Scoring…"
+              : mission
+              ? "Re-score"
+              : "Score against mission"}
+          </Text>
+        </Pressable>
+      </View>
 
       <Pressable
         style={[styles.saveButton, (!dirty || saving) && styles.disabled]}
@@ -422,4 +519,38 @@ const styles = StyleSheet.create({
   },
   deleteText: { color: colors.danger, fontWeight: "600" },
   error: { color: colors.danger, fontSize: 12, textAlign: "center" },
+  missionBlock: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  missionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  missionTitle: { color: colors.text, fontWeight: "700", fontSize: 14 },
+  missionOverall: { color: colors.primary, fontWeight: "700", fontSize: 14 },
+  missionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    paddingVertical: 2,
+  },
+  missionLabel: { color: colors.text, fontSize: 12, minWidth: 110 },
+  missionScore: { color: colors.primary, fontSize: 12, fontWeight: "700" },
+  missionNote: { color: colors.textMuted, fontSize: 11, flex: 1, minWidth: 0 },
+  missionEmpty: { color: colors.textMuted, fontSize: 12 },
+  missionBtn: {
+    backgroundColor: colors.bg,
+    borderColor: colors.primary,
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: spacing.sm,
+    alignItems: "center",
+  },
+  missionBtnText: { color: colors.primary, fontWeight: "700", fontSize: 13 },
 });

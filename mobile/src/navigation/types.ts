@@ -5,6 +5,16 @@ export type MoreStackParamList = {
   MoreHome: undefined;
   ApprovalsList: undefined;
   ApprovalDetail: { approvalId: string };
+  Goals: undefined;
+  Review: undefined;
+  Diary: undefined;
+  Health: undefined;
+  Money: undefined;
+  Files: undefined;
+  Productivity: undefined;
+  Learning: undefined;
+  Healing: undefined;
+  Research: undefined;
 };
 
 export type RootTabParamList = {
@@ -22,4 +32,7 @@ export type RootTabParamList = {
 export type RootStackParamList = {
   Tabs: undefined;
   CardDetail: { cardId: string };
+  EnergyInsights: undefined;
+  HealthInsights: undefined;
+  MoneyInsights: undefined;
 };
