@@ -1,12 +1,12 @@
 import React from "react";
-import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { ChatScreen } from "../screens/ChatScreen";
 import { TodayScreen } from "../screens/TodayScreen";
-import { BoardsScreen } from "../screens/BoardsScreen";
-import { HabitsScreen } from "../screens/HabitsScreen";
+import { PlanScreen } from "../screens/PlanScreen";
+import { TrackScreen } from "../screens/TrackScreen";
 import { MoreScreen } from "../screens/MoreScreen";
 import { ApprovalsListScreen } from "../screens/ApprovalsListScreen";
 import { ApprovalDetailScreen } from "../screens/ApprovalDetailScreen";
@@ -14,16 +14,12 @@ import { CardDetailScreen } from "../screens/CardDetailScreen";
 import { GoalsScreen } from "../screens/GoalsScreen";
 import { ReviewScreen } from "../screens/ReviewScreen";
 import { DiaryScreen } from "../screens/DiaryScreen";
-import { HealthScreen } from "../screens/HealthScreen";
-import { MoneyScreen } from "../screens/MoneyScreen";
 import { FilesScreen } from "../screens/FilesScreen";
 import { ProductivityInsightsScreen } from "../screens/ProductivityInsightsScreen";
 import { LearningInsightsScreen } from "../screens/LearningInsightsScreen";
 import { HealingInsightsScreen } from "../screens/HealingInsightsScreen";
 import { ResearchInsightsScreen } from "../screens/ResearchInsightsScreen";
-import { EnergyInsightsScreen } from "../screens/EnergyInsightsScreen";
-import { HealthInsightsScreen } from "../screens/HealthInsightsScreen";
-import { MoneyInsightsScreen } from "../screens/MoneyInsightsScreen";
+import { SearchScreen } from "../screens/SearchScreen";
 
 import { colors } from "../theme";
 import type {
@@ -37,9 +33,9 @@ const MoreStack = createNativeStackNavigator<MoreStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const navTheme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
+    ...DefaultTheme.colors,
     background: colors.bg,
     card: colors.surface,
     border: colors.border,
@@ -87,19 +83,14 @@ function MoreNavigator() {
         options={{ title: "Diary" }}
       />
       <MoreStack.Screen
-        name="Health"
-        component={HealthScreen}
-        options={{ title: "Health" }}
-      />
-      <MoreStack.Screen
-        name="Money"
-        component={MoneyScreen}
-        options={{ title: "Money" }}
-      />
-      <MoreStack.Screen
         name="Files"
         component={FilesScreen}
         options={{ title: "Files" }}
+      />
+      <MoreStack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{ title: "Search" }}
       />
       <MoreStack.Screen
         name="Productivity"
@@ -126,7 +117,7 @@ function MoreNavigator() {
 }
 
 /**
- * Bottom tabs per spec §3 / §9: Chat | Today | Boards | Habits | More.
+ * Bottom tabs per spec §9: Chat | Today | Plan | Track | More.
  */
 export function RootNavigator() {
   return (
@@ -147,21 +138,6 @@ export function RootNavigator() {
           component={CardDetailScreen}
           options={{ title: "Card", presentation: "modal" }}
         />
-        <RootStack.Screen
-          name="EnergyInsights"
-          component={EnergyInsightsScreen}
-          options={{ title: "Energy insights" }}
-        />
-        <RootStack.Screen
-          name="HealthInsights"
-          component={HealthInsightsScreen}
-          options={{ title: "Health insights" }}
-        />
-        <RootStack.Screen
-          name="MoneyInsights"
-          component={MoneyInsightsScreen}
-          options={{ title: "Money insights" }}
-        />
       </RootStack.Navigator>
     </NavigationContainer>
   );
@@ -173,15 +149,18 @@ function TabsNavigator() {
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerTintColor: colors.text,
-        tabBarStyle: { backgroundColor: colors.surface },
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+        },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
       }}
     >
       <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="Today" component={TodayScreen} />
-      <Tab.Screen name="Boards" component={BoardsScreen} />
-      <Tab.Screen name="Habits" component={HabitsScreen} />
+      <Tab.Screen name="Plan" component={PlanScreen} />
+      <Tab.Screen name="Track" component={TrackScreen} />
       <Tab.Screen
         name="More"
         component={MoreNavigator}

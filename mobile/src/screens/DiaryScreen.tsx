@@ -93,6 +93,12 @@ export function DiaryScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.composer}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <Text style={{ fontSize: 17, fontWeight: "700", color: colors.text }}>New entry</Text>
+          <View style={{ backgroundColor: "#f3eadc", borderWidth: 1, borderColor: "#dfcfb8", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4 }}>
+            <Text style={{ fontSize: 11, fontWeight: "700", color: "#6a5742" }}>sensitive</Text>
+          </View>
+        </View>
         <TextInput
           value={draft}
           onChangeText={setDraft}
@@ -181,16 +187,19 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   center: { alignItems: "center", justifyContent: "center" },
   composer: {
-    padding: spacing.md,
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
+    margin: spacing.lg,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 22,
+    padding: spacing.lg,
     gap: spacing.sm,
   },
   input: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 16,
     padding: spacing.md,
     color: colors.text,
     minHeight: 80,
@@ -199,7 +208,7 @@ const styles = StyleSheet.create({
   moodRow: { flexDirection: "row", gap: spacing.xs },
   moodBtn: {
     padding: spacing.xs,
-    borderRadius: 6,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: "transparent",
   },
@@ -208,20 +217,20 @@ const styles = StyleSheet.create({
   saveBtn: {
     backgroundColor: colors.primary,
     paddingVertical: spacing.md,
-    borderRadius: 6,
+    borderRadius: 14,
     alignItems: "center",
   },
   saveText: { color: "#fff", fontWeight: "700" },
   disabled: { opacity: 0.4 },
   error: { color: colors.danger, padding: spacing.md, textAlign: "center" },
-  scroll: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
+  scroll: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl },
   empty: { color: colors.textMuted, textAlign: "center", padding: spacing.xl },
   entry: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
-    padding: spacing.md,
+    borderRadius: 22,
+    padding: spacing.lg,
   },
   entryHeader: {
     flexDirection: "row",

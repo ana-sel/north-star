@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -20,8 +21,21 @@ export function MoreScreen() {
     useNavigation<NativeStackNavigationProp<MoreStackParamList, "MoreHome">>();
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: spacing.xl }}>
       <Text style={styles.heading}>More</Text>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Search")}
+      >
+        <Text style={styles.rowTitle}>Search</Text>
+        <Text style={styles.rowSubtitle}>
+          Semantic search across all your cards.
+        </Text>
+      </Pressable>
 
       <Pressable
         style={({ pressed }) => [
@@ -119,32 +133,6 @@ export function MoreScreen() {
           styles.row,
           pressed && { backgroundColor: colors.border },
         ]}
-        onPress={() => nav.navigate("Health")}
-      >
-        <Text style={styles.rowTitle}>Health</Text>
-        <Text style={styles.rowSubtitle}>
-          Sleep, weight, calories, mood — one row per day.
-        </Text>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.row,
-          pressed && { backgroundColor: colors.border },
-        ]}
-        onPress={() => nav.navigate("Money")}
-      >
-        <Text style={styles.rowTitle}>Money</Text>
-        <Text style={styles.rowSubtitle}>
-          Transactions, categories, 30-day net.
-        </Text>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.row,
-          pressed && { backgroundColor: colors.border },
-        ]}
         onPress={() => nav.navigate("Files")}
       >
         <Text style={styles.rowTitle}>Files</Text>
@@ -166,6 +154,17 @@ export function MoreScreen() {
         </Text>
       </Pressable>
 
+      <View style={styles.agentCard}>
+        <Text style={styles.rowTitle}>Agents</Text>
+        <View style={styles.chipRow}>
+          {["Mission", "Focus", "Review", "Health", "Money", "Energy"].map((a) => (
+            <View key={a} style={styles.chip}>
+              <Text style={styles.chipText}>{a}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
       <View style={styles.devBox}>
         <Text style={styles.devLabel}>Dev user_id</Text>
         <Text style={styles.devValue}>{DEV_USER_ID}</Text>
@@ -173,7 +172,7 @@ export function MoreScreen() {
           Edit `mobile/src/config/api.ts` to change this until JWT auth lands.
         </Text>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -193,7 +192,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 22,
     padding: spacing.lg,
     marginBottom: spacing.md,
   },
@@ -207,12 +206,39 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 13,
   },
+  agentCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 22,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  chip: {
+    backgroundColor: "#f3eadc",
+    borderWidth: 1,
+    borderColor: "#dfcfb8",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  chipText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#6a5742",
+  },
   devBox: {
     marginTop: spacing.xl,
     padding: spacing.md,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 22,
   },
   devLabel: {
     color: colors.textMuted,

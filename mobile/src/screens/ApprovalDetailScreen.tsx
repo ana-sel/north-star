@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 18,
     padding: spacing.md,
   },
   code: {
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     padding: spacing.md,
-    borderRadius: 8,
+    borderRadius: 18,
     alignItems: "center",
   },
   approve: { backgroundColor: colors.primary },

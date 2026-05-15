@@ -1,16 +1,27 @@
 /**
- * Shared dark-mode theme constants. Kept tiny on purpose — no UI library yet.
+ * Warm paper theme — calm, low-contrast, never clinical.
+ * Based on the design_app.html / design_habits_today.html prototypes.
  */
 export const colors = {
-  bg: "#0e1117",
-  surface: "#161b22",
-  border: "#30363d",
-  text: "#e6edf3",
-  textMuted: "#8b949e",
-  primary: "#2f81f7",
-  danger: "#f85149",
-  success: "#3fb950",
-  warning: "#d29922",
+  bg: "#f5f3ee",
+  surface: "#fffdf8",
+  border: "#d9d2c7",
+  text: "#2f2a24",
+  textMuted: "#746b61",
+  primary: "#6a5a46",
+  danger: "#bf6b62",
+  success: "#7f9f78",
+  warning: "#c99555",
+  soft: "#ebe4d8",
+  gold: "#c4a574",
+
+  // Life pillar colors
+  pillarHealth: "#7f9f78",
+  pillarInner: "#9b86ba",
+  pillarMoney: "#779db6",
+  pillarFamily: "#b77a7c",
+  pillarJoy: "#c99555",
+  pillarContribution: "#8b9b72",
 };
 
 export const spacing = {

@@ -8,9 +8,8 @@ export type MoreStackParamList = {
   Goals: undefined;
   Review: undefined;
   Diary: undefined;
-  Health: undefined;
-  Money: undefined;
   Files: undefined;
+  Search: undefined;
   Productivity: undefined;
   Learning: undefined;
   Healing: undefined;
@@ -20,8 +19,8 @@ export type MoreStackParamList = {
 export type RootTabParamList = {
   Chat: undefined;
   Today: undefined;
-  Boards: undefined;
-  Habits: undefined;
+  Plan: undefined;
+  Track: undefined;
   More: undefined;
 };
 
@@ -32,7 +31,4 @@ export type RootTabParamList = {
 export type RootStackParamList = {
   Tabs: undefined;
   CardDetail: { cardId: string };
-  EnergyInsights: undefined;
-  HealthInsights: undefined;
-  MoneyInsights: undefined;
 };

@@ -123,3 +123,26 @@ export async function checkInHabit(
   });
   return handle<HabitLog>(resp);
 }
+
+// Weekly matrix data
+export interface HabitWeekLog {
+  log_date: string;
+  value_bool: boolean | null;
+  value_number: number | null;
+  value_text: string | null;
+}
+
+export interface HabitWeekRow {
+  habit: Habit;
+  logs: Record<string, HabitWeekLog>; // keyed by ISO date
+  streak: number;
+}
+
+export async function habitsWeek(
+  userId: string,
+  days = 7
+): Promise<HabitWeekRow[]> {
+  const qs = new URLSearchParams({ user_id: userId, days: String(days) });
+  const resp = await fetch(`${API_BASE_URL}/habits/week?${qs.toString()}`);
+  return handle<HabitWeekRow[]>(resp);
+}

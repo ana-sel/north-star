@@ -2,12 +2,12 @@
 
 Jobs:
   1. embedding_backfill — embed cards that don't yet have embeddings.
-  2. daily_digest_placeholder — placeholder for daily review digest (logs only).
-  3. habit_reminder_placeholder — placeholder for habit reminders (logs only).
+  2. daily_digest — generates a daily review digest for all users.
+  3. habit_reminder — checks due habits and logs reminders.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -50,9 +50,13 @@ def embedding_backfill() -> None:
                 continue
             try:
                 import asyncio
-                asyncio.get_event_loop().run_until_complete(
-                    embed_entity(db, str(card.user_id), "card", str(card.id), text)
-                )
+                loop = asyncio.new_event_loop()
+                try:
+                    loop.run_until_complete(
+                        embed_entity(db, str(card.user_id), "card", str(card.id), text)
+                    )
+                finally:
+                    loop.close()
             except Exception:
                 logger.exception("embedding_backfill: failed card %s", card.id)
         logger.info("embedding_backfill: done")
@@ -61,23 +65,112 @@ def embedding_backfill() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Job 2 — Daily digest placeholder (no-op until notification system exists)
+# Job 2 — Daily digest: generate review summary for every user.
 # ---------------------------------------------------------------------------
-def daily_digest_placeholder() -> None:
-    logger.info(
-        "daily_digest: would generate review digest at %s",
-        datetime.now(timezone.utc).isoformat(),
-    )
+def daily_digest() -> None:
+    """Generate a daily review digest for every user with recent activity."""
+    import asyncio
+    from app.models.user import User
+    from app.models.card import Card
+    from app.enums import CardStatus
+    from sqlalchemy import select
+
+    db = SessionLocal()
+    try:
+        users = db.execute(select(User)).scalars().all()
+        if not users:
+            logger.info("daily_digest: no users, skipping")
+            return
+
+        since = datetime.now(timezone.utc) - timedelta(days=1)
+        for user in users:
+            try:
+                cards = list(
+                    db.execute(
+                        select(Card).where(Card.user_id == user.id)
+                    ).scalars()
+                )
+
+                completed = sum(
+                    1 for c in cards
+                    if c.completed_at and c.completed_at >= since
+                )
+                created = sum(
+                    1 for c in cards
+                    if c.created_at and c.created_at >= since
+                )
+                in_progress = sum(
+                    1 for c in cards
+                    if c.status in (
+                        CardStatus.IN_PROGRESS_MY_SIDE.value,
+                        CardStatus.TODAY.value,
+                    )
+                )
+
+                logger.info(
+                    "daily_digest [%s]: %d completed, %d created, %d in-progress "
+                    "(last 24h)",
+                    user.email,
+                    completed,
+                    created,
+                    in_progress,
+                )
+                # Future: call Review Agent for richer summary + send
+                # push notification via Expo Push API.
+            except Exception:
+                logger.exception("daily_digest: error for user %s", user.id)
+    finally:
+        db.close()
 
 
 # ---------------------------------------------------------------------------
-# Job 3 — Habit reminder placeholder
+# Job 3 — Habit reminders: find habits due today that haven't been checked in.
 # ---------------------------------------------------------------------------
-def habit_reminder_placeholder() -> None:
-    logger.info(
-        "habit_reminder: would send habit reminders at %s",
-        datetime.now(timezone.utc).isoformat(),
-    )
+def habit_reminder() -> None:
+    """Find habits that haven't been logged today and log a reminder."""
+    from app.models.habit import Habit, HabitLog
+    from app.models.user import User
+    from sqlalchemy import select, func
+
+    db = SessionLocal()
+    try:
+        today = datetime.now(timezone.utc).date()
+        users = db.execute(select(User)).scalars().all()
+
+        for user in users:
+            try:
+                habits = list(
+                    db.execute(
+                        select(Habit)
+                        .where(Habit.user_id == user.id)
+                        .where(Habit.active == True)  # noqa: E712
+                    ).scalars()
+                )
+                if not habits:
+                    continue
+
+                # Find which habits already have a log today.
+                logged_ids = set(
+                    db.execute(
+                        select(HabitLog.habit_id)
+                        .where(HabitLog.habit_id.in_([h.id for h in habits]))
+                        .where(func.date(HabitLog.logged_at) == today)
+                    ).scalars()
+                )
+
+                due = [h for h in habits if h.id not in logged_ids]
+                if due:
+                    logger.info(
+                        "habit_reminder [%s]: %d habits not yet logged today: %s",
+                        user.email,
+                        len(due),
+                        ", ".join(h.name for h in due[:5]),
+                    )
+                    # Future: send push notification via Expo Push API.
+            except Exception:
+                logger.exception("habit_reminder: error for user %s", user.id)
+    finally:
+        db.close()
 
 
 # ---------------------------------------------------------------------------
@@ -93,7 +186,7 @@ def start_scheduler() -> None:
         replace_existing=True,
     )
     scheduler.add_job(
-        daily_digest_placeholder,
+        daily_digest,
         "cron",
         hour=7,
         minute=0,
@@ -101,7 +194,7 @@ def start_scheduler() -> None:
         replace_existing=True,
     )
     scheduler.add_job(
-        habit_reminder_placeholder,
+        habit_reminder,
         "cron",
         hour=20,
         minute=0,
