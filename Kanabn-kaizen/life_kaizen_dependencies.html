@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Life Kaizen — Layered Life OS</title>
+<style>
+  :root{--bg:#f4efe7;--panel:#fffdf8;--ink:#2e2923;--muted:#776b5d;--line:#ddd1c0;--soft:#eee4d6;--accent:#c3a77e;--deep:#3a3128;--shadow:0 16px 40px rgba(59,46,30,.10);--health:#88a37a;--inner:#9a86b8;--money:#7f9fb6;--family:#bd7f80;--joy:#c99b5d;--contrib:#8b9b72;--maint:#8a8580}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(circle at top left,#fffaf2,#f3eadf 45%,#e9ddcd);color:var(--ink);min-height:100vh}
+  header{padding:26px 24px 14px;text-align:center}
+  h1{margin:0;font-size:28px;letter-spacing:-.02em}
+  .sub{margin:8px auto 0;max-width:860px;color:var(--muted);line-height:1.55;font-size:15px}
+  .shell{width:min(1320px,calc(100% - 28px));margin:18px auto 34px;display:grid;grid-template-columns:260px 1fr 320px;gap:18px;align-items:start}
+  .panel{background:rgba(255,253,248,.78);border:1px solid rgba(150,120,80,.22);border-radius:26px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+  .nav{padding:16px;position:sticky;top:16px}
+  .main{padding:20px;min-height:760px}
+  .right{padding:18px;position:sticky;top:16px}
+  .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800;margin:4px 0 10px}
+  .btn{width:100%;border:1px solid var(--line);background:#fffaf3;color:var(--ink);padding:12px 13px;border-radius:16px;text-align:left;font-weight:700;font-size:14px;margin-bottom:8px;cursor:pointer;transition:.16s}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(40,30,20,.08)}
+  .btn.active{background:var(--deep);color:#fff;border-color:var(--deep)}
+  .small-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
+  .view{display:none;animation:fade .22s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .view-title{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}
+  .view-title h2{margin:0;font-size:24px;letter-spacing:-.02em}
+  .view-title p{margin:6px 0 0;color:var(--muted);line-height:1.5}
+  .tag{display:inline-flex;align-items:center;border:1px solid var(--line);background:#faf4ec;border-radius:999px;padding:6px 10px;color:#6f5b44;font-size:12px;font-weight:700;white-space:nowrap}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 18px}
+  .node{background:#fffaf4;border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-width:140px;box-shadow:0 6px 16px rgba(50,40,20,.04)}
+  .node strong{display:block;font-size:15px}
+  .node small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}
+  .arrow{color:#a18a6a;font-size:24px;font-weight:800}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 8px 24px rgba(40,30,20,.04)}
+  .card h3{margin:0 0 8px;font-size:17px}
+  .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .pillar{border-left:6px solid var(--accent);min-height:120px}
+  .pillar.health{border-left-color:var(--health)}
+  .pillar.inner{border-left-color:var(--inner)}
+  .pillar.money{border-left-color:var(--money)}
+  .pillar.family{border-left-color:var(--family)}
+  .pillar.joy{border-left-color:var(--joy)}
+  .pillar.contrib{border-left-color:var(--contrib)}
+  .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800;margin:14px 0 8px;padding-top:8px;border-top:1px dashed #e8dccd}
+  .section-label:first-child{border-top:none;padding-top:0;margin-top:6px}
+  .crd{border:1px solid var(--line);background:#fffaf3;border-radius:14px;padding:10px 12px;margin:6px 0;font-size:13px;line-height:1.4;display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .crd .name{flex:1}
+  .crd .tp{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;white-space:nowrap;padding:3px 7px;border-radius:999px;border:1px solid var(--line);background:#f8f2e8;color:var(--muted);flex-shrink:0}
+  .crd .dep{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
+  .tree{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#2c261f;color:#f8efe2;border-radius:20px;padding:18px;overflow:auto;line-height:1.62;font-size:13px}
+  .map{position:relative;min-height:560px;background:linear-gradient(145deg,#fffaf4,#f1e6d6);border:1px solid var(--line);border-radius:24px;overflow:hidden;padding:20px}
+  .map-dot{position:absolute;width:170px;min-height:72px;border-radius:18px;border:1px solid var(--line);background:rgba(255,253,248,.92);padding:12px;box-shadow:0 10px 24px rgba(35,25,15,.08);font-size:13px}
+  .map-dot strong{display:block;margin-bottom:4px}
+  .map-dot span{color:var(--muted);font-size:12px;line-height:1.35}
+  .map-dot.h{border-left:5px solid var(--health)}
+  .map-dot.ig{border-left:5px solid var(--inner)}
+  .map-dot.f{border-left:5px solid var(--money)}
+  .map-dot.fam{border-left:5px solid var(--family)}
+  .map-dot.j{border-left:5px solid var(--joy)}
+  .map-dot.c{border-left:5px solid var(--contrib)}
+  .line{position:absolute;height:2px;background:#bda37b;transform-origin:left center;opacity:.6}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .legend span{font-size:11px;border:1px solid var(--line);background:#fffaf4;border-radius:999px;padding:6px 9px;color:var(--muted)}
+  .kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;overflow:auto;padding-bottom:8px}
+  .col{min-width:125px;background:#f6eee3;border:1px solid var(--line);border-radius:16px;padding:10px}
+  .col h4{margin:0 0 10px;font-size:13px}
+  .mini{background:#fffdf8;border:1px solid var(--line);border-radius:13px;padding:9px;margin:8px 0;font-size:12px;line-height:1.35}
+  .mini.mh{border-left:4px solid var(--health)}
+  .mini.mi{border-left:4px solid var(--inner)}
+  .mini.mf{border-left:4px solid var(--money)}
+  .mini.mfam{border-left:4px solid var(--family)}
+  .mini.mj{border-left:4px solid var(--joy)}
+  .mini.mc{border-left:4px solid var(--contrib)}
+  .today-card{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+  .stat{background:#fffdf8;border:1px solid var(--line);border-radius:18px;padding:14px}
+  .stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+  .stat strong{display:block;font-size:24px;margin-top:8px}
+  ul.clean{list-style:none;padding:0;margin:8px 0 0}
+  ul.clean li{padding:7px 0;border-top:1px dashed #e8dccd;color:#4a4036;font-size:13px;line-height:1.4}
+  ul.clean li:first-child{border-top:none}
+  .right h3{margin:0 0 10px;font-size:17px}
+  .right p{color:var(--muted);line-height:1.55;font-size:14px}
+  .rule{border:1px solid var(--line);background:#fffaf3;padding:12px;border-radius:16px;margin-top:10px;font-size:13px;line-height:1.45}
+  .rule strong{display:block;margin-bottom:4px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+  @media(max-width:1100px){.shell{grid-template-columns:1fr}.nav,.right{position:static}.grid,.grid3{grid-template-columns:1fr}.kanban{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Life Kaizen — 89 Cards, 6 Pillars, Layered Model</h1>
+  <p class="sub">Not one giant tree. A layered system where each view has one job. Based on Margulan Seissembai's Kaizen Planning, restructured for clarity.</p>
+</header>
+
+<div class="shell">
+
+<!-- ===== LEFT NAV ===== -->
+<aside class="panel nav">
+  <div class="kicker">Navigate the model</div>
+  <button class="btn active" data-view="overview">0. Overview</button>
+  <button class="btn" data-view="compass">1. Compass</button>
+  <button class="btn" data-view="pillars">2. Life Pillars (89 cards)</button>
+  <button class="btn" data-view="goal">3. Goal Tree</button>
+  <button class="btn" data-view="dependency">4. Dependency Map</button>
+  <button class="btn" data-view="kanban">5. Kanban</button>
+  <button class="btn" data-view="today">6. Today</button>
+  <div class="small-note">
+    <strong>Compass</strong> = why.<br>
+    <strong>Pillars</strong> = what areas of life.<br>
+    <strong>Goal Tree</strong> = how one goal breaks down.<br>
+    <strong>Dependency Map</strong> = what supports what.<br>
+    <strong>Kanban</strong> = what's moving.<br>
+    <strong>Today</strong> = the bottleneck.
+  </div>
+  <div class="small-note" style="margin-top:16px">
+    <span class="dot" style="background:var(--health)"></span>Health &amp; Energy (11)<br>
+    <span class="dot" style="background:var(--inner)"></span>Inner World (27)<br>
+    <span class="dot" style="background:var(--money)"></span>Freedom Engine (13)<br>
+    <span class="dot" style="background:var(--family)"></span>Relationships (6)<br>
+    <span class="dot" style="background:var(--joy)"></span>Joy &amp; Exploration (24)<br>
+    <span class="dot" style="background:var(--contrib)"></span>Contribution (8)
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="panel main">
+
+<!-- ==================== 0. OVERVIEW ==================== -->
+<section class="view active" id="view-overview">
+  <div class="view-title"><div><h2>The Layered Life OS</h2><p>Not one giant dependency chain. A layered system where each view answers one question.</p></div><span class="tag">89 cards · 6 pillars</span></div>
+
+  <div class="flow">
+    <div class="node"><strong>Compass</strong><small>Why am I doing this?</small></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Pillars</strong><small>What areas of life?</small></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Goal Tree</strong><small>How does a goal break down?</small></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Kanban</strong><small>What is moving now?</small></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Today</strong><small>What gets my attention?</small></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>Why the old map felt wrong</h3><p>It tried to show mission, dependency, categories, outcomes, wishes, and tasks all in one visual. Financial freedom hijacked the whole tree.</p></div>
+    <div class="card"><h3>What this fixes</h3><p>Each view answers one question. Financial freedom is one pillar, not the parent of everything. Dependencies are a separate overlay.</p></div>
+    <div class="card"><h3>Daily use</h3><p>You mostly live in Chat + Today. The big views are for planning, monthly reviews, and when you feel lost.</p></div>
+    <div class="card"><h3>Card types</h3><p>Every card has a type: ★ Outcome, Project, Task, ⟲ Habit, Practice, State, Wish, or Maint. They sit at different levels, not mixed together.</p></div>
+  </div>
+</section>
+
+<!-- ==================== 1. COMPASS ==================== -->
+<section class="view" id="view-compass">
+  <div class="view-title"><div><h2>1. Compass</h2><p>This is the why layer. Calm and small, not a giant board. The app's north star.</p></div><span class="tag">Why</span></div>
+
+  <div class="card" style="border-left:6px solid #c4a574;">
+    <h3>🎯 Mission</h3>
+    <p>I am a happy person who is living with purpose and meaning. My mission is to live a happy life.</p>
+    <p style="margin-top:10px;">I am an explorer and learner of this world's rules, systems, and invisible energies — how things interact, what life is made of, and what gives it meaning.</p>
+    <p style="margin-top:10px;">Through this understanding, I share knowledge with people who want to receive it, so they can gain clarity and turn their pain, confusion, and dreams into desired outcomes using clear, almost algorithmic action plans and systems.</p>
+    <p style="margin-top:10px;">I build my money freedom empire so I feel safe to create value for people, live in a Vastu house or wherever I want, and live without the pressure of needing a job while living with meaning and purpose.</p>
+    <p style="margin-top:10px;">For now, I choose solitude to heal my past pain, release shame and guilt from wrong choices, refine myself, and measure my life only by what feels resonant and attractive to me.</p>
+  </div>
+
+  <div class="grid3" style="margin-top:12px;">
+    <div class="card"><h3>Values</h3><p>Freedom, clarity, solitude, self-refinement, meaning, contribution.</p></div>
+    <div class="card"><h3>Current season</h3><p>Healing. Build stability, health, money freedom, and app foundation. Choose solitude. Measure by resonance.</p></div>
+    <div class="card"><h3>Mission filter</h3><p>Does this support happiness, freedom, clarity, self-refinement, solitude, and meaning? If not → archive or Someday.</p></div>
+  </div>
+</section>
+
+<!-- ==================== 2. PILLARS ==================== -->
+<section class="view" id="view-pillars">
+  <div class="view-title"><div><h2>2. Life Pillars — All 89 Cards</h2><p>Six parallel pillars. Financial freedom is one pillar, not the root of everything. Cards grouped by type within each pillar.</p></div><span class="tag">89 cards</span></div>
+
+  <!-- PILLAR 1: FOUNDATION -->
+  <div class="card pillar health" style="margin-bottom:14px;">
+    <h3><span class="dot" style="background:var(--health)"></span>Pillar 1: Foundation — Health, Energy &amp; Stability <span class="tag">11 cards</span></h3>
+    <p>Without energy nothing else works. Without safety basics life has friction. This is the floor everything stands on.</p>
+
+    <div class="section-label">★ Strategic Outcomes</div>
+    <div class="crd"><div class="name"><strong>Maintain high energy</strong><div class="dep">↗ supports meditation, financial decisions, work courses</div></div><span class="tp">★ Outcome</span></div>
+    <div class="crd"><div class="name">Be healthy</div><span class="tp">Outcome</span></div>
+    <div class="crd"><div class="name">Loose weight</div><span class="tp">Outcome</span></div>
+    <div class="crd"><div class="name">Preserve youth</div><span class="tp">Outcome</span></div>
+    <div class="crd"><div class="name">Live long</div><span class="tp">Outcome</span></div>
+
+    <div class="section-label">⟲ Habits</div>
+    <div class="crd"><div class="name">Consistent early sleep</div><span class="tp">⟲ Habit</span></div>
+
+    <div class="section-label">Tasks</div>
+    <div class="crd"><div class="name">Buy food containers</div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Check blood and allergies</div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Fix laptop</div><span class="tp">Task</span></div>
+
+    <div class="section-label">🔧 Life Admin / Safety Maintenance</div>
+    <div class="crd"><div class="name">Replace car wipers</div><span class="tp">Maint</span></div>
+    <div class="crd"><div class="name">Fix car charger → Later</div><span class="tp">Maint</span></div>
+  </div>
+
+  <!-- PILLAR 2: INNER WORLD -->
+  <div class="card pillar inner" style="margin-bottom:14px;">
+    <h3><span class="dot" style="background:var(--inner)"></span>Pillar 2: Inner World — Healing, Identity &amp; Meaning <span class="tag">27 cards</span></h3>
+    <p>The largest area because it is the deepest work. Healing → Self-knowledge → Spiritual grounding → then the being states emerge naturally.</p>
+
+    <div class="section-label">⟲ Foundation Practices</div>
+    <div class="crd"><div class="name"><strong>Practise mindfulness/meditation to regulate anxiety, notice inner clarity, and become whole</strong><div class="dep">↗ supported by: Energy (Pillar 1)</div></div><span class="tp">⟲ Practice</span></div>
+    <div class="crd"><div class="name"><strong>Self-compassion instead of hatred</strong></div><span class="tp">⟲ Practice</span></div>
+
+    <div class="section-label">🩹 Healing Projects (sequence: Meditation → Compassion → Gabor Maté → Organize → Let go → Heal)</div>
+    <div class="crd"><div class="name">Do Gabor Maté healing course from home<div class="dep">→ after: self-compassion practice</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Organize my thoughts → Healing process<div class="dep">→ after: Gabor Maté</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Let go of David<div class="dep">→ after: organize thoughts</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Heal attachment grief / missing David<div class="dep">→ after: let go</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Process spiritual grief and acceptance, life is this way (David)<div class="dep">→ after: let go</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Heal rejection wound<div class="dep">→ after: grief</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Heal broken heart<div class="dep">→ after: rejection</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Explore why the "what if" narratives did not happen<div class="dep">→ after: spiritual grief</div></div><span class="tp">Project</span></div>
+
+    <div class="section-label">★ Warmth Outcome (the healing destination)</div>
+    <div class="crd"><div class="name"><strong>Cultivate warmth and love with myself</strong><div class="dep">↗ supports teaching, contribution, family</div></div><span class="tp">★ Outcome</span></div>
+
+    <div class="section-label">🪞 Identity (after warmth)</div>
+    <div class="crd"><div class="name">Identify my values and qualities<div class="dep">→ after: warmth</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Find my purpose and mission</div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Answer: Who am I and why am I here?</div><span class="tp">★ Outcome</span></div>
+    <div class="crd"><div class="name">Explore myself</div><span class="tp">Practice</span></div>
+    <div class="crd"><div class="name">Understand myself</div><span class="tp">Practice</span></div>
+
+    <div class="section-label">🙏 Spiritual</div>
+    <div class="crd"><div class="name">Find strength in myself / Buddha / God<div class="dep">→ after: meditation</div></div><span class="tp">Practice</span></div>
+    <div class="crd"><div class="name">Connect to God, tune into symbols and clues</div><span class="tp">Practice</span></div>
+    <div class="crd"><div class="name">Believe in God and understand him</div><span class="tp">Outcome</span></div>
+    <div class="crd"><div class="name">Understand this world: energy, death, manifestation, God, love</div><span class="tp">Outcome</span></div>
+
+    <div class="section-label">✨ Desired States (emerge from the work above — not tasks)</div>
+    <div class="crd"><div class="name">Be happy, content and calm</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Do not feel rushed</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Life without regrets, pressure, stupid plans for plans, meaningful with impact purposeful otherwise there is no sense</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Be wise</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Be kind</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Graceful and light</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Be respected</div><span class="tp">State</span></div>
+  </div>
+
+  <!-- PILLAR 3: FREEDOM ENGINE -->
+  <div class="card pillar money" style="margin-bottom:14px;">
+    <h3><span class="dot" style="background:var(--money)"></span>Pillar 3: Freedom Engine — Money, Work, Property &amp; Apps <span class="tag">13 cards</span></h3>
+    <p>Financial freedom is not the meaning of life. It is the engine that removes constraints so you can live the way you choose.</p>
+
+    <div class="section-label">★ Strategic Outcomes</div>
+    <div class="crd"><div class="name"><strong>Become financially free</strong></div><span class="tp">★ Outcome</span></div>
+    <div class="crd"><div class="name"><strong>Become financially free, Retire myself and close ones, Have an option not to work</strong><div class="dep">the full vision card</div></div><span class="tp">★ Outcome</span></div>
+    <div class="crd"><div class="name">Buy land / build Vastu house / have residence in Lithuania<div class="dep">→ after: financially free</div></div><span class="tp">Outcome</span></div>
+    <div class="crd"><div class="name">Move to Lithuania<div class="dep">→ after: financially free</div></div><span class="tp">Outcome</span></div>
+
+    <div class="section-label">Decisions First (→ sequence: decide → define → three parallel paths)</div>
+    <div class="crd"><div class="name">Decide honestly if I want to be wealthy and financially free<div class="dep">↗ supported by: Energy (Pillar 1)</div></div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Define how much money I need for freedom<div class="dep">→ after: decide</div></div><span class="tp">Task</span></div>
+
+    <div class="section-label">Projects (three parallel paths after "define")</div>
+    <div class="crd"><div class="name">Renovate flat for profit</div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Make land decision: sell / keep / rebuy Jašiūnai plots</div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Buy / flip / manage properties<div class="dep">→ after: renovate flat, land decision</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Create Property management app<div class="dep">→ after: properties</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Create budget app — Track expenses and alter budget — integrate into Navigation OS later<div class="dep">↗ feeds: define freedom number</div></div><span class="tp">Project</span></div>
+
+    <div class="section-label">Tasks</div>
+    <div class="crd"><div class="name">Change Vanguard pension amount<div class="dep">→ after: define number</div></div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Complete courses for work<div class="dep">↗ supported by: Energy · → after: Fix laptop (Pillar 1)</div></div><span class="tp">Task</span></div>
+  </div>
+
+  <!-- PILLAR 4: RELATIONSHIPS -->
+  <div class="card pillar family" style="margin-bottom:14px;">
+    <h3><span class="dot" style="background:var(--family)"></span>Pillar 4: Relationships — Family &amp; Emotional Safety <span class="tag">6 cards</span></h3>
+    <p>Not just "spending time." Building emotional safety, communication skill, and genuine closeness.</p>
+
+    <div class="section-label">⟲ Communication Skills (enable deeper connection)</div>
+    <div class="crd"><div class="name">Learn to communicate so people feel safe and not judged<div class="dep">↗ also supports: Teaching, Volunteering (Pillar 6)</div></div><span class="tp">⟲ Practice</span></div>
+    <div class="crd"><div class="name">Practise listening, NVC, non-judgment and emotional safety<div class="dep">↗ supports: sister time, mum time</div></div><span class="tp">⟲ Practice</span></div>
+
+    <div class="section-label">Quality Time</div>
+    <div class="crd"><div class="name">Spend time with sister and her Friends this weekend<div class="dep">↗ better with: NVC</div></div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Visit my mum and go somewhere together<div class="dep">↗ better with: NVC</div></div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Go to Japan with my Family</div><span class="tp">Task</span></div>
+
+    <div class="section-label">Family Archive</div>
+    <div class="crd"><div class="name">Organize Google Drive photos → Project / Later</div><span class="tp">Project</span></div>
+  </div>
+
+  <!-- PILLAR 5: JOY -->
+  <div class="card pillar joy" style="margin-bottom:14px;">
+    <h3><span class="dot" style="background:var(--joy)"></span>Pillar 5: Joy, Beauty &amp; Exploration <span class="tag">24 cards</span></h3>
+    <p>Life is not only a system to optimize. This is where aliveness lives — sport, beauty, travel, creation, play.</p>
+
+    <div class="section-label">🏃 Sport &amp; Adventure</div>
+    <div class="crd"><div class="name">Try sport: gym / racket sport / ninjutsu<div class="dep">↗ supports: Energy (Pillar 1), mountain climbing</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Climb a mountain<div class="dep">→ after: sport</div></div><span class="tp">Wish</span></div>
+    <div class="crd"><div class="name">Visit Etna volcano</div><span class="tp">Wish</span></div>
+    <div class="crd"><div class="name">Get to Everest base camp<div class="dep">→ after: sport</div></div><span class="tp">Wish</span></div>
+
+    <div class="section-label">🎬 Film &amp; Cinematography</div>
+    <div class="crd"><div class="name">I want to watch Cannes films</div><span class="tp">Task</span></div>
+    <div class="crd"><div class="name">Know more about cinematography<div class="dep">→ after: Cannes</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Create my movie<div class="dep">→ after: cinematography · ↗ feeds: films to schools (Pillar 6)</div></div><span class="tp">Project</span></div>
+
+    <div class="section-label">📚 Learning &amp; Deep Interests</div>
+    <div class="crd"><div class="name">20/80 rule</div><span class="tp">Practice</span></div>
+    <div class="crd"><div class="name">Harvard Education: Ethics course and Buddha course</div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Time spent on joy: reading, films, creating, music, travel</div><span class="tp">⟲ Habit</span></div>
+    <div class="crd"><div class="name">Read books, interesting, deep</div><span class="tp">⟲ Habit</span></div>
+
+    <div class="section-label">🎵 Music</div>
+    <div class="crd"><div class="name">Play piano</div><span class="tp">Practice</span></div>
+
+    <div class="section-label">💻 App Building (creative projects)</div>
+    <div class="crd"><div class="name">Create decisions and thoughts sorting app — mechanisms / algorithms — integrate into Navigation OS later</div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Build AI trading app / Aladin stock trading app<div class="dep">↗ feeds: Financial Freedom (Pillar 3)</div></div><span class="tp">Project</span></div>
+
+    <div class="section-label">✈️ Travel</div>
+    <div class="crd"><div class="name">Visit many countries</div><span class="tp">Wish</span></div>
+    <div class="crd"><div class="name">Visit nuclear power station</div><span class="tp">Wish</span></div>
+    <div class="crd"><div class="name">Visit Barcelona quantum computer</div><span class="tp">Wish</span></div>
+
+    <div class="section-label">💎 Style &amp; Presence</div>
+    <div class="crd"><div class="name">Find my style<div class="dep">→ after: Understand myself (Pillar 2)</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Look awesome, cool and attractive</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Elegant and charismatic</div><span class="tp">State</span></div>
+    <div class="crd"><div class="name">Get cool voice and accent</div><span class="tp">State</span></div>
+
+    <div class="section-label">💫 Someday / Wishes</div>
+    <div class="crd"><div class="name">Become a pilot<div class="dep">↗ enabled by: Financial Freedom (Pillar 3)</div></div><span class="tp">Wish</span></div>
+    <div class="crd"><div class="name">Play guitar</div><span class="tp">Wish</span></div>
+    <div class="crd"><div class="name">Play chess</div><span class="tp">Wish</span></div>
+  </div>
+
+  <!-- PILLAR 6: CONTRIBUTION -->
+  <div class="card pillar contrib" style="margin-bottom:14px;">
+    <h3><span class="dot" style="background:var(--contrib)"></span>Pillar 6: Contribution — Sharing Clarity <span class="tag">8 cards</span></h3>
+    <p>The work you do on yourself eventually overflows into the world. This pillar is about giving what you have learned.</p>
+
+    <div class="section-label">★ Strategic Outcomes</div>
+    <div class="crd"><div class="name"><strong>Inspire and influence people and give them tools and direction</strong></div><span class="tp">★ Outcome</span></div>
+    <div class="crd"><div class="name"><strong>Teach people how to achieve success, inner peace and strength</strong><div class="dep">↗ supported by: Warmth (Pillar 2)</div></div><span class="tp">★ Outcome</span></div>
+
+    <div class="section-label">Starting Points (→ try → practice → deepen → inspire → book)</div>
+    <div class="crd"><div class="name">Try Volunteering<div class="dep">↗ better with: NVC (Pillar 4)</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Try teaching<div class="dep">↗ better with: Communication (Pillar 4)</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Volunteering / teaching: finances, life concepts<div class="dep">→ after: try volunteering + try teaching</div></div><span class="tp">Project</span></div>
+
+    <div class="section-label">Creative Contribution</div>
+    <div class="crd"><div class="name">Create videos about Bangkok, China, Monaco, Nice<div class="dep">↗ from: Cinematography (Pillar 5)</div></div><span class="tp">Project</span></div>
+    <div class="crd"><div class="name">Movies / films to schools<div class="dep">↗ from: Create my movie (Pillar 5)</div></div><span class="tp">Project</span></div>
+
+    <div class="section-label">💫 Someday</div>
+    <div class="crd"><div class="name">Write a book one day<div class="dep">→ after: teach + warmth</div></div><span class="tp">Wish</span></div>
+  </div>
+</section>
+
+<!-- ==================== 3. GOAL TREE ==================== -->
+<section class="view" id="view-goal">
+  <div class="view-title"><div><h2>3. Goal Tree</h2><p>Zoom into one selected goal at a time. This prevents the whole life from becoming visual spaghetti.</p></div><span class="tag">How to break it down</span></div>
+
+  <div class="grid" style="margin-bottom:14px;">
+    <div class="card"><h3>Rule</h3><p>A goal tree answers: "What pieces make this goal real?" Only zoom into one goal or project at a time.</p></div>
+    <div class="card"><h3>Not for everything</h3><p>Do not show every life category here. Use the Pillars view for the full picture.</p></div>
+  </div>
+
+  <h3 style="margin-bottom:10px;">Example: Financial Freedom</h3>
+  <div class="tree">Become financially free
+│
+├── 1. Clarity
+│   ├── Decide honestly if I want to be wealthy
+│   └── Define how much money I need for freedom
+│
+├── 2. Investments &amp; Pension
+│   └── Change Vanguard pension amount
+│
+├── 3. Property Track
+│   ├── Renovate flat for profit
+│   ├── Make land decision: sell / keep / rebuy Jašiūnai
+│   ├── Buy / flip / manage properties
+│   └── Create Property management app
+│
+├── 4. Income Tools
+│   ├── Create budget app
+│   ├── Build AI trading app
+│   └── Complete courses for work
+│
+└── 5. After Freedom
+    ├── Buy land / build Vastu house in Lithuania
+    └── Move to Lithuania</div>
+
+  <h3 style="margin:18px 0 10px;">Example: Healing Journey</h3>
+  <div class="tree">Cultivate warmth and love with myself
+│
+├── Foundation Practices
+│   ├── Practise mindfulness/meditation
+│   └── Self-compassion instead of hatred
+│
+├── Structured Healing
+│   ├── Do Gabor Maté healing course
+│   ├── Organize my thoughts → Healing process
+│   └── Let go of David
+│       ├── Branch A: Attachment grief → Rejection → Broken heart → Warmth
+│       └── Branch B: Spiritual grief → "What if" narratives → Warmth
+│
+├── Identity (after warmth)
+│   ├── Identify my values and qualities
+│   ├── Find my purpose and mission
+│   └── Answer: Who am I and why am I here?
+│
+└── Spiritual grounding
+    ├── Find strength in myself / Buddha / God
+    ├── Connect to God, tune into symbols and clues
+    ├── Believe in God and understand him
+    └── Understand this world</div>
+</section>
+
+<!-- ==================== 4. DEPENDENCY MAP ==================== -->
+<section class="view" id="view-dependency">
+  <div class="view-title"><div><h2>4. Dependency Map</h2><p>A network, not a tree. Shows what supports what across pillars. → = must before. ↗ = supports/enables.</p></div><span class="tag">Cross-pillar links</span></div>
+
+  <div class="map">
+    <!-- Lines -->
+    <div class="line" style="left:135px;top:105px;width:200px;transform:rotate(24deg)"></div>
+    <div class="line" style="left:135px;top:115px;width:320px;transform:rotate(12deg)"></div>
+    <div class="line" style="left:135px;top:125px;width:350px;transform:rotate(35deg)"></div>
+    <div class="line" style="left:340px;top:200px;width:200px;transform:rotate(22deg)"></div>
+    <div class="line" style="left:340px;top:210px;width:180px;transform:rotate(-15deg)"></div>
+    <div class="line" style="left:180px;top:370px;width:250px;transform:rotate(-12deg)"></div>
+    <div class="line" style="left:460px;top:375px;width:200px;transform:rotate(15deg)"></div>
+    <div class="line" style="left:460px;top:150px;width:200px;transform:rotate(40deg)"></div>
+    <div class="line" style="left:95px;top:280px;width:200px;transform:rotate(-18deg)"></div>
+
+    <!-- Nodes -->
+    <div class="map-dot h" style="left:20px;top:62px"><strong>⚡ Energy</strong><span>raises all capacity.<br>↗ meditation, decisions, work</span></div>
+
+    <div class="map-dot j" style="left:20px;top:200px"><strong>🏃 Sport</strong><span>↗ energy, mountain, Everest</span></div>
+
+    <div class="map-dot ig" style="left:240px;top:130px"><strong>🧘 Meditation</strong><span>↗ clarity, calm, healing,<br>spiritual strength</span></div>
+
+    <div class="map-dot ig" style="right:30px;top:60px"><strong>🤗 Warmth</strong><span>↗ teaching, contribution,<br>family closeness</span></div>
+
+    <div class="map-dot fam" style="left:240px;top:290px"><strong>🗣 NVC / Communication</strong><span>↗ sister, mum, teaching,<br>volunteering</span></div>
+
+    <div class="map-dot f" style="left:16px;top:360px"><strong>💰 Financial Freedom</strong><span>↗ enables Lithuania, Vastu<br>house, pilot dream, travel</span></div>
+
+    <div class="map-dot j" style="left:310px;top:420px"><strong>🎬 Cinematography</strong><span>↗ feeds videos, films to<br>schools, create movie</span></div>
+
+    <div class="map-dot c" style="right:30px;top:320px"><strong>🤝 Contribution</strong><span>← needs warmth, NVC,<br>cinematography</span></div>
+
+    <div class="map-dot j" style="right:30px;top:190px"><strong>📱 Apps</strong><span>Budget app ↗ freedom number<br>Trading app ↗ financial freedom</span></div>
+  </div>
+
+  <div class="legend"><span>→ must happen before</span><span>↗ supports / enables</span><span>Lines = cross-pillar links</span><span>Best for monthly reviews</span></div>
+
+  <div class="card" style="margin-top:14px;">
+    <h3>All cross-pillar support links</h3>
+    <ul class="clean">
+      <li><strong style="color:var(--health)">Energy</strong> (P1) ↗ supports <strong style="color:var(--inner)">Meditation</strong> (P2), <strong style="color:var(--money)">Financial decisions</strong> (P3), <strong style="color:var(--money)">Work courses</strong> (P3)</li>
+      <li><strong style="color:var(--joy)">Sport</strong> (P5) ↗ supports <strong style="color:var(--health)">Energy</strong> (P1), <strong style="color:var(--joy)">Mountain/Everest</strong> (P5)</li>
+      <li><strong style="color:var(--inner)">Warmth</strong> (P2) ↗ supports <strong style="color:var(--contrib)">Teaching success</strong> (P6), <strong style="color:var(--family)">Family closeness</strong> (P4)</li>
+      <li><strong style="color:var(--family)">NVC / Communication</strong> (P4) ↗ supports <strong style="color:var(--family)">Sister &amp; Mum</strong> (P4), <strong style="color:var(--contrib)">Teaching &amp; Volunteering</strong> (P6)</li>
+      <li><strong style="color:var(--joy)">Cinematography</strong> (P5) ↗ feeds <strong style="color:var(--contrib)">Videos &amp; Films to schools</strong> (P6)</li>
+      <li><strong style="color:var(--joy)">Budget app</strong> (P5→3) ↗ feeds <strong style="color:var(--money)">Define freedom number</strong> (P3)</li>
+      <li><strong style="color:var(--joy)">Trading app</strong> (P5) ↗ feeds <strong style="color:var(--money)">Financial Freedom</strong> (P3)</li>
+      <li><strong style="color:var(--money)">Financial Freedom</strong> (P3) ↗ enables <strong style="color:var(--money)">Lithuania/Vastu</strong>, <strong style="color:var(--joy)">Pilot</strong> (P5), <strong style="color:var(--joy)">Travel</strong> (P5)</li>
+      <li><strong style="color:var(--inner)">Understand myself</strong> (P2) → <strong style="color:var(--joy)">Find my style</strong> (P5)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== 5. KANBAN ==================== -->
+<section class="view" id="view-kanban">
+  <div class="view-title"><div><h2>5. Kanban</h2><p>Execution, not philosophy. Moves cards through reality. Color = pillar origin.</p></div><span class="tag">Movement</span></div>
+
+  <div class="kanban">
+    <div class="col"><h4>Inbox</h4>
+      <div class="mini mj">Build AI trading app</div>
+      <div class="mini mj">Play piano regularly</div>
+      <div class="mini mj">Create sorting app</div>
+    </div>
+    <div class="col"><h4>Need to do</h4>
+      <div class="mini mh">Buy food containers</div>
+      <div class="mini mh">Check blood and allergies</div>
+      <div class="mini mh">Fix laptop</div>
+      <div class="mini mh">Replace car wipers</div>
+    </div>
+    <div class="col"><h4>Planned</h4>
+      <div class="mini mi">Do Gabor Maté course</div>
+      <div class="mini mf">Decide: do I want financial freedom?</div>
+      <div class="mini mj">Watch Cannes films</div>
+    </div>
+    <div class="col"><h4>In progress</h4>
+      <div class="mini mi">Practise meditation</div>
+      <div class="mini mi">Self-compassion practice</div>
+      <div class="mini mh">Consistent early sleep</div>
+    </div>
+    <div class="col"><h4>Done</h4>
+      <div class="mini" style="opacity:.55">—</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <h3>Kanban rules</h3>
+    <ul class="clean">
+      <li>If a card moves between columns 3 times without progress → review: split, redefine, or move to Someday.</li>
+      <li>Max 3 cards in "In progress" at once. Congestion is not progress.</li>
+      <li>Today is a separate view — it pulls from "In progress" + "Planned."</li>
+      <li>Habits (meditation, sleep, NVC) live here as recurring — they don't get "Done."</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== 6. TODAY ==================== -->
+<section class="view" id="view-today">
+  <div class="view-title"><div><h2>6. Today</h2><p>The real bottleneck. No philosophy overload. No giant map. Just the next correct steps.</p></div><span class="tag">Now</span></div>
+
+  <div class="today-card">
+    <div class="stat"><span>Energy</span><strong>6/10</strong></div>
+    <div class="stat"><span>Mood</span><strong>5/10</strong></div>
+    <div class="stat"><span>Sleep</span><strong>6h20</strong></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Top 3 only</h3>
+      <ul class="clean">
+        <li><strong>1.</strong> Buy food containers — 20 min</li>
+        <li><strong>2.</strong> 15 min meditation</li>
+        <li><strong>3.</strong> Check blood test options online — 15 min</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Do NOT do today</h3>
+      <ul class="clean">
+        <li>Do not start a new app idea</li>
+        <li>Do not research property yet</li>
+        <li>Do not add 8 tasks to Today</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:12px;">
+    <div class="card">
+      <h3>⟲ Habit focus</h3>
+      <ul class="clean">
+        <li>Consistent early sleep — in bed by 22:30</li>
+        <li>Self-compassion — one moment of noticing</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>AI guidance</h3>
+      <p>Today is low-medium energy. Choose completion over expansion. Your system improves when Today stays small. Do the food containers — that one removes friction for weeks.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== RIGHT PANEL ===== -->
+<aside class="panel right">
+  <h3 id="sideTitle">Why this is better</h3>
+  <p id="sideText">One giant tree tries to do too many jobs. This layered model gives each view a clean purpose, so the app finally has a narrative.</p>
+  <div class="rule"><strong>Compass</strong> Why am I doing this?</div>
+  <div class="rule"><strong>Pillars</strong> Which area of life is this?</div>
+  <div class="rule"><strong>Goal Tree</strong> How does one goal break down?</div>
+  <div class="rule"><strong>Dependency Map</strong> What supports what?</div>
+  <div class="rule"><strong>Kanban</strong> What is moving?</div>
+  <div class="rule"><strong>Today</strong> What gets my attention now?</div>
+</aside>
+</div>
+
+<script>
+var notes = {
+  overview: ["Why this is better", "One giant tree tries to do too many jobs. This layered model gives each view a clean purpose, so the app finally has a narrative. Financial freedom is one pillar, not the parent of everything."],
+  compass: ["Compass", "This should be emotionally clear and short. It is not a planning board. It is the app's north star. Read this when you feel lost."],
+  pillars: ["Life Pillars — 89 cards", "Pillars are parallel. Health, inner world, money, family, joy, and contribution all matter without being forced into one hierarchy. Every card has a type: Outcome, Project, Task, Habit, Practice, State, Wish, or Maint."],
+  goal: ["Goal Tree", "A tree is useful only when zooming into one selected goal. This keeps big projects clear without turning life into spaghetti. Two examples shown: Financial Freedom and Healing Journey."],
+  dependency: ["Dependency Map", "Dependencies are a network. Sleep supports energy, communication supports family and teaching, money supports freedom. These are not parent-child links. Best used during monthly reviews."],
+  kanban: ["Kanban", "Kanban is movement. It shows what is active, waiting, done, or stuck. It should not carry the whole life meaning. Color = pillar origin. Max 3 in progress."],
+  today: ["Today", "Today is the bottleneck. This is where the app must be ruthless, calm, and simple: 1–3 tasks only. Habits tracked separately. AI warns against overload."]
+};
+document.querySelectorAll('.btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var v = btn.dataset.view;
+    document.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(function(view) { view.classList.remove('active'); });
+    document.getElementById('view-' + v).classList.add('active');
+    document.getElementById('sideTitle').textContent = notes[v][0];
+    document.getElementById('sideText').textContent = notes[v][1];
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

@@ -345,23 +345,67 @@ Use a calm mobile navigation structure.
 Bottom tabs:
 
 ```text
-Chat | Today | Boards | Habits | More
+Chat | Today | Plan | Track | More
 ```
 
-The **More** menu contains:
+| Tab | Contains | Notes |
+|-----|----------|-------|
+| **Chat** | Capture + Intake Filter | Filter is embedded in chat flow |
+| **Today** | Global Today | Energy/mood/sleep stats, top 1–3 tasks, do-not-do list, Focus Agent |
+| **Plan** | Segmented: Year · Month · Projects | Multi-level boards + Compass/Pillars from header |
+| **Track** | Segmented: Habits · Health · Money | Each as a dashboard view |
+| **More** | Diary, Goals tree, Reviews, Files, Agents, Search, Settings | Secondary screens |
+
+The **Plan** tab uses a segmented control at the top:
 
 ```text
-Goals
-Health
-Money
-Diary
-Files
-Reviews
-Agents
-Settings
+Year Board | Month Board | Projects
 ```
 
-Do not put 12 tabs in the bottom navigation.
+The **Track** tab uses a segmented control at the top:
+
+```text
+Habits | Health | Money
+```
+
+Do not put 12 tabs in the bottom navigation. Keep it to 5 thumb-friendly tabs.
+
+---
+
+## 3.4 Design Language
+
+**Palette:** Warm paper aesthetic — calm, low-contrast, never clinical.
+
+```text
+Background:      #f5f3ee (warm paper)
+Panel/card:      #fffdf8 (cream white)
+Border/line:     #d9d2c7 (soft warm gray)
+Text:            #2f2a24 (deep warm brown)
+Muted:           #746b61 (warm gray)
+Soft highlight:  #ebe4d8 (cream gold)
+```
+
+**Life Pillars (6 colored areas):**
+
+| Pillar | Color | Hex | Examples |
+|--------|-------|-----|----------|
+| Health & Energy | Green | #7f9f78 | Sleep, food, weight, body, longevity |
+| Inner Growth | Purple | #9b86ba | Healing, meditation, identity, self-refinement |
+| Money & Freedom | Blue | #779db6 | FIRE, property, work skills, apps, income |
+| Family | Rose | #b77a7c | Mum, sister, close relationships, family trips |
+| Joy & Exploration | Orange | #c99555 | Travel, films, music, books, sport, beauty |
+| Contribution | Olive | #8b9b72 | Teaching, volunteering, videos, useful clarity |
+
+Cards show a colored left border to indicate their life pillar.
+
+**Component style:**
+
+- Cards: 18–22px border-radius, 1px solid border, subtle warm shadow
+- Stat grids: 3-column layout, uppercase 11px labels + bold 24px values
+- Habit matrix: rows = habits, columns = days, cells = ✓/×/— symbols
+- Tags/pills: 999px border-radius, warm cream background
+- Modals: bottom-sheet style with 24px top-border-radius
+- Buttons: 14px border-radius, no sharp corners anywhere
 
 ---
 
@@ -393,16 +437,11 @@ Do not put 12 tabs in the bottom navigation.
 ```text
 React Native + Expo mobile app
 │
-├── Chat screen
-├── Today screen
-├── Boards
-├── Goal tree
-├── Habits
-├── Health
-├── Money
-├── Diary
-├── Files
-└── Reviews
+├── Chat (+ Intake Filter)
+├── Today (Global)
+├── Plan (Year / Month / Projects)
+├── Track (Habits / Health / Money)
+└── More (Diary, Goals, Reviews, Files, Agents, Search, Settings)
 
         ↓ HTTPS/API
 
@@ -455,9 +494,9 @@ AI providers
 
 # 5. Main App Screens
 
-## 5.1 Chat Screen
+## 5.1 Chat Screen (Tab 1)
 
-This is the home screen.
+This is the home screen. It combines capture AND the intake filter.
 
 Purpose:
 
@@ -468,6 +507,25 @@ Purpose:
 - call agents,
 - run daily reviews,
 - ask "what should I do today?"
+
+### Intake Filter (embedded in Chat flow)
+
+Raw thoughts do NOT become active cards immediately. The flow:
+
+```text
+1. Raw Thought → "I want a Ferrari" / "Go to Japan with family"
+2. Want / Need → classify: want, need, obligation, impulse, external pressure
+3. Mission Filter → score against 7 mission questions (0–10)
+4. Exit Decision → keep / later / archive insight / delete / split / clarify / delegate
+```
+
+**Fake-want review:** rejected items are NOT just deleted. They become archived self-knowledge insights with reasoning. Example:
+
+```text
+Card: "Want a Ferrari"
+Analysis: Status/comparison impulse, not aligned with freedom or solitude
+Decision: Archive insight — "When I feel comparison pressure, I want status symbols"
+```
 
 Example prompt:
 
@@ -502,21 +560,22 @@ The chat should be able to create structured entities:
 
 ---
 
-## 5.2 Today Screen
+## 5.2 Today Screen (Tab 2)
 
 Purpose:
 
-Daily execution screen.
+**Global Today** — one shared bottleneck across all boards, habits, and agent guidance.
+
+A card from any board (month, project, habit) can appear here via a `today = true` flag — it is never copied or duplicated.
 
 Shows:
 
 ```text
-Today's energy
-Top 1–3 tasks
-Habit focus
-Calendar/focus blocks
-Warnings
-AI suggestion
+Energy / Mood / Sleep stats (3-column stat grid)
+Top 1–3 tasks (from any source)
+Do-not-do list (what to avoid today)
+Focus Agent guidance
+Habit focus for today
 ```
 
 Example:
@@ -529,9 +588,14 @@ Mood: 5/10
 Sleep: 6h 20m
 
 Top tasks:
-1. Build Card model
-2. Walk 10 minutes
-3. Review renovation payment
+1. Build Card model (from Month Board)
+2. Walk 10 minutes (from Habits)
+3. Review renovation payment (from Project Board)
+
+Do not:
+- Open new projects
+- Research more AI tools
+- Plan more than 3 tasks
 
 AI warning:
 You are trying to plan 8 tasks. Reduce to 3.
@@ -549,125 +613,85 @@ Possibly up to 5 on a high-energy day.
 
 ---
 
-## 5.3 Thought Inbox
+## 5.3 Plan Screen (Tab 3 — segmented)
 
-Purpose:
-
-Raw capture area.
-
-The user can dump unstructured thoughts.
-
-Example raw input:
+The Plan tab contains three segments accessible via a top segmented control:
 
 ```text
-I want to create an AI app, lose weight, track sleep, finish AI course,
-understand myself, maybe create Lithuanian rental app, manage flat,
-and stop wasting evenings.
+Year | Month | Projects
 ```
 
-AI converts it into cards:
+### 5.3.1 Year Board
+
+After a card passes the intake filter, assign a life area, color, and year.
+
+Columns:
 
 ```text
-- Build AI North Star
-- Lose weight safely
-- Track sleep daily
-- Continue CS50 AI
-- Reflect on identity and solitude
-- Build Lithuanian rental app later
-- Manage Vilnius flat renovation
-- Reduce evening drift
+This Year | Scheduled | Done
 ```
 
----
+Use "This Year" instead of "Have to do" — it feels less oppressive and fits genuine wants as well as obligations.
 
-## 5.4 Goal Tree Screen
+Cards are color-coded by life pillar (left border).
 
-Purpose:
+### 5.3.2 Month Board (Current Month)
 
-Show hierarchical goals.
-
-Example:
+The main execution board. Columns:
 
 ```text
-Build North Star
-│
-├── Define product vision
-│   ├── Write mission filter
-│   ├── Define agents
-│   └── Define MVP
-│
-├── Build mobile app
-│   ├── Create React Native project
-│   ├── Create navigation
-│   ├── Create chat screen
-│   └── Create Today screen
-│
-└── Add AI agents
-    ├── Add Mission Agent
-    ├── Add Focus Agent
-    └── Add Review Agent
+Inbox | This Month | This Week | In Progress | Waiting | Done | Review
 ```
 
-Features:
-
-- expand/collapse nodes,
-- add child card,
-- split card,
-- mark leaf tasks as done,
-- see parent path,
-- show mission alignment,
-- show responsible agent,
-- show energy/time estimate.
-
----
-
-## 5.5 Boards / Kanban Screen
-
-Purpose:
-
-Trello-style execution.
-
-Boards:
-
-```text
-Inbox
-Year
-Month
-Week
-Today
-Projects
-Done
-Trash / Deleted
-```
-
-Monthly board columns:
-
-```text
-Need to do
-Planned
-In progress — my side
-In progress — someone else's side
-Today
-Done
-Review
-```
+**Carryover logic:** unfinished cards roll forward to the next month with `carryover_count + 1`. At 3 carryovers, the app forces a review.
 
 Rules:
 
-1. A card that moves 3 times should be reviewed.
-2. Too many "in progress" cards should trigger a warning.
-3. "Today" is the bottleneck and must be protected.
-4. Complex projects can have separate boards, but Today remains shared.
+1. A card that moves 3+ times must be reviewed.
+2. Too many "in progress" cards triggers a WIP warning.
+3. "Today" is the bottleneck and must be protected (cards marked today appear on the Today tab).
+4. Today is never a column here — it is a global view.
+
+### 5.3.3 Project Boards
+
+Large projects can have their own Kanban board. Columns:
+
+```text
+Backlog | In Progress | Waiting | Done | Review
+```
+
+Project boards sit under the month board conceptually. Today remains global and is never duplicated inside a project.
+
+### 5.3.4 Compass + Life Pillars
+
+Accessible from the Plan header (icon or swipe). Shows:
+
+- The user's personal mission text
+- 6 life pillars with colors
+- Quick overview of active goals per pillar
 
 ---
 
-## 5.6 Habits Screen
+## 5.4 Track Screen (Tab 4 — segmented)
 
-Purpose:
+The Track tab contains three segments:
+
+```text
+Habits | Health | Money
+```
+
+### 5.4.1 Habits
 
 Track repeated behaviours separately from tasks.
 
-Habits should not be duplicated as daily Kanban cards.
+Habits should NOT be duplicated as daily Kanban cards.
+
+**Display:** Matrix view — rows = habits, columns = days (Mon–Sun). Cells show:
+- ✓ (done, green)
+- × (not done, red)
+- — (skipped, gray)
+
+Plus: streak count, consistency %, agent insights.
 
 Examples:
 
@@ -694,54 +718,52 @@ scale 1–10
 text note
 ```
 
----
+### 5.4.2 Health Dashboard
 
-## 5.7 Health Screen
+An integrated health dashboard (not a separate app).
 
 Tracks:
 
 ```text
-Sleep
-Wake time
+Sleep / Wake time
 Weight
-Calories
-Protein
-Carbs
-Steps/walking
-Energy
-Mood
+Calories / Protein / Carbs
+Steps / Walking
+Energy (1–10)
+Mood (1–10)
 Symptoms
 Food notes
-Body photos if needed
 ```
 
-AI should analyse patterns:
+Charts show: sleep vs energy, weight trend, protein consistency, habit correlation, fatigue patterns.
+
+AI analyses patterns:
 
 ```text
 When sleep is below 6.5 hours, your energy drops and you skip learning.
 Your first bottleneck is sleep, not discipline.
 ```
 
----
+### 5.4.3 Money Dashboard
 
-## 5.8 Money Screen
+An integrated finance dashboard (not a separate app).
 
 Tracks:
 
 ```text
 Income
-Expenses
+Expenses (by category)
 Monthly budget
 Investments
 FIRE progress
-Property costs
-Renovation costs
-Debt/owed money
+Property costs / Renovation costs
 Subscriptions
 AI usage cost
 ```
 
-Money Agent should answer:
+Charts show: monthly spending, category breakdown, savings rate, net worth/FIRE trend, AI cost usage.
+
+Money Agent answers:
 
 ```text
 Can I afford this?
@@ -753,9 +775,11 @@ How does this affect FIRE?
 
 ---
 
-## 5.9 Diary / Healing Screen
+## 5.5 More Screen (Tab 5)
 
-Purpose:
+Contains secondary screens:
+
+### Diary / Healing
 
 Reflection and emotional pattern tracking.
 
@@ -773,56 +797,22 @@ Breakthroughs
 
 Healing Agent should be calm and non-dramatic.
 
-Example response:
+### Goal Tree
 
-```text
-This looks like a fatigue + grief wave, not a life decision moment.
-Do not make big decisions today.
-Write it down, reduce load, sleep, and review tomorrow.
-```
+Show hierarchical goals.
 
----
+Features:
 
-## 5.10 Files Screen
+- expand/collapse nodes,
+- add child card,
+- split card,
+- mark leaf tasks as done,
+- see parent path,
+- show mission alignment,
+- show responsible agent,
+- show energy/time estimate.
 
-Purpose:
-
-Private storage for:
-
-```text
-images
-documents
-financial screenshots
-property photos
-health files
-attachments
-```
-
-File privacy levels are critical.
-
-Some files must be marked:
-
-```text
-never_external
-```
-
-Examples:
-
-```text
-passport
-bank statements
-raw financial screenshots
-private diary archive
-medical documents
-API keys
-database backups
-```
-
----
-
-## 5.11 Reviews Screen
-
-Review types:
+### Reviews
 
 ```text
 Daily Review
@@ -831,19 +821,23 @@ Monthly Review
 Yearly Review
 ```
 
-Monthly review should show:
+Monthly review shows: completed cards by area, habit consistency, most postponed goals, energy pattern, money pattern, health pattern, emotional pattern, main bottleneck, next month recommendation.
 
-```text
-completed cards by area
-habit consistency
-most postponed goals
-energy pattern
-money pattern
-health pattern
-emotional pattern
-main bottleneck
-next month recommendation
-```
+### Files
+
+Private encrypted storage for images, documents, financial screenshots, property photos, health files, attachments.
+
+### Search
+
+Semantic search across all cards using pgvector embeddings.
+
+### Agents
+
+View agent policies, budgets, audit logs.
+
+### Settings
+
+App configuration, theme, API keys, notifications.
 
 ---
 

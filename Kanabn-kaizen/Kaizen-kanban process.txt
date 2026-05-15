@@ -1,0 +1,472 @@
+Yes. You are now **after Step 2: Primary Separation**.
+
+You have done:
+
+```md
+1. Материализация мыслей — thoughts are out of your head
+2. Primary separation — WANT / HAVE TO / UNCLEAR
+```
+
+Now you should **not jump straight into daily tasks yet**. According to the guide, the next steps are these.
+
+# Full Kaizen Planning sequence
+
+## Step 1 — Материализация мыслей
+
+Done.
+
+You collected the thoughts into cards.
+
+Rule:
+
+```md
+One thought = one card.
+No thought should stay only in the head.
+```
+
+---
+
+## Step 2 — Primary Separation / Inventory
+
+You have also done this.
+
+Your three lists are:
+
+```md
+WANT / ХОЧУ
+HAVE TO / НАДО
+UNCLEAR / НЕПОНЯТНО
+```
+
+Now look at the balance.
+
+Ask:
+
+```md
+Do I mostly live from WANT?
+Or do I mostly live from HAVE TO?
+```
+
+Important idea from the seminar:
+
+```md
+Every HAVE TO is usually someone else’s WANT.
+```
+
+So for each **HAVE TO** card, later ask:
+
+```md
+Whose want is this?
+Is this truly necessary?
+Can I delete it, delegate it, automate it, or do it once and close it?
+```
+
+---
+
+# Your next real step
+
+## Step 3 — Define your Mission
+
+Before filtering the cards, you need a mission.
+
+In the seminar, the mission example is:
+
+```md
+I live a happy life,
+for the benefit of society
+and the environment.
+```
+
+Or in Russian:
+
+```md
+Я живу счастливую жизнь
+с пользой для общества
+и окружающей среды.
+```
+
+For you, I would start with a rough draft, not a perfect one:
+
+```md
+I live a free, healthy, meaningful life,
+where I protect my energy,
+build financial freedom,
+create beauty and clarity,
+and bring useful value to others without betraying myself.
+```
+
+You can refine it later. For now, you only need a working filter.
+
+---
+
+## Step 4 — Mission Filter
+
+Now every card must pass through the mission filter.
+
+Create 4 temporary lists:
+
+```md
+Makes me happier
+Useful to others / society
+Useful to environment / world
+Not mine / Trash
+```
+
+For each card, ask:
+
+```md
+1. Does this make me happier?
+2. Does this create useful value for others?
+3. Is this good / neutral for the environment or world?
+4. Does this fit my mission?
+```
+
+A card does **not** need to pass all 3 positive filters.
+It can pass if it clearly belongs to at least one meaningful area.
+
+Example:
+
+```md
+Play guitar
+→ Makes me happier
+→ Keep
+```
+
+```md
+Create property management company
+→ Builds freedom
+→ Useful to landlords
+→ Keep
+```
+
+```md
+Fix car charger
+→ Practical necessity
+→ Reduces stress
+→ Keep
+```
+
+```md
+Random fashionable idea I do not actually care about
+→ Not mine
+→ Analyze, then delete
+```
+
+---
+
+## Step 5 — Analyze the Trash before deleting
+
+Do not delete immediately.
+
+For every “Not mine / Trash” card, ask:
+
+```md
+Why did this thought come to me?
+Was it ego?
+Was it fear?
+Was it comparison?
+Was it someone else’s pressure?
+Was it guilt?
+Was it old identity?
+```
+
+Then delete it.
+
+This is important because the seminar says rubbish should not just be thrown away — it should be understood so you do not repeat the same pattern.
+
+---
+
+## Step 6 — Sort remaining cards into 5 life areas
+
+After mission filtering, create these 5 lists:
+
+```md
+Personal Development
+Family
+Business / Money
+Society / Value to Others
+Hobbies / Joy
+```
+
+Then move every remaining card into one of them.
+
+Examples:
+
+```md
+Lose weight
+→ Personal Development
+
+Help mum
+→ Family
+
+Become financially free
+→ Business / Money
+
+Teach people about finances
+→ Society / Value to Others
+
+Play piano
+→ Hobbies / Joy
+```
+
+The point is to see your life structure.
+
+Ask:
+
+```md
+Am I ignoring one area completely?
+Is everything only money?
+Is everything only healing?
+Do I have joy?
+Do I have family?
+Do I have value to others?
+```
+
+---
+
+## Step 7 — Create Annual Kanban
+
+Now you ground everything into time.
+
+Create boards or lists like:
+
+```md
+2026 Kanban
+2027 Kanban
+2028 Kanban
+Later / Someday
+```
+
+For 2026 Kanban, use:
+
+```md
+Need to be done
+Planned
+Done
+```
+
+Move only realistic 2026 cards into **2026 Kanban**.
+
+Everything else goes into future years or Later.
+
+Important:
+
+```md
+Do not keep cards floating forever.
+Every card needs a place.
+```
+
+---
+
+## Step 8 — Cut big cards into smaller cards
+
+This is crucial.
+
+Big vague cards must be split.
+
+Example:
+
+```md
+Become financially free
+```
+
+is too big.
+
+Split into:
+
+```md
+- Calculate FIRE number
+- Track monthly expenses
+- Increase monthly investing
+- Review portfolio allocation
+- Decide property strategy
+- Build extra income stream
+```
+
+Another example:
+
+```md
+Fix health & energy
+```
+
+Split into:
+
+```md
+- Book blood test
+- Check vitamin D / iron / thyroid
+- Set sleep target
+- Plan 1600–1800 kcal meals
+- Walk 20 minutes daily
+```
+
+Rule:
+
+```md
+The task must have a visible ending.
+```
+
+Bad card:
+
+```md
+Be healthy
+```
+
+Better card:
+
+```md
+Book GP appointment for tiredness and blood tests
+```
+
+---
+
+## Step 9 — Create Monthly Kanban
+
+For the current month, create:
+
+```md
+May Kanban
+
+Need to be done
+Planned
+In Process — ball on my side
+In Process — ball on someone else’s side
+Today
+Done
+```
+
+Only move a small number of cards into the month.
+
+The month is the ideal planning unit because:
+
+```md
+A day is too small.
+A year is too big.
+A month gives feedback quickly.
+```
+
+---
+
+## Step 10 — Use Today as the bottleneck
+
+Do not overload Today.
+
+Today should contain only:
+
+```md
+1–3 real tasks
+```
+
+The guide’s main idea:
+
+```md
+Today is the bottleneck.
+You manage only the bottleneck.
+```
+
+Not 50 cards. Not your whole life. Just today.
+
+---
+
+## Step 11 — Separate routines from projects
+
+Some things should not be cards again and again.
+
+Use habits for repeated actions:
+
+```md
+Sleep on time
+Walk
+Drink water
+Meditate
+No sugar after certain time
+Kaizen hour
+Skincare
+Reading
+```
+
+These belong in a habit tracker, calendar, or recurring routine — not your main Kanban.
+
+---
+
+## Step 12 — Separate complex projects into their own boards
+
+Big projects need their own board.
+
+For you, examples:
+
+```md
+Vilnius flat renovation
+Property management app
+Health reset
+Financial freedom system
+Personal AI coach app
+Courses / AWS / CS50 AI
+```
+
+Each complex project can have its own:
+
+```md
+Backlog
+Planned
+In Progress
+Waiting
+Today
+Done
+```
+
+But **Today remains one shared bottleneck**.
+
+You cannot have 10 project boards each with a full Today list.
+
+---
+
+## Step 13 — Monthly review
+
+At the end of each month:
+
+```md
+1. Move completed monthly cards into 2026 Done.
+2. Move unfinished cards to next month or delete.
+3. Notice which cards keep moving for 3 months.
+4. Ask: do I really want this?
+5. Check balance across the 5 life areas.
+```
+
+If a card keeps moving from month to month, it may be:
+
+```md
+Not clear enough
+Too big
+Not truly yours
+Blocked by fear
+Waiting for someone
+Wrong timing
+```
+
+---
+
+# What you should do right now
+
+Your next action is this:
+
+```md
+Create a temporary board/list called:
+
+MISSION FILTER
+```
+
+With these columns:
+
+```md
+1. Makes me happier
+2. Useful to others / society
+3. Useful to environment / world
+4. Not mine / delete after analysis
+5. Unclear / needs formulation
+```
+
+Then take your sorted cards and pass them through this filter.
+
+Do **not** create annual/monthly Kanban yet.
+
+First you need to remove the noise. Then your real life plan will become much lighter.

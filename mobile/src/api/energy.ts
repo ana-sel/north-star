@@ -57,34 +57,3 @@ export async function latestEnergy(
   const resp = await fetch(`${API_BASE_URL}/energy/latest?${qs.toString()}`);
   return handle<EnergyLog | null>(resp);
 }
-
-export interface EnergyStats {
-  sample_count: number;
-  days_covered: number;
-  by_level: { low: number; medium: number; high: number };
-  avg_score: number;
-  completed_in_window: number;
-}
-
-export interface EnergyInsight {
-  days: number;
-  stats: EnergyStats;
-  summary: string;
-  patterns: string[];
-  suggestions: string[];
-  used_ai: boolean;
-  audit_log_id: string | null;
-  error: string | null;
-}
-
-export async function energyInsight(
-  userId: string,
-  days = 14
-): Promise<EnergyInsight> {
-  const resp = await fetch(`${API_BASE_URL}/agents/energy`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, days }),
-  });
-  return handle<EnergyInsight>(resp);
-}

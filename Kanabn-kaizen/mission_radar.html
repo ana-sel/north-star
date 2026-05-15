@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mission Categories — Radar Chart</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+<style>
+  body { display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background:#f5f5f5; font-family:sans-serif; }
+  .wrap { width:600px; text-align:center; }
+  h2 { margin-bottom:4px; }
+  p { color:#666; font-size:13px; margin-top:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>Life Mission Balance</h2>
+  <p>Number of cards per category</p>
+  <canvas id="radar"></canvas>
+</div>
+<script>
+new Chart(document.getElementById('radar'), {
+  type: 'radar',
+  data: {
+    labels: [
+      'Health &\nEnergy',
+      'Financial Freedom\n& Money',
+      'Inner Growth &\nSelf-Understanding',
+      'People, Family\n& Contribution',
+      'Joy, Hobbies\n& Exploration'
+    ],
+    datasets: [{
+      label: 'Cards',
+      data: [8, 15, 30, 10, 14],
+      backgroundColor: 'rgba(54, 162, 182, 0.35)',
+      borderColor: 'rgba(54, 162, 182, 1)',
+      borderWidth: 2,
+      pointBackgroundColor: 'rgba(54, 162, 182, 1)',
+      pointRadius: 5
+    }]
+  },
+  options: {
+    scales: {
+      r: {
+        beginAtZero: true,
+        ticks: { stepSize: 10, backdropColor: 'transparent' },
+        pointLabels: { font: { size: 13, weight: 'bold' } },
+        grid: { color: 'rgba(0,0,0,0.08)' }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.r + ' cards' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

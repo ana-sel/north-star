@@ -27,6 +27,8 @@ class HealthLogOut(BaseModel):
     user_id: uuid.UUID
     log_date: date
     sleep_minutes: int | None
+    bedtime: str | None
+    wake_time: str | None
     weight_kg: float | None
     calories: int | None
     protein_g: int | None
@@ -46,6 +48,8 @@ class HealthLogUpsert(BaseModel):
     user_id: uuid.UUID
     log_date: date | None = None
     sleep_minutes: int | None = None
+    bedtime: str | None = None
+    wake_time: str | None = None
     weight_kg: float | None = None
     calories: int | None = None
     protein_g: int | None = None
@@ -90,6 +94,8 @@ def upsert_health_log(
         "user_id": payload.user_id,
         "log_date": log_date,
         "sleep_minutes": payload.sleep_minutes,
+        "bedtime": payload.bedtime,
+        "wake_time": payload.wake_time,
         "weight_kg": payload.weight_kg,
         "calories": payload.calories,
         "protein_g": payload.protein_g,

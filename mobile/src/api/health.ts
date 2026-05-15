@@ -5,6 +5,8 @@ export interface HealthLog {
   user_id: string;
   log_date: string;
   sleep_minutes: number | null;
+  bedtime: string | null;
+  wake_time: string | null;
   weight_kg: number | null;
   calories: number | null;
   protein_g: number | null;
@@ -21,6 +23,8 @@ export interface HealthLogUpsert {
   user_id: string;
   log_date?: string;
   sleep_minutes?: number | null;
+  bedtime?: string | null;
+  wake_time?: string | null;
   weight_kg?: number | null;
   calories?: number | null;
   protein_g?: number | null;
@@ -68,44 +72,4 @@ export async function upsertHealth(
     body: JSON.stringify(payload),
   });
   return handle<HealthLog>(resp);
-}
-
-export interface HealthFieldStat {
-  count: number;
-  avg: number | null;
-  min: number | null;
-  max: number | null;
-}
-
-export interface HealthStats {
-  sample_count: number;
-  days_covered: number;
-  sleep_minutes: HealthFieldStat;
-  steps: HealthFieldStat;
-  weight_kg: HealthFieldStat;
-  mood: HealthFieldStat;
-  energy: HealthFieldStat;
-}
-
-export interface HealthInsight {
-  days: number;
-  stats: HealthStats;
-  summary: string;
-  patterns: string[];
-  suggestions: string[];
-  used_ai: boolean;
-  audit_log_id: string | null;
-  error: string | null;
-}
-
-export async function healthInsight(
-  userId: string,
-  days = 14
-): Promise<HealthInsight> {
-  const resp = await fetch(`${API_BASE_URL}/agents/health`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, days }),
-  });
-  return handle<HealthInsight>(resp);
 }

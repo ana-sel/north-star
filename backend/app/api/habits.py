@@ -266,3 +266,96 @@ def habits_today(
         )
         for h in habits
     ]
+
+
+class HabitWeekLog(BaseModel):
+    """One log entry per day."""
+    log_date: date
+    value_bool: bool | None
+    value_number: float | None
+    value_text: str | None
+
+
+class HabitWeekRow(BaseModel):
+    """A habit with its logs for the requested date range."""
+    habit: HabitOut
+    logs: dict[str, HabitWeekLog]  # keyed by ISO date string
+    streak: int
+
+
+@router.get("/week", response_model=list[HabitWeekRow])
+def habits_week(
+    user_id: uuid.UUID = Query(...),
+    days: int = Query(default=7, ge=1, le=30),
+    db: Session = Depends(get_db),
+) -> list[HabitWeekRow]:
+    """Return active habits with logs for the last N days (default 7)."""
+    from datetime import timedelta
+
+    today = date.today()
+    start_date = today - timedelta(days=days - 1)
+
+    habits = list(
+        db.execute(
+            select(Habit)
+            .where(Habit.user_id == user_id)
+            .where(Habit.active.is_(True))
+            .order_by(Habit.created_at.asc())
+        ).scalars()
+    )
+    if not habits:
+        return []
+
+    habit_ids = [h.id for h in habits]
+    log_rows = list(
+        db.execute(
+            select(HabitLog)
+            .where(HabitLog.habit_id.in_(habit_ids))
+            .where(HabitLog.log_date >= start_date)
+            .where(HabitLog.log_date <= today)
+        ).scalars()
+    )
+
+    # Group logs by (habit_id, log_date)
+    from collections import defaultdict
+    logs_by_habit: dict[uuid.UUID, dict[date, HabitLog]] = defaultdict(dict)
+    for row in log_rows:
+        logs_by_habit[row.habit_id][row.log_date] = row
+
+    result = []
+    for h in habits:
+        habit_logs = logs_by_habit.get(h.id, {})
+        logs_dict: dict[str, HabitWeekLog] = {}
+        for d_offset in range(days):
+            d = start_date + timedelta(days=d_offset)
+            if d in habit_logs:
+                log = habit_logs[d]
+                logs_dict[d.isoformat()] = HabitWeekLog(
+                    log_date=d,
+                    value_bool=log.value_bool,
+                    value_number=log.value_number,
+                    value_text=log.value_text,
+                )
+        # Calculate streak (consecutive done days ending at today)
+        streak = 0
+        for d_offset in range(days):
+            d = today - timedelta(days=d_offset)
+            log = habit_logs.get(d)
+            if log is None:
+                break
+            if h.kind == "yes_no":
+                if log.value_bool:
+                    streak += 1
+                else:
+                    break
+            else:
+                if log.value_number is not None or log.value_text is not None:
+                    streak += 1
+                else:
+                    break
+        result.append(HabitWeekRow(
+            habit=HabitOut.model_validate(h),
+            logs=logs_dict,
+            streak=streak,
+        ))
+    return result

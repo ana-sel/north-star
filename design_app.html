@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Navigation OS – Wireframe</title>
+  <style>
+    :root{
+      --bg:#f5f3ee;
+      --panel:#fffdfa;
+      --line:#d9d2c7;
+      --text:#2f2a24;
+      --muted:#746b61;
+      --soft:#ebe4d8;
+      --shadow:0 8px 24px rgba(50,40,20,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,system-ui,Arial,sans-serif;
+      background:linear-gradient(180deg,#f7f4ef,#efe8dd);
+      color:var(--text);padding:18px;display:flex;flex-direction:column;gap:14px
+    }
+    .topbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+    .title{font-size:22px;font-weight:700}
+    .subtitle,.muted{color:var(--muted);font-size:13px}
+    .hint{font-size:13px;color:var(--muted);background:rgba(255,255,255,.55);border:1px solid var(--line);padding:10px 14px;border-radius:999px}
+    .layout{display:grid;grid-template-columns:260px 430px 1fr;gap:18px;align-items:start}
+    .sidebar,.phone-shell,.inspector{background:rgba(255,255,255,.55);border:1px solid rgba(140,120,90,.2);border-radius:26px;box-shadow:var(--shadow)}
+    .sidebar,.inspector{padding:16px}
+    .section-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:6px 0 10px;font-weight:700}
+    .nav-list{display:flex;flex-direction:column;gap:8px}
+    .nav-btn,.sub-btn,.chip,.action-btn,.tab-btn,.mini-btn{cursor:pointer;border:none;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px}
+    .nav-btn{width:100%;text-align:left;padding:12px 14px;font-size:14px;font-weight:600}
+    .active{background:var(--soft);border-color:#bca98b}
+    .sub-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .sub-btn{padding:10px 12px;font-size:13px;text-align:left}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .chip{padding:8px 10px;font-size:12px;background:#fbf8f3}
+    .phone-shell{padding:12px;display:flex;justify-content:center}
+    .phone{width:390px;height:820px;background:#f8f4ed;border:1px solid #bca98b;border-radius:34px;box-shadow: inset 0 0 0 6px #f0e7da, 0 18px 45px rgba(0,0,0,.12);overflow:hidden;position:relative}
+    .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:140px;height:26px;border-radius:14px;background:#1f1c18;z-index:5}
+    .screen{position:absolute;inset:0;padding-top:46px;padding-bottom:74px;overflow:auto;display:none;background:#f8f4ed}
+    .active-screen{display:block}
+    .screen-inner{padding:14px 14px 20px;display:flex;flex-direction:column;gap:12px}
+    .app-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .app-title{font-size:20px;font-weight:700}
+    .app-sub{color:var(--muted);font-size:12px;margin-top:4px}
+    .avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:linear-gradient(180deg,#efe5d7,#d6c1a6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#5f4d39}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 2px 10px rgba(40,30,20,.03)}
+    .row-between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .stat{background:#fcfaf6;border:1px solid var(--line);border-radius:14px;padding:10px}
+    .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .value{font-size:20px;font-weight:700;margin-top:6px}
+    .input-box{min-height:86px;border:1.5px dashed #b9aa95;border-radius:16px;padding:12px;background:#fcfaf6;color:var(--muted);font-size:14px;line-height:1.5}
+    .action-row{display:flex;gap:8px;flex-wrap:wrap}
+    .action-btn{padding:10px 12px;font-size:13px;font-weight:600;background:#fff}
+    .pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted);background:#fbf8f3}
+    .message{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+    .bubble{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;font-size:14px;line-height:1.45;max-width:82%}
+    .user{background:#efe5d7}
+    .task{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-top:8px}
+    .badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;background:#f5eee3;color:#6a5a46;border:1px solid #d8c8b2;white-space:nowrap}
+    .bottom-nav{position:absolute;bottom:0;left:0;right:0;height:72px;border-top:1px solid var(--line);background:rgba(252,249,245,.98);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px 8px 12px}
+    .tab-btn{background:transparent;border:none;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;font-size:11px;color:var(--muted);padding:6px 4px}
+    .tab-btn.active{background:#ede5d8;color:var(--text);border:1px solid var(--line)}
+    .icon{width:22px;height:22px;border-radius:7px;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px}
+    .kanban{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .column{background:#fbf7f1;border:1px solid var(--line);border-radius:14px;padding:10px;min-height:130px}
+    .column h4{margin:0 0 8px;font-size:13px}
+    .mini-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;font-size:12px;margin-top:8px}
+    .tree ul{list-style:none;padding-left:18px;margin:8px 0}
+    .tree li{position:relative;padding-left:12px;margin:7px 0;font-size:13px}
+    .tree li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%;background:#ccb594;border:1px solid #b59d7c}
+    .habit-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed #e3dbcf}
+    .habit-row:last-child{border-bottom:none}
+    .toggle{width:44px;height:24px;border-radius:999px;background:#dfd4c4;position:relative;border:1px solid var(--line)}
+    .toggle::after{content:"";width:18px;height:18px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;border:1px solid var(--line)}
+    .toggle.on{background:#d0c0a8}
+    .toggle.on::after{left:22px}
+    .approval{position:absolute;inset:0;background:rgba(40,30,20,.35);display:none;align-items:flex-end;z-index:20}
+    .approval.show{display:flex}
+    .sheet{width:100%;background:#fffdf9;border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--line);border-bottom:none;padding:16px 16px 22px;box-shadow:0 -10px 30px rgba(0,0,0,.15)}
+    .preview{background:#fcfaf6;border:1px dashed #c7b59c;border-radius:14px;padding:10px;font-size:12px;color:#5e554a;line-height:1.45;max-height:110px;overflow:auto}
+    .inspector h3{margin:4px 0 8px;font-size:16px}
+    .inspector p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.5}
+    .mini-btn{padding:8px 10px;font-size:12px;background:#fff}
+    .kv{display:grid;grid-template-columns:1fr auto;gap:6px 10px;font-size:13px;margin-top:12px}
+    .kv div:nth-child(odd){color:var(--muted)}
+    .footer-note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.45}
+    @media (max-width:1040px){.layout{grid-template-columns:1fr}.phone-shell{order:-1}.phone{width:100%;max-width:390px}.sidebar,.inspector{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><div class="title">Personal Navigation OS — Interactive Wireframe</div><div class="subtitle">Clickable prototype of the app concept.</div></div>
+    <div class="hint">Use the left panel or bottom tabs. Tap “Show approval modal” on Chat or Diary.</div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section-title">Main screens</div>
+      <div class="nav-list">
+        <button class="nav-btn active" data-screen="chat">Chat</button>
+        <button class="nav-btn" data-screen="today">Today</button>
+        <button class="nav-btn" data-screen="boards">Boards</button>
+        <button class="nav-btn" data-screen="habits">Habits</button>
+        <button class="nav-btn" data-screen="more">More</button>
+      </div>
+      <div class="section-title" style="margin-top:16px;">Inside “More”</div>
+      <div class="sub-list">
+        <button class="sub-btn" data-screen="goals">Goals</button>
+        <button class="sub-btn" data-screen="health">Health</button>
+        <button class="sub-btn" data-screen="money">Money</button>
+        <button class="sub-btn" data-screen="diary">Diary</button>
+        <button class="sub-btn" data-screen="files">Files</button>
+        <button class="sub-btn" data-screen="reviews">Reviews</button>
+      </div>
+      <div class="section-title" style="margin-top:16px;">Key interactions</div>
+      <div class="chips">
+        <button class="chip" id="openApproval">Open approval modal</button>
+        <button class="chip" id="closeApproval">Close modal</button>
+        <button class="chip" id="gotoDiary">Go to diary flow</button>
+        <button class="chip" id="gotoGoals">Go to goal tree</button>
+      </div>
+      <div class="footer-note">This is a low-fidelity, navigable wireframe showing navigation, hierarchy, and the approval flow.</div>
+    </aside>
+
+    <div class="phone-shell">
+      <div class="phone">
+        <div class="notch"></div>
+
+        <section class="screen active-screen" id="screen-chat">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Chat</div><div class="app-sub">Capture thoughts, ask agents, create cards.</div></div><div class="avatar">AN</div></div>
+            <div class="card">
+              <div class="row-between"><div class="pill">Mission aligned</div><div class="pill">Local-first AI</div></div>
+              <div class="input-box" style="margin-top:10px;">I feel tired. I need to finish my app, lose weight, track sleep, finish CS50 AI, manage my flat renovation, and I feel emotionally heavy today.</div>
+              <div class="action-row" style="margin-top:10px;">
+                <button class="action-btn">Send</button>
+                <button class="action-btn">Capture as cards</button>
+                <button class="action-btn" onclick="showApproval()">Show approval modal</button>
+              </div>
+            </div>
+            <div class="message"><div class="avatar" style="width:28px;height:28px;font-size:10px;">AI</div><div class="bubble">You seem overloaded. I extracted 7 cards and one emotional-state note.<br><br><strong>Today’s recommendation:</strong><br>1. 45 min app architecture work<br>2. 10 min walk<br>3. Send one renovation message<br><br>Do not open new projects today.</div></div>
+            <div class="message" style="justify-content:flex-end;"><div class="bubble user">Analyse this diary entry from a psychological perspective and show me thinking patterns.</div></div>
+            <div class="card">
+              <div class="row-between"><strong>Created cards</strong><span class="badge">7 cards</span></div>
+              <div class="task"><div><strong>Build Personal Navigation OS</strong><br><small class="muted">App building • project</small></div><span class="badge">split</span></div>
+              <div class="task"><div><strong>Track sleep daily</strong><br><small class="muted">Health • habit</small></div><span class="badge">keep</span></div>
+              <div class="task"><div><strong>Manage Vilnius flat renovation</strong><br><small class="muted">Home/property • task</small></div><span class="badge">today</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-today">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Today</div><div class="app-sub">Protect the bottleneck. Keep it light and realistic.</div></div><div class="avatar">AN</div></div>
+            <div class="stat-grid">
+              <div class="stat"><div class="label">Energy</div><div class="value">6/10</div></div>
+              <div class="stat"><div class="label">Mood</div><div class="value">5/10</div></div>
+              <div class="stat"><div class="label">Sleep</div><div class="value">6h20</div></div>
+            </div>
+            <div class="card">
+              <div class="row-between"><strong>Top 3 tasks</strong><span class="badge">Focus Agent</span></div>
+              <div class="task"><div><strong>Create card model</strong><br><small class="muted">60 min • medium energy</small></div><span class="badge">1</span></div>
+              <div class="task"><div><strong>Walk 10 minutes</strong><br><small class="muted">10 min • low energy</small></div><span class="badge">2</span></div>
+              <div class="task"><div><strong>Review renovation payment</strong><br><small class="muted">20 min • low energy</small></div><span class="badge">3</span></div>
+            </div>
+            <div class="card"><strong>AI warning</strong><p class="muted" style="margin-top:8px;">You tried to plan 8 tasks today. Reduce to 3. This is a low-medium energy day.</p></div>
+            <div class="card">
+              <strong>Habit focus</strong>
+              <div class="habit-row"><div>Sleep before target time</div><div class="toggle"></div></div>
+              <div class="habit-row"><div>Walk 10 minutes</div><div class="toggle on"></div></div>
+              <div class="habit-row"><div>No sweets after 15:00</div><div class="toggle"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-boards">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Boards</div><div class="app-sub">Kanban flow with Today as the bottleneck.</div></div><div class="avatar">AN</div></div>
+            <div class="card">
+              <div class="row-between"><strong>April Board</strong><span class="badge">WIP warning</span></div>
+              <div class="kanban" style="margin-top:10px;">
+                <div class="column"><h4>Need to do</h4><div class="mini-card">Continue CS50 AI</div><div class="mini-card">Add budget screen</div></div>
+                <div class="column"><h4>Planned</h4><div class="mini-card">Diary analysis flow</div><div class="mini-card">OCR service placeholder</div></div>
+                <div class="column"><h4>Today</h4><div class="mini-card">Create card model</div><div class="mini-card">Review renovation payment</div></div>
+                <div class="column"><h4>Done</h4><div class="mini-card">Write project spec</div></div>
+              </div>
+            </div>
+            <div class="card"><strong>Flow insight</strong><p class="muted" style="margin-top:8px;">You have 11 tasks in progress. That is congestion, not progress. Split big tasks and reduce active work.</p></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-habits">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Habits</div><div class="app-sub">Repeated behaviours tracked separately from tasks.</div></div><div class="avatar">AN</div></div>
+            <div class="card">
+              <strong>Today’s habits</strong>
+              <div class="habit-row"><div><strong>Wake before target</strong><br><small class="muted">Time-based</small></div><div class="toggle on"></div></div>
+              <div class="habit-row"><div><strong>Drink water</strong><br><small class="muted">Yes / no</small></div><div class="toggle on"></div></div>
+              <div class="habit-row"><div><strong>No sweets after 15:00</strong><br><small class="muted">Yes / no</small></div><div class="toggle"></div></div>
+              <div class="habit-row"><div><strong>Protein target</strong><br><small class="muted">Number</small></div><span class="badge">92g</span></div>
+            </div>
+            <div class="card"><strong>Pattern note</strong><p class="muted" style="margin-top:8px;">When sleep is below 6.5 hours, habit consistency drops sharply the next day.</p></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-more">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">More</div><div class="app-sub">Jump into life areas and supporting tools.</div></div><div class="avatar">AN</div></div>
+            <div class="card"><div class="sub-list">
+              <button class="sub-btn" data-screen="goals">Goals</button>
+              <button class="sub-btn" data-screen="health">Health</button>
+              <button class="sub-btn" data-screen="money">Money</button>
+              <button class="sub-btn" data-screen="diary">Diary</button>
+              <button class="sub-btn" data-screen="files">Files</button>
+              <button class="sub-btn" data-screen="reviews">Reviews</button>
+            </div></div>
+            <div class="card"><strong>Agents</strong><div class="chips"><span class="chip">Mission</span><span class="chip">Focus</span><span class="chip">Review</span><span class="chip">Health</span><span class="chip">Money</span></div></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-goals">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Goals</div><div class="app-sub">Goal tree keeps the main goal while breaking it down.</div></div><div class="avatar">AN</div></div>
+            <div class="card tree">
+              <div class="row-between"><strong>Build Personal Navigation OS</strong><span class="badge">score 8.9</span></div>
+              <ul>
+                <li>Define product vision<ul><li>Write mission filter</li><li>Define agents</li><li>Define MVP</li></ul></li>
+                <li>Build mobile app<ul><li>Create React Native project</li><li>Create navigation</li><li>Create chat screen</li><li>Create Today screen</li></ul></li>
+                <li>Build backend<ul><li>Create FastAPI project</li><li>Create database</li><li>Create card API</li></ul></li>
+              </ul>
+            </div>
+            <div class="card"><strong>Mission filter</strong><div class="chips"><span class="chip">Happiness 9</span><span class="chip">Freedom 10</span><span class="chip">Clarity 9</span><span class="chip">Solitude 8</span></div></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-health">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Health</div><div class="app-sub">Sleep, food, energy, and body signals.</div></div><div class="avatar">AN</div></div>
+            <div class="stat-grid"><div class="stat"><div class="label">Weight</div><div class="value">83 kg</div></div><div class="stat"><div class="label">Protein</div><div class="value">92 g</div></div><div class="stat"><div class="label">Steps</div><div class="value">3.2k</div></div></div>
+            <div class="card"><strong>Health insight</strong><p class="muted" style="margin-top:8px;">Your first bottleneck is sleep regularity, not motivation.</p></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-money">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Money</div><div class="app-sub">Protect freedom, track cash, investing, and projects.</div></div><div class="avatar">AN</div></div>
+            <div class="stat-grid"><div class="stat"><div class="label">AI Budget</div><div class="value">£4.2</div></div><div class="stat"><div class="label">Month Limit</div><div class="value">£20</div></div><div class="stat"><div class="label">Cash Flow</div><div class="value">OK</div></div></div>
+            <div class="card"><strong>Money Agent</strong><p class="muted" style="margin-top:8px;">This purchase is affordable, but it delays your renovation buffer. Delay by one month.</p></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-diary">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Diary</div><div class="app-sub">Sensitive reflections, diary images, and pattern analysis.</div></div><div class="avatar">AN</div></div>
+            <div class="card">
+              <div class="row-between"><strong>Diary image</strong><span class="badge">sensitive</span></div>
+              <div class="input-box" style="min-height:70px;margin-top:10px;">[Photo of handwritten diary page stored locally]</div>
+              <div class="action-row" style="margin-top:10px;">
+                <button class="action-btn">Upload image</button>
+                <button class="action-btn">Extract text</button>
+                <button class="action-btn" onclick="showApproval()">Analyse with approval</button>
+              </div>
+            </div>
+            <div class="card"><strong>Extracted text (editable)</strong><div class="input-box" style="margin-top:10px;">I saw [PERSON_1] in my thoughts again and felt a wave of sadness...</div></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-files">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Files</div><div class="app-sub">Private vault for images, docs, screenshots, and attachments.</div></div><div class="avatar">AN</div></div>
+            <div class="task"><div><strong>diary_2026_05_06.jpg</strong><br><small class="muted">Diary image • sensitive</small></div><span class="badge">local</span></div>
+            <div class="task"><div><strong>renovation_invoice.pdf</strong><br><small class="muted">Property file • private</small></div><span class="badge">stored</span></div>
+            <div class="task"><div><strong>portfolio_screenshot.png</strong><br><small class="muted">Money file • never external</small></div><span class="badge">blocked</span></div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-reviews">
+          <div class="screen-inner">
+            <div class="app-header"><div><div class="app-title">Reviews</div><div class="app-sub">Daily, weekly, monthly, yearly feedback loops.</div></div><div class="avatar">AN</div></div>
+            <div class="card"><strong>Monthly review</strong><div class="kv"><div>Completed cards</div><div>18</div><div>Most postponed</div><div>Learn AI</div><div>Main bottleneck</div><div>Sleep + overload</div><div>Ignored area</div><div>Contribution</div></div></div>
+            <div class="card"><strong>Review Agent says</strong><p class="muted" style="margin-top:8px;">Money and property moved forward. Health was inconsistent. Delete or split any card moved 3 times.</p></div>
+          </div>
+        </section>
+
+        <div class="approval" id="approvalModal">
+          <div class="sheet">
+            <div class="row-between"><strong>External AI approval</strong><button class="mini-btn" onclick="hideApproval()">✕</button></div>
+            <p class="muted" style="margin:8px 0 10px;">This request wants to use external AI for deeper diary analysis.</p>
+            <div class="kv" style="margin-top:0;"><div>Privacy level</div><div>sensitive</div><div>Agent</div><div>Diary / Review Agent</div><div>Provider</div><div>Claude</div><div>Estimated cost</div><div>£0.04</div></div>
+            <div class="section-title" style="margin-top:12px;">What will be sent</div>
+            <div class="preview">Analyse this redacted diary entry from a psychological pattern perspective. Do not diagnose. Identify thinking patterns, emotional themes, repeated beliefs, possible cognitive distortions, needs, and gentle next actions.<br><br>Diary text: I saw [PERSON_1] in my thoughts again and felt a wave of sadness. My [PROPERTY] in [LOCATION] is stressing me...</div>
+            <div class="action-row" style="margin-top:12px;"><button class="action-btn">Approve</button><button class="action-btn">Keep local</button><button class="action-btn" onclick="hideApproval()">Cancel</button></div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <button class="tab-btn active" data-screen="chat"><div class="icon">C</div><div>Chat</div></button>
+          <button class="tab-btn" data-screen="today"><div class="icon">T</div><div>Today</div></button>
+          <button class="tab-btn" data-screen="boards"><div class="icon">B</div><div>Boards</div></button>
+          <button class="tab-btn" data-screen="habits"><div class="icon">H</div><div>Habits</div></button>
+          <button class="tab-btn" data-screen="more"><div class="icon">M</div><div>More</div></button>
+        </nav>
+      </div>
+    </div>
+
+    <aside class="inspector">
+      <div class="section-title">Screen notes</div>
+      <h3 id="inspectorTitle">Chat</h3>
+      <p id="inspectorText">Main home screen. The user captures messy thoughts, asks questions, and lets the app create structured cards. This is the main entry point of the whole system.</p>
+      <div class="section-title">Key ideas shown</div>
+      <div class="chips" id="inspectorChips"><span class="chip">AI chat as home</span><span class="chip">Capture → cards</span><span class="chip">Mission-aligned guidance</span></div>
+      <div class="section-title">What this wireframe demonstrates</div>
+      <div class="footer-note">Bottom tabs, “More” sections, Today bottleneck, goal tree, Kanban flow, life-area screens, and the sensitive diary approval flow.</div>
+    </aside>
+  </div>
+
+<script>
+const screenMeta = {
+  chat:{title:"Chat",text:"Main home screen. The user captures messy thoughts, asks questions, and lets the app create structured cards. This is the primary entry point.",chips:["AI chat as home","Capture → cards","Mission-aligned guidance"]},
+  today:{title:"Today",text:"Today is the bottleneck. The app protects attention by limiting active work to 1–3 top tasks and adapting to energy, mood, and sleep.",chips:["Top 1–3 tasks","Energy-aware planning","Habit focus"]},
+  boards:{title:"Boards",text:"Kanban planning with clear columns. The app watches work-in-progress congestion, moved-count, and protects the Today column.",chips:["Kanban flow","WIP control","Today bottleneck"]},
+  habits:{title:"Habits",text:"Habits are tracked separately from projects. This avoids cluttering Today with repeated behaviours like sleep, water, or no sugar.",chips:["Habit tracking","Yes/no + numbers","Pattern detection"]},
+  more:{title:"More",text:"More is the gateway to life-area screens such as Goals, Health, Money, Diary, Files, and Reviews.",chips:["Expandable IA","Low-noise navigation","Life-area sections"]},
+  goals:{title:"Goals",text:"Big goals stay visible while being broken into smaller children. Each task preserves its parent and root goal so meaning is never lost.",chips:["Goal tree","Parent-child structure","Mission score"]},
+  health:{title:"Health",text:"Tracks sleep, food, weight, energy, and body signals. Health insights explain bottlenecks instead of blaming motivation.",chips:["Sleep","Energy","Pattern insight"]},
+  money:{title:"Money",text:"Protects freedom. Tracks budget, investments, AI usage costs, and helps evaluate decisions without surprise spending.",chips:["Budget","Freedom","AI cost tracking"]},
+  diary:{title:"Diary",text:"Sensitive reflections and diary images live here. The app can store images locally, extract text, redact it, and ask for approval before external AI analysis.",chips:["Sensitive content","Local storage","Approval flow"]},
+  files:{title:"Files",text:"Private vault for images, PDFs, screenshots, and attachments. Some file types can be marked never-external automatically.",chips:["Private vault","Privacy levels","Never external"]},
+  reviews:{title:"Reviews",text:"Daily, weekly, monthly, and yearly reviews close the loop. The Review Agent points out bottlenecks, neglected life areas, and patterns.",chips:["Feedback loop","Monthly review","Pattern detection"]}
+};
+function setScreen(screen){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active-screen'));
+  const target=document.getElementById('screen-'+screen); if(target) target.classList.add('active-screen');
+  document.querySelectorAll('[data-screen]').forEach(btn=>btn.classList.remove('active'));
+  document.querySelectorAll('[data-screen="'+screen+'"]').forEach(btn=>btn.classList.add('active'));
+  const meta=screenMeta[screen] || screenMeta.chat;
+  document.getElementById('inspectorTitle').textContent=meta.title;
+  document.getElementById('inspectorText').textContent=meta.text;
+  const chipsWrap=document.getElementById('inspectorChips'); chipsWrap.innerHTML='';
+  meta.chips.forEach(c=>{const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipsWrap.appendChild(s);});
+  hideApproval();
+}
+function showApproval(){document.getElementById('approvalModal').classList.add('show');}
+function hideApproval(){document.getElementById('approvalModal').classList.remove('show');}
+document.querySelectorAll('[data-screen]').forEach(btn=>btn.addEventListener('click',()=>setScreen(btn.dataset.screen)));
+document.getElementById('openApproval').addEventListener('click',showApproval);
+document.getElementById('closeApproval').addEventListener('click',hideApproval);
+document.getElementById('gotoDiary').addEventListener('click',()=>setScreen('diary'));
+document.getElementById('gotoGoals').addEventListener('click',()=>setScreen('goals'));
+window.showApproval=showApproval; window.hideApproval=hideApproval;
+</script>
+</body>
+</html>

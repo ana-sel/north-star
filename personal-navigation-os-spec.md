@@ -294,18 +294,98 @@ Card {
 
 ---
 
-## 9. Feature Breakdown (Main Screens)
+## 9. Feature Breakdown & Navigation
 
-- **Chat Screen** — Primary input + AI guidance
-- **Today Screen** — Energy, top 1–3 tasks, AI suggestions
-- **Boards / Kanban** — Inbox → Year → Month → Week → Today → Done
-- **Goal Tree** — Hierarchical parent-child goals
-- **Habits** — Yes/no, number, scale, time-based
-- **Health** — Sleep, weight, calories, mood, symptoms
-- **Money** — Transactions, budgets, FIRE tracking
-- **Diary** — Emotional waves + reflections
-- **Reviews** — Daily / Weekly / Monthly with patterns
-- **Files** — Private encrypted storage
+### 9.1 Mobile Navigation (5 bottom tabs)
+
+```
+Chat | Today | Plan | Track | More
+```
+
+| Tab | Contains | Notes |
+|-----|----------|-------|
+| **Chat** | Capture + Intake Filter | Filter is part of chat flow, not a separate screen |
+| **Today** | Global Today | Energy stats, top 1–3 tasks, do-not-do, Focus Agent |
+| **Plan** | Segmented: Year · Month · Projects | Compass/Pillars accessible from header |
+| **Track** | Segmented: Habits · Health · Money | Each as a dashboard view |
+| **More** | Diary, Goals tree, Reviews, Files, Agents, Search, Settings | Secondary screens |
+
+### 9.2 Design Language
+
+**Palette:** Warm paper aesthetic — calm, low-contrast, never clinical.
+
+```
+Background:      #f5f3ee (warm paper)
+Panel:           #fffdf8 (cream white)
+Border/line:     #d9d2c7 (soft warm gray)
+Text:            #2f2a24 (deep warm brown)
+Muted:           #746b61 (warm gray)
+Soft highlight:  #ebe4d8 (cream gold)
+```
+
+**Life area colors** (left-border on cards):
+
+| Pillar | Color | Hex |
+|--------|-------|-----|
+| Health & Energy | Green | #7f9f78 |
+| Inner Growth | Purple | #9b86ba |
+| Money & Freedom | Blue | #779db6 |
+| Family | Rose | #b77a7c |
+| Joy & Exploration | Orange | #c99555 |
+| Contribution | Olive | #8b9b72 |
+
+**Component style:**
+- Cards: 18–22px border-radius, 1px border, subtle shadow
+- Stats: grid of 3, uppercase 11px labels + large 24px values
+- Habit matrix: day × habit table with ✓/×/— symbols
+- Tags/pills: 999px radius, warm background
+- Modals: bottom-sheet style (24px top radius)
+
+### 9.3 Screen Details
+
+#### Chat (Tab 1)
+- Primary input for all capture
+- AI responds with structured cards + guidance
+- **Intake Filter** is embedded: raw thoughts → Want/Need classification → Mission Filter → Exit Decision (keep/later/archive/delete/split/clarify)
+- Fake-want review: rejected items become archived self-knowledge insights, not just deleted
+
+#### Today (Tab 2)
+- **Global Today** — one shared bottleneck across all boards
+- Shows: energy/mood/sleep stats, top 1–3 tasks (from any board), do-not-do list
+- Focus Agent guidance
+- A card from any board (month, project, habit) can appear here via `today = true` flag — never copied
+
+#### Plan (Tab 3 — segmented)
+- **Year Board** — 3 columns: This Year / Scheduled / Done
+- **Month Board** — 7 columns: Inbox, This Month, This Week, In Progress, Waiting, Done, Review
+- **Project Boards** — per-project Kanban (Backlog, In Progress, Done)
+- Carryover logic: unfinished cards roll forward with `carryover_count + 1`. At 3 carryovers, forced review
+- Cards color-coded by life pillar (left border)
+- Compass/Pillars view accessible from Plan header (mission + 6 life areas)
+
+#### Track (Tab 4 — segmented)
+- **Habits** — matrix view: rows = habits, columns = days. Done/Not Done/Skipped. Streaks + agent insights
+- **Health** — dashboard: sleep, weight, energy, mood, calories, protein, steps. Charts + patterns
+- **Money** — dashboard: monthly spend, AI budget, cash flow, FIRE progress, categories. Charts + agent insights
+
+#### More (Tab 5)
+- Diary (sensitive reflections + approval flow for external AI)
+- Goals (tree view)
+- Reviews (daily/weekly/monthly/yearly pattern detection)
+- Files (encrypted private vault)
+- Agents (view policies, budgets, audit logs)
+- Search (semantic search across all cards)
+- Settings
+
+### 9.4 Key Design Rules
+
+1. **Raw first, filter second.** Capture everything, but nothing becomes active until it passes the intake + mission filter.
+2. **Today is global.** Never duplicated across boards. One shared view.
+3. **Habits are separate from Kanban.** Tracked by day, not as repeating task cards.
+4. **Health & Money are integrated dashboards**, not separate apps.
+5. **Fake wants become insights.** Rejected items are archived with reasoning, not just deleted.
+6. **3-carryover rule.** A card moved 3+ times triggers mandatory review.
+7. **Color = life area.** Every card has a visible pillar color for instant recognition.
 
 ---
 
