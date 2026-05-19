@@ -18,6 +18,7 @@ from app.api import health as health_api
 from app.api import money as money_api
 from app.api import files as files_api
 from app.api import diary as diary_api
+from app.api import drafts as drafts_api
 from app.api import wearables as wearables_api
 from app.scheduler import start_scheduler, stop_scheduler
 
@@ -58,6 +59,7 @@ app.include_router(health_api.router)
 app.include_router(money_api.router)
 app.include_router(files_api.router)
 app.include_router(diary_api.router)
+app.include_router(drafts_api.router)
 app.include_router(audit_api.router)
 app.include_router(calendar_api.router)
 app.include_router(wearables_api.router)

@@ -84,12 +84,23 @@ export interface TriageInterpretation {
   reason: string;
 }
 
+export interface CaptureDraftOut {
+  id: string;
+  title: string;
+  kind: string;
+  state: "new" | "accepted" | "dismissed" | "archived_insight";
+  life_area: LifeArea;
+  confidence: number;
+  reason: string | null;
+}
+
 export interface CaptureResponse {
   draft: CaptureDraft;
   used_ai: boolean;
   audit_log_id: string | null;
   error: string | null;
   triage: TriageInterpretation;
+  drafts: CaptureDraftOut[];
 }
 
 async function handle<T>(resp: Response): Promise<T> {

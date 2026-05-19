@@ -70,8 +70,19 @@ _REVIEW_PATTERNS = [
 ]
 
 _SORT_PATTERNS = [
-    r"^\s*(remind me|todo|idea[:\-]|note[:\-]|remember to)\b",
-    r"^\s*[-*]\s+\S",         # markdown bullet
+    r"^\s*(remind me|remember to)\b",
+    r"^\s*(idea|note)[:\-]",
+]
+
+# Explicit "this is a list to sort" openers / structural signals.
+# These outrank decision/log/etc so a message like "Sort: buy milk;
+# pay rent" doesn't get hijacked by the `buy` decision keyword.
+_EXPLICIT_SORT_PATTERNS = [
+    r"^\s*sort\b[\s:\-]",          # "sort these:", "sort: …"
+    r"^\s*list[:\-]",               # "list: foo, bar"
+    r"^\s*to[- ]?do[:\-]",          # "todo:", "to-do: ", "to do:"
+    r"^\s*[-*]\s+\S",                # markdown bullet list
+    r"^\s*\d+[.)]\s+\S",             # numbered list
 ]
 
 
@@ -91,7 +102,11 @@ def classify(text: str) -> TriageResult:
     if not stripped:
         return TriageResult(kind="talk", confidence=0.0, reason="empty message")
 
-    # Strong signals first.
+    # Strong signals first. Explicit sort openers ("Sort:", bullet/numbered
+    # lists) win over keyword-based decision/log so we don't misread
+    # "Sort: buy milk; pay rent" as a decision because of the word `buy`.
+    if pat := _matches(stripped, _EXPLICIT_SORT_PATTERNS):
+        return TriageResult(kind="sort", confidence=0.9, reason=f"matched: {pat}")
     if pat := _matches(stripped, _DECISION_PATTERNS):
         return TriageResult(kind="decision", confidence=0.85, reason=f"matched: {pat}")
     if pat := _matches(stripped, _LOG_PATTERNS):
@@ -100,6 +115,13 @@ def classify(text: str) -> TriageResult:
         return TriageResult(kind="review", confidence=0.8, reason=f"matched: {pat}")
     if pat := _matches(stripped, _SORT_PATTERNS):
         return TriageResult(kind="sort", confidence=0.75, reason=f"matched: {pat}")
+    # Structural: a message with 2+ semicolons reads as a sort list.
+    if stripped.count(";") >= 2:
+        return TriageResult(
+            kind="sort",
+            confidence=0.6,
+            reason="semicolon-separated list",
+        )
     if pat := _matches(stripped, _DIARY_PATTERNS):
         return TriageResult(kind="diary", confidence=0.7, reason=f"matched: {pat}")
 
