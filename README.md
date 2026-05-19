@@ -86,6 +86,16 @@ See [SPEC.md](SPEC.md) for the complete project specification, build status, and
 - [x] **Boards drag-and-drop** — real DnD via `PanResponder` + `Animated`
 - [x] **Pillar colors** — 4px colored left border on cards by life area (8 pillar colors)
 - [x] **Stat grid icons** — ⚡ Energy, 😊 Mood, 🌙 Sleep
+- [x] **Chat redesign — Slices 0–3**
+  - Slice 0: JWT auth scoping for Chat/Capture (no more DEV_USER_ID)
+  - Slice 1: Chat skeleton — Safe Auto pills, multiline composer, interpretation line
+  - Slice 2: Deterministic triage classifier (sort/decision/diary/log/review/talk)
+  - Slice 3: Drafts table + Sort-mode tray (Accept/Archive/Dismiss per item)
+- [ ] **Chat redesign — Slices 4–7** (next)
+  - Slice 4: Diary + Lessons (gentle)
+  - Slice 5: Decision workspace
+  - Slice 6: Pattern intelligence (read-only)
+  - Slice 7: Practice / qualities
 - [ ] **Remaining** — Diary image+OCR, monthly/yearly reviews, more agent insights
 
 ---

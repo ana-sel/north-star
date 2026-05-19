@@ -32,11 +32,13 @@ from app.enums import CardLevel, CardStatus, CardType, EnergyLevel, LifeArea, Pr
 from app.gateway import GatewayRequest, LocalAIGateway
 from app.models.card import Card
 from app.models.diary_entry import DiaryEntry
+from app.models.draft import Draft
 from app.models.energy import EnergyLog
 from app.models.habit import Habit, HabitLog
 from app.models.health_log import HealthLog
 from app.models.money_transaction import MoneyTransaction
 from app.models.user import User
+from app.services.draft_builder import split_into_drafts
 from app.services.triage import TriageKind, classify as classify_triage
 
 
@@ -87,12 +89,24 @@ class TriageInterpretation(BaseModel):
     reason: str
 
 
+class DraftOut(BaseModel):
+    """Slice 3 — a single suggested draft produced from a Sort-mode capture."""
+    id: uuid.UUID
+    title: str
+    kind: str
+    state: str
+    life_area: LifeArea | None = None
+    confidence: float
+    reason: str | None = None
+
+
 class CaptureResponse(BaseModel):
     draft: CaptureDraft
     used_ai: bool
     audit_log_id: uuid.UUID | None = None
     error: str | None = None
     triage: TriageInterpretation
+    drafts: list[DraftOut] = []
 
 
 class TriageRequest(BaseModel):
@@ -152,6 +166,40 @@ async def capture(
         reason=triage_raw.reason,
     )
 
+    # Slice 3: only Sort mode auto-creates drafts. Talk / Diary / etc.
+    # leave the drafts tray empty — those modes never write structured
+    # items without an explicit user action.
+    draft_rows: list[Draft] = []
+    if triage_raw.kind == "sort":
+        for candidate in split_into_drafts(payload.text):
+            row = Draft(
+                user_id=current_user.id,
+                source_text=payload.text,
+                title=candidate.title,
+                kind=candidate.kind,
+                state="new",
+                confidence=candidate.confidence,
+                reason=candidate.reason,
+            )
+            db.add(row)
+            draft_rows.append(row)
+        if draft_rows:
+            db.commit()
+            for row in draft_rows:
+                db.refresh(row)
+    drafts_payload = [
+        DraftOut(
+            id=row.id,
+            title=row.title,
+            kind=row.kind,
+            state=row.state,
+            life_area=LifeArea(row.life_area) if row.life_area else None,
+            confidence=row.confidence,
+            reason=row.reason,
+        )
+        for row in draft_rows
+    ]
+
     # If the model couldn't run (no Ollama, etc.) fall back to a
     # "raw thought" draft so the user can still capture.
     if response.final_status != "completed" or not response.text:
@@ -161,6 +209,7 @@ async def capture(
             audit_log_id=response.audit_log_id,
             error=response.error,
             triage=triage_payload,
+            drafts=drafts_payload,
         )
 
     draft = _parse_draft(response.text, fallback_text=payload.text)
@@ -169,6 +218,7 @@ async def capture(
         used_ai=True,
         audit_log_id=response.audit_log_id,
         triage=triage_payload,
+        drafts=drafts_payload,
     )
 
 

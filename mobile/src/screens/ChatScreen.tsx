@@ -12,7 +12,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { CaptureDraft, captureThought, createCard, filterCard, FilterResponse, TriageInterpretation, TriageKind } from "../api/cards";
+import { CaptureDraft, CaptureDraftOut, captureThought, createCard, filterCard, FilterResponse, TriageInterpretation, TriageKind } from "../api/cards";
+import { acceptDraft, archiveDraft, dismissDraft, type DraftState } from "../api/drafts";
 import { DEV_USER_ID } from "../config/api";
 import { useAuth } from "../context/AuthContext";
 import { colors, spacing } from "../theme";
@@ -29,6 +30,8 @@ interface Message {
   usedAi?: boolean;
   filterResult?: FilterResponse;
   filtering?: boolean;
+  drafts?: CaptureDraftOut[];
+  draftStates?: Record<string, DraftState>;
 }
 
 /**
@@ -82,6 +85,10 @@ export function ChatScreen() {
           draft: result.draft,
           triage: result.triage,
           usedAi: result.used_ai,
+          drafts: result.drafts,
+          draftStates: Object.fromEntries(
+            (result.drafts ?? []).map((d) => [d.id, d.state])
+          ),
         },
       ]);
     } catch (e: any) {
@@ -115,6 +122,35 @@ export function ChatScreen() {
       }
     } catch (e: any) {
       Alert.alert("Save failed", e?.message ?? "Unknown error");
+    }
+  }
+
+  // Slice 3 — per-row state transitions inside the Sort-mode tray.
+  // The endpoint enforces ownership + one-shot transitions; we just
+  // reflect the new state locally so the row collapses to its outcome.
+  async function onDraftAction(
+    msg: Message,
+    draftId: string,
+    action: "accept" | "dismiss" | "archive"
+  ) {
+    if (!token) return;
+    const prevState = msg.draftStates?.[draftId];
+    if (prevState && prevState !== "new") return;
+    try {
+      const updated =
+        action === "accept" ? await acceptDraft(token, draftId)
+        : action === "dismiss" ? await dismissDraft(token, draftId)
+        : await archiveDraft(token, draftId);
+      setMessages((all) => all.map((it) =>
+        it.id !== msg.id
+          ? it
+          : {
+              ...it,
+              draftStates: { ...(it.draftStates ?? {}), [draftId]: updated.state },
+            }
+      ));
+    } catch (e: any) {
+      Alert.alert("Draft action failed", e?.message ?? "Unknown error");
     }
   }
 
@@ -204,8 +240,71 @@ export function ChatScreen() {
                 </View>
               </View>
 
-              {/* Recommendation card (only when we have a draft to suggest) */}
-              {m.draft && (
+              {/* Slice 3 — Sort-mode draft tray. When the triage returned
+                  `sort` and the backend produced drafts, render the tray
+                  in place of the single-item recommendation card. */}
+              {m.drafts && m.drafts.length > 0 && (
+                <View style={styles.recommendation}>
+                  <View style={styles.recTop}>
+                    <View style={styles.recIcon}><Text style={styles.recIconText}>≡</Text></View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.recStrong}>
+                        I found {m.drafts.length} item{m.drafts.length === 1 ? "" : "s"} — recommended sorting is ready
+                      </Text>
+                      <Text style={styles.recSmall}>Accept the ones you want as cards. Dismiss the rest, or archive as insight.</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.recList}>
+                    {m.drafts.map((d) => {
+                      const st = m.draftStates?.[d.id] ?? d.state;
+                      const done = st !== "new";
+                      const label =
+                        st === "accepted" ? "Accepted ✓"
+                        : st === "dismissed" ? "Dismissed"
+                        : st === "archived_insight" ? "Archived"
+                        : null;
+                      return (
+                        <View key={d.id} style={styles.recItem}>
+                          <View style={[styles.stripe, stripeColorForType(d.kind)]} />
+                          <View style={{ flex: 1 }}>
+                            <Text style={[styles.recItemTitle, done && styles.draftDone]}>{d.title}</Text>
+                            <Text style={styles.recItemDesc}>{d.kind}</Text>
+                          </View>
+                          {done ? (
+                            <Text style={styles.draftDoneLabel}>{label}</Text>
+                          ) : (
+                            <View style={styles.draftRowActions}>
+                              <Pressable
+                                style={[styles.draftPill, styles.draftPillPrimary]}
+                                onPress={() => onDraftAction(m, d.id, "accept")}
+                              >
+                                <Text style={styles.draftPillPrimaryText}>Accept</Text>
+                              </Pressable>
+                              <Pressable
+                                style={styles.draftPill}
+                                onPress={() => onDraftAction(m, d.id, "archive")}
+                              >
+                                <Text style={styles.draftPillText}>Archive</Text>
+                              </Pressable>
+                              <Pressable
+                                style={styles.draftPill}
+                                onPress={() => onDraftAction(m, d.id, "dismiss")}
+                              >
+                                <Text style={styles.draftPillText}>Dismiss</Text>
+                              </Pressable>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+
+              {/* Recommendation card (only when we have a draft to suggest
+                  AND we are NOT in Sort mode — Sort renders the tray above). */}
+              {m.draft && !(m.drafts && m.drafts.length > 0) && (
                 <View style={styles.recommendation}>
                   <View style={styles.recTop}>
                     <View style={styles.recIcon}><Text style={styles.recIconText}>✓</Text></View>
@@ -397,7 +496,7 @@ function humanizeTriage(kind?: TriageKind): string {
     case "diary":    return "an emotional reflection";
     case "log":      return "a quick log";
     case "review":   return "a review note";
-    case "sort":     return "an item to sort";
+    case "sort":     return "a list to sort";
     case "talk":
     default:         return "a conversation";
   }
@@ -583,6 +682,20 @@ const styles = StyleSheet.create({
   actionPrimary: { backgroundColor: "#2f271f", borderColor: "#2f271f" },
   actionPrimaryText: { color: "#fff" },
   actionDone: { backgroundColor: colors.success, borderColor: colors.success },
+
+  // ── Slice 3: per-row draft tray actions ────────────────────────────
+  draftRowActions: { flexDirection: "row", gap: 6, alignItems: "center" },
+  draftPill: {
+    borderWidth: 1, borderColor: colors.border,
+    backgroundColor: "#fffaf3",
+    borderRadius: 999,
+    paddingHorizontal: 10, paddingVertical: 5,
+  },
+  draftPillText: { fontSize: 11, fontWeight: "700", color: "#5f4f3d" },
+  draftPillPrimary: { backgroundColor: "#2f271f", borderColor: "#2f271f" },
+  draftPillPrimaryText: { fontSize: 11, fontWeight: "700", color: "#fff" },
+  draftDone: { textDecorationLine: "line-through", color: colors.textMuted },
+  draftDoneLabel: { fontSize: 11, fontWeight: "700", color: colors.textMuted },
 
   // ── Mission-filter sub-card (kept from previous build) ────────────
   filterRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: spacing.sm },

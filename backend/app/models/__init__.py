@@ -12,6 +12,7 @@ from app.models.agent_policy import AgentPolicy
 from app.models.ai_audit_log import AIAuditLog
 from app.models.embedding import Embedding
 from app.models.pending_approval import PendingApproval
+from app.models.draft import Draft
 
 __all__ = [
     "User",
@@ -27,4 +28,5 @@ __all__ = [
     "AIAuditLog",
     "Embedding",
     "PendingApproval",
+    "Draft",
 ]

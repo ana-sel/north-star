@@ -1,6 +1,6 @@
 # Chat redesign — Capture chamber + Safe Auto triage
 
-**Status**: spec accepted, not yet implemented.
+**Status**: Slices 0–3 implemented and committed. Next up: Slice 4 (Diary + Lessons).
 **Owner**: Ana (product), Copilot (implementation).
 **Scope**: only the **Chat** tab and the data/auth plumbing it depends on. Other screens are out of scope for this plan.
 **Source audit**: [../../audit/SUMMARY.md](../../audit/SUMMARY.md) — flagged DEV_USER_ID as P0, Chat as a basic MVP that doesn't yet feel safe or intelligent.
@@ -31,10 +31,10 @@ Each slice is a self-contained PR. Stop after each one for review before startin
 
 | #  | Slice                                  | Phase in spec | Why it's first / next                                                                                                           |
 |----|----------------------------------------|---------------|---------------------------------------------------------------------------------------------------------------------------------|
-| 0  | **Pre-work: auth scope for Chat only** | §13           | Spec is unsafe without it. Replace `DEV_USER_ID` with `useAuth().userId` in Chat + Capture API call, and reject the request server-side if the JWT user disagrees. Other 24 screens stay on DEV_USER_ID until later — that's a separate roadmap (see [audit/SUMMARY.md #1](../../audit/SUMMARY.md)). |
-| 1  | **Chat skeleton: Safe Auto + visible state lines** | §1, §11, §16, "Final UX" | Rename the screen to **Capture** (header only — bottom tab still says "Chat"). New subtitle, three pills (Local / Mission filter / External AI), bigger multiline composer, primary button label is `Send`. Below the response: one-line interpretation `Treated as: … · Change`. **No new modes shown yet, no triage logic yet** — this is purely UI. |
-| 2  | **Triage classifier (server-side, deterministic first)** | §2 (Modes), §"AI Triage" | Backend route that takes a message + minimal context and returns `{ kind: "talk" \| "sort" \| "diary" \| "decision" \| "log" \| "review", confidence, reason }`. v1 = rules-based (regex / keyword / structural cues). v2 (later) can swap to a local model. The UI just renders the interpretation line and three action chips. **No drafts created yet.** |
-| 3  | **Draft model + draft tray (Sort mode only)** | §4, §5      | DB table `drafts` + endpoints. In Sort mode, the AI produces drafts; the tray collapses to "I found N items — Recommended sorting is ready" with `Accept / Review / Not now`. The bottom-sheet filter exists, pre-filled, with `Keep / Later / Archive insight / Delete`. Talk / Diary modes never auto-create drafts. |
+| 0  | ~~**Pre-work: auth scope for Chat only**~~ ✅ | §13           | Spec is unsafe without it. Replace `DEV_USER_ID` with `useAuth().userId` in Chat + Capture API call, and reject the request server-side if the JWT user disagrees. Other 24 screens stay on DEV_USER_ID until later — that's a separate roadmap (see [audit/SUMMARY.md #1](../../audit/SUMMARY.md)). |
+| 1  | ~~**Chat skeleton: Safe Auto + visible state lines**~~ ✅ | §1, §11, §16, "Final UX" | Rename the screen to **Capture** (header only — bottom tab still says "Chat"). New subtitle, three pills (Local / Mission filter / External AI), bigger multiline composer, primary button label is `Send`. Below the response: one-line interpretation `Treated as: … · Change`. **No new modes shown yet, no triage logic yet** — this is purely UI. |
+| 2  | ~~**Triage classifier (server-side, deterministic first)**~~ ✅ | §2 (Modes), §"AI Triage" | Backend route that takes a message + minimal context and returns `{ kind: "talk" \| "sort" \| "diary" \| "decision" \| "log" \| "review", confidence, reason }`. v1 = rules-based (regex / keyword / structural cues). v2 (later) can swap to a local model. The UI just renders the interpretation line and three action chips. **No drafts created yet.** |
+| 3  | ~~**Draft model + draft tray (Sort mode only)**~~ ✅ | §4, §5      | DB table `drafts` + endpoints. In Sort mode, the AI produces drafts; the tray collapses to "I found N items — Recommended sorting is ready" with `Accept / Review / Not now`. The bottom-sheet filter exists, pre-filled, with `Keep / Later / Archive insight / Delete`. Talk / Diary modes never auto-create drafts. |
 | 4  | **Diary + Lessons (gentle)**             | §3, §6       | Diary mode saves to existing diary table only on explicit `Save as diary`. Add a `learning_events` table + `Save lesson` chip. No pattern claims. Sensitive-by-default. |
 | 5  | **Decision workspace**                   | §9, §"Auto-action policy" | New `decisions` table + a minimal Decision-brief UI when triage classifies a message as high-impact money/property/health/legal/life. Never creates an action card. |
 | 6  | **Pattern intelligence (read-only)**     | §7, §8       | Add a `life_events` timeline (write-only at first — populated by existing logs + new draft/lesson/decision events). One single hypothesis card (sleep → energy → completion) on Review mode. Confidence levels and `Yes / Maybe / No` confirm. Defer the big engine. |
@@ -61,6 +61,14 @@ Acceptance for the first PR:
 - Pattern engine math (Slice 6 ships only the timeline write path + one hand-built hypothesis).
 - Practices/qualities (Slice 7).
 - Migration of the other 24 screens off `DEV_USER_ID` — tracked separately in [audit/SUMMARY.md](../../audit/SUMMARY.md) as P0 #1.
+
+### What's left to do (as of May 20, 2026)
+
+- **Slice 4 — Diary + Lessons**: Diary mode saves to existing diary table on explicit `Save as diary`. New `learning_events` table + `Save lesson` chip. Sensitive-by-default.
+- **Slice 5 — Decision workspace**: `decisions` table + Decision-brief UI for high-impact triage.
+- **Slice 6 — Pattern intelligence**: `life_events` timeline + one hypothesis card (sleep → energy → completion).
+- **Slice 7 — Practice / qualities**: Optional, lowest priority.
+- **Polish**: Sort-mode AI bubble could say "Caught. I've drafted these from your list." instead of the generic line. Browser smoke-test the tray pills end-to-end once container is rebuilt with latest triage fix.
 
 ---
 
