@@ -35,6 +35,29 @@ def decrypt_file(data: bytes) -> bytes:
     return f.decrypt(data)
 
 
+def encrypt_str(value: str) -> str:
+    """Encrypt a unicode string to a urlsafe-base64 token.
+
+    Returns the input unchanged if no key is set (dev passthrough).
+    """
+    f = _get_fernet()
+    if f is None:
+        return value
+    return f.encrypt(value.encode("utf-8")).decode("ascii")
+
+
+def decrypt_str(token: str) -> str:
+    """Decrypt a token produced by `encrypt_str`.
+
+    Returns the input unchanged if no key is set. Raises `InvalidToken`
+    on tamper / wrong-key.
+    """
+    f = _get_fernet()
+    if f is None:
+        return token
+    return f.decrypt(token.encode("ascii")).decode("utf-8")
+
+
 def generate_key() -> str:
     """Generate a new Fernet key (utility for setup)."""
     return Fernet.generate_key().decode()
