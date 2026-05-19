@@ -4,8 +4,6 @@ A private, AI-powered Personal Navigation OS — a quiet command centre for a me
 
 See [SPEC.md](SPEC.md) for the complete project specification, build status, and remaining work.
 
-> **Legacy specs** (superseded by SPEC.md): `personal-navigation-os-spec.md`, `personal_navigation_os_project_spec.md`
-
 ---
 
 ## Build status
@@ -152,8 +150,7 @@ north-star/
 │   └── package.json
 ├── docker-compose.yml
 ├── README.md
-├── personal-navigation-os-spec.md
-└── personal_navigation_os_project_spec.md
+└── SPEC.md
 ```
 
 ---
