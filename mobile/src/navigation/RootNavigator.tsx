@@ -24,6 +24,8 @@ import { CompassScreen } from "../screens/CompassScreen";
 import { MissionEditorScreen } from "../screens/MissionEditorScreen";
 import { AuditLogsScreen } from "../screens/AuditLogsScreen";
 import { AIBudgetScreen } from "../screens/AIBudgetScreen";
+import { CalendarScreen } from "../screens/CalendarScreen";
+import { WearablesImportScreen } from "../screens/WearablesImportScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 
 import { colors } from "../theme";
@@ -136,6 +138,16 @@ function MoreNavigator() {
         name="AIBudget"
         component={AIBudgetScreen}
         options={{ title: "AI Budget" }}
+      />
+      <MoreStack.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{ title: "Calendar" }}
+      />
+      <MoreStack.Screen
+        name="WearablesImport"
+        component={WearablesImportScreen}
+        options={{ title: "Wearables" }}
       />
       <MoreStack.Screen
         name="Settings"
