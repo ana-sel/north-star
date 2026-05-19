@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from typing import Literal
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -80,10 +80,7 @@ class CardOut(BaseModel):
     updated_at: datetime
     completed_at: datetime | None
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 class CardCreate(BaseModel):
     user_id: uuid.UUID
     title: str = Field(min_length=1, max_length=500)

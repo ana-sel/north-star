@@ -1,36 +1,35 @@
 # TODO — post-MVP gaps
 
 Captured 2026-05-19 after the `feat: complete MVP must-haves + post-MVP nice-to-haves` push.
-Status updated after the second pass this session.
+Updated after the autonomous-execution pass this session.
 
-## Requires your action (env / services / data — agent cannot do these)
+## Requires your action (one-off, manual)
 
-- [ ] Create `.env` from `.env.example` with real `POSTGRES_PASSWORD`, `JWT_SECRET`, `ENCRYPTION_KEY` before `docker compose up`.
-- [ ] Pull `llava` model into Ollama (free, just bandwidth):
-  ```
-  docker exec northstar-ollama ollama pull llava
-  ```
-- [ ] Seed `daily_budget_limit_gbp` values on `agent_policies` rows (otherwise per-agent daily limits are NULL = no enforcement; monthly already enforced).
-- [ ] Build + smoke-test the Docker stack: `docker compose build && docker compose up -d`.
+- [ ] Verify `llava` pull finished: `docker exec northstar-ollama ollama list` should show it. (Started in background; ~3.9GB downloaded by end of session — likely finished by the time you read this.)
+- [ ] Live end-to-end OCR test against real `llava`: `curl -F image=@some_pic.png http://localhost:8000/diary/ocr` once the pull completes.
 
-## Done this session
+## Done this session (autonomous pass — infra + code)
 
-- [x] Apply migration `0006_must_haves` + new `0007_merge_users_mission` to local dev DB (`alembic upgrade head`).
-- [x] Fix pre-existing schema drift: `User.mission_data` had no migration → added in `0007_merge_users_mission.py` (also merges the two parallel `0006_*` heads into one).
-- [x] Per-agent `daily_budget_limit_gbp` enforcement — **already wired** in `gateway._check_budget` (tier 1 of 4).
-- [x] `AIBudgetScreen` loading + error states — **already present** in original screen.
-- [x] Tests for `GET /audit/budget` — `backend/tests/test_audit_budget.py` (3 tests).
-- [x] Tests for `POST /wearables/import` — `backend/tests/test_wearables.py` (4 tests).
-- [x] Mobile Calendar screen — `mobile/src/screens/CalendarScreen.tsx` + API client + nav entry + MoreScreen row.
-- [x] Mobile Wearables import screen — `mobile/src/screens/WearablesImportScreen.tsx` + API client + nav entry + MoreScreen row.
-- [x] `/habit` command disambiguation: now lists all substring matches when multiple hit, requires more specificity.
-- [x] Fixed 2 pre-existing failing tests in `test_phase5.py` (`_check_budget` unit tests didn't disable global caps).
+- [x] `.env` generated at repo root with real `POSTGRES_PASSWORD`, `JWT_SECRET`, `ENCRYPTION_KEY`. Gitignored.
+- [x] `docker-compose.yml` project name pinned to `north-star` to preserve the existing `north-star_postgres_data` volume (would have orphaned data otherwise).
+- [x] Full Docker stack built and brought up: postgres + ollama + backend, all healthy. Smoke test on `GET /healthz` → 200 OK.
+- [x] Fixed routing collision: meta health endpoint moved from `/health` (shadowed by the `/health` router) to `/healthz`. Dockerfile `HEALTHCHECK` updated.
+- [x] Pydantic v2 migration across all 9 API files (`class Config: from_attributes = True` → `model_config = ConfigDict(from_attributes=True)`). Deprecation warnings gone.
+- [x] `daily_budget_limit_gbp` seeded for all 13 agent policies (= monthly / 10, e.g. healing=£0.10/day, review=£0.40/day). `app/seed.py` updated so future runs apply this automatically.
+
+## Done in previous pass this session (commit `361f901`)
+
+- [x] Migration `0007_merge_users_mission`: merged the two parallel `0006_*` heads + added the missing `users.mission_data` column.
+- [x] `backend/tests/test_audit_budget.py` (3 tests) + `backend/tests/test_wearables.py` (4 tests).
+- [x] Mobile Calendar screen + Wearables import screen + nav wiring.
+- [x] `/habit` command disambiguation.
+- [x] Fixed 2 pre-existing `test_phase5._check_budget` tests that didn't disable global caps.
+
+Full backend suite: **199/199 passing.**
 
 ## Deferred / not in scope yet
 
 - [ ] iCal URL encrypted storage in user settings (currently re-pasted each session).
-- [ ] Calendar parser: RRULE expansion, full VTIMEZONE handling (basic non-TZ events work).
+- [ ] Calendar parser: RRULE expansion, full VTIMEZONE handling.
 - [ ] Chat command autocomplete in `ChatScreen`.
 - [ ] CHANGELOG / release notes file.
-- [ ] Live end-to-end OCR test against real `llava` (unit tests mock Ollama).
-- [ ] Pydantic deprecation warnings — `class Config` → `ConfigDict` migration across ~9 files.

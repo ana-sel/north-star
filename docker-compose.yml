@@ -1,4 +1,4 @@
-name: northstar
+name: north-star
 
 x-security: &security
   security_opt:
