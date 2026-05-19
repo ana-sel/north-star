@@ -15,6 +15,7 @@ import re
 from datetime import datetime, date, timedelta, timezone
 
 import httpx
+from dateutil.rrule import rrulestr
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.orm import Session
@@ -44,9 +45,16 @@ class CalendarFeed(BaseModel):
 
 
 # Very small RFC-5545 parser — covers VEVENT + DTSTART/DTEND/SUMMARY/UID
-# /LOCATION/DESCRIPTION. We deliberately avoid pulling in `icalendar` to
-# keep deps small; we only need read-only top-level VEVENTs.
-_LINE_RE = re.compile(r"^([A-Z\-]+)(?:;[^:]*)?:(.*)$")
+# /LOCATION/DESCRIPTION/RRULE/EXDATE/RDATE. We deliberately avoid pulling
+# in `icalendar` to keep deps small; we only need read-only top-level
+# VEVENTs. Recurring events are expanded via python-dateutil's rrule.
+#
+# Match KEY[;PARAMS]:VALUE — capture the params block separately so we
+# can read TZID etc. without losing it.
+_LINE_RE = re.compile(r"^([A-Z\-]+)((?:;[^:]*)?):(.*)$")
+# Recurrence-related keys we want to keep verbatim (with params) so we
+# can replay them through rrulestr / parse comma-separated date lists.
+_RECUR_KEYS = {"RRULE", "EXDATE", "RDATE"}
 
 
 def _parse_dt(value: str) -> tuple[datetime, bool]:
@@ -63,6 +71,21 @@ def _parse_dt(value: str) -> tuple[datetime, bool]:
     return dt.replace(tzinfo=timezone.utc), False
 
 
+def _parse_dt_list(value: str) -> list[datetime]:
+    """Parse a comma-separated EXDATE/RDATE value list."""
+    out: list[datetime] = []
+    for part in value.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            dt, _ = _parse_dt(part)
+            out.append(dt)
+        except Exception:
+            continue
+    return out
+
+
 def _unfold(text: str) -> list[str]:
     """RFC-5545 line unfolding: continuation lines start with a space/tab."""
     raw = text.replace("\r\n", "\n").split("\n")
@@ -75,12 +98,26 @@ def _unfold(text: str) -> list[str]:
     return out
 
 
-def parse_ics(text: str) -> list[CalendarEvent]:
+def parse_ics(
+    text: str,
+    *,
+    expand_from: datetime | None = None,
+    expand_until: datetime | None = None,
+    max_per_series: int = 366,
+) -> list[CalendarEvent]:
+    """Parse VEVENTs from an ICS document.
+
+    If ``expand_from`` and ``expand_until`` are both provided, any VEVENT
+    carrying an RRULE is expanded into individual instances within that
+    window (capped at ``max_per_series`` to bound the worst case).
+    EXDATE entries are honoured. Non-recurring events are returned as
+    a single instance regardless of the window.
+    """
     events: list[CalendarEvent] = []
     current: dict | None = None
     for line in _unfold(text):
         if line == "BEGIN:VEVENT":
-            current = {}
+            current = {"_exdates": [], "_rdates": []}
             continue
         if line == "END:VEVENT" and current is not None:
             try:
@@ -92,17 +129,73 @@ def parse_ics(text: str) -> list[CalendarEvent]:
                 if start_dt is None:
                     current = None
                     continue
-                events.append(
-                    CalendarEvent(
-                        uid=current.get("UID", ""),
-                        summary=current.get("SUMMARY", "(no title)"),
-                        start=start_dt,
-                        end=end_dt,
-                        all_day=all_day,
-                        location=current.get("LOCATION") or None,
-                        description=current.get("DESCRIPTION") or None,
-                    )
+                duration = (end_dt - start_dt) if end_dt is not None else None
+                base = CalendarEvent(
+                    uid=current.get("UID", ""),
+                    summary=current.get("SUMMARY", "(no title)"),
+                    start=start_dt,
+                    end=end_dt,
+                    all_day=all_day,
+                    location=current.get("LOCATION") or None,
+                    description=current.get("DESCRIPTION") or None,
                 )
+
+                rrule_value = current.get("RRULE")
+                if (
+                    rrule_value
+                    and expand_from is not None
+                    and expand_until is not None
+                ):
+                    exdates = set(current.get("_exdates", []))
+                    try:
+                        rule = rrulestr(f"RRULE:{rrule_value}", dtstart=start_dt)
+                    except Exception:
+                        events.append(base)
+                    else:
+                        count = 0
+                        # Walk a slightly wider window so we don't miss
+                        # instances whose start is just before `expand_from`
+                        # but still ongoing.
+                        lookback = expand_from - timedelta(days=1)
+                        for occ in rule.between(
+                            lookback, expand_until, inc=True
+                        ):
+                            if occ in exdates:
+                                continue
+                            count += 1
+                            if count > max_per_series:
+                                break
+                            occ_end = (occ + duration) if duration else None
+                            events.append(
+                                CalendarEvent(
+                                    uid=f"{base.uid}@{occ.isoformat()}",
+                                    summary=base.summary,
+                                    start=occ,
+                                    end=occ_end,
+                                    all_day=base.all_day,
+                                    location=base.location,
+                                    description=base.description,
+                                )
+                            )
+                        # RDATE additions
+                        for extra in current.get("_rdates", []):
+                            if extra in exdates:
+                                continue
+                            if expand_from <= extra <= expand_until:
+                                occ_end = (extra + duration) if duration else None
+                                events.append(
+                                    CalendarEvent(
+                                        uid=f"{base.uid}@{extra.isoformat()}",
+                                        summary=base.summary,
+                                        start=extra,
+                                        end=occ_end,
+                                        all_day=base.all_day,
+                                        location=base.location,
+                                        description=base.description,
+                                    )
+                                )
+                else:
+                    events.append(base)
             except Exception:
                 pass  # skip malformed VEVENT
             current = None
@@ -112,9 +205,16 @@ def parse_ics(text: str) -> list[CalendarEvent]:
         m = _LINE_RE.match(line)
         if not m:
             continue
-        key, value = m.group(1), m.group(2)
-        # Unescape RFC-5545 text values.
-        value = value.replace("\\n", "\n").replace("\\,", ",").replace("\\;", ";")
+        key, _params, value = m.group(1), m.group(2), m.group(3)
+        if key == "EXDATE":
+            current["_exdates"].extend(_parse_dt_list(value))
+            continue
+        if key == "RDATE":
+            current["_rdates"].extend(_parse_dt_list(value))
+            continue
+        # Unescape RFC-5545 text values for free-text fields.
+        if key not in _RECUR_KEYS:
+            value = value.replace("\\n", "\n").replace("\\,", ",").replace("\\;", ";")
         current[key] = value
     return events
 
@@ -139,10 +239,13 @@ async def read_ics(
 
     now = datetime.now(timezone.utc)
     cutoff = now + timedelta(days=days)
+    window_start = now - timedelta(hours=12)
     events = [
         ev
-        for ev in parse_ics(resp.text)
-        if ev.start >= now - timedelta(hours=12) and ev.start <= cutoff
+        for ev in parse_ics(
+            resp.text, expand_from=window_start, expand_until=cutoff
+        )
+        if ev.start >= window_start and ev.start <= cutoff
     ]
     events.sort(key=lambda e: e.start)
     return CalendarFeed(source=str(url), events=events)
@@ -211,10 +314,13 @@ async def read_stored_ics(
 
     now = datetime.now(timezone.utc)
     cutoff = now + timedelta(days=days)
+    window_start = now - timedelta(hours=12)
     events = [
         ev
-        for ev in parse_ics(resp.text)
-        if ev.start >= now - timedelta(hours=12) and ev.start <= cutoff
+        for ev in parse_ics(
+            resp.text, expand_from=window_start, expand_until=cutoff
+        )
+        if ev.start >= window_start and ev.start <= cutoff
     ]
     events.sort(key=lambda e: e.start)
     # Don't echo the raw URL back to the client; keep it server-side.
