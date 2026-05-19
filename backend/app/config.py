@@ -39,5 +39,14 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 60
 
+    # Global AI budget caps (all agents combined, GBP).
+    global_monthly_budget_gbp: float = 10.0
+    global_daily_budget_gbp: float = 1.0
+
+    # OCR (diary photo → text). Uses Ollama vision-capable model locally.
+    ocr_model: str = "llava"
+    ocr_max_bytes: int = 8 * 1024 * 1024  # 8 MB per image
+    ocr_timeout_seconds: float = 60.0
+
 
 settings = Settings()

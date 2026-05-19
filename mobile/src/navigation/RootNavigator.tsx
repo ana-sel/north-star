@@ -20,6 +20,11 @@ import { LearningInsightsScreen } from "../screens/LearningInsightsScreen";
 import { HealingInsightsScreen } from "../screens/HealingInsightsScreen";
 import { ResearchInsightsScreen } from "../screens/ResearchInsightsScreen";
 import { SearchScreen } from "../screens/SearchScreen";
+import { CompassScreen } from "../screens/CompassScreen";
+import { MissionEditorScreen } from "../screens/MissionEditorScreen";
+import { AuditLogsScreen } from "../screens/AuditLogsScreen";
+import { AIBudgetScreen } from "../screens/AIBudgetScreen";
+import { SettingsScreen } from "../screens/SettingsScreen";
 
 import { colors } from "../theme";
 import type {
@@ -73,6 +78,16 @@ function MoreNavigator() {
         options={{ title: "Goals" }}
       />
       <MoreStack.Screen
+        name="Compass"
+        component={CompassScreen}
+        options={{ title: "Life Compass" }}
+      />
+      <MoreStack.Screen
+        name="MissionEditor"
+        component={MissionEditorScreen}
+        options={{ title: "Mission Editor" }}
+      />
+      <MoreStack.Screen
         name="Review"
         component={ReviewScreen}
         options={{ title: "Review" }}
@@ -111,6 +126,21 @@ function MoreNavigator() {
         name="Research"
         component={ResearchInsightsScreen}
         options={{ title: "Research" }}
+      />
+      <MoreStack.Screen
+        name="AuditLogs"
+        component={AuditLogsScreen}
+        options={{ title: "AI Audit Logs" }}
+      />
+      <MoreStack.Screen
+        name="AIBudget"
+        component={AIBudgetScreen}
+        options={{ title: "AI Budget" }}
+      />
+      <MoreStack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: "Settings" }}
       />
     </MoreStack.Navigator>
   );

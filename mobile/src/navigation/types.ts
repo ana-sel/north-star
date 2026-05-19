@@ -6,6 +6,8 @@ export type MoreStackParamList = {
   ApprovalsList: undefined;
   ApprovalDetail: { approvalId: string };
   Goals: undefined;
+  Compass: undefined;
+  MissionEditor: undefined;
   Review: undefined;
   Diary: undefined;
   Files: undefined;
@@ -14,6 +16,9 @@ export type MoreStackParamList = {
   Learning: undefined;
   Healing: undefined;
   Research: undefined;
+  AuditLogs: undefined;
+  AIBudget: undefined;
+  Settings: undefined;
 };
 
 export type RootTabParamList = {

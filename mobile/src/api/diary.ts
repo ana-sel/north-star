@@ -91,3 +91,35 @@ export async function deleteDiary(entryId: string): Promise<void> {
     throw new Error(`${resp.status} ${resp.statusText}`);
   }
 }
+
+/**
+ * Run OCR on an image — local-only Ollama vision pass.
+ * `image` is a React-Native-friendly file blob: { uri, name, type }.
+ */
+export async function ocrDiaryImage(image: {
+  uri: string;
+  name?: string;
+  type?: string;
+}): Promise<{ text: string }> {
+  const form = new FormData();
+  form.append("image", {
+    uri: image.uri,
+    name: image.name ?? "photo.jpg",
+    type: image.type ?? "image/jpeg",
+  } as any);
+  const resp = await fetch(`${API_BASE_URL}/diary/ocr`, {
+    method: "POST",
+    body: form,
+  });
+  if (!resp.ok) {
+    let detail = `${resp.status} ${resp.statusText}`;
+    try {
+      const body = await resp.json();
+      if (body?.detail) detail = `${resp.status}: ${body.detail}`;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+  return (await resp.json()) as { text: string };
+}

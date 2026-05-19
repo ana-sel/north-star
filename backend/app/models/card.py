@@ -79,4 +79,5 @@ class Card(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    rejection_insight: Mapped[str | None] = mapped_column(Text)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

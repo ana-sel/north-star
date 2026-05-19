@@ -25,6 +25,13 @@ import { colors, spacing } from "../theme";
  */
 export function ReviewScreen() {
   const [window, setWindow] = useState<ReviewWindow>("daily");
+  type TabDef = { key: ReviewWindow; label: string };
+  const tabs: TabDef[] = [
+    { key: "daily", label: "Today" },
+    { key: "weekly", label: "Week" },
+    { key: "monthly", label: "Month" },
+    { key: "yearly", label: "Year" },
+  ];
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ReviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,20 +58,20 @@ export function ReviewScreen() {
       contentContainerStyle={styles.content}
     >
       <View style={styles.windowRow}>
-        {(["daily", "weekly"] as const).map((w) => (
+        {tabs.map((t) => (
           <Pressable
-            key={w}
-            style={[styles.pill, window === w && styles.pillOn]}
-            onPress={() => run(w)}
+            key={t.key}
+            style={[styles.pill, window === t.key && styles.pillOn]}
+            onPress={() => run(t.key)}
             disabled={loading}
           >
             <Text
               style={[
                 styles.pillText,
-                window === w && styles.pillTextOn,
+                window === t.key && styles.pillTextOn,
               ]}
             >
-              {w === "daily" ? "Today" : "This week"}
+              {t.label}
             </Text>
           </Pressable>
         ))}
@@ -85,6 +92,26 @@ export function ReviewScreen() {
             <Stat label="In progress" value={result.stats.in_progress} />
             <Stat label="Moves" value={result.stats.moved} />
           </View>
+
+          {(result.stats.habits_done > 0 || result.stats.avg_energy !== null) ? (
+            <View style={styles.statsBlock}>
+              {result.stats.habits_done + result.stats.habits_missed > 0 ? (
+                <Stat
+                  label="Habits"
+                  value={`${result.stats.habits_done}/${result.stats.habits_done + result.stats.habits_missed}`}
+                />
+              ) : null}
+              {result.stats.avg_energy !== null ? (
+                <Stat label="Avg energy" value={result.stats.avg_energy} />
+              ) : null}
+              {result.stats.avg_mood !== null ? (
+                <Stat label="Avg mood" value={result.stats.avg_mood} />
+              ) : null}
+              {result.stats.avg_sleep_hrs !== null ? (
+                <Stat label="Avg sleep" value={`${result.stats.avg_sleep_hrs}h`} />
+              ) : null}
+            </View>
+          ) : null}
 
           <View style={styles.summaryBlock}>
             <Text style={styles.sectionLabel}>Summary</Text>
@@ -113,7 +140,7 @@ export function ReviewScreen() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <View style={styles.statCell}>
       <Text style={styles.statValue}>{value}</Text>

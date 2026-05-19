@@ -354,7 +354,8 @@ Chat | Today | Plan | Track | More
 | **Today** | Global Today | Energy/mood/sleep stats, top 1–3 tasks, do-not-do list, Focus Agent |
 | **Plan** | Segmented: Year · Month · Projects | Multi-level boards + Compass/Pillars from header |
 | **Track** | Segmented: Habits · Health · Money | Each as a dashboard view |
-| **More** | Diary, Goals tree, Reviews, Files, Agents, Search, Settings | Secondary screens |
+| **More** | Diary, Goals tree, Reviews, Files, Agents, Search, Audit Logs, Settings | Secondary screens |
+| — | LoginScreen (auth gate) | Email/password login + register. Shown when no JWT token in SecureStore |
 
 The **Plan** tab uses a segmented control at the top:
 

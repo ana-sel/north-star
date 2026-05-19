@@ -11,9 +11,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { CaptureDraft, captureThought, createCard } from "../api/cards";
+import { CaptureDraft, captureThought, createCard, filterCard, FilterResponse } from "../api/cards";
 import { DEV_USER_ID } from "../config/api";
 import { colors, spacing } from "../theme";
+import { handleCommand } from "../utils/chatCommands";
 
 interface Message {
   id: string;
@@ -21,7 +22,10 @@ interface Message {
   text: string;
   draft?: CaptureDraft;
   saved?: boolean;
+  savedCardId?: string;
   usedAi?: boolean;
+  filterResult?: FilterResponse;
+  filtering?: boolean;
 }
 
 /**
@@ -41,6 +45,16 @@ export function ChatScreen() {
     setMessages((m) => [...m, userMsg]);
     setBusy(true);
     try {
+      // 1. Try slash command first (e.g. /spend 5 coffee).
+      const cmd = await handleCommand(DEV_USER_ID, text);
+      if (cmd) {
+        setMessages((m) => [
+          ...m,
+          { id: `s-${Date.now()}`, role: "system", text: cmd.text },
+        ]);
+        return;
+      }
+      // 2. Otherwise fall through to the Capture Agent draft path.
       const result = await captureThought(DEV_USER_ID, text);
       setMessages((m) => [
         ...m,
@@ -67,7 +81,7 @@ export function ChatScreen() {
   async function onSaveDraft(msg: Message) {
     if (!msg.draft || msg.saved) return;
     try {
-      await createCard({
+      const card = await createCard({
         user_id: DEV_USER_ID,
         title: msg.draft.title,
         description: msg.draft.description,
@@ -75,7 +89,14 @@ export function ChatScreen() {
         life_area: msg.draft.life_area,
         status: "inbox",
       });
-      setMessages((m) => m.map((it) => (it.id === msg.id ? { ...it, saved: true } : it)));
+      setMessages((m) => m.map((it) => (it.id === msg.id ? { ...it, saved: true, savedCardId: card.id, filtering: true } : it)));
+      // Auto-run intake filter
+      try {
+        const fr = await filterCard(DEV_USER_ID, card.id);
+        setMessages((m) => m.map((it) => (it.id === msg.id ? { ...it, filterResult: fr, filtering: false } : it)));
+      } catch {
+        setMessages((m) => m.map((it) => (it.id === msg.id ? { ...it, filtering: false } : it)));
+      }
     } catch (e: any) {
       Alert.alert("Save failed", e?.message ?? "Unknown error");
     }
@@ -100,7 +121,8 @@ export function ChatScreen() {
         {messages.length === 0 && (
           <View style={styles.hintCard}>
             <Text style={styles.hintText}>
-              Type a thought. The Capture Agent will turn it into a card draft you can save.
+              Type a thought — the Capture Agent will draft a card.{"\n"}
+              Or use a slash command: /spend, /energy, /habit, /help.
             </Text>
           </View>
         )}
@@ -134,6 +156,44 @@ export function ChatScreen() {
                   >
                     <Text style={styles.saveButtonText}>{m.saved ? "Saved \u2713" : "Save as card"}</Text>
                   </Pressable>
+                  {/* Intake filter result */}
+                  {m.filtering && (
+                    <View style={styles.filterRow}>
+                      <ActivityIndicator size="small" color={colors.primary} />
+                      <Text style={styles.filterLabel}>Running mission filter...</Text>
+                    </View>
+                  )}
+                  {m.filterResult && (
+                    <View style={styles.filterCard}>
+                      <Text style={styles.filterTitle}>
+                        Mission Score: {m.filterResult.total}/70
+                      </Text>
+                      <View style={styles.scoreGrid}>
+                        {Object.entries(m.filterResult.scores).map(([key, val]) => (
+                          <View key={key} style={styles.scoreItem}>
+                            <Text style={styles.scoreKey}>{key.replace(/_/g, " ")}</Text>
+                            <Text style={styles.scoreVal}>{val}/10</Text>
+                          </View>
+                        ))}
+                      </View>
+                      <View style={styles.filterDecisionRow}>
+                        <View style={[
+                          styles.decisionBadge,
+                          m.filterResult.decision === "keep" && styles.decisionKeep,
+                          m.filterResult.decision === "delete" && styles.decisionDelete,
+                          m.filterResult.decision === "archive" && styles.decisionArchive,
+                        ]}>
+                          <Text style={styles.decisionText}>{m.filterResult.decision}</Text>
+                        </View>
+                        <View style={styles.wantBadge}>
+                          <Text style={styles.wantText}>{m.filterResult.want_type.replace(/_/g, " ")}</Text>
+                        </View>
+                      </View>
+                      {m.filterResult.reasoning ? (
+                        <Text style={styles.filterReasoning}>{m.filterResult.reasoning}</Text>
+                      ) : null}
+                    </View>
+                  )}
                 </View>
               )}
             </View>
@@ -198,6 +258,24 @@ const styles = StyleSheet.create({
   saveButton: { backgroundColor: colors.primary, padding: spacing.sm, borderRadius: 14, alignItems: "center", marginTop: spacing.sm },
   saveButtonDone: { backgroundColor: colors.success },
   saveButtonText: { color: "#fff", fontWeight: "600" },
+
+  filterRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: spacing.sm },
+  filterLabel: { fontSize: 12, color: colors.textMuted },
+  filterCard: { marginTop: spacing.sm, backgroundColor: "#faf7f2", borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: spacing.md, gap: spacing.sm },
+  filterTitle: { fontSize: 14, fontWeight: "700", color: colors.text },
+  scoreGrid: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
+  scoreItem: { flexDirection: "row", gap: 4, width: "48%" },
+  scoreKey: { fontSize: 11, color: colors.textMuted, textTransform: "capitalize", flex: 1 },
+  scoreVal: { fontSize: 11, fontWeight: "700", color: colors.text },
+  filterDecisionRow: { flexDirection: "row", gap: spacing.sm, marginTop: 2 },
+  decisionBadge: { backgroundColor: "#e8e2d8", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  decisionKeep: { backgroundColor: "#d4edda" },
+  decisionDelete: { backgroundColor: "#fce8e5" },
+  decisionArchive: { backgroundColor: "#e2daf1" },
+  decisionText: { fontSize: 11, fontWeight: "700", color: colors.text, textTransform: "uppercase" },
+  wantBadge: { backgroundColor: "#f3eadc", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  wantText: { fontSize: 11, fontWeight: "600", color: "#6a5742" },
+  filterReasoning: { fontSize: 12, color: colors.textMuted, fontStyle: "italic", lineHeight: 18 },
 
   busyRow: { padding: spacing.md, alignItems: "center" },
 

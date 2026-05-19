@@ -7,7 +7,9 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api import agents as agents_api
 from app.api import approvals as approvals_api
+from app.api import audit as audit_api
 from app.api import auth as auth_api
+from app.api import calendar as calendar_api
 from app.api import cards as cards_api
 from app.api import gateway as gateway_api
 from app.api import habits as habits_api
@@ -16,6 +18,7 @@ from app.api import health as health_api
 from app.api import money as money_api
 from app.api import files as files_api
 from app.api import diary as diary_api
+from app.api import wearables as wearables_api
 from app.scheduler import start_scheduler, stop_scheduler
 
 
@@ -55,6 +58,9 @@ app.include_router(health_api.router)
 app.include_router(money_api.router)
 app.include_router(files_api.router)
 app.include_router(diary_api.router)
+app.include_router(audit_api.router)
+app.include_router(calendar_api.router)
+app.include_router(wearables_api.router)
 
 # Dev-only: serve the approval demo HTML at /static.
 _static_dir = Path(__file__).resolve().parent.parent / "static"

@@ -48,6 +48,7 @@ class CardStatus(str, Enum):
     LATER = "later"
     DELETED = "deleted"
     REVIEW = "review"
+    ARCHIVED = "archived"
 
 
 class LifeArea(str, Enum):

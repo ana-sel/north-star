@@ -7,7 +7,7 @@ from __future__ import annotations
 import uuid
 from types import SimpleNamespace
 
-from app.api.agents import _fallback_picks, _parse_focus_picks
+from app.api.agents import _fallback_picks, _parse_focus_response
 from app.enums import EnergyLevel
 
 
@@ -22,7 +22,7 @@ def _stub_card(title: str, energy: EnergyLevel = EnergyLevel.MEDIUM):
 def test_parse_valid_json_returns_picks_in_order():
     by_idx = {1: _stub_card("A"), 2: _stub_card("B"), 3: _stub_card("C")}
     text = '{"picks": [{"id": 2, "reason": "fits energy"}, {"id": 1}]}'
-    picks = _parse_focus_picks(text, by_idx)
+    picks, _, _ = _parse_focus_response(text, by_idx)
     assert [p.title for p in picks] == ["B", "A"]
     assert picks[0].reason == "fits energy"
     assert picks[1].reason is None
@@ -31,33 +31,34 @@ def test_parse_valid_json_returns_picks_in_order():
 def test_parse_caps_at_max_three():
     by_idx = {i: _stub_card(f"T{i}") for i in range(1, 6)}
     text = '{"picks": [{"id":1},{"id":2},{"id":3},{"id":4},{"id":5}]}'
-    picks = _parse_focus_picks(text, by_idx)
+    picks, _, _ = _parse_focus_response(text, by_idx)
     assert len(picks) == 3
 
 
 def test_parse_skips_unknown_ids():
     by_idx = {1: _stub_card("A")}
     text = '{"picks": [{"id": 99}, {"id": 1}]}'
-    picks = _parse_focus_picks(text, by_idx)
+    picks, _, _ = _parse_focus_response(text, by_idx)
     assert [p.title for p in picks] == ["A"]
 
 
 def test_parse_dedupes_repeated_ids():
     by_idx = {1: _stub_card("A"), 2: _stub_card("B")}
     text = '{"picks": [{"id": 1}, {"id": 1}, {"id": 2}]}'
-    picks = _parse_focus_picks(text, by_idx)
+    picks, _, _ = _parse_focus_response(text, by_idx)
     assert [p.title for p in picks] == ["A", "B"]
 
 
 def test_parse_invalid_json_returns_empty():
     by_idx = {1: _stub_card("A")}
-    assert _parse_focus_picks("nope", by_idx) == []
+    picks, _, _ = _parse_focus_response("nope", by_idx)
+    assert picks == []
 
 
 def test_parse_extracts_json_from_prose():
     by_idx = {1: _stub_card("A")}
     text = 'Sure! {"picks":[{"id":1,"reason":"good"}]} done.'
-    picks = _parse_focus_picks(text, by_idx)
+    picks, _, _ = _parse_focus_response(text, by_idx)
     assert len(picks) == 1
     assert picks[0].reason == "good"
 
@@ -66,7 +67,7 @@ def test_parse_truncates_long_reasons():
     by_idx = {1: _stub_card("A")}
     long_reason = "x" * 500
     text = '{"picks":[{"id":1,"reason":"' + long_reason + '"}]}'
-    picks = _parse_focus_picks(text, by_idx)
+    picks, _, _ = _parse_focus_response(text, by_idx)
     assert picks[0].reason is not None
     assert len(picks[0].reason) == 120
 
