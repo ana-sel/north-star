@@ -199,7 +199,11 @@ function TabsNavigator() {
         tabBarInactiveTintColor: colors.textMuted,
       }}
     >
-      <Tab.Screen name="Chat" component={ChatScreen} />
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ headerShown: false }}
+      />
       <Tab.Screen name="Today" component={TodayScreen} />
       <Tab.Screen name="Plan" component={PlanScreen} />
       <Tab.Screen name="Track" component={TrackScreen} />
