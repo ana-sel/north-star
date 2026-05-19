@@ -76,11 +76,20 @@ export interface CaptureDraft {
   privacy_level: string;
 }
 
+export type TriageKind = "talk" | "sort" | "diary" | "decision" | "log" | "review";
+
+export interface TriageInterpretation {
+  kind: TriageKind;
+  confidence: number;
+  reason: string;
+}
+
 export interface CaptureResponse {
   draft: CaptureDraft;
   used_ai: boolean;
   audit_log_id: string | null;
   error: string | null;
+  triage: TriageInterpretation;
 }
 
 async function handle<T>(resp: Response): Promise<T> {
@@ -189,13 +198,19 @@ export async function deleteCard(cardId: string): Promise<void> {
 }
 
 export async function captureThought(
-  userId: string,
+  token: string,
   text: string
 ): Promise<CaptureResponse> {
+  // Slice 0 of the Chat redesign: the backend derives the user from the
+  // JWT and ignores any user_id in the body. Older callers used to pass a
+  // userId; that signature is gone.
   const resp = await fetch(`${API_BASE_URL}/agents/capture`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, text }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ text }),
   });
   return handle<CaptureResponse>(resp);
 }

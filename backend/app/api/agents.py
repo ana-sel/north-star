@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user
 from app.db import get_db
 from app.enums import CardLevel, CardStatus, CardType, EnergyLevel, LifeArea, PrivacyLevel
 from app.gateway import GatewayRequest, LocalAIGateway
@@ -35,6 +36,8 @@ from app.models.energy import EnergyLog
 from app.models.habit import Habit, HabitLog
 from app.models.health_log import HealthLog
 from app.models.money_transaction import MoneyTransaction
+from app.models.user import User
+from app.services.triage import TriageKind, classify as classify_triage
 
 
 router = APIRouter(prefix="/agents", tags=["agents"])
@@ -57,7 +60,10 @@ _PROMPT_TEMPLATE = (
 
 
 class CaptureRequest(BaseModel):
-    user_id: uuid.UUID
+    # Chat redesign slice 0: user_id is now derived from the JWT.
+    # The field is kept optional for backwards compatibility with older
+    # clients but its value is ignored — the authenticated user always wins.
+    user_id: uuid.UUID | None = None
     text: str = Field(min_length=1, max_length=2000)
 
 
@@ -70,22 +76,61 @@ class CaptureDraft(BaseModel):
     privacy_level: PrivacyLevel = PrivacyLevel.NORMAL
 
 
+class TriageInterpretation(BaseModel):
+    """Slice 2 — how the chat interpreted the user's message.
+
+    Carried alongside the draft so the mobile client renders the
+    `Understood as: …` line without a second round-trip.
+    """
+    kind: TriageKind
+    confidence: float
+    reason: str
+
+
 class CaptureResponse(BaseModel):
     draft: CaptureDraft
     used_ai: bool
     audit_log_id: uuid.UUID | None = None
     error: str | None = None
+    triage: TriageInterpretation
+
+
+class TriageRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=2000)
+
+
+@router.post("/triage", response_model=TriageInterpretation)
+async def triage(
+    payload: TriageRequest,
+    current_user: User = Depends(get_current_user),
+) -> TriageInterpretation:
+    """Classify a chat message into one of six interpretation kinds.
+
+    Pure deterministic classifier (no model call, no DB write). Auth is
+    still required so the endpoint can't be probed anonymously and so a
+    future v2 (local-model triage) inherits the same surface.
+    """
+    result = classify_triage(payload.text)
+    return TriageInterpretation(
+        kind=result.kind,
+        confidence=result.confidence,
+        reason=result.reason,
+    )
 
 
 @router.post("/capture", response_model=CaptureResponse)
 async def capture(
     payload: CaptureRequest,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> CaptureResponse:
     gateway = LocalAIGateway(db=db)
 
+    # Slice 0: trust the JWT, never the body. A body-supplied user_id is
+    # silently ignored so an attacker cannot write into another user's
+    # account by spoofing the field.
     request = GatewayRequest(
-        user_id=payload.user_id,
+        user_id=current_user.id,
         agent_id=_CAPTURE_AGENT_ID,
         request_type="classify",
         prompt=_PROMPT_TEMPLATE.format(text=payload.text),
@@ -97,6 +142,16 @@ async def capture(
 
     response = await gateway.process_request(request)
 
+    # Always classify the message (deterministic, no model call). Slice 2
+    # carries the triage result on every capture response so the chat UI
+    # can render the `Understood as: …` line in one round-trip.
+    triage_raw = classify_triage(payload.text)
+    triage_payload = TriageInterpretation(
+        kind=triage_raw.kind,
+        confidence=triage_raw.confidence,
+        reason=triage_raw.reason,
+    )
+
     # If the model couldn't run (no Ollama, etc.) fall back to a
     # "raw thought" draft so the user can still capture.
     if response.final_status != "completed" or not response.text:
@@ -105,6 +160,7 @@ async def capture(
             used_ai=False,
             audit_log_id=response.audit_log_id,
             error=response.error,
+            triage=triage_payload,
         )
 
     draft = _parse_draft(response.text, fallback_text=payload.text)
@@ -112,6 +168,7 @@ async def capture(
         draft=draft,
         used_ai=True,
         audit_log_id=response.audit_log_id,
+        triage=triage_payload,
     )
 
 

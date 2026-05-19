@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
+import { fetchMe, type MeResponse } from "../api/auth";
 
 const TOKEN_KEY = "northstar_token";
 
@@ -47,6 +48,7 @@ async function storageDelete(key: string): Promise<void> {
 interface AuthState {
   token: string | null;
   userId: string | null;
+  profile: MeResponse | null;
   loading: boolean;
   login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -55,6 +57,7 @@ interface AuthState {
 const AuthContext = createContext<AuthState>({
   token: null,
   userId: null,
+  profile: null,
   loading: true,
   login: async () => {},
   logout: async () => {},
@@ -76,7 +79,21 @@ function extractUserId(token: string): string | null {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [profile, setProfile] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Best-effort: refresh /auth/me whenever the token changes. Failure is
+  // non-fatal — the rest of the app still works on JWT-sub alone; the
+  // profile just powers nicer-to-have UI like avatar initials.
+  function refreshProfile(t: string | null) {
+    if (!t) {
+      setProfile(null);
+      return;
+    }
+    fetchMe(t)
+      .then(setProfile)
+      .catch(() => setProfile(null));
+  }
 
   useEffect(() => {
     storageGet(TOKEN_KEY)
@@ -86,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (uid) {
             setToken(stored);
             setUserId(uid);
+            refreshProfile(stored);
           } else {
             storageDelete(TOKEN_KEY);
           }
@@ -98,16 +116,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await storageSet(TOKEN_KEY, newToken);
     setToken(newToken);
     setUserId(extractUserId(newToken));
+    refreshProfile(newToken);
   };
 
   const logout = async () => {
     await storageDelete(TOKEN_KEY);
     setToken(null);
     setUserId(null);
+    setProfile(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, userId, loading, login, logout }}>
+    <AuthContext.Provider value={{ token, userId, profile, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
