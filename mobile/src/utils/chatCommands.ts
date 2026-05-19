@@ -20,13 +20,64 @@ export interface CommandResult {
   text: string;
 }
 
+export interface CommandDef {
+  /** Command name without the leading slash, lowercased. */
+  name: string;
+  /** Short usage string shown in autocomplete and /help. */
+  usage: string;
+  /** One-line description shown in autocomplete and /help. */
+  description: string;
+}
+
+/**
+ * Single source of truth for the slash-command catalogue. Drives both
+ * the in-app autocomplete dropdown and the /help text.
+ */
+export const COMMAND_DEFS: ReadonlyArray<CommandDef> = [
+  {
+    name: "spend",
+    usage: "/spend <amount> [description]",
+    description: "log an expense",
+  },
+  {
+    name: "income",
+    usage: "/income <amount> [description]",
+    description: "log income",
+  },
+  {
+    name: "energy",
+    usage: "/energy low|medium|high [note]",
+    description: "log energy",
+  },
+  {
+    name: "habit",
+    usage: "/habit <name>",
+    description: "check in a yes/no habit",
+  },
+  {
+    name: "help",
+    usage: "/help",
+    description: "show this list",
+  },
+];
+
+/** Return the commands matching a leading "/prefix" the user has typed. */
+export function matchCommands(input: string): CommandDef[] {
+  if (!input.startsWith("/")) return [];
+  // Only show autocomplete while the user is still typing the command name
+  // (no whitespace yet).
+  const head = input.slice(1);
+  if (/\s/.test(head)) return [];
+  const needle = head.toLowerCase();
+  if (!needle) return [...COMMAND_DEFS];
+  return COMMAND_DEFS.filter((c) => c.name.startsWith(needle));
+}
+
 const HELP_TEXT = [
   "Commands:",
-  "/spend <amount> [description]   log an expense",
-  "/income <amount> [description]  log income",
-  "/energy low|medium|high [note]  log energy",
-  "/habit <name>                   check in a yes/no habit",
-  "/help                           show this list",
+  ...COMMAND_DEFS.map(
+    (c) => `${c.usage.padEnd(34)} ${c.description}`
+  ),
 ].join("\n");
 
 export async function handleCommand(

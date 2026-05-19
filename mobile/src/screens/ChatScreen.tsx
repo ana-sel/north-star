@@ -14,7 +14,7 @@ import {
 import { CaptureDraft, captureThought, createCard, filterCard, FilterResponse } from "../api/cards";
 import { DEV_USER_ID } from "../config/api";
 import { colors, spacing } from "../theme";
-import { handleCommand } from "../utils/chatCommands";
+import { handleCommand, matchCommands, type CommandDef } from "../utils/chatCommands";
 
 interface Message {
   id: string;
@@ -205,6 +205,23 @@ export function ChatScreen() {
       </ScrollView>
 
       <View style={styles.inputRow}>
+        {matchCommands(input).length > 0 && (
+          <View style={styles.autocomplete} pointerEvents="box-none">
+            {matchCommands(input).map((cmd: CommandDef) => (
+              <Pressable
+                key={cmd.name}
+                style={({ pressed }) => [
+                  styles.autocompleteRow,
+                  pressed && { backgroundColor: colors.bg },
+                ]}
+                onPress={() => setInput(`/${cmd.name} `)}
+              >
+                <Text style={styles.autocompleteUsage}>{cmd.usage}</Text>
+                <Text style={styles.autocompleteDesc}>{cmd.description}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
         <TextInput
           style={styles.input}
           value={input}
@@ -280,6 +297,36 @@ const styles = StyleSheet.create({
   busyRow: { padding: spacing.md, alignItems: "center" },
 
   inputRow: { flexDirection: "row", padding: spacing.md, gap: spacing.sm, borderTopColor: colors.border, borderTopWidth: 1, backgroundColor: colors.surface },
+  autocomplete: {
+    position: "absolute",
+    left: spacing.md,
+    right: spacing.md,
+    bottom: 70,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: spacing.xs,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  autocompleteRow: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  autocompleteUsage: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.text,
+  },
+  autocompleteDesc: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
   input: { flex: 1, color: colors.text, backgroundColor: colors.bg, borderColor: colors.border, borderWidth: 1, borderRadius: 16, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, minHeight: 40, maxHeight: 120 },
   sendBtn: { backgroundColor: colors.primary, paddingHorizontal: spacing.lg, borderRadius: 16, justifyContent: "center" },
   sendDisabled: { opacity: 0.5 },
