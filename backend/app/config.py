@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,10 +33,14 @@ class Settings(BaseSettings):
     scanner_enabled: bool = True
 
     # File encryption (Phase 3). Fernet key; empty = passthrough (no encryption).
-    files_encryption_key: str = ""
+    # Accepts ENCRYPTION_KEY (canonical .env name) or FILES_ENCRYPTION_KEY (legacy).
+    files_encryption_key: str = Field(default="", validation_alias="ENCRYPTION_KEY")
 
     # JWT Auth
-    jwt_secret_key: str = "CHANGE-ME-in-production"
+    # Accepts JWT_SECRET (canonical .env name) or JWT_SECRET_KEY (legacy).
+    jwt_secret_key: str = Field(
+        default="CHANGE-ME-in-production", validation_alias="JWT_SECRET"
+    )
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 60
 
