@@ -28,7 +28,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -53,10 +53,7 @@ class FileOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 def _user_dir(user_id: uuid.UUID) -> Path:
     root = Path(settings.files_storage_root) / str(user_id)
     root.mkdir(parents=True, exist_ok=True)

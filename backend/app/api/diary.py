@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -32,10 +32,7 @@ class DiaryEntryOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 class DiaryEntryCreate(BaseModel):
     user_id: uuid.UUID
     title: str | None = None

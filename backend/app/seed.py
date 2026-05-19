@@ -210,6 +210,14 @@ MVP_AGENT_POLICIES: list[dict] = [
 def seed() -> None:
     with SessionLocal() as session:
         for policy in MVP_AGENT_POLICIES:
+            # Derive a sensible daily cap: ~1/10 of the monthly budget, rounded
+            # to 2dp. This lets policies have spiky days without blowing the
+            # month, while keeping a hard per-day ceiling for runaway loops.
+            if "daily_budget_limit_gbp" not in policy:
+                monthly = policy.get("monthly_budget_limit_gbp") or Decimal("0")
+                policy["daily_budget_limit_gbp"] = (monthly / Decimal("10")).quantize(
+                    Decimal("0.01")
+                )
             stmt = insert(AgentPolicy).values(**policy)
             stmt = stmt.on_conflict_do_update(
                 index_elements=[AgentPolicy.agent_id],
@@ -221,6 +229,7 @@ def seed() -> None:
                     "requires_approval_for": stmt.excluded.requires_approval_for,
                     "default_model": stmt.excluded.default_model,
                     "monthly_budget_limit_gbp": stmt.excluded.monthly_budget_limit_gbp,
+                    "daily_budget_limit_gbp": stmt.excluded.daily_budget_limit_gbp,
                 },
             )
             session.execute(stmt)

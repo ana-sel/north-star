@@ -68,6 +68,6 @@ if _static_dir.is_dir():
     app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
 
 
-@app.get("/health", tags=["meta"])
-def health():
+@app.get("/healthz", tags=["meta"])
+def healthz():
     return {"status": "ok", "app": "north-star"}

@@ -9,7 +9,7 @@ import uuid
 from datetime import date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
@@ -40,10 +40,7 @@ class HealthLogOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 class HealthLogUpsert(BaseModel):
     user_id: uuid.UUID
     log_date: date | None = None

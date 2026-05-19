@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -38,10 +38,7 @@ class AuditLogOut(BaseModel):
     final_status: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 class AuditSummary(BaseModel):
     total_requests: int
     external_calls: int

@@ -10,7 +10,7 @@ from datetime import date, datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
@@ -42,10 +42,7 @@ class HabitOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 class HabitCreate(BaseModel):
     user_id: uuid.UUID
     title: str = Field(min_length=1, max_length=200)
@@ -77,10 +74,7 @@ class HabitLogOut(BaseModel):
     notes: str | None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
 class HabitCheckIn(BaseModel):
     user_id: uuid.UUID
     log_date: date | None = None  # defaults to today if omitted
