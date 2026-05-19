@@ -456,4 +456,4 @@ It can begin implementation immediately without further clarification.
 
 ---
 
-*End of Specification*
+*End of Specification*okay plan each of them

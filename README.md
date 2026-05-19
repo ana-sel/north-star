@@ -2,7 +2,9 @@
 
 A private, AI-powered Personal Navigation OS — a quiet command centre for a meaningful, free, intentional life.
 
-See [personal-navigation-os-spec.md](personal-navigation-os-spec.md) and [personal_navigation_os_project_spec.md](personal_navigation_os_project_spec.md) for the full specification.
+See [SPEC.md](SPEC.md) for the complete project specification, build status, and remaining work.
+
+> **Legacy specs** (superseded by SPEC.md): `personal-navigation-os-spec.md`, `personal_navigation_os_project_spec.md`
 
 ---
 
@@ -22,70 +24,71 @@ See [personal-navigation-os-spec.md](personal-navigation-os-spec.md) and [person
   - Permission checks against `agent_policies` (`cannot_read` enforced)
   - Privacy-level routing (`never_external` always local, `force_local` honoured)
   - Working Ollama provider; OpenAI / Claude as fail-loud stubs
-  - Stub redactor / scanner / approval (Phases 3 & 4 placeholders)
   - Every call writes an `ai_audit_logs` row (raw prompts never stored)
-  - Dev endpoint `POST /gateway/test`
 - [x] **Phase 3** — Hybrid redactor
   - Regex pass: emails, phones, URLs, IBAN, card numbers, money amounts
-  - Vocabulary pass: family / income / property / employer phrases (extensible via `REDACTOR_VOCAB_PATH`)
+  - Vocabulary pass: family / income / property / employer phrases
   - Optional Ollama semantic pass (local-only, off by default)
-  - Audit log stores `redacted_prompt` + placeholder→category map only — never originals
-  - 7 unit tests passing
 - [x] **Phase 4** — Human approval flow
-  - `pending_ai_approvals` table + lifecycle (`pending` → `approved`/`rejected`/`expired`/`executed`)
-  - Gateway redacts → enqueues pending row → returns `awaiting_approval` with redacted preview
-  - Endpoints: `GET /approvals`, `GET /approvals/{id}`, `POST /approvals/{id}/approve`, `POST /approvals/{id}/reject`
+  - `pending_ai_approvals` table + lifecycle
+  - Gateway redacts → enqueues pending row → returns `awaiting_approval`
   - 15-min auto-expiry on pending approvals
   - Cost estimator (rough per-model £)
-  - HTML demo page at `http://localhost:8000/static/approval-demo.html` (temporary — replaced by the React Native modal in Phase 6)
-  - 12 unit tests passing
 - [x] **Phase 5** — Full external AI
-  - Real `ClaudeProvider` (Anthropic Messages API via httpx)
-  - Real `OpenAIProvider` (Chat Completions API via httpx)
+  - Real `ClaudeProvider` + `OpenAIProvider` (httpx)
   - Token-accurate `actual_cost_gbp` after each call
-  - Budget enforcement: gateway sums month-to-date spend per agent (completed + awaiting_approval) and refuses with `blocked_by_budget` when adding the planned cost would exceed `agent_policies.monthly_budget_limit_gbp`
-  - Missing API key → clean `ProviderError` (audit log records `provider_error`, no money spent)
-  - HTTP 4xx/5xx and network errors mapped to `ProviderError`
-  - 24 unit tests passing (no real network calls — providers tested via `httpx.MockTransport`)
-- [x] **Phase 6 (bootstrap)** — Mobile app scaffold
+  - Budget enforcement per agent
+- [x] **Phase 6** — Mobile app scaffold
   - Expo + React Native + TypeScript under `mobile/`
-  - Bottom tabs per spec §9: **Chat | Today | Boards | Habits | More** (Chat/Today/Boards/Habits are placeholders for later phases)
-  - **Approval review flow** in React Native: list pending → modal with redacted prompt + redaction map + cost → Approve / Reject
-  - Talks to backend via `mobile/src/config/api.ts` (`API_BASE_URL`, `DEV_USER_ID` — JWT/SecureStore wires in later)
+  - Bottom tabs: Chat | Today | Plan | Track | More
 - [x] **Phase 7** — Cards + Capture Agent
-  - Backend: `GET/POST/PATCH/DELETE /cards` (privacy-level aware)
-  - Backend: `POST /agents/capture` — Capture Agent (local-only via gateway, returns a structured card draft; falls back to a raw-thought draft if local model is unavailable)
-  - Mobile **Chat** screen: send a thought → see a draft → save as card
-  - Mobile **Boards** screen: live list of your cards (Kanban columns + drag come later)
-  - 32 unit tests passing (8 new for the capture parser)
+  - `GET/POST/PATCH/DELETE /cards` (privacy-level aware)
+  - `POST /agents/capture` — local-only Capture Agent
+  - Mobile Chat screen: send thought → see draft → save as card → auto-run Intake Filter (mission scores + decision)
+  - Chat currently handles capture + intake filter; full command centre (trigger any agent, create habits/diary/health/money, run reviews, "what should I do today?") planned for later
 - [x] **Phase 8** — Kanban + status transitions
-  - Backend: `PATCH /cards/{id}` auto-bumps `moved_count` on every status change, stamps `completed_at` on entering DONE, clears it on leaving DONE
-  - `moved_count` exposed on `CardOut` for stuck-card detection
-  - Mobile **Boards** screen rebuilt as horizontal Kanban: **Inbox · Planned · Today · Doing · Done** (subset of `CardStatus` per spec §9)
-  - Tap any card → modal with destination columns → optimistic move with rollback on error
-  - Stuck-card visual: orange border + `stuck × N` badge when `moved_count ≥ 3` (spec §2 stuck-card detection)
-  - 39 unit tests passing (7 new for status-transition logic)
+  - Auto-bumps `moved_count`, stamps `completed_at`
+  - Mobile Boards screen: horizontal Kanban, tap/long-press/drag
+  - Stuck-card visual: orange border + `stuck × N` badge
 - [x] **Phase 9** — Today screen + Focus Agent
-  - Backend: `POST /agents/focus` — Focus Agent picks 1–3 cards from open candidates given current energy (local-only via gateway)
-  - Reads only `card_titles` + `energy_summary` (matches `focus_agent` policy `can_read`)
-  - Heuristic fallback when local model unavailable: prefer cards whose `energy_required` matches current energy
-  - Mobile **Today** screen: Low / Medium / High energy picker → "Pick my top 1–3" → suggestions with reasons → one-tap "Move to Today"
-  - Below the picker: live list of cards already in TODAY status (pull-to-refresh)
-  - 49 unit tests passing (10 new for the focus parser + fallback)
+  - `POST /agents/focus` — picks 1–3 cards given energy + mood
+  - Heuristic fallback when Ollama unavailable
+  - Energy 0–5 DBT-style scale + mood 0–5
+  - Dynamic "do not do" rules from real card state
+  - Dynamic Focus Agent insight (energy + mood aware)
+  - Auto-triggers Focus Agent when energy is logged
+  - Habit collapse on low energy + energy mismatch warnings on tasks
 - [x] **Phase 10** — Card detail screen
-  - Mobile **CardDetail** modal: full view + edit of any card (title, description, type, status, life area, energy, priority) + delete with confirmation
-  - Tap any card on Boards or Today to open it; long-press on Boards still opens the quick MoveModal
-  - Navigation restructured: tabs are now wrapped in a root native stack so any tab can `push` shared modals
-  - Boards uses `useFocusEffect` to refetch on tab return so edits propagate without manual refresh
-  - Reuses existing `GET /cards/{id}` + `PATCH /cards/{id}` + `DELETE /cards/{id}` (no new backend code)
-- [x] **Phase 11** — Goal tree (spec §3 Vision → Goal → Project → Milestone)
-  - Backend: `GET /cards/tree?user_id=...&include_tasks=...` returns nested `CardTreeNode[]`
-  - Pure `_build_tree` helper handles orphans (parent filtered out → promoted to root)
-  - Mobile **Goals** screen (More tab): indented tree, "+ Add goal" at root, "+" on each row to add a child at the next level down
-  - Tapping a row opens CardDetail; "Include tasks" toggle folds task-level cards into the tree
-  - 56 unit tests passing (7 new for tree builder)
-- [x] **Boards drag-and-drop** — real DnD via `PanResponder` + `Animated` (no new deps); tap = detail, long-press = quick modal, drag = column move
-- [ ] **Phase 12+** — Habits, Energy log, Reviews, Health, Money, Files (per spec §8 / §9)
+  - Full view + edit of any card, delete with confirmation
+  - Boards uses `useFocusEffect` to refetch on tab return
+- [x] **Phase 11** — Goal tree
+  - `GET /cards/tree` returns nested `CardTreeNode[]`
+  - Mobile Goals screen: indented tree, add child at next level
+- [x] **Phase 12** — Habits + Energy + Health + Money
+  - Habits API + Today screen toggles + HabitsScreen dashboard
+  - Energy log API + 0–5 DBT-style picker on Today
+  - HealthScreen: sleep/weight/energy/mood/calories/protein/steps logging
+  - Sleep bar chart + energy/mood trend line chart + weight trend chart
+  - MoneyScreen: transactions + category summary + spending bar chart
+- [x] **Phase 13** — Intake Filter + Mission Scoring
+  - `POST /agents/filter` — scores cards against 7 mission questions (0–10)
+  - Want/need classification (want, need, obligation, impulse, external_pressure)
+  - Exit decision (keep/delete/later/delegate/split/clarify/archive)
+  - Heuristic fallback with keyword-based scoring
+  - Auto-runs after saving a card in Chat → shows scores + decision inline
+  - Persists `mission_scores` on the card
+- [x] **Phase 14** — Compass + Life Pillars
+  - CompassScreen: bar chart per pillar showing active/done/total cards + mission avg
+  - "Neglected" badge for pillars with zero activity
+  - Accessible from More tab
+- [x] **Phase 15** — Plan with real data
+  - Year board: real visions/goals/projects grouped by life area (was hardcoded)
+  - Projects view: real project cards with child progress % and column counts (was hardcoded)
+  - Boards: 7 columns (Inbox · Planned · Today · Doing · Waiting · Done · Review)
+- [x] **Boards drag-and-drop** — real DnD via `PanResponder` + `Animated`
+- [x] **Pillar colors** — 4px colored left border on cards by life area (8 pillar colors)
+- [x] **Stat grid icons** — ⚡ Energy, 😊 Mood, 🌙 Sleep
+- [ ] **Remaining** — Diary image+OCR, monthly/yearly reviews, more agent insights
 
 ---
 
@@ -124,17 +127,33 @@ north-star/
 │   │   ├── main.py              FastAPI entrypoint
 │   │   ├── config.py            Settings (env)
 │   │   ├── db.py                SQLAlchemy engine + session
-│   │   ├── models/              ORM models
-│   │   ├── enums.py             PrivacyLevel, etc.
+│   │   ├── enums.py             PrivacyLevel, CardStatus, LifeArea, etc.
 │   │   ├── seed.py              Seed agent_policies
-│   │   └── api/                 Routers (added in later phases)
-│   ├── alembic/                 Migrations
+│   │   ├── scheduler.py         Background tasks
+│   │   ├── models/              ORM models (card, health_log, energy, habit, etc.)
+│   │   ├── api/                 Routers (agents, cards, health, habits, energy, money, diary, files, approvals, gateway)
+│   │   ├── gateway/             Local AI Gateway (providers, redactor, scanner, schemas)
+│   │   ├── services/            Business logic services
+│   │   └── utils/               Helpers
+│   ├── alembic/                 Migrations (0001–0006)
+│   ├── tests/                   Unit tests
+│   ├── static/                  approval-demo.html
 │   ├── alembic.ini
 │   └── requirements.txt
+├── mobile/
+│   ├── src/
+│   │   ├── theme.ts             Design tokens + PILLAR_COLOR map
+│   │   ├── api/                 API clients (cards, health, habits, energy, money)
+│   │   ├── config/              API_BASE_URL, DEV_USER_ID
+│   │   ├── navigation/          RootNavigator + types
+│   │   ├── screens/             All screens (Chat, Today, Plan, Track, Boards, Health, Habits, Money, Compass, Goals, CardDetail, etc.)
+│   │   └── components/          Shared UI components
+│   ├── App.tsx
+│   └── package.json
 ├── docker-compose.yml
-├── .gitignore
 ├── README.md
-└── personal-navigation-os-spec.md
+├── personal-navigation-os-spec.md
+└── personal_navigation_os_project_spec.md
 ```
 
 ---

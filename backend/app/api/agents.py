@@ -23,7 +23,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -184,11 +184,20 @@ _FOCUS_PICK_MAX = 3
 
 _FOCUS_PROMPT_TEMPLATE = (
     "You are the Focus Agent. The user has {energy} energy right now. "
+    "{mood_info}"
+    "They have {today_count} cards already in Today and {total_open} open cards total. "
+    "{stuck_info}"
     "Pick {pick_min} to {pick_max} cards from the candidate list that "
-    "best fit that energy and would be most valuable today. "
+    "best fit that energy and mood and would be most valuable today. "
+    "Also provide:\n"
+    "- `do_not_do`: 2-4 short rules for what NOT to do today based on "
+    "their energy, mood, and workload (protect them from overload).\n"
+    "- `insight`: One sentence of coaching guidance for the day.\n\n"
     "Reply with ONLY a JSON object on a single line. No prose. "
     "Schema:\n"
-    '{{"picks": [{{"id": <int>, "reason": <string, <=120 chars>}}]}}\n'
+    '{{"picks": [{{"id": <int>, "reason": <string, <=120 chars>}}], '
+    '"do_not_do": [<string, <=60 chars>, ...], '
+    '"insight": <string, <=200 chars>}}\n'
     "Use the integer `id` shown next to each candidate.\n\n"
     "Candidates (id · status · title):\n{candidates}"
 )
@@ -197,6 +206,7 @@ _FOCUS_PROMPT_TEMPLATE = (
 class FocusRequest(BaseModel):
     user_id: uuid.UUID
     energy: EnergyLevel = EnergyLevel.MEDIUM
+    mood: int | None = None  # 0-5 DBT scale, None = not logged yet
 
 
 class FocusPick(BaseModel):
@@ -208,6 +218,8 @@ class FocusPick(BaseModel):
 class FocusResponse(BaseModel):
     energy: EnergyLevel
     picks: list[FocusPick]
+    do_not_do: list[str] = []
+    insight: str | None = None
     used_ai: bool
     candidate_count: int
     audit_log_id: uuid.UUID | None = None
@@ -236,10 +248,29 @@ async def focus(
     )
     candidates: list[Card] = list(db.execute(stmt).scalars())
 
+    # Gather context for the prompt
+    today_count = db.execute(
+        select(func.count(Card.id))
+        .where(Card.user_id == payload.user_id)
+        .where(Card.status == CardStatus.TODAY.value)
+    ).scalar() or 0
+    total_open = len(candidates) + today_count
+    stuck_cards = [c for c in candidates if c.moved_count >= 3]
+    stuck_info = (
+        f"{len(stuck_cards)} cards have been moved 3+ times (stuck). "
+        if stuck_cards else ""
+    )
+    mood_info = (
+        f"User's current mood is {payload.mood}/5. "
+        if payload.mood is not None else ""
+    )
+
     if not candidates:
         return FocusResponse(
             energy=payload.energy,
             picks=[],
+            do_not_do=_fallback_do_not_do(payload.energy, today_count, 0, payload.mood),
+            insight=_fallback_insight(payload.energy, today_count, payload.mood),
             used_ai=False,
             candidate_count=0,
         )
@@ -254,6 +285,10 @@ async def focus(
         energy=payload.energy.value,
         pick_min=_FOCUS_PICK_MIN,
         pick_max=_FOCUS_PICK_MAX,
+        today_count=today_count,
+        total_open=total_open,
+        stuck_info=stuck_info,
+        mood_info=mood_info,
         candidates=candidate_lines,
     )
 
@@ -275,44 +310,54 @@ async def focus(
         return FocusResponse(
             energy=payload.energy,
             picks=_fallback_picks(candidates, payload.energy),
+            do_not_do=_fallback_do_not_do(payload.energy, today_count, len(stuck_cards), payload.mood),
+            insight=_fallback_insight(payload.energy, today_count, payload.mood),
             used_ai=False,
             candidate_count=len(candidates),
             audit_log_id=response.audit_log_id,
             error=response.error,
         )
 
-    picks = _parse_focus_picks(response.text, by_idx)
+    picks, do_not_do, insight = _parse_focus_response(response.text, by_idx)
     if not picks:
         picks = _fallback_picks(candidates, payload.energy)
+        do_not_do = _fallback_do_not_do(payload.energy, today_count, len(stuck_cards), payload.mood)
+        insight = _fallback_insight(payload.energy, today_count, payload.mood)
         used_ai = False
     else:
+        if not do_not_do:
+            do_not_do = _fallback_do_not_do(payload.energy, today_count, len(stuck_cards), payload.mood)
+        if not insight:
+            insight = _fallback_insight(payload.energy, today_count, payload.mood)
         used_ai = True
 
     return FocusResponse(
         energy=payload.energy,
         picks=picks,
+        do_not_do=do_not_do,
+        insight=insight,
         used_ai=used_ai,
         candidate_count=len(candidates),
         audit_log_id=response.audit_log_id,
     )
 
 
-def _parse_focus_picks(
+def _parse_focus_response(
     model_text: str,
     by_idx: dict[int, Card],
-) -> list[FocusPick]:
-    """Pull `picks` out of the model's JSON. Tolerates prose around it."""
+) -> tuple[list[FocusPick], list[str], str | None]:
+    """Pull picks, do_not_do, insight from the model's JSON."""
     match = _JSON_OBJ_RE.search(model_text)
     if not match:
-        return []
+        return [], [], None
     try:
         data = json.loads(match.group(0))
     except json.JSONDecodeError:
-        return []
+        return [], [], None
 
     raw_picks = data.get("picks")
     if not isinstance(raw_picks, list):
-        return []
+        return [], [], None
 
     out: list[FocusPick] = []
     seen: set[int] = set()
@@ -338,7 +383,21 @@ def _parse_focus_picks(
         )
         if len(out) >= _FOCUS_PICK_MAX:
             break
-    return out
+
+    # Extract do_not_do and insight
+    raw_dnd = data.get("do_not_do")
+    do_not_do: list[str] = []
+    if isinstance(raw_dnd, list):
+        for item in raw_dnd:
+            if isinstance(item, str) and item.strip():
+                do_not_do.append(item.strip()[:80])
+
+    insight: str | None = None
+    raw_insight = data.get("insight")
+    if isinstance(raw_insight, str) and raw_insight.strip():
+        insight = raw_insight.strip()[:200]
+
+    return out, do_not_do, insight
 
 
 def _fallback_picks(
@@ -357,6 +416,307 @@ def _fallback_picks(
         FocusPick(card_id=c.id, title=c.title, reason=None)
         for c in ordered
     ]
+
+
+def _fallback_do_not_do(
+    energy: EnergyLevel,
+    today_count: int,
+    stuck_count: int,
+    mood: int | None = None,
+) -> list[str]:
+    """Rule-based do-not-do list derived from actual state."""
+    rules: list[str] = []
+    if energy == EnergyLevel.LOW:
+        rules.append("Do not start anything new — finish or rest")
+        rules.append("Do not take on tasks for others today")
+    elif energy == EnergyLevel.MEDIUM:
+        rules.append("Do not add more than 3 tasks to Today")
+    else:
+        rules.append("Do not skip your break — high energy burns fast")
+
+    # Mood-aware rules
+    if mood is not None and mood <= 1:
+        rules.append("Do not make big decisions — low mood distorts judgement")
+        rules.append("Do not people-please — protect your boundaries")
+
+    if today_count >= 3:
+        rules.append(f"Do not add more cards to Today ({today_count} already)")
+    if stuck_count > 0:
+        rules.append(f"Do not move stuck cards again — split or delete them")
+    # Always cap at 4 (mood can add extra)
+    return rules[:4]
+
+
+def _fallback_insight(energy: EnergyLevel, today_count: int, mood: int | None = None) -> str:
+    """Rule-based day-shape insight from actual state."""
+    # Low mood overrides energy-based advice
+    if mood is not None and mood <= 1:
+        return (
+            "Mood is low. Be gentle with yourself — one small win is enough. "
+            "No big decisions, no people-pleasing."
+        )
+
+    if energy == EnergyLevel.LOW:
+        return (
+            "Low energy day. Finish one small thing, rest well. "
+            "Completion over expansion."
+        )
+    elif energy == EnergyLevel.MEDIUM:
+        if today_count > 3:
+            return (
+                f"You have {today_count} tasks in Today — that's overload. "
+                "Pick the top 2-3 and defer the rest."
+            )
+        if mood is not None and mood <= 2:
+            return "Steady energy but mood is below average. Keep it simple and kind."
+        return "Steady day. Do 2-3 tasks at a comfortable pace. No heroics."
+    else:
+        if mood is not None and mood <= 2:
+            return "Good energy but mood is off — use the energy on something satisfying, not draining."
+        if today_count == 0:
+            return "High energy and empty slate — pick your hardest task and start."
+        return "High energy — tackle the hardest thing first, then coast."
+
+
+# ======================================================================
+# Intake Filter Agent — scores a card against the 7 mission questions
+# and recommends a decision (keep/delete/later/delegate/split/clarify/archive).
+# Spec §2.2 / §5.1. Always local-only.
+# ======================================================================
+
+_FILTER_AGENT_ID = "filter_agent"
+
+_MISSION_QUESTIONS = [
+    ("happiness", "Does this support a happier, calmer, more meaningful life?"),
+    ("hidden_rules", "Does this help me understand deeper patterns of life, people, systems, money, health, or myself?"),
+    ("clarity", "Does this create clarity for me or others?"),
+    ("freedom", "Does this increase financial, emotional, physical, time, or location freedom?"),
+    ("self_refinement", "Does this refine my body, mind, skills, discipline, taste, or character?"),
+    ("chosen_solitude", "Does this respect privacy, peace, independence, and low-noise living?"),
+    ("meaning", "Does this make life more intentional rather than random?"),
+]
+
+_FILTER_DECISIONS = ["keep", "delete", "later", "delegate", "split", "clarify", "archive"]
+
+_FILTER_PROMPT_TEMPLATE = (
+    "You are the Intake Filter. Score this card against the user's mission.\n"
+    "For each question, give a score from 0 (not at all) to 10 (perfectly aligned).\n\n"
+    "Questions:\n"
+    + "\n".join(f"- {key}: {q}" for key, q in _MISSION_QUESTIONS)
+    + "\n\n"
+    "Then decide: keep, delete, later, delegate, split, clarify, or archive.\n"
+    "If the card seems like a fake want (status symbol, social pressure, impulse), "
+    "say delete or archive and explain the pattern.\n\n"
+    "Also classify: want, need, obligation, impulse, or external_pressure.\n\n"
+    "Reply with ONLY a JSON object. Schema:\n"
+    '{{"scores": {{"happiness": <0-10>, "hidden_rules": <0-10>, "clarity": <0-10>, '
+    '"freedom": <0-10>, "self_refinement": <0-10>, "chosen_solitude": <0-10>, '
+    '"meaning": <0-10>}}, '
+    '"total": <sum of scores>, '
+    '"want_type": "<want|need|obligation|impulse|external_pressure>", '
+    '"decision": "<keep|delete|later|delegate|split|clarify|archive>", '
+    '"reasoning": "<1-2 sentences>"}}\n\n'
+    "Card title: {title}\n"
+    "Card description: {description}\n"
+    "Card type: {card_type}\n"
+    "Life area: {life_area}"
+)
+
+
+class FilterRequest(BaseModel):
+    user_id: uuid.UUID
+    card_id: uuid.UUID | None = None
+    title: str | None = None
+    description: str | None = None
+
+
+class MissionScores(BaseModel):
+    happiness: int = 0
+    hidden_rules: int = 0
+    clarity: int = 0
+    freedom: int = 0
+    self_refinement: int = 0
+    chosen_solitude: int = 0
+    meaning: int = 0
+
+
+class FilterResponse(BaseModel):
+    scores: MissionScores
+    total: int
+    want_type: str = "want"
+    decision: str = "keep"
+    reasoning: str = ""
+    used_ai: bool
+    audit_log_id: uuid.UUID | None = None
+    error: str | None = None
+
+
+@router.post("/filter", response_model=FilterResponse)
+async def intake_filter(
+    payload: FilterRequest,
+    db: Session = Depends(get_db),
+) -> FilterResponse:
+    # Resolve the card title/description
+    title: str = ""
+    description: str = ""
+    card_type: str = "task"
+    life_area: str = "none"
+    card: Card | None = None
+
+    if payload.card_id:
+        card = db.get(Card, payload.card_id)
+        if not card:
+            raise HTTPException(status_code=404, detail="Card not found")
+        title = card.title
+        description = card.description or ""
+        card_type = card.type
+        life_area = card.life_area or "none"
+    else:
+        title = payload.title or ""
+        description = payload.description or ""
+
+    if not title:
+        raise HTTPException(status_code=400, detail="No card title to filter")
+
+    prompt = _FILTER_PROMPT_TEMPLATE.format(
+        title=title,
+        description=description,
+        card_type=card_type,
+        life_area=life_area,
+    )
+
+    gateway = LocalAIGateway(db=db)
+    request = GatewayRequest(
+        user_id=payload.user_id,
+        agent_id=_FILTER_AGENT_ID,
+        request_type="mission_filter",
+        prompt=prompt,
+        declared_fields=["card_titles"],
+        privacy_level=PrivacyLevel.NORMAL,
+        max_output_tokens=400,
+        force_local=True,
+    )
+    response = await gateway.process_request(request)
+
+    if response.final_status != "completed" or not response.text:
+        # Heuristic fallback: keyword-based rough scoring
+        scores, total, decision, want_type, reasoning = _fallback_filter(title, description)
+        result = FilterResponse(
+            scores=scores,
+            total=total,
+            want_type=want_type,
+            decision=decision,
+            reasoning=reasoning,
+            used_ai=False,
+            audit_log_id=response.audit_log_id,
+            error=response.error,
+        )
+    else:
+        result = _parse_filter_response(response.text)
+        result.used_ai = True
+        result.audit_log_id = response.audit_log_id
+
+    # Persist scores on the card if we have one
+    if card and result.scores:
+        card.mission_scores = result.scores.model_dump()
+        if result.decision in ("delete", "archive"):
+            card.status = CardStatus.ARCHIVED.value
+            card.rejection_insight = result.reasoning or "Filtered out by mission alignment check."
+        elif result.decision == "later":
+            card.status = CardStatus.LATER.value
+        elif result.decision == "keep":
+            card.status = CardStatus.FILTERED.value
+        db.commit()
+
+    return result
+
+
+def _parse_filter_response(text: str) -> FilterResponse:
+    """Extract mission scores from model JSON output."""
+    match = _JSON_OBJ_RE.search(text)
+    if not match:
+        return _fallback_filter_response()
+    try:
+        data = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return _fallback_filter_response()
+
+    raw_scores = data.get("scores", {})
+    scores = MissionScores(
+        happiness=_clamp(raw_scores.get("happiness", 0)),
+        hidden_rules=_clamp(raw_scores.get("hidden_rules", 0)),
+        clarity=_clamp(raw_scores.get("clarity", 0)),
+        freedom=_clamp(raw_scores.get("freedom", 0)),
+        self_refinement=_clamp(raw_scores.get("self_refinement", 0)),
+        chosen_solitude=_clamp(raw_scores.get("chosen_solitude", 0)),
+        meaning=_clamp(raw_scores.get("meaning", 0)),
+    )
+    total = sum(scores.model_dump().values())
+    decision = data.get("decision", "keep")
+    if decision not in _FILTER_DECISIONS:
+        decision = "keep"
+    want_type = data.get("want_type", "want")
+    reasoning = str(data.get("reasoning", ""))[:300]
+
+    return FilterResponse(
+        scores=scores,
+        total=total,
+        want_type=want_type,
+        decision=decision,
+        reasoning=reasoning,
+        used_ai=False,
+    )
+
+
+def _clamp(val: int | float | str, lo: int = 0, hi: int = 10) -> int:
+    try:
+        return max(lo, min(hi, int(val)))
+    except (ValueError, TypeError):
+        return 0
+
+
+def _fallback_filter(
+    title: str, description: str
+) -> tuple[MissionScores, int, str, str, str]:
+    """Keyword-based heuristic when model is unavailable."""
+    text = (title + " " + description).lower()
+
+    scores = MissionScores()
+    # Simple keyword matching for rough scoring
+    if any(w in text for w in ["health", "exercise", "walk", "sleep", "body", "energy"]):
+        scores.happiness = 6
+        scores.self_refinement = 7
+    if any(w in text for w in ["learn", "study", "read", "skill", "course", "cert"]):
+        scores.self_refinement = 8
+        scores.hidden_rules = 5
+    if any(w in text for w in ["money", "save", "invest", "budget", "income", "financial"]):
+        scores.freedom = 7
+    if any(w in text for w in ["family", "partner", "friend", "relationship"]):
+        scores.happiness = 7
+        scores.meaning = 6
+    if any(w in text for w in ["build", "create", "app", "project", "ship"]):
+        scores.clarity = 6
+        scores.meaning = 7
+        scores.self_refinement = 6
+    if any(w in text for w in ["buy", "want", "ferrari", "luxury", "status", "impress"]):
+        scores.chosen_solitude = 2
+        scores.freedom = 2
+        return scores, sum(scores.model_dump().values()), "archive", "impulse", \
+            "This looks like a status/impulse want. Archived as self-knowledge."
+
+    total = sum(scores.model_dump().values())
+    decision = "keep" if total >= 15 else "clarify"
+    return scores, total, decision, "want", "Heuristic scoring — review manually."
+
+
+def _fallback_filter_response() -> FilterResponse:
+    return FilterResponse(
+        scores=MissionScores(),
+        total=0,
+        decision="clarify",
+        reasoning="Could not parse AI response. Review manually.",
+        used_ai=False,
+    )
 
 
 # ======================================================================
@@ -707,21 +1067,22 @@ def _parse_mission_scores(model_text: str) -> dict[str, MissionFilterScore]:
 
 _REVIEW_AGENT_ID = "review_agent"
 
-ReviewWindow = Literal["daily", "weekly"]
-_REVIEW_WINDOW_DAYS: dict[str, int] = {"daily": 1, "weekly": 7}
+ReviewWindow = Literal["daily", "weekly", "monthly", "yearly"]
+_REVIEW_WINDOW_DAYS: dict[str, int] = {"daily": 1, "weekly": 7, "monthly": 30, "yearly": 365}
 
 _REVIEW_PROMPT_TEMPLATE = (
     "You are the Review Agent. Look at the user's last {days} day(s) of "
-    "card activity and produce a short, honest reflection. Focus on "
+    "activity and produce a short, honest reflection. Focus on "
     "patterns, not platitudes. Reply with ONLY a JSON object on a single "
     "line. No prose. Schema:\n"
     '{{"summary": <string, <=240 chars>, '
     '"wins": [<string, <=120 chars>], '
     '"patterns": [<string, <=120 chars>], '
     '"suggestions": [<string, <=120 chars>]}}\n\n'
-    "Stats:\n{stats}\n\n"
+    "Card stats:\n{stats}\n\n"
     "Recent completed cards:\n{completed}\n\n"
-    "Currently in progress:\n{in_progress}"
+    "Currently in progress:\n{in_progress}\n\n"
+    "Health/energy context:\n{health_context}"
 )
 
 
@@ -736,6 +1097,11 @@ class ReviewStats(BaseModel):
     in_progress: int
     moved: int  # total moved_count across active cards in window
     by_status: dict[str, int]
+    habits_done: int = 0
+    habits_missed: int = 0
+    avg_energy: float | None = None
+    avg_mood: float | None = None
+    avg_sleep_hrs: float | None = None
 
 
 class ReviewResponse(BaseModel):
@@ -757,6 +1123,7 @@ async def review(
 ) -> ReviewResponse:
     days = _REVIEW_WINDOW_DAYS[payload.window]
     since = datetime.now(timezone.utc) - timedelta(days=days)
+    since_date = since.date()
 
     cards: list[Card] = list(
         db.execute(
@@ -764,6 +1131,45 @@ async def review(
         ).scalars()
     )
     stats = _build_review_stats(cards, since)
+
+    # --- Health / habits / energy context ---
+    health_logs: list[HealthLog] = list(
+        db.execute(
+            select(HealthLog)
+            .where(HealthLog.user_id == payload.user_id, HealthLog.log_date >= since_date)
+        ).scalars()
+    )
+    habit_logs: list[HabitLog] = list(
+        db.execute(
+            select(HabitLog)
+            .where(HabitLog.user_id == payload.user_id, HabitLog.log_date >= since_date)
+        ).scalars()
+    )
+    energy_logs: list[EnergyLog] = list(
+        db.execute(
+            select(EnergyLog)
+            .where(EnergyLog.user_id == payload.user_id, EnergyLog.logged_at >= since)
+        ).scalars()
+    )
+
+    # Enrich stats with health/habit aggregates
+    habits_done = sum(1 for h in habit_logs if h.value_bool is True)
+    habits_missed = sum(1 for h in habit_logs if h.value_bool is False)
+    stats.habits_done = habits_done
+    stats.habits_missed = habits_missed
+
+    moods = [h.mood for h in health_logs if h.mood is not None]
+    sleeps = [h.sleep_minutes for h in health_logs if h.sleep_minutes is not None]
+    energies = [h.energy for h in health_logs if h.energy is not None]
+    if moods:
+        stats.avg_mood = round(sum(moods) / len(moods), 1)
+    if sleeps:
+        stats.avg_sleep_hrs = round(sum(sleeps) / len(sleeps) / 60, 1)
+    if energies:
+        stats.avg_energy = round(sum(energies) / len(energies), 1)
+
+    health_context = _build_health_context(stats, energy_logs, habits_done, habits_missed)
+
     completed_titles = [
         c.title
         for c in cards
@@ -801,6 +1207,7 @@ async def review(
         completed="\n".join(f"- {t[:80]}" for t in completed_titles) or "(none)",
         in_progress="\n".join(f"- {t[:80]}" for t in in_progress_titles)
         or "(none)",
+        health_context=health_context,
     )
 
     gateway = LocalAIGateway(db=db)
@@ -893,7 +1300,41 @@ def _format_stats_for_prompt(stats: ReviewStats) -> str:
         "by_status: "
         + ", ".join(f"{k}={v}" for k, v in sorted(stats.by_status.items())),
     ]
+    if stats.habits_done or stats.habits_missed:
+        lines.append(f"habits_done: {stats.habits_done}, habits_missed: {stats.habits_missed}")
+    if stats.avg_energy is not None:
+        lines.append(f"avg_energy: {stats.avg_energy}/10")
+    if stats.avg_mood is not None:
+        lines.append(f"avg_mood: {stats.avg_mood}/10")
+    if stats.avg_sleep_hrs is not None:
+        lines.append(f"avg_sleep_hrs: {stats.avg_sleep_hrs}")
     return "\n".join(lines)
+
+
+def _build_health_context(
+    stats: ReviewStats,
+    energy_logs: list[EnergyLog],
+    habits_done: int,
+    habits_missed: int,
+) -> str:
+    parts: list[str] = []
+    if stats.avg_energy is not None:
+        parts.append(f"Average energy: {stats.avg_energy}/10")
+    if stats.avg_mood is not None:
+        parts.append(f"Average mood: {stats.avg_mood}/10")
+    if stats.avg_sleep_hrs is not None:
+        parts.append(f"Average sleep: {stats.avg_sleep_hrs} hours")
+    if habits_done or habits_missed:
+        total = habits_done + habits_missed
+        rate = round(habits_done / total * 100) if total else 0
+        parts.append(f"Habits: {habits_done}/{total} done ({rate}%)")
+    energy_counts: dict[str, int] = {}
+    for e in energy_logs:
+        lvl = e.level if isinstance(e.level, str) else e.level.value
+        energy_counts[lvl] = energy_counts.get(lvl, 0) + 1
+    if energy_counts:
+        parts.append("Energy log distribution: " + ", ".join(f"{k}={v}" for k, v in sorted(energy_counts.items())))
+    return "\n".join(parts) if parts else "(no health data)"
 
 
 def _fallback_summary(stats: ReviewStats, days: int) -> str:
@@ -2832,3 +3273,202 @@ async def research_insight(
         audit_log_id=response.audit_log_id,
         **parsed,
     )
+
+
+# ======================================================================
+# Mission Editor — view/edit personal mission statement + filter questions
+# ======================================================================
+
+_DEFAULT_MISSION_DATA = {
+    "statement": (
+        "To live a happy life. I explore the world's hidden energies and rules, "
+        "share clarity with those who seek it, build my freedom to live meaningfully, "
+        "and refine myself in chosen solitude."
+    ),
+    "questions": [
+        {"key": "happiness", "question": "Does this support a happier, calmer, more meaningful life?"},
+        {"key": "hidden_rules", "question": "Does this help me understand deeper patterns of life, people, systems, money, health, or myself?"},
+        {"key": "clarity", "question": "Does this create clarity for me or others?"},
+        {"key": "freedom", "question": "Does this increase financial, emotional, physical, time, or location freedom?"},
+        {"key": "self_refinement", "question": "Does this refine my body, mind, skills, discipline, taste, or character?"},
+        {"key": "chosen_solitude", "question": "Does this respect privacy, peace, independence, and low-noise living?"},
+        {"key": "meaning", "question": "Does this make life more intentional rather than random?"},
+    ],
+}
+
+
+class MissionQuestion(BaseModel):
+    key: str = Field(min_length=1, max_length=50)
+    question: str = Field(min_length=1, max_length=300)
+
+
+class MissionData(BaseModel):
+    statement: str = Field(min_length=1, max_length=2000)
+    questions: list[MissionQuestion] = Field(min_length=1, max_length=12)
+
+
+class MissionResponse(BaseModel):
+    statement: str
+    questions: list[MissionQuestion]
+
+
+@router.get("/mission/{user_id}", response_model=MissionResponse)
+async def get_mission(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> MissionResponse:
+    from app.models.user import User
+
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "user not found")
+    data = user.mission_data or _DEFAULT_MISSION_DATA
+    return MissionResponse(
+        statement=data.get("statement", _DEFAULT_MISSION_DATA["statement"]),
+        questions=[
+            MissionQuestion(**q)
+            for q in data.get("questions", _DEFAULT_MISSION_DATA["questions"])
+        ],
+    )
+
+
+@router.put("/mission/{user_id}", response_model=MissionResponse)
+async def update_mission(
+    user_id: uuid.UUID,
+    payload: MissionData,
+    db: Session = Depends(get_db),
+) -> MissionResponse:
+    from app.models.user import User
+
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "user not found")
+    user.mission_data = {
+        "statement": payload.statement,
+        "questions": [q.model_dump() for q in payload.questions],
+    }
+    db.commit()
+    db.refresh(user)
+    return MissionResponse(
+        statement=payload.statement,
+        questions=payload.questions,
+    )
+
+
+# ======================================================================
+# Agent Council — "what should I do today?" queries multiple agents
+# ======================================================================
+
+class CouncilRequest(BaseModel):
+    user_id: uuid.UUID
+
+
+class CouncilVote(BaseModel):
+    agent: str
+    recommendation: str
+
+
+class CouncilResponse(BaseModel):
+    votes: list[CouncilVote]
+    synthesis: str
+    used_ai: bool
+
+
+@router.post("/council", response_model=CouncilResponse)
+async def council(
+    payload: CouncilRequest,
+    db: Session = Depends(get_db),
+) -> CouncilResponse:
+    """Query Focus, Energy, Health, and Money agents for a combined recommendation."""
+    votes: list[CouncilVote] = []
+
+    # 1. Focus Agent
+    try:
+        focus_resp = await focus(FocusRequest(user_id=payload.user_id), db)
+        votes.append(CouncilVote(
+            agent="Focus",
+            recommendation=f"Do: {focus_resp.card_title or 'no pick'}. {focus_resp.insight or ''}".strip(),
+        ))
+    except Exception:
+        votes.append(CouncilVote(agent="Focus", recommendation="(unavailable)"))
+
+    # 2. Energy Agent
+    try:
+        energy_resp = await energy_insight(
+            EnergyInsightRequest(user_id=payload.user_id), db
+        )
+        votes.append(CouncilVote(
+            agent="Energy",
+            recommendation=energy_resp.summary or "(no data)",
+        ))
+    except Exception:
+        votes.append(CouncilVote(agent="Energy", recommendation="(unavailable)"))
+
+    # 3. Health context from recent health logs
+    try:
+        since_date = (datetime.now(timezone.utc) - timedelta(days=1)).date()
+        health_logs: list[HealthLog] = list(
+            db.execute(
+                select(HealthLog)
+                .where(HealthLog.user_id == payload.user_id, HealthLog.log_date >= since_date)
+            ).scalars()
+        )
+        if health_logs:
+            h = health_logs[-1]
+            parts = []
+            if h.energy is not None:
+                parts.append(f"energy {h.energy}/10")
+            if h.mood is not None:
+                parts.append(f"mood {h.mood}/10")
+            if h.sleep_minutes is not None:
+                parts.append(f"sleep {round(h.sleep_minutes / 60, 1)}h")
+            votes.append(CouncilVote(
+                agent="Health",
+                recommendation=f"Today's state: {', '.join(parts)}" if parts else "(no data today)",
+            ))
+        else:
+            votes.append(CouncilVote(agent="Health", recommendation="(no data today)"))
+    except Exception:
+        votes.append(CouncilVote(agent="Health", recommendation="(unavailable)"))
+
+    # 4. Money — check if there are urgent money tasks
+    try:
+        money_cards = list(
+            db.execute(
+                select(Card)
+                .where(
+                    Card.user_id == payload.user_id,
+                    Card.life_area == "money_freedom",
+                    Card.status.in_([
+                        CardStatus.TODAY.value,
+                        CardStatus.IN_PROGRESS_MY_SIDE.value,
+                    ]),
+                )
+            ).scalars()
+        )
+        if money_cards:
+            titles = ", ".join(c.title[:40] for c in money_cards[:3])
+            votes.append(CouncilVote(
+                agent="Money",
+                recommendation=f"Active money tasks: {titles}",
+            ))
+        else:
+            votes.append(CouncilVote(agent="Money", recommendation="No urgent money tasks."))
+    except Exception:
+        votes.append(CouncilVote(agent="Money", recommendation="(unavailable)"))
+
+    # Synthesis (deterministic — no AI call needed for council itself)
+    synthesis = _synthesize_council(votes)
+
+    return CouncilResponse(votes=votes, synthesis=synthesis, used_ai=False)
+
+
+def _synthesize_council(votes: list[CouncilVote]) -> str:
+    """Simple deterministic summary from council votes."""
+    parts: list[str] = []
+    for v in votes:
+        if v.recommendation and "(unavailable)" not in v.recommendation:
+            parts.append(f"{v.agent}: {v.recommendation}")
+    if not parts:
+        return "No agents had data to share. Capture a thought to get started."
+    return " | ".join(parts)

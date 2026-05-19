@@ -24,6 +24,18 @@ export const colors = {
   pillarContribution: "#8b9b72",
 };
 
+/** Map life_area values → pillar border colour. */
+export const PILLAR_COLOR: Record<string, string> = {
+  health_energy: "#7f9f78",
+  mind_healing: "#9b86ba",
+  money_freedom: "#779db6",
+  work_skills: "#6a5a46",
+  home_property: "#c99555",
+  joy_culture: "#c99555",
+  family: "#b77a7c",
+  contribution: "#8b9b72",
+};
+
 export const spacing = {
   xs: 4,
   sm: 8,

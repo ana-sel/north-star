@@ -278,36 +278,72 @@ class LocalAIGateway:
         policy: AgentPolicy,
         planned_cost: Decimal,
     ) -> str | None:
-        """Return a human-readable reason if the call would exceed the
-        agent's monthly budget; else None.
+        """Return a human-readable reason if the call would exceed any
+        budget cap; else None.
 
-        Counts both completed external calls and currently-pending
-        approvals against the cap so users cannot stack approvals to
-        overshoot.
+        Checks three tiers:
+          1. Per-agent daily cap   (policy.daily_budget_limit_gbp)
+          2. Per-agent monthly cap (policy.monthly_budget_limit_gbp)
+          3. Global daily cap      (settings.global_daily_budget_gbp)
+          4. Global monthly cap    (settings.global_monthly_budget_gbp)
         """
-        cap = policy.monthly_budget_limit_gbp
-        if cap is None:
-            return None
+        from sqlalchemy import func as _func
 
         now = datetime.now(timezone.utc)
         month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
-        from sqlalchemy import func as _func  # local import to keep top tidy
-
-        spent = self.db.execute(
-            select(_func.coalesce(_func.sum(AIAuditLog.estimated_cost_gbp), 0))
-            .where(AIAuditLog.agent_id == policy.agent_id)
-            .where(AIAuditLog.external_call.is_(True))
-            .where(AIAuditLog.created_at >= month_start)
-            .where(AIAuditLog.final_status.in_(("completed", "awaiting_approval")))
-        ).scalar_one()
-        spent = Decimal(spent or 0)
-
-        if spent + planned_cost > cap:
-            return (
-                f"agent '{policy.agent_id}' would exceed monthly budget "
-                f"(spent £{spent}, planned £{planned_cost}, cap £{cap})"
+        def _spent_since(since: datetime, agent_id: str | None = None) -> Decimal:
+            q = (
+                select(_func.coalesce(_func.sum(AIAuditLog.estimated_cost_gbp), 0))
+                .where(AIAuditLog.external_call.is_(True))
+                .where(AIAuditLog.created_at >= since)
+                .where(AIAuditLog.final_status.in_(("completed", "awaiting_approval")))
             )
+            if agent_id is not None:
+                q = q.where(AIAuditLog.agent_id == agent_id)
+            return Decimal(self.db.execute(q).scalar_one() or 0)
+
+        # 1. Per-agent daily
+        daily_cap = getattr(policy, "daily_budget_limit_gbp", None)
+        if daily_cap is not None:
+            spent = _spent_since(day_start, policy.agent_id)
+            if spent + planned_cost > daily_cap:
+                return (
+                    f"agent '{policy.agent_id}' would exceed daily budget "
+                    f"(spent £{spent}, planned £{planned_cost}, cap £{daily_cap})"
+                )
+
+        # 2. Per-agent monthly
+        monthly_cap = policy.monthly_budget_limit_gbp
+        if monthly_cap is not None:
+            spent = _spent_since(month_start, policy.agent_id)
+            if spent + planned_cost > monthly_cap:
+                return (
+                    f"agent '{policy.agent_id}' would exceed monthly budget "
+                    f"(spent £{spent}, planned £{planned_cost}, cap £{monthly_cap})"
+                )
+
+        # 3. Global daily
+        global_daily = Decimal(str(settings.global_daily_budget_gbp))
+        if global_daily > 0:
+            spent = _spent_since(day_start)
+            if spent + planned_cost > global_daily:
+                return (
+                    f"global daily budget exceeded "
+                    f"(spent £{spent}, planned £{planned_cost}, cap £{global_daily})"
+                )
+
+        # 4. Global monthly
+        global_monthly = Decimal(str(settings.global_monthly_budget_gbp))
+        if global_monthly > 0:
+            spent = _spent_since(month_start)
+            if spent + planned_cost > global_monthly:
+                return (
+                    f"global monthly budget exceeded "
+                    f"(spent £{spent}, planned £{planned_cost}, cap £{global_monthly})"
+                )
+
         return None
 
     # -- approval queue -----------------------------------------------------

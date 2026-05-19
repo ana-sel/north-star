@@ -7,14 +7,16 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.db import get_db
 from app.enums import PrivacyLevel
 from app.models.diary_entry import DiaryEntry
+from app.services.ocr_service import OCRError, ocr_image
 
 
 router = APIRouter(prefix="/diary", tags=["diary"])
@@ -117,3 +119,34 @@ def delete_diary_entry(
     db.delete(entry)
     db.commit()
     return Response(status_code=204)
+
+
+class DiaryOCROut(BaseModel):
+    text: str
+
+
+@router.post("/ocr", response_model=DiaryOCROut)
+async def diary_ocr(image: UploadFile = File(...)) -> DiaryOCROut:
+    """Extract text from a photo using the local Ollama vision model.
+
+    Local-only by design — the image never leaves the box. Cap upload
+    size with `settings.ocr_max_bytes`.
+    """
+    if not (image.content_type or "").startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    data = await image.read()
+    if len(data) == 0:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if len(data) > settings.ocr_max_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Image exceeds {settings.ocr_max_bytes} bytes",
+        )
+
+    try:
+        text = await ocr_image(data)
+    except OCRError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return DiaryOCROut(text=text)

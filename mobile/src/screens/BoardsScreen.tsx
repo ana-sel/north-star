@@ -27,7 +27,7 @@ import {
 } from "../api/cards";
 import { DEV_USER_ID } from "../config/api";
 import type { RootStackParamList } from "../navigation/types";
-import { colors, spacing } from "../theme";
+import { colors, spacing, PILLAR_COLOR } from "../theme";
 
 /**
  * Spec §9 Boards / Kanban — status columns + drag-and-drop move.
@@ -49,7 +49,9 @@ const COLUMNS: { status: CardStatus; label: string }[] = [
   { status: "planned", label: "Planned" },
   { status: "today", label: "Today" },
   { status: "in_progress_my_side", label: "Doing" },
+  { status: "in_progress_other_side", label: "Waiting" },
   { status: "done", label: "Done" },
+  { status: "review", label: "Review" },
 ];
 
 const STUCK_THRESHOLD = 3;
@@ -95,6 +97,12 @@ export function BoardsScreen() {
   const columnRectsRef = useRef<Partial<Record<CardStatus, ColumnRect>>>({});
   const [hoverStatus, setHoverStatus] = useState<CardStatus | null>(null);
 
+  // Carryover review modal
+  const [carryoverCard, setCarryoverCard] = useState<{
+    card: CardOut;
+    targetStatus: CardStatus;
+  } | null>(null);
+
   const load = useCallback(async () => {
     setError(null);
     try {
@@ -128,6 +136,18 @@ export function BoardsScreen() {
   async function moveTo(card: CardOut, status: CardStatus) {
     setMoving(null);
     if (card.status === status) return;
+
+    // Carryover rule: card moved 3+ times → force review before allowing move
+    if (card.moved_count >= STUCK_THRESHOLD && status !== "done" && status !== "deleted") {
+      setCarryoverCard({ card, targetStatus: status });
+      return;
+    }
+
+    await doMove(card, status);
+  }
+
+  async function doMove(card: CardOut, status: CardStatus) {
+    setCarryoverCard(null);
     // Optimistic update.
     setCards((prev) =>
       prev.map((c) =>
@@ -140,6 +160,29 @@ export function BoardsScreen() {
     } catch (e: any) {
       Alert.alert("Move failed", e?.message ?? "Unknown error");
       load();
+    }
+  }
+
+  function handleCarryoverDecision(decision: "move" | "done" | "delete" | "split" | "cancel") {
+    if (!carryoverCard) return;
+    const { card, targetStatus } = carryoverCard;
+    switch (decision) {
+      case "move":
+        doMove(card, targetStatus);
+        break;
+      case "done":
+        doMove(card, "done" as CardStatus);
+        break;
+      case "delete":
+        doMove(card, "deleted" as CardStatus);
+        break;
+      case "split":
+        setCarryoverCard(null);
+        navigation.navigate("CardDetail", { cardId: card.id });
+        break;
+      case "cancel":
+        setCarryoverCard(null);
+        break;
     }
   }
 
@@ -406,6 +449,72 @@ export function BoardsScreen() {
         onClose={() => setMoving(null)}
         onPick={(status) => moving && moveTo(moving, status)}
       />
+
+      {/* Carryover Review Modal — spec §9.4 rule 6: 3-carryover forced review */}
+      <Modal
+        visible={!!carryoverCard}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCarryoverCard(null)}
+      >
+        <View style={styles.carryoverOverlay}>
+          <View style={styles.carryoverSheet}>
+            <Text style={styles.carryoverTitle}>⚠️ Stuck card review</Text>
+            <Text style={styles.carryoverSubtitle}>
+              This card has been moved {carryoverCard?.card.moved_count ?? 0} times without being completed.
+            </Text>
+            <View style={styles.carryoverCardPreview}>
+              <Text style={styles.carryoverCardTitle}>
+                {carryoverCard?.card.title}
+              </Text>
+              {carryoverCard?.card.description ? (
+                <Text style={styles.carryoverCardDesc} numberOfLines={2}>
+                  {carryoverCard.card.description}
+                </Text>
+              ) : null}
+            </View>
+            <Text style={styles.carryoverQuestion}>
+              What would you like to do?
+            </Text>
+            <View style={styles.carryoverActions}>
+              <Pressable
+                style={styles.carryoverBtn}
+                onPress={() => handleCarryoverDecision("move")}
+              >
+                <Text style={styles.carryoverBtnText}>Move anyway</Text>
+              </Pressable>
+              <Pressable
+                style={styles.carryoverBtn}
+                onPress={() => handleCarryoverDecision("done")}
+              >
+                <Text style={styles.carryoverBtnText}>✅ Mark done</Text>
+              </Pressable>
+              <Pressable
+                style={styles.carryoverBtn}
+                onPress={() => handleCarryoverDecision("split")}
+              >
+                <Text style={styles.carryoverBtnText}>✂️ Split / Edit</Text>
+              </Pressable>
+              <Pressable
+                style={styles.carryoverBtn}
+                onPress={() => handleCarryoverDecision("delete")}
+              >
+                <Text style={[styles.carryoverBtnText, { color: "#bf6b62" }]}>
+                  🗑 Delete
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[styles.carryoverBtn, { borderColor: colors.border }]}
+                onPress={() => handleCarryoverDecision("cancel")}
+              >
+                <Text style={[styles.carryoverBtnText, { color: colors.textMuted }]}>
+                  Cancel
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -495,6 +604,7 @@ function DraggableCard({
         delayLongPress={400}
         style={({ pressed }) => [
           styles.card,
+          card.life_area && { borderLeftWidth: 4, borderLeftColor: PILLAR_COLOR[card.life_area] ?? colors.border },
           card.moved_count >= STUCK_THRESHOLD && styles.stuck,
           pressed && !dragging && { opacity: 0.7 },
         ]}
@@ -757,4 +867,69 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   wipBadgeText: { fontSize: 11, fontWeight: "700", color: colors.warning },
+  // Carryover review modal
+  carryoverOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(45,40,34,0.42)",
+    justifyContent: "flex-end",
+  },
+  carryoverSheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderBottomWidth: 0,
+    padding: spacing.lg,
+    paddingBottom: 32,
+    gap: spacing.md,
+  },
+  carryoverTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  carryoverSubtitle: {
+    fontSize: 14,
+    color: colors.textMuted,
+    lineHeight: 20,
+  },
+  carryoverCardPreview: {
+    backgroundColor: colors.bg,
+    borderColor: colors.warning,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: spacing.md,
+  },
+  carryoverCardTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text,
+  },
+  carryoverCardDesc: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  carryoverQuestion: {
+    fontSize: 13,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
+  carryoverActions: {
+    gap: spacing.sm,
+  },
+  carryoverBtn: {
+    backgroundColor: colors.bg,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: spacing.md,
+    alignItems: "center",
+  },
+  carryoverBtnText: {
+    fontWeight: "600",
+    color: colors.text,
+    fontSize: 14,
+  },
 });

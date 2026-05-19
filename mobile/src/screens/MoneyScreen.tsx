@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { BarChart } from "react-native-gifted-charts";
 
 import {
   MoneySummary,
@@ -137,6 +138,32 @@ export function MoneyScreen() {
       {summary && summary.by_category.length > 0 && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>By category (30 days)</Text>
+          {(() => {
+            const chartData = summary.by_category
+              .filter(c => Number(c.total) < 0)
+              .sort((a, b) => Number(a.total) - Number(b.total))
+              .slice(0, 8)
+              .map(c => ({
+                value: Math.abs(Number(c.total)),
+                label: (c.category ?? "??").slice(0, 8),
+                frontColor: colors.primary,
+              }));
+            return chartData.length > 0 ? (
+              <BarChart
+                data={chartData}
+                barWidth={28}
+                spacing={14}
+                barBorderRadius={6}
+                noOfSections={4}
+                yAxisTextStyle={{ color: colors.textMuted, fontSize: 10 }}
+                xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 9, transform: [{ rotate: "-45deg" }] }}
+                xAxisColor={colors.border}
+                yAxisColor={colors.border}
+                height={120}
+                isAnimated
+              />
+            ) : null;
+          })()}
           {summary.by_category.map((c) => (
             <View key={c.category} style={styles.catRow}>
               <Text style={styles.catName}>{c.category}</Text>

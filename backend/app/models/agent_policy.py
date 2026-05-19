@@ -38,6 +38,7 @@ class AgentPolicy(Base):
         String(64), nullable=False, default="ollama"
     )
     monthly_budget_limit_gbp: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    daily_budget_limit_gbp: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

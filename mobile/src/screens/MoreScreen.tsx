@@ -55,6 +55,32 @@ export function MoreScreen() {
           styles.row,
           pressed && { backgroundColor: colors.border },
         ]}
+        onPress={() => nav.navigate("Compass")}
+      >
+        <Text style={styles.rowTitle}>🧭 Life Compass</Text>
+        <Text style={styles.rowSubtitle}>
+          Which life areas are getting attention — and which are neglected.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("MissionEditor")}
+      >
+        <Text style={styles.rowTitle}>🎯 Mission Editor</Text>
+        <Text style={styles.rowSubtitle}>
+          Edit your personal mission statement and filter questions.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
         onPress={() => nav.navigate("Review")}
       >
         <Text style={styles.rowTitle}>Review</Text>
@@ -151,6 +177,45 @@ export function MoreScreen() {
         <Text style={styles.rowTitle}>Approvals</Text>
         <Text style={styles.rowSubtitle}>
           Review redacted prompts before any external AI call.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("AuditLogs")}
+      >
+        <Text style={styles.rowTitle}>🔍 Audit Logs</Text>
+        <Text style={styles.rowSubtitle}>
+          Transparency — every AI request logged with cost and provider.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("AIBudget")}
+      >
+        <Text style={styles.rowTitle}>💷 AI Budget</Text>
+        <Text style={styles.rowSubtitle}>
+          Daily and monthly spend per agent vs configured limits.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("Settings")}
+      >
+        <Text style={styles.rowTitle}>⚙️ Settings</Text>
+        <Text style={styles.rowSubtitle}>
+          API config, notifications, theme, privacy.
         </Text>
       </Pressable>
 

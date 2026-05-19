@@ -6,16 +6,12 @@
  *   with your dev machine's LAN IP (e.g. `http://192.168.1.42:8000`).
  *   You can run `ipconfig` on Windows to find it.
  * - For Android emulator: `http://10.0.2.2:8000` reaches the host machine.
- *
- * Auth (JWT + Expo SecureStore) lands in a later phase. Until then we use
- * a dev-mode `userId` constant so the approval screens work end-to-end.
  */
 export const API_BASE_URL = "http://localhost:8000";
 
 /**
- * Dev-only fixed user_id. Replace with the user_id whose pending approvals
- * you want to see (matches what you'd pass to the HTML demo page).
- *
- * In Phase 7+ this will be replaced by the JWT-decoded user id.
+ * Fallback user_id for dev mode (no auth server running).
+ * Screens should prefer `useAuth().userId` from AuthContext.
+ * This constant is kept for backward compatibility during migration.
  */
 export const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";

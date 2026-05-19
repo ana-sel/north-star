@@ -50,13 +50,9 @@ def embedding_backfill() -> None:
                 continue
             try:
                 import asyncio
-                loop = asyncio.new_event_loop()
-                try:
-                    loop.run_until_complete(
-                        embed_entity(db, str(card.user_id), "card", str(card.id), text)
-                    )
-                finally:
-                    loop.close()
+                asyncio.run(
+                    embed_entity(db, str(card.user_id), "card", str(card.id), text)
+                )
             except Exception:
                 logger.exception("embedding_backfill: failed card %s", card.id)
         logger.info("embedding_backfill: done")
@@ -130,7 +126,7 @@ def habit_reminder() -> None:
     """Find habits that haven't been logged today and log a reminder."""
     from app.models.habit import Habit, HabitLog
     from app.models.user import User
-    from sqlalchemy import select, func
+    from sqlalchemy import select
 
     db = SessionLocal()
     try:
@@ -154,7 +150,7 @@ def habit_reminder() -> None:
                     db.execute(
                         select(HabitLog.habit_id)
                         .where(HabitLog.habit_id.in_([h.id for h in habits]))
-                        .where(func.date(HabitLog.logged_at) == today)
+                        .where(HabitLog.log_date == today)
                     ).scalars()
                 )
 
@@ -164,7 +160,7 @@ def habit_reminder() -> None:
                         "habit_reminder [%s]: %d habits not yet logged today: %s",
                         user.email,
                         len(due),
-                        ", ".join(h.name for h in due[:5]),
+                        ", ".join(h.title for h in due[:5]),
                     )
                     # Future: send push notification via Expo Push API.
             except Exception:

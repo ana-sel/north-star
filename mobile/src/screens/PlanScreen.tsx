@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
-import { colors, spacing } from "../theme";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { colors, spacing, PILLAR_COLOR } from "../theme";
 import { BoardsScreen } from "./BoardsScreen";
+import { CardOut, listCards } from "../api/cards";
+import { DEV_USER_ID } from "../config/api";
+import type { RootStackParamList } from "../navigation/types";
 
 type Segment = "month" | "year" | "projects";
 
@@ -42,128 +47,137 @@ export function PlanScreen() {
   );
 }
 
-const YEAR_QUARTERS = [
-  {
-    label: "Q1 — Foundation",
-    items: [
-      { title: "Launch Personal Navigation OS MVP", badge: "done", done: true },
-      { title: "Complete CS50 AI certification", badge: "in progress", done: false },
-      { title: "Establish sleep routine", badge: "habit", done: true },
-    ],
-  },
-  {
-    label: "Q2 — Growth",
-    items: [
-      { title: "IBM RAG specialisation", badge: "scheduled", done: false },
-      { title: "Flat renovation phase 1", badge: "in progress", done: false },
-      { title: "Build investment tracker", badge: "planned", done: false },
-    ],
-  },
-  {
-    label: "Q3 — Scale",
-    items: [
-      { title: "AWS Bedrock certification", badge: "scheduled", done: false },
-      { title: "Contribute to open-source AI project", badge: "planned", done: false },
-      { title: "Publish side project", badge: "planned", done: false },
-    ],
-  },
-  {
-    label: "Q4 — Consolidate",
-    items: [
-      { title: "Year review & 2027 planning", badge: "planned", done: false },
-      { title: "Financial year-end audit", badge: "planned", done: false },
-    ],
-  },
-];
-
-const PROJECTS = [
-  {
-    name: "Personal Navigation OS",
-    area: "Work / Skills",
-    progress: 0.45,
-    columns: { backlog: 4, doing: 3, waiting: 1, done: 8 },
-  },
-  {
-    name: "Vilnius Flat Renovation",
-    area: "Home / Property",
-    progress: 0.3,
-    columns: { backlog: 6, doing: 2, waiting: 3, done: 4 },
-  },
-  {
-    name: "CS50 AI Certification",
-    area: "Work / Skills",
-    progress: 0.7,
-    columns: { backlog: 2, doing: 1, waiting: 0, done: 7 },
-  },
-  {
-    name: "Health Reset Programme",
-    area: "Health / Energy",
-    progress: 0.55,
-    columns: { backlog: 3, doing: 2, waiting: 0, done: 5 },
-  },
-];
+const STATUS_LABEL: Record<string, string> = {
+  inbox: "inbox",
+  filtered: "filtered",
+  planned: "planned",
+  in_progress_my_side: "in progress",
+  in_progress_other_side: "waiting",
+  today: "today",
+  done: "done",
+  later: "later",
+  review: "review",
+};
 
 function YearBoard() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [cards, setCards] = useState<CardOut[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    try {
+      const all = await listCards(DEV_USER_ID);
+      // Year board: visions, goals, and projects
+      setCards(all.filter((c) => ["vision", "goal", "project"].includes(c.level) && c.status !== "deleted"));
+    } catch {} finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />;
+
+  // Group by life_area
+  const grouped: Record<string, CardOut[]> = {};
+  for (const c of cards) {
+    const area = c.life_area ?? "unclassified";
+    if (!grouped[area]) grouped[area] = [];
+    grouped[area].push(c);
+  }
+
   return (
     <ScrollView contentContainerStyle={s.yearScroll}>
-      {YEAR_QUARTERS.map((q) => (
-        <View key={q.label} style={s.card}>
-          <Text style={s.cardHeading}>{q.label}</Text>
-          {q.items.map((item, i) => (
-            <View key={i} style={s.yearRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={[s.yearTitle, item.done && s.yearDone]}>{item.title}</Text>
-              </View>
-              <View style={[s.badge, item.done && s.badgeDone]}>
-                <Text style={[s.badgeText, item.done && s.badgeDoneText]}>{item.badge}</Text>
-              </View>
-            </View>
-          ))}
+      {Object.entries(grouped).length === 0 ? (
+        <View style={s.card}>
+          <Text style={s.insightBody}>No goals or visions yet. Capture thoughts in Chat and they'll appear here once filtered.</Text>
         </View>
-      ))}
-      <View style={s.card}>
-        <Text style={s.insightTitle}>Year insight</Text>
-        <Text style={s.insightBody}>
-          Q1 focus was strong. Q2 has 2 active tracks — keep renovation and study from overlapping on the same weeks.
-        </Text>
-      </View>
+      ) : (
+        Object.entries(grouped).map(([area, items]) => (
+          <View key={area} style={s.card}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: PILLAR_COLOR[area] ?? colors.primary }} />
+              <Text style={s.cardHeading}>{area.replace(/_/g, " ")}</Text>
+            </View>
+            {items.map((c) => (
+              <Pressable key={c.id} style={s.yearRow} onPress={() => navigation.navigate("CardDetail", { cardId: c.id })}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.yearTitle, c.status === "done" && s.yearDone]}>{c.title}</Text>
+                  <Text style={{ fontSize: 11, color: colors.textMuted }}>{c.level}</Text>
+                </View>
+                <View style={[s.badge, c.status === "done" && s.badgeDone]}>
+                  <Text style={[s.badgeText, c.status === "done" && s.badgeDoneText]}>
+                    {STATUS_LABEL[c.status] ?? c.status}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        ))
+      )}
     </ScrollView>
   );
 }
 
 function ProjectsView() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [projects, setProjects] = useState<CardOut[]>([]);
+  const [allCards, setAllCards] = useState<CardOut[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    try {
+      const all = await listCards(DEV_USER_ID);
+      setAllCards(all);
+      setProjects(all.filter((c) => c.level === "project" && c.status !== "deleted"));
+    } catch {} finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />;
+
   return (
     <ScrollView contentContainerStyle={s.yearScroll}>
-      {PROJECTS.map((p) => (
-        <View key={p.name} style={s.card}>
-          <View style={s.projectHeader}>
-            <View style={{ flex: 1 }}>
-              <Text style={s.cardHeading}>{p.name}</Text>
-              <Text style={s.projectArea}>{p.area}</Text>
-            </View>
-            <Text style={s.projectPct}>{Math.round(p.progress * 100)}%</Text>
-          </View>
-          {/* Progress bar */}
-          <View style={s.progressTrack}>
-            <View style={[s.progressFill, { width: `${p.progress * 100}%` }]} />
-          </View>
-          {/* Column counts */}
-          <View style={s.colRow}>
-            {(["backlog", "doing", "waiting", "done"] as const).map((c) => (
-              <View key={c} style={s.colStat}>
-                <Text style={s.colStatValue}>{p.columns[c]}</Text>
-                <Text style={s.colStatLabel}>{c}</Text>
-              </View>
-            ))}
-          </View>
+      {projects.length === 0 ? (
+        <View style={s.card}>
+          <Text style={s.insightBody}>No projects yet. Create a goal and use the Architect Agent to split it into a project.</Text>
         </View>
-      ))}
-      <View style={s.card}>
-        <Text style={s.insightTitle}>Project health</Text>
-        <Text style={s.insightBody}>
-          Renovation has 3 cards in "waiting" — follow up on blocked items. CS50 AI is on track for the August target.
-        </Text>
-      </View>
+      ) : (
+        projects.map((p) => {
+          const children = allCards.filter((c) => c.parent_id === p.id);
+          const done = children.filter((c) => c.status === "done").length;
+          const total = children.length;
+          const progress = total > 0 ? done / total : 0;
+          const colCounts = {
+            backlog: children.filter((c) => ["inbox", "filtered", "planned"].includes(c.status)).length,
+            doing: children.filter((c) => ["in_progress_my_side", "today"].includes(c.status)).length,
+            waiting: children.filter((c) => c.status === "in_progress_other_side").length,
+            done,
+          };
+
+          return (
+            <Pressable key={p.id} style={s.card} onPress={() => navigation.navigate("CardDetail", { cardId: p.id })}>
+              <View style={s.projectHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.cardHeading}>{p.title}</Text>
+                  <Text style={s.projectArea}>{p.life_area?.replace(/_/g, " ") ?? "unclassified"}</Text>
+                </View>
+                <Text style={s.projectPct}>{Math.round(progress * 100)}%</Text>
+              </View>
+              <View style={s.progressTrack}>
+                <View style={[s.progressFill, { width: `${progress * 100}%` }]} />
+              </View>
+              <View style={s.colRow}>
+                {(["backlog", "doing", "waiting", "done"] as const).map((c) => (
+                  <View key={c} style={s.colStat}>
+                    <Text style={s.colStatValue}>{colCounts[c]}</Text>
+                    <Text style={s.colStatLabel}>{c}</Text>
+                  </View>
+                ))}
+              </View>
+            </Pressable>
+          );
+        })
+      )}
     </ScrollView>
   );
 }

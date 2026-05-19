@@ -214,6 +214,8 @@ export interface FocusPick {
 export interface FocusResponse {
   energy: EnergyLevel;
   picks: FocusPick[];
+  do_not_do: string[];
+  insight: string | null;
   used_ai: boolean;
   candidate_count: number;
   audit_log_id: string | null;
@@ -222,14 +224,59 @@ export interface FocusResponse {
 
 export async function pickFocus(
   userId: string,
-  energy: EnergyLevel
+  energy: EnergyLevel,
+  mood?: number | null
 ): Promise<FocusResponse> {
+  const body: Record<string, unknown> = { user_id: userId, energy };
+  if (mood != null) body.mood = mood;
   const resp = await fetch(`${API_BASE_URL}/agents/focus`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, energy }),
+    body: JSON.stringify(body),
   });
   return handle<FocusResponse>(resp);
+}
+
+// ---------------------------------------------------------------------
+// Intake Filter Agent — scores a card against the 7 mission questions
+// ---------------------------------------------------------------------
+export interface MissionScores {
+  happiness: number;
+  hidden_rules: number;
+  clarity: number;
+  freedom: number;
+  self_refinement: number;
+  chosen_solitude: number;
+  meaning: number;
+}
+
+export interface FilterResponse {
+  scores: MissionScores;
+  total: number;
+  want_type: string;
+  decision: string;
+  reasoning: string;
+  used_ai: boolean;
+  audit_log_id: string | null;
+  error: string | null;
+}
+
+export async function filterCard(
+  userId: string,
+  cardId?: string,
+  title?: string,
+  description?: string
+): Promise<FilterResponse> {
+  const body: Record<string, unknown> = { user_id: userId };
+  if (cardId) body.card_id = cardId;
+  if (title) body.title = title;
+  if (description) body.description = description;
+  const resp = await fetch(`${API_BASE_URL}/agents/filter`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return handle<FilterResponse>(resp);
 }
 
 // ---------------------------------------------------------------------
@@ -298,7 +345,7 @@ export async function scoreMission(
 // ---------------------------------------------------------------------
 // Review Agent — daily/weekly pattern detection over card activity.
 // ---------------------------------------------------------------------
-export type ReviewWindow = "daily" | "weekly";
+export type ReviewWindow = "daily" | "weekly" | "monthly" | "yearly";
 
 export interface ReviewStats {
   completed: number;
@@ -306,6 +353,11 @@ export interface ReviewStats {
   in_progress: number;
   moved: number;
   by_status: Record<string, number>;
+  habits_done: number;
+  habits_missed: number;
+  avg_energy: number | null;
+  avg_mood: number | null;
+  avg_sleep_hrs: number | null;
 }
 
 export interface ReviewResponse {
@@ -330,4 +382,57 @@ export async function runReview(
     body: JSON.stringify({ user_id: userId, window }),
   });
   return handle<ReviewResponse>(resp);
+}
+
+// ---------------------------------------------------------------------
+// Mission Editor
+// ---------------------------------------------------------------------
+export interface MissionQuestion {
+  key: string;
+  question: string;
+}
+
+export interface MissionData {
+  statement: string;
+  questions: MissionQuestion[];
+}
+
+export async function getMission(userId: string): Promise<MissionData> {
+  const resp = await fetch(`${API_BASE_URL}/agents/mission/${userId}`);
+  return handle<MissionData>(resp);
+}
+
+export async function updateMission(
+  userId: string,
+  data: MissionData
+): Promise<MissionData> {
+  const resp = await fetch(`${API_BASE_URL}/agents/mission/${userId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return handle<MissionData>(resp);
+}
+
+// ---------------------------------------------------------------------
+// Agent Council — "what should I do today?"
+// ---------------------------------------------------------------------
+export interface CouncilVote {
+  agent: string;
+  recommendation: string;
+}
+
+export interface CouncilResponse {
+  votes: CouncilVote[];
+  synthesis: string;
+  used_ai: boolean;
+}
+
+export async function askCouncil(userId: string): Promise<CouncilResponse> {
+  const resp = await fetch(`${API_BASE_URL}/agents/council`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: userId }),
+  });
+  return handle<CouncilResponse>(resp);
 }

@@ -44,6 +44,16 @@ MVP_AGENT_POLICIES: list[dict] = [
         "monthly_budget_limit_gbp": Decimal("3.00"),
     },
     {
+        "agent_id": "filter_agent",
+        "display_name": "Intake Filter",
+        "can_read": ["card_titles", "card_descriptions"],
+        "cannot_read": ["raw_bank_screenshots", "identity_documents", "diary_raw"],
+        "can_use_external_ai": False,
+        "requires_approval_for": ["sensitive", "never_external"],
+        "default_model": "ollama",
+        "monthly_budget_limit_gbp": Decimal("0.50"),
+    },
+    {
         "agent_id": "focus_agent",
         "display_name": "Focus Agent",
         "can_read": [

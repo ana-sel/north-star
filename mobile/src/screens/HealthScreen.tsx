@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { BarChart } from "react-native-gifted-charts";
+import { BarChart, LineChart } from "react-native-gifted-charts";
 
 import {
   HealthLog,
@@ -43,8 +43,8 @@ const FIELDS: FieldDef[] = [
   { key: "protein_g", label: "Protein (g)", placeholder: "120" },
   { key: "steps", label: "Steps", placeholder: "8000" },
   { key: "weight_kg", label: "Weight (kg)", placeholder: "72.5" },
-  { key: "energy", label: "Energy 1-10", placeholder: "7", min: 1, max: 10 },
-  { key: "mood", label: "Mood 1-10", placeholder: "7", min: 1, max: 10 },
+  { key: "energy", label: "Energy 0-5", placeholder: "3", min: 0, max: 5 },
+  { key: "mood", label: "Mood 0-5", placeholder: "3", min: 0, max: 5 },
 ];
 
 export function HealthScreen() {
@@ -172,7 +172,7 @@ export function HealthScreen() {
         </View>
         <View style={styles.stat}>
           <Text style={styles.statLabel}>Energy</Text>
-          <Text style={styles.statValue}>{today?.energy ? `${today.energy}/10` : "--"}</Text>
+          <Text style={styles.statValue}>{today?.energy != null ? `${today.energy}/5` : "--"}</Text>
         </View>
       </View>
 
@@ -248,6 +248,77 @@ export function HealthScreen() {
                 referenceLine1Config={{ color: colors.success, dashWidth: 4, dashGap: 4 }}
               />
               <Text style={styles.chartLegend}>Green line = 7h target</Text>
+            </View>
+          );
+        })()}
+
+        {/* Energy & Mood trend */}
+        {recent.length > 1 && (() => {
+          const reversed = [...recent].reverse();
+          const energyData = reversed
+            .filter(r => r.energy != null)
+            .map(r => ({ value: r.energy ?? 0, label: r.log_date.slice(5) }));
+          const moodData = reversed
+            .filter(r => r.mood != null)
+            .map(r => ({ value: r.mood ?? 0, label: r.log_date.slice(5) }));
+          if (energyData.length < 2 && moodData.length < 2) return null;
+          return (
+            <View style={{ marginTop: spacing.md }}>
+              <Text style={styles.fieldLabel}>Energy & Mood trend</Text>
+              <LineChart
+                data={energyData.length >= 2 ? energyData : []}
+                data2={moodData.length >= 2 ? moodData : []}
+                color1={colors.primary}
+                color2={"#9b86ba"}
+                dataPointsColor1={colors.primary}
+                dataPointsColor2={"#9b86ba"}
+                thickness={2}
+                noOfSections={5}
+                maxValue={5}
+                height={100}
+                spacing={40}
+                yAxisTextStyle={{ color: colors.textMuted, fontSize: 10 }}
+                xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 9, transform: [{ rotate: "-45deg" }] }}
+                xAxisColor={colors.border}
+                yAxisColor={colors.border}
+                isAnimated
+              />
+              <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }}>
+                <Text style={[styles.chartLegend, { color: colors.primary }]}>⚡ Energy</Text>
+                <Text style={[styles.chartLegend, { color: "#9b86ba" }]}>😊 Mood</Text>
+              </View>
+            </View>
+          );
+        })()}
+
+        {/* Weight trend */}
+        {recent.length > 1 && (() => {
+          const weightData = [...recent]
+            .reverse()
+            .filter(r => r.weight_kg != null)
+            .map(r => ({ value: r.weight_kg ?? 0, label: r.log_date.slice(5) }));
+          if (weightData.length < 2) return null;
+          const minW = Math.floor(Math.min(...weightData.map(d => d.value)) - 1);
+          const maxW = Math.ceil(Math.max(...weightData.map(d => d.value)) + 1);
+          return (
+            <View style={{ marginTop: spacing.md }}>
+              <Text style={styles.fieldLabel}>Weight trend (kg)</Text>
+              <LineChart
+                data={weightData}
+                color1={colors.gold}
+                dataPointsColor1={colors.gold}
+                thickness={2}
+                noOfSections={4}
+                maxValue={maxW}
+                yAxisOffset={minW}
+                height={100}
+                spacing={40}
+                yAxisTextStyle={{ color: colors.textMuted, fontSize: 10 }}
+                xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 9, transform: [{ rotate: "-45deg" }] }}
+                xAxisColor={colors.border}
+                yAxisColor={colors.border}
+                isAnimated
+              />
             </View>
           );
         })()}
