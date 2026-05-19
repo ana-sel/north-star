@@ -16,6 +16,7 @@ from datetime import datetime, date, timedelta, timezone
 
 import httpx
 from dateutil.rrule import rrulestr
+from dateutil.tz import gettz
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.orm import Session
@@ -57,21 +58,41 @@ _LINE_RE = re.compile(r"^([A-Z\-]+)((?:;[^:]*)?):(.*)$")
 _RECUR_KEYS = {"RRULE", "EXDATE", "RDATE"}
 
 
-def _parse_dt(value: str) -> tuple[datetime, bool]:
-    """Return (datetime, is_all_day). Naive values are treated as UTC."""
+def _parse_dt(value: str, tzid: str | None = None) -> tuple[datetime, bool]:
+    """Return (datetime, is_all_day).
+
+    Resolution order for the timezone:
+      1. trailing "Z" → UTC
+      2. ``tzid`` param (IANA name) resolved via dateutil.tz.gettz
+      3. fallback to UTC for naive local times (best effort)
+    """
     value = value.strip()
-    if len(value) == 8 and value.isdigit():  # YYYYMMDD
+    if len(value) == 8 and value.isdigit():  # YYYYMMDD all-day
         d = datetime.strptime(value, "%Y%m%d")
         return d.replace(tzinfo=timezone.utc), True
     if value.endswith("Z"):
         dt = datetime.strptime(value, "%Y%m%dT%H%M%SZ")
         return dt.replace(tzinfo=timezone.utc), False
-    # Local time without TZID — best-effort, mark UTC.
+    # Floating local time. Try to honour TZID; if that fails, treat as UTC.
     dt = datetime.strptime(value, "%Y%m%dT%H%M%S")
+    if tzid:
+        tz = gettz(tzid)
+        if tz is not None:
+            return dt.replace(tzinfo=tz), False
     return dt.replace(tzinfo=timezone.utc), False
 
 
-def _parse_dt_list(value: str) -> list[datetime]:
+def _extract_tzid(params: str) -> str | None:
+    """Pull a TZID=... value out of a parameter string like ';TZID=Europe/London'."""
+    if not params:
+        return None
+    for chunk in params.lstrip(";").split(";"):
+        if chunk.upper().startswith("TZID="):
+            return chunk.split("=", 1)[1]
+    return None
+
+
+def _parse_dt_list(value: str, tzid: str | None = None) -> list[datetime]:
     """Parse a comma-separated EXDATE/RDATE value list."""
     out: list[datetime] = []
     for part in value.split(","):
@@ -79,7 +100,7 @@ def _parse_dt_list(value: str) -> list[datetime]:
         if not part:
             continue
         try:
-            dt, _ = _parse_dt(part)
+            dt, _ = _parse_dt(part, tzid=tzid)
             out.append(dt)
         except Exception:
             continue
@@ -117,15 +138,25 @@ def parse_ics(
     current: dict | None = None
     for line in _unfold(text):
         if line == "BEGIN:VEVENT":
-            current = {"_exdates": [], "_rdates": []}
+            current = {
+                "_exdates": [],
+                "_rdates": [],
+                "_tzid_dtstart": None,
+                "_tzid_dtend": None,
+            }
             continue
         if line == "END:VEVENT" and current is not None:
             try:
                 start_raw = current.get("DTSTART", "")
-                start_dt, all_day = _parse_dt(start_raw) if start_raw else (None, False)
+                start_tzid = current.get("_tzid_dtstart")
+                start_dt, all_day = (
+                    _parse_dt(start_raw, tzid=start_tzid) if start_raw else (None, False)
+                )
                 end_dt = None
                 if "DTEND" in current:
-                    end_dt, _ = _parse_dt(current["DTEND"])
+                    end_dt, _ = _parse_dt(
+                        current["DTEND"], tzid=current.get("_tzid_dtend")
+                    )
                 if start_dt is None:
                     current = None
                     continue
@@ -205,13 +236,17 @@ def parse_ics(
         m = _LINE_RE.match(line)
         if not m:
             continue
-        key, _params, value = m.group(1), m.group(2), m.group(3)
+        key, params, value = m.group(1), m.group(2), m.group(3)
         if key == "EXDATE":
-            current["_exdates"].extend(_parse_dt_list(value))
+            current["_exdates"].extend(_parse_dt_list(value, tzid=_extract_tzid(params)))
             continue
         if key == "RDATE":
-            current["_rdates"].extend(_parse_dt_list(value))
+            current["_rdates"].extend(_parse_dt_list(value, tzid=_extract_tzid(params)))
             continue
+        if key == "DTSTART":
+            current["_tzid_dtstart"] = _extract_tzid(params)
+        elif key == "DTEND":
+            current["_tzid_dtend"] = _extract_tzid(params)
         # Unescape RFC-5545 text values for free-text fields.
         if key not in _RECUR_KEYS:
             value = value.replace("\\n", "\n").replace("\\,", ",").replace("\\;", ";")
