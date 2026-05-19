@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -9,23 +9,50 @@ import {
   View,
 } from "react-native";
 
-import { CalendarEvent, CalendarFeed, getCalendarFeed } from "../api/calendar";
+import {
+  CalendarEvent,
+  CalendarFeed,
+  getCalendarFeed,
+  getCalendarSettings,
+  getStoredCalendarFeed,
+  putCalendarSettings,
+} from "../api/calendar";
+import { useAuth } from "../context/AuthContext";
 import { colors, spacing } from "../theme";
 
 /**
  * Calendar feed reader — spec §13 nice-to-have.
  *
  * The user pastes a *secret* ICS URL (e.g. Google "Secret address in iCal
- * format" or iCloud public share). Nothing is stored on disk — the URL
- * lives in component state for the session. To persist it, add it later
- * to encrypted user settings.
+ * format" or iCloud public share). They can optionally save it for later
+ * sessions — saved URLs are encrypted-at-rest on the server (Fernet) and
+ * never sent back to the client in plaintext.
  */
 export function CalendarScreen() {
+  const { token } = useAuth();
   const [url, setUrl] = useState("");
   const [days, setDays] = useState("14");
   const [feed, setFeed] = useState<CalendarFeed | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasSaved, setHasSaved] = useState(false);
+  const [savingPref, setSavingPref] = useState(false);
+
+  // On mount: check whether the user has a saved URL on the server.
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    getCalendarSettings(token)
+      .then((s) => {
+        if (!cancelled) setHasSaved(s.ics_url_set);
+      })
+      .catch(() => {
+        /* non-fatal — user just won't see the "saved" affordance */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const load = useCallback(async () => {
     if (!url.trim()) {
@@ -46,6 +73,50 @@ export function CalendarScreen() {
     }
   }, [url, days]);
 
+  const loadStored = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const parsedDays = Math.max(1, Math.min(90, Number(days) || 14));
+      const f = await getStoredCalendarFeed(token, parsedDays);
+      setFeed(f);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to load saved feed");
+      setFeed(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, days]);
+
+  const saveUrl = useCallback(async () => {
+    if (!token || !url.trim()) return;
+    setSavingPref(true);
+    setError(null);
+    try {
+      const s = await putCalendarSettings(token, url.trim());
+      setHasSaved(s.ics_url_set);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to save URL");
+    } finally {
+      setSavingPref(false);
+    }
+  }, [token, url]);
+
+  const forgetUrl = useCallback(async () => {
+    if (!token) return;
+    setSavingPref(true);
+    setError(null);
+    try {
+      const s = await putCalendarSettings(token, null);
+      setHasSaved(s.ics_url_set);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to clear saved URL");
+    } finally {
+      setSavingPref(false);
+    }
+  }, [token]);
+
   return (
     <ScrollView
       style={styles.container}
@@ -54,9 +125,37 @@ export function CalendarScreen() {
     >
       <Text style={styles.h1}>Calendar feed</Text>
       <Text style={styles.muted}>
-        Paste a secret iCal/ICS URL. The URL is not stored on the device —
-        you'll need to re-paste it after restarting the app.
+        {hasSaved
+          ? "You have a saved iCal URL. Tap \"Load saved\" to fetch, or paste a different URL below."
+          : "Paste a secret iCal/ICS URL. Save it to skip the paste step next time — saved URLs are encrypted on the server."}
       </Text>
+
+      {hasSaved && token && (
+        <View style={styles.savedRow}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.btnSecondary,
+              pressed && { opacity: 0.7 },
+              (loading || savingPref) && { opacity: 0.5 },
+            ]}
+            disabled={loading || savingPref}
+            onPress={loadStored}
+          >
+            <Text style={styles.btnSecondaryText}>Load saved</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.btnGhost,
+              pressed && { opacity: 0.7 },
+              savingPref && { opacity: 0.5 },
+            ]}
+            disabled={savingPref}
+            onPress={forgetUrl}
+          >
+            <Text style={styles.btnGhostText}>Forget saved URL</Text>
+          </Pressable>
+        </View>
+      )}
 
       <TextInput
         style={styles.input}
@@ -89,6 +188,23 @@ export function CalendarScreen() {
       >
         <Text style={styles.btnText}>{loading ? "Loading…" : "Fetch events"}</Text>
       </Pressable>
+
+      {token && url.trim().length > 0 && (
+        <Pressable
+          style={({ pressed }) => [
+            styles.btnSecondary,
+            { marginTop: spacing.sm },
+            pressed && { opacity: 0.7 },
+            savingPref && { opacity: 0.5 },
+          ]}
+          disabled={savingPref}
+          onPress={saveUrl}
+        >
+          <Text style={styles.btnSecondaryText}>
+            {savingPref ? "Saving…" : hasSaved ? "Replace saved URL" : "Save URL for next time"}
+          </Text>
+        </Pressable>
+      )}
 
       {error && <Text style={styles.error}>{error}</Text>}
 
@@ -188,6 +304,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   btnText: { color: colors.surface, fontWeight: "600", fontSize: 15 },
+  btnSecondary: {
+    backgroundColor: colors.surface,
+    borderColor: colors.primary,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: "center",
+  },
+  btnSecondaryText: { color: colors.primary, fontWeight: "600", fontSize: 14 },
+  btnGhost: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    alignItems: "center",
+  },
+  btnGhostText: { color: colors.textMuted, fontSize: 13 },
+  savedRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+    alignItems: "center",
+  },
   error: {
     marginTop: spacing.md,
     color: colors.danger,
