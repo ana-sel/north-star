@@ -38,12 +38,15 @@ Full backend suite: **199/199 passing.**
   - `backend/tests/test_calendar_settings.py` (5 tests): default-empty, encrypted-roundtrip (with explicit Fernet key), clear-with-null, 404 on missing, 401 unauth.
 - [x] Mobile API helpers added in `mobile/src/api/calendar.ts` (`getCalendarSettings`, `putCalendarSettings`, `getStoredCalendarFeed`).
 
-Backend suite now: **211/211 passing.**
+Backend suite now: **215/215 passing.**
 
 ## Deferred / not in scope yet
 
-- [ ] Mobile auth wiring (JWT login + token storage). Without it, the new `/calendar/settings*` endpoints can't be called from the app. UI affordance on `CalendarScreen` ("Save URL for next time" / "Forget saved URL") blocked on this.
+- [x] Mobile auth wiring — was already in place (`AuthProvider` + `LoginScreen` + `expo-secure-store`); the previous TODO entry was stale.
+- [x] Calendar settings UI: `CalendarScreen` now offers "Save URL for next time" / "Replace saved URL" / "Load saved" / "Forget saved URL" using the existing JWT from `useAuth`.
 - [x] Calendar parser: RRULE expansion (DAILY/WEEKLY, COUNT, BYDAY, EXDATE, RDATE via python-dateutil). 7 new tests in `tests/test_calendar_rrule.py`.
-- [ ] Calendar parser: full VTIMEZONE handling (DTSTART;TZID=... values still treated as UTC).
-- [ ] Chat command autocomplete in `ChatScreen`.
-- [ ] CHANGELOG / release notes file.
+- [x] Calendar parser: VTIMEZONE / `DTSTART;TZID=...` support via `dateutil.tz.gettz`. Unknown zones fall back to UTC. 4 new tests in `tests/test_calendar_tzid.py`.
+- [x] Chat command autocomplete in `ChatScreen` — typing `/` surfaces matching commands with usage + description; tap to insert. Backed by a `COMMAND_DEFS` catalogue in `utils/chatCommands.ts` that also drives `/help` text.
+- [x] `CHANGELOG.md` initialised.
+
+Nothing currently deferred. Next iteration: real iCal write-back via CalDAV; richer recurrence (BYMONTHDAY / BYSETPOS edge cases); mobile chat autocomplete keyboard-nav.
