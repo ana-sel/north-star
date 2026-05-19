@@ -88,10 +88,23 @@ export async function handleCommand(
         }
         const habits = await listHabits(userId);
         const needle = rest.toLowerCase();
-        const match =
-          habits.find((h) => h.title.toLowerCase() === needle) ??
-          habits.find((h) => h.title.toLowerCase().includes(needle));
+
+        // 1. Exact (case-insensitive) match wins outright.
+        const exact = habits.find((h) => h.title.toLowerCase() === needle);
+        // 2. Otherwise, gather all substring matches.
+        const partial = habits.filter((h) =>
+          h.title.toLowerCase().includes(needle)
+        );
+        const match = exact ?? (partial.length === 1 ? partial[0] : null);
+
         if (!match) {
+          if (partial.length > 1) {
+            const titles = partial.map((h) => `• ${h.title}`).join("\n");
+            return {
+              ok: false,
+              text: `"${rest}" matched ${partial.length} habits — be more specific:\n${titles}`,
+            };
+          }
           return {
             ok: false,
             text: `No habit matched "${rest}". Try the Habits tab.`,

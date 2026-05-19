@@ -180,24 +180,45 @@ def _make_gateway(spent: Decimal) -> LocalAIGateway:
     return LocalAIGateway(db=_StubSession(spent))
 
 
-def test_budget_check_passes_when_under_cap():
+def test_budget_check_passes_when_under_cap(monkeypatch):
+    from app.gateway import gateway as gw_mod
+    monkeypatch.setattr(gw_mod.settings, "global_daily_budget_gbp", 0)
+    monkeypatch.setattr(gw_mod.settings, "global_monthly_budget_gbp", 0)
     gw = _make_gateway(spent=Decimal("1.00"))
-    policy = SimpleNamespace(agent_id="x", monthly_budget_limit_gbp=Decimal("5.00"))
+    policy = SimpleNamespace(
+        agent_id="x",
+        monthly_budget_limit_gbp=Decimal("5.00"),
+        daily_budget_limit_gbp=None,
+    )
     assert gw._check_budget(policy, Decimal("0.50")) is None
 
 
-def test_budget_check_blocks_when_over_cap():
+def test_budget_check_blocks_when_over_cap(monkeypatch):
+    from app.gateway import gateway as gw_mod
+    monkeypatch.setattr(gw_mod.settings, "global_daily_budget_gbp", 0)
+    monkeypatch.setattr(gw_mod.settings, "global_monthly_budget_gbp", 0)
     gw = _make_gateway(spent=Decimal("4.80"))
-    policy = SimpleNamespace(agent_id="healing_agent", monthly_budget_limit_gbp=Decimal("5.00"))
+    policy = SimpleNamespace(
+        agent_id="healing_agent",
+        monthly_budget_limit_gbp=Decimal("5.00"),
+        daily_budget_limit_gbp=None,
+    )
     reason = gw._check_budget(policy, Decimal("0.30"))
     assert reason is not None
     assert "monthly budget" in reason
     assert "healing_agent" in reason
 
 
-def test_budget_check_no_cap_means_no_block():
+def test_budget_check_no_cap_means_no_block(monkeypatch):
+    from app.gateway import gateway as gw_mod
+    monkeypatch.setattr(gw_mod.settings, "global_daily_budget_gbp", 0)
+    monkeypatch.setattr(gw_mod.settings, "global_monthly_budget_gbp", 0)
     gw = _make_gateway(spent=Decimal("999"))
-    policy = SimpleNamespace(agent_id="x", monthly_budget_limit_gbp=None)
+    policy = SimpleNamespace(
+        agent_id="x",
+        monthly_budget_limit_gbp=None,
+        daily_budget_limit_gbp=None,
+    )
     assert gw._check_budget(policy, Decimal("100")) is None
 
 

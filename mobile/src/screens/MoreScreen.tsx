@@ -211,6 +211,32 @@ export function MoreScreen() {
           styles.row,
           pressed && { backgroundColor: colors.border },
         ]}
+        onPress={() => nav.navigate("Calendar")}
+      >
+        <Text style={styles.rowTitle}>📅 Calendar</Text>
+        <Text style={styles.rowSubtitle}>
+          Read-only ICS feed view. Paste a secret iCal URL to see upcoming events.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
+        onPress={() => nav.navigate("WearablesImport")}
+      >
+        <Text style={styles.rowTitle}>⌚ Wearables import</Text>
+        <Text style={styles.rowSubtitle}>
+          Bulk-import sleep, steps, weight from an Apple Health / Fitbit JSON export.
+        </Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.row,
+          pressed && { backgroundColor: colors.border },
+        ]}
         onPress={() => nav.navigate("Settings")}
       >
         <Text style={styles.rowTitle}>⚙️ Settings</Text>

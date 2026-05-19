@@ -18,6 +18,8 @@ export type MoreStackParamList = {
   Research: undefined;
   AuditLogs: undefined;
   AIBudget: undefined;
+  Calendar: undefined;
+  WearablesImport: undefined;
   Settings: undefined;
 };
 
