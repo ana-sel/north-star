@@ -27,9 +27,22 @@ Updated after the autonomous-execution pass this session.
 
 Full backend suite: **199/199 passing.**
 
+## Done in this continuation pass (uncommitted at time of writing)
+
+- [x] `backend/app/config.py`: `JWT_SECRET` / `ENCRYPTION_KEY` env-var names now resolve via `pydantic.Field(validation_alias=...)`. Previously the `.env` real secrets were silently ignored, leaving the container on default JWT secret.
+- [x] Backend image rebuilt and `northstar-backend` recreated; `/healthz` → 200.
+- [x] Encrypted iCal URL persistence (per user):
+  - Migration `0008_user_settings`: adds `users.user_settings JSONB DEFAULT '{}'`.
+  - `app/utils/crypto.py`: added `encrypt_str` / `decrypt_str` Fernet helpers (passthrough when key empty).
+  - `app/api/calendar.py`: `GET /calendar/settings`, `PUT /calendar/settings`, `GET /calendar/ics-stored`. Plaintext URL is never sent back to the client.
+  - `backend/tests/test_calendar_settings.py` (5 tests): default-empty, encrypted-roundtrip (with explicit Fernet key), clear-with-null, 404 on missing, 401 unauth.
+- [x] Mobile API helpers added in `mobile/src/api/calendar.ts` (`getCalendarSettings`, `putCalendarSettings`, `getStoredCalendarFeed`).
+
+Backend suite now: **204/204 passing.**
+
 ## Deferred / not in scope yet
 
-- [ ] iCal URL encrypted storage in user settings (currently re-pasted each session).
+- [ ] Mobile auth wiring (JWT login + token storage). Without it, the new `/calendar/settings*` endpoints can't be called from the app. UI affordance on `CalendarScreen` ("Save URL for next time" / "Forget saved URL") blocked on this.
 - [ ] Calendar parser: RRULE expansion, full VTIMEZONE handling.
 - [ ] Chat command autocomplete in `ChatScreen`.
 - [ ] CHANGELOG / release notes file.

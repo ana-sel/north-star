@@ -23,6 +23,12 @@ class User(Base):
         JSONB, nullable=False, server_default="{}", default=dict
     )
 
+    # Free-form per-user settings (e.g. encrypted iCal URL). JSONB so we
+    # can add keys without a migration per setting.
+    user_settings: Mapped[dict] = mapped_column(
+        JSONB, nullable=False, server_default="{}", default=dict
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

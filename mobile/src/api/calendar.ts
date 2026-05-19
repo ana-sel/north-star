@@ -40,3 +40,47 @@ export async function getCalendarFeed(
   const resp = await fetch(`${API_BASE_URL}/calendar/ics?${params}`);
   return handle<CalendarFeed>(resp);
 }
+
+// --- Stored (per-user, encrypted at rest) ICS URL ----------------------
+//
+// Requires an authenticated user (Authorization: Bearer <jwt>). Mobile
+// auth wiring is not yet in place — these helpers are ready for once it
+// is. See TODO.md.
+
+export interface CalendarSettings {
+  ics_url_set: boolean;
+}
+
+function authHeader(token: string) {
+  return { Authorization: `Bearer ${token}` } as const;
+}
+
+export async function getCalendarSettings(token: string): Promise<CalendarSettings> {
+  const resp = await fetch(`${API_BASE_URL}/calendar/settings`, {
+    headers: authHeader(token),
+  });
+  return handle<CalendarSettings>(resp);
+}
+
+export async function putCalendarSettings(
+  token: string,
+  icsUrl: string | null
+): Promise<CalendarSettings> {
+  const resp = await fetch(`${API_BASE_URL}/calendar/settings`, {
+    method: "PUT",
+    headers: { ...authHeader(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ ics_url: icsUrl }),
+  });
+  return handle<CalendarSettings>(resp);
+}
+
+export async function getStoredCalendarFeed(
+  token: string,
+  days = 14
+): Promise<CalendarFeed> {
+  const params = new URLSearchParams({ days: String(days) });
+  const resp = await fetch(`${API_BASE_URL}/calendar/ics-stored?${params}`, {
+    headers: authHeader(token),
+  });
+  return handle<CalendarFeed>(resp);
+}
