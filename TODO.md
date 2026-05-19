@@ -38,11 +38,12 @@ Full backend suite: **199/199 passing.**
   - `backend/tests/test_calendar_settings.py` (5 tests): default-empty, encrypted-roundtrip (with explicit Fernet key), clear-with-null, 404 on missing, 401 unauth.
 - [x] Mobile API helpers added in `mobile/src/api/calendar.ts` (`getCalendarSettings`, `putCalendarSettings`, `getStoredCalendarFeed`).
 
-Backend suite now: **204/204 passing.**
+Backend suite now: **211/211 passing.**
 
 ## Deferred / not in scope yet
 
 - [ ] Mobile auth wiring (JWT login + token storage). Without it, the new `/calendar/settings*` endpoints can't be called from the app. UI affordance on `CalendarScreen` ("Save URL for next time" / "Forget saved URL") blocked on this.
-- [ ] Calendar parser: RRULE expansion, full VTIMEZONE handling.
+- [x] Calendar parser: RRULE expansion (DAILY/WEEKLY, COUNT, BYDAY, EXDATE, RDATE via python-dateutil). 7 new tests in `tests/test_calendar_rrule.py`.
+- [ ] Calendar parser: full VTIMEZONE handling (DTSTART;TZID=... values still treated as UTC).
 - [ ] Chat command autocomplete in `ChatScreen`.
 - [ ] CHANGELOG / release notes file.
