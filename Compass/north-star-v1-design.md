@@ -16,7 +16,7 @@
 | Login | **Google sign-in via Supabase Auth** | Free, others can sign up, you write almost no auth code |
 | Database + API | **Supabase (hosted Postgres)** free tier | Auto-generated secure API, each user only sees their own rows |
 | AI note | **AI from day one** — cloud Edge Function calling free hosted model (Gemini / Groq), with rule-based fallback | Free tier with privacy choice; gentle note is core product from day one, not an afterthought |
-| Cost | **£0 / month** | Free tiers + free-tier AI models |
+| Cost | **£0 / month** | Free tiers + your own laptop for AI |
 
 The plan keeps **everything in a single free platform** (Supabase) so friends can use the app any time. The **AI is in the cloud** (free hosted model via Edge Function), which means:
 - ✅ Nothing to run at home
@@ -191,7 +191,7 @@ src/
   lib/
     supabase.ts            # Supabase client (URL + anon key)
     time.ts                # time-zone & duration helpers (the careful bit)
-    ai.ts                  # calls Supabase Edge Function for note generation
+    ai.ts                  # calls laptop Ollama; falls back to ruleNote()
   auth/
     AuthGate.tsx           # shows Login until signed in, then the app
     LoginScreen.tsx        # "Continue with Google" button
@@ -222,12 +222,9 @@ flowchart LR
     UI["Screen component"] -->|"calls"| Data["data/*.ts"]
     Data -->|"supabase-js"| API["Supabase API"]
     API --> DB[("Postgres")]
-    UI -->|"get note"| AI["lib/ai.ts"]
-    AI -->|"POST /functions/generate_note"| Func["Edge Function"]
-    Func -->|"call API"| Model["Hosted AI Model"]
-    Model -->|"return note"| Func
-    Func -. "fallback: rule-based" .-> Func
-    Func -->|"note"| AI
+    UI -->|"render note"| AI["lib/ai.ts"]
+    AI -->|"http"| Ollama["laptop Ollama"]
+    AI -. "fallback" .-> Rule["ruleNote()"]
 ```
 
 ---
@@ -369,49 +366,50 @@ auto-generated REST API, and RLS keeps it safe. Conceptually the operations are:
 | Last 7 days | `select ... order by sleep_start_utc desc limit 7` | Feeds chart + note |
 | Full history | `select ... order by sleep_start_utc desc` | Paginated list |
 
-The **only** custom endpoint is the AI note, which runs as a **Supabase Edge Function**:
+The **only** custom endpoint is the AI note, because that runs on your laptop:
 
 ```
-POST  https://<project-id>.supabase.co/functions/v1/generate-note
-body  { "nights": [ {start_utc, end_utc, tz, duration_minutes}, ... ], "user_id": "..." }
+POST  http://<your-cloudflare-tunnel-url>/sleep-note
+body  { "nights": [ {start, end, tz, durationMin}, ... ] }
 resp  { "note": "You averaged 6h 52m this week ..." }
 ```
 
-`lib/ai.ts` calls this; if it fails or times out, it falls back to `ruleNote()`
+`lib/ai.ts` calls this; if it times out or fails (laptop off), it calls `ruleNote()`
 locally and the user never sees an error.
 
 ```mermaid
 sequenceDiagram
     participant App
-    participant EdgeFunc as Edge Function
-    participant AI as Hosted AI
-    App->>EdgeFunc: POST nights (2s timeout)
-    alt AI quota available
-        EdgeFunc->>AI: generate note
-        AI-->>EdgeFunc: { note: "..." }
-        EdgeFunc-->>App: { note: "..." }
+    participant Ollama as Laptop /sleep-note
+    App->>Ollama: POST nights (3s timeout)
+    alt laptop on
+        Ollama-->>App: { note: "..." }
         App-->>App: show LLM note
-    else quota empty or timeout
-        App-->>App: ruleNote(nights)  // built-in fallback
+    else laptop off / slow
+        App-->>App: ruleNote(nights)  // built-in
     end
 ```
 
 ---
 
-## 8. The AI note (free) — from day one
+## 8. The AI note (free + private) — from day one
 
 The gentle note ships **in the very first release**. It is never a "phase 2" feature.
 There are two layers; the app always shows a note, no matter what.
 
-**Layer 1 — cloud LLM (the day-one default):**
-1. Create a Supabase Edge Function at `functions/generate-note.ts` that calls a **free hosted AI model** (Gemini / Groq).
-2. The function takes your week's sleep numbers, calls the hosted model with a simple prompt, and returns 2–3 calm sentences.
-3. The AI never sees your name, email, or login — only the numbers.
+**Layer 1 — local LLM (the day-one default):**
+1. Install **Ollama** on your Windows laptop (free).
+2. Pull a small model, e.g. `llama3.2:3b` or `phi3:mini` (runs on a normal laptop).
+3. A tiny local service receives the `/sleep-note` request, prompts Ollama with the
+   numbers, and returns 2–3 calm sentences.
+4. Expose it to your phone with a free **Cloudflare Tunnel** (no port-forwarding,
+   no fixed IP needed).
 
 **Layer 2 — rule-based fallback (always present, invisible):**
 A small deterministic function in `lib/ai.ts` builds a sentence from the numbers
 (average sleep, latest night's bedtime/wake/duration, one gentle observation).
-It runs instantly and offline. The app calls the Edge Function first with a short timeout; if it fails or the quota is empty, it quietly uses this instead. The user never sees an error and
+It runs instantly and offline. The app calls the LLM first with a short timeout; if the
+laptop is off or slow, it quietly uses this instead. The user never sees an error and
 never sees an "AI is unavailable" state — there is always a note.
 
 > This is what "AI from day one" means in practice: the intelligent note is core, but it
@@ -431,7 +429,7 @@ never sees an "AI is unavailable" state — there is always a note.
 2. **Login**: wire Supabase Google auth; show a signed-in screen.
 3. **Onboarding**: set `home_tz`, save profile.
 4. **Log sleep**: Today screen → save to `sleep_entries` (UTC + tz).
-5. **AI note, both layers**: ship `ruleNote()` *and* the Edge Function `generate-note`
+5. **AI note, both layers**: ship `ruleNote()` *and* the Ollama `/sleep-note` endpoint
    together, with the timeout-and-fallback wiring. AI is live from this step on.
 6. **History**: list past nights in their stored tz.
 7. **Week**: bar chart of last 7 nights + average, with the AI note card on top.
@@ -440,9 +438,9 @@ never sees an "AI is unavailable" state — there is always a note.
 
 Operational checklist for this release flow lives in: `mobile/PLAY_STORE_RELEASE_CHECKLIST.md`.
 
-> The Edge Function goes in at step 5, not at the end — that's the "AI from day one"
+> The Ollama layer goes in at step 5, not at the end — that's the "AI from day one"
 > commitment. The rule-based fallback is written in the same step so the note is always
-> present, even before the Edge Function is deployed.
+> present, even before the laptop service is running.
 
 Each step is independently testable and leaves you with a working app.
 
