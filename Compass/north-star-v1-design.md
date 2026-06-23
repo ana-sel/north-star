@@ -15,12 +15,13 @@
 | Frontend | **Expo + React Native + TypeScript** | You already have this in the repo (`mobile/`), one codebase for Android now and iOS later |
 | Login | **Google sign-in via Supabase Auth** | Free, others can sign up, you write almost no auth code |
 | Database + API | **Supabase (hosted Postgres)** free tier | Auto-generated secure API, each user only sees their own rows |
-| AI note | **AI from day one** — local Ollama on your Windows laptop, with a rule-based note as silent fallback | Free, private, no monthly bill; the gentle note is part of the product from the first release, never an afterthought |
+| AI note | **AI from day one** — cloud Edge Function calling free hosted model (Gemini / Groq), with rule-based fallback | Free tier with privacy choice; gentle note is core product from day one, not an afterthought |
 | Cost | **£0 / month** | Free tiers + your own laptop for AI |
 
-You do **not** need to choose between "local" and "shared". The plan below keeps your
-**data in a reliable free cloud DB** (so friends can use it any time) and keeps the
-**AI on your laptop** (so the "thinking" part is free and private).
+The plan keeps **everything in a single free platform** (Supabase) so friends can use the app any time. The **AI is in the cloud** (free hosted model via Edge Function), which means:
+- ✅ Nothing to run at home
+- ✅ One platform to maintain
+- ✅ Choose privacy mode if needed (Mode 2: local private AI)
 
 ---
 
@@ -31,16 +32,13 @@ You said two things that slightly pull in opposite directions:
 1. *"Maybe better to have it locally so I don't pay for anything."*
 2. *"I'd love this app to be used by other people — Google auth."*
 
-If **everything** lives on your laptop, other people can only use the app while your
-laptop is switched on and exposed to the internet. That's fragile.
+**Simplified:** Everything lives in the cloud (Supabase). This means:
+- ✅ Always on — friends can log in anytime
+- ✅ Nothing running at home — no tunnel, no laptop uptime requirement
+- ✅ Still free — uses free-tier AI hosted models
+- ✅ Privacy option — if you want zero external AI calls, Mode 2 runs local AI server
 
-So we split it:
-
-- **Data + login = free cloud (Supabase).** Always on. Friends can log in any time.
-- **AI text generation = your laptop (Ollama).** Free + private. When the laptop is
-  off, the app still works and shows a simple rule-based note instead of the LLM one.
-
-This gives you a free, shareable app **and** a free, private AI — without paying anyone.
+This gives you a free, shareable app with simple maintenance.
 
 ```mermaid
 flowchart TD
@@ -48,28 +46,27 @@ flowchart TD
     APP["North Star Android app\n(Expo / React Native)"]
   end
 
-    subgraph Cloud["☁️ Supabase free tier (always on)"]
+    subgraph Cloud["☁️ Supabase (always on)"]
         Auth["Auth\n(Google sign-in)"]
         DB[("Postgres DB\nprofiles, sleep_entries")]
         API["Auto REST API\n+ Row Level Security"]
+        Func["Edge Function\n(generates notes)"]
     end
 
-    subgraph Laptop["💻 Your Windows laptop (on when home)"]
-        Ollama["Ollama\nsmall local LLM"]
-        Tunnel["Cloudflare Tunnel\n(free public URL)"]
+    subgraph AI["🤖 AI (free tier)"]
+        Model["Hosted Model\nGemini / Groq"]
     end
 
     APP -->|"login"| Auth
     APP -->|"read/write my data"| API
     API --- DB
-    APP -->|"ask for sleep note\n(best effort)"| Tunnel
-    Tunnel --> Ollama
-    APP -. "if laptop off: use\nbuilt-in rule note" .-> APP
+    APP -->|"get sleep note"| Func
+    Func -->|"send numbers"| Model
+    Model -->|"return note"| Func
+    Func -. "fallback: rule-based" .-> Func
 ```
 
-> If you'd rather not run anything on the laptop at all in V1, you can skip Ollama
-> entirely and ship with **only** the rule-based note. The app is fully usable without
-> the LLM. Add Ollama later when you want richer wording.
+> **Privacy modes:** Mode 1 (above) uses free hosted AI. Mode 2 lets you run local private AI on your laptop—see architecture.html § 03b.
 
 ---
 
