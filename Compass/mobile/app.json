@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Compass",
+    "slug": "compass",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F6F5F2"
+    },
+    "scheme": "compass",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://<your-domain>.exp.direct"
+        }
+      ],
+      [
+        "expo-secure-store"
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    },
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.compass.app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.compass.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F6F5F2"
+      },
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
