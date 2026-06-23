@@ -4,6 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -14,11 +15,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@lib/*": ["src/lib/*"],
+      "@auth/*": ["src/auth/*"],
       "@features/*": ["src/features/*"],
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],
@@ -28,6 +29,5 @@
     },
     "jsx": "react-jsx"
   },
-  "include": ["src", "index.ts"],
-  "references": [{ "path": "./tsconfig.app.json" }]
+  "include": ["src", "index.ts"]
 }

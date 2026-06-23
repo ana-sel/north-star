@@ -13,7 +13,6 @@ import {
   SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
-import { supabase } from '@lib/supabase';
 import { theme } from '@styles/theme';
 import { COMMON_TIMEZONES, getDeviceTimezone, isValidTimezone } from '@lib/time';
 import * as profileData from '@data/profile';
@@ -27,9 +26,9 @@ export function Onboarding() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const user = useAuthStore((s) => s.user);
-  const setProfile = useAuthStore((s) => s.setProfile);
-  const setHasCompletedOnboarding = useAuthStore((s) => s.setHasCompletedOnboarding);
+  const user = useAuthStore((s: import('@hooks/useAuthStore').AuthStore) => s.user);
+  const setProfile = useAuthStore((s: import('@hooks/useAuthStore').AuthStore) => s.setProfile);
+  const setHasCompletedOnboarding = useAuthStore((s: import('@hooks/useAuthStore').AuthStore) => s.setHasCompletedOnboarding);
 
   const handleContinue = async () => {
     if (!user?.id) {

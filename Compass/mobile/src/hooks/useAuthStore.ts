@@ -4,9 +4,9 @@
  */
 
 import { create } from 'zustand';
-import { User, Profile } from '@types/index';
+import { User, Profile } from '../types/index';
 
-interface AuthStore {
+export interface AuthStore {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;

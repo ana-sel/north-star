@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@lib/supabase';
-import { Profile } from '@types/index';
+import { Profile } from '../types/index';
 
 /**
  * Get user's profile

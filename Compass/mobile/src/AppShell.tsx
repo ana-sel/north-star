@@ -3,89 +3,53 @@
  * Main app navigation (bottom tabs) after authentication
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
+  Text,
   SafeAreaView,
 } from 'react-native';
 import { theme } from '@styles/theme';
-import { useAuthStore } from '@hooks/useAuthStore';
-import { supabase } from '@lib/supabase';
+import { TodayScreen, WeekScreen, HistoryScreen } from '@features/sleep';
+import { SettingsScreen } from './features/settings/SettingsScreen';
 
 type TabName = 'today' | 'week' | 'history' | 'settings';
 
+const TABS: { key: TabName; label: string }[] = [
+  { key: 'today', label: 'Today' },
+  { key: 'week', label: 'Week' },
+  { key: 'history', label: 'History' },
+  { key: 'settings', label: 'Settings' },
+];
+
 export function AppShell() {
   const [activeTab, setActiveTab] = useState<TabName>('today');
-  const user = useAuthStore((s) => s.user);
-
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      useAuthStore.getState().reset();
-    } catch (err) {
-      console.error('Sign out error:', err);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Main content area */}
       <View style={styles.content}>
         {activeTab === 'today' && (
-          <View style={styles.screen}>
-            <Text style={styles.screenTitle}>Today</Text>
-            <Text style={styles.screenText}>Sleep log form coming soon</Text>
-          </View>
+          <TodayScreen onSaved={() => setActiveTab('week')} />
         )}
-        {activeTab === 'week' && (
-          <View style={styles.screen}>
-            <Text style={styles.screenTitle}>This Week</Text>
-            <Text style={styles.screenText}>Chart + AI note coming soon</Text>
-          </View>
-        )}
-        {activeTab === 'history' && (
-          <View style={styles.screen}>
-            <Text style={styles.screenTitle}>History</Text>
-            <Text style={styles.screenText}>Past entries list coming soon</Text>
-          </View>
-        )}
-        {activeTab === 'settings' && (
-          <View style={styles.screen}>
-            <Text style={styles.screenTitle}>Settings</Text>
-            <Text style={styles.screenText}>Email: {user?.email}</Text>
-            <TouchableOpacity
-              style={styles.signOutBtn}
-              onPress={handleSignOut}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.signOutBtnText}>Sign Out</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        {activeTab === 'week' && <WeekScreen />}
+        {activeTab === 'history' && <HistoryScreen />}
+        {activeTab === 'settings' && <SettingsScreen />}
       </View>
 
-      {/* Bottom tab navigation */}
+      {/* Bottom tab bar */}
       <View style={styles.tabBar}>
-        {(['today', 'week', 'history', 'settings'] as const).map((tab) => (
+        {TABS.map(({ key, label }) => (
           <TouchableOpacity
-            key={tab}
-            style={[
-              styles.tabButton,
-              activeTab === tab && styles.tabButtonActive,
-            ]}
-            onPress={() => setActiveTab(tab)}
+            key={key}
+            style={[styles.tabButton, activeTab === key && styles.tabButtonActive]}
+            onPress={() => setActiveTab(key)}
             activeOpacity={0.7}
           >
-            <Text
-              style={[
-                styles.tabLabel,
-                activeTab === tab && styles.tabLabelActive,
-              ]}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            <Text style={[styles.tabLabel, activeTab === key && styles.tabLabelActive]}>
+              {label}
             </Text>
           </TouchableOpacity>
         ))}
@@ -101,36 +65,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  screen: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-  },
-  screenTitle: {
-    fontSize: theme.typography.xl,
-    fontWeight: '700',
-    color: theme.colors.ink,
-    marginBottom: theme.spacing.md,
-  },
-  screenText: {
-    fontSize: theme.typography.md,
-    color: theme.colors.muted,
-    textAlign: 'center',
-  },
-  signOutBtn: {
-    marginTop: theme.spacing.lg,
-    backgroundColor: theme.colors.error,
-    borderRadius: theme.radii.input,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  signOutBtnText: {
-    color: '#FFF',
-    fontWeight: '600',
-    fontSize: theme.typography.md,
-    textAlign: 'center',
   },
   tabBar: {
     flexDirection: 'row',

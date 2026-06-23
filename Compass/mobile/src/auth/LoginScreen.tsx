@@ -11,16 +11,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
-  Image,
 } from 'react-native';
 import { supabase } from '@lib/supabase';
 import { theme } from '@styles/theme';
-import { useAuthStore } from '@hooks/useAuthStore';
 
 export function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const setError: () => void = useAuthStore((s) => s.setError);
 
   const handleGoogleSignIn = async () => {
     try {
