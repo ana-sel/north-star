@@ -57,7 +57,7 @@ Compass/
 │   │   ├── lib/
 │   │   │   ├── supabase.ts      # Supabase client init
 │   │   │   ├── time.ts          # Timezone + duration helpers
-│   │   │   └── ai.ts            # Ollama AI + fallback rule note
+│   │   │   └── ai.ts            # Edge Function client + fallback note
 │   │   │
 │   │   ├── auth/
 │   │   │   ├── AuthGate.tsx     # Route: login OR app
@@ -82,15 +82,12 @@ Compass/
 │
 ├── backend/                     # Supabase setup (SQL + config)
 │   ├── supabase/
-│   │   └── migrations/
-│   │       └── 001_init.sql     # Tables: auth, profiles, sleep_entries
+│   │   ├── migrations/
+│   │   │   └── 001_init.sql     # Tables: auth, profiles, sleep_entries
+│   │   └── functions/
+│   │       └── generate_note.ts # Edge Function for AI note generation
 │   │
 │   └── README.md                # DB schema + RLS policies
-│
-├── ai-service/                  # Ollama + note generation (TODO: create)
-│   ├── Dockerfile               # Local Ollama setup
-│   ├── generate_note.py         # Call Ollama for AI note
-│   └── README.md                # How to run locally
 │
 ├── wireframe/                   # UI reference mockups
 │   └── index.html               # Wireframe layouts
@@ -177,8 +174,6 @@ Compass/
 3. **Android emulator** or physical Android device
 4. **Supabase account** (free tier) — https://supabase.com
 5. **Google OAuth app** (free) — Google Cloud Console
-6. **Ollama** (optional for V1) — https://ollama.ai
-7. **Cloudflare account** (free tier) — For Tunnel
 
 ### Setup Steps
 
@@ -300,8 +295,6 @@ CREATE POLICY "users can see own entries"
 - **Supabase Docs** → https://supabase.com/docs
 - **Expo Docs** → https://docs.expo.dev
 - **React Native Docs** → https://reactnative.dev
-- **Ollama Docs** → https://ollama.ai
-- **Cloudflare Tunnel** → https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
 
 ---
 
