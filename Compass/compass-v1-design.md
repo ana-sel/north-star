@@ -1,4 +1,4 @@
-# North Star — V1 Design (Sleep Log + AI Note)
+# Compass — V1 Design (Sleep Log + AI Note)
 
 > A private personal navigation app. This document covers **only V1**: a calm sleep
 > tracker with a gentle AI-written note, Google login, and correct time-zone handling.
@@ -43,7 +43,7 @@ This gives you a free, shareable app with simple maintenance.
 ```mermaid
 flowchart TD
   subgraph Phone["📱 Android phones (yours + future users)"]
-    APP["North Star Android app\n(Expo / React Native)"]
+    APP["Compass Android app\n(Expo / React Native)"]
   end
 
     subgraph Cloud["☁️ Supabase (always on)"]
@@ -106,7 +106,7 @@ flowchart LR
 
 ```
 ┌──────────────────────────────┐
-│  North Star            ⚙︎     │   ← settings (time zone)
+│  Compass               ⚙︎     │   ← settings (time zone)
 ├──────────────────────────────┤
 │  Tuesday, 10 June            │
 │  🌍 Europe/Vilnius (home)    │   ← active time zone, tap to shift
