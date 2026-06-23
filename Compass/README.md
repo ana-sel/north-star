@@ -1,4 +1,4 @@
-# North Star — V1 (Sleep Tracker with AI Notes)
+# Compass — V1 (Sleep Tracker with AI Notes)
 
 A private personal navigation app. **V1 focuses on: calm sleep tracking + gentle AI-written notes + correct timezone handling.**
 
@@ -44,7 +44,7 @@ The app **splits responsibility** into one platform:
 ```
 Compass/
 ├── README.md                    # This file
-├── north-star-v1-design.md      # Full design doc (scope, wireframes, UI flow)
+├── compass-v1-design.md        # Full design doc (scope, wireframes, UI flow)
 ├── architecture.html            # Architecture diagram (visual reference)
 │
 ├── mobile/                      # React Native Expo app (TODO: create)
@@ -296,7 +296,7 @@ CREATE POLICY "users can see own entries"
 
 ## References
 
-- **Full Design Doc** → [north-star-v1-design.md](./north-star-v1-design.md)
+- **Full Design Doc** → [compass-v1-design.md](./compass-v1-design.md)
 - **Supabase Docs** → https://supabase.com/docs
 - **Expo Docs** → https://docs.expo.dev
 - **React Native Docs** → https://reactnative.dev
