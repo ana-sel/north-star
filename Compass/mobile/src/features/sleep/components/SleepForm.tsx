@@ -4,7 +4,7 @@
  * Uses react-native-date-picker for native picker UI
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,

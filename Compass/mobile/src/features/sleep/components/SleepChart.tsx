@@ -1,26 +1,19 @@
-/**
- * SleepChart Component
- * 7-day bar chart using pure React Native (no heavy chart library)
- * Matches the wireframe design exactly
- */
+// SleepChart — a 7-day bar chart in pure React Native (no chart library).
 
-import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '@styles/theme';
 import { SleepEntry } from '../../../types/index';
-import { utcToLocal } from '@lib/time';
 
 interface SleepChartProps {
   entries: SleepEntry[];
-  timezone: string;
 }
 
 const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const MAX_HOURS = 10; // Chart ceiling
 
-export function SleepChart({ entries, timezone }: SleepChartProps) {
+export function SleepChart({ entries }: SleepChartProps) {
   // Build last 7 days array (today = rightmost bar)
-  const days = buildLast7Days(entries, timezone);
+  const days = buildLast7Days(entries);
 
   const averageMinutes =
     days.filter((d) => d.minutes > 0).reduce((sum, d) => sum + d.minutes, 0) /
@@ -86,7 +79,7 @@ interface DayBar {
   label: string;
 }
 
-function buildLast7Days(entries: SleepEntry[], timezone: string): DayBar[] {
+function buildLast7Days(entries: SleepEntry[]): DayBar[] {
   const days: DayBar[] = Array(7)
     .fill(null)
     .map(() => ({ minutes: 0, label: '' }));

@@ -1,10 +1,7 @@
-/**
- * TodayScreen — V1 Sleep Log
- * Lets the user log bed time + wake time for last night
- * Stores UTC in Supabase, always with the timezone it was logged in (GDPR: minimal data)
- */
+// TodayScreen — log last night's bed and wake time.
+// Stores UTC + the timezone it was logged in (GDPR: minimal data).
 
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -18,12 +15,11 @@ import {
 import { theme } from '@styles/theme';
 import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { SleepForm } from '../components/SleepForm';
-import { localToUTC, calculateDuration, getDeviceTimezone } from '@lib/time';
+import { calculateDuration, getDeviceTimezone } from '@lib/time';
 import { saveSleepEntry } from '@data/sleep';
-import { generateNote } from '@lib/ai';
 
 interface TodayScreenProps {
-  onSaved?: () => void; // navigate to Week tab after saving
+  onSaved?: () => void; // jump to the Week tab after saving
 }
 
 export function TodayScreen({ onSaved }: TodayScreenProps) {
@@ -32,7 +28,7 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
 
   const timezone = profile?.active_timezone ?? getDeviceTimezone();
 
-  // Default: bed 23:00 yesterday, wake 07:00 today
+  // Defaults: bed 23:00 yesterday, wake 07:00 today.
   const [bedTime, setBedTime] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 1);
@@ -48,49 +44,31 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  // Live duration
   const { formatted: durationLabel } = calculateDuration(bedTime, wakeTime);
 
   const handleSave = useCallback(async () => {
     if (!user?.id) return;
 
     if (wakeTime <= bedTime) {
-      Alert.alert(
-        'Check your times',
-        'Wake time should be after bed time.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Check your times', 'Wake time should be after bed time.');
       return;
     }
 
     setIsSaving(true);
     try {
-      // Convert local times to UTC for storage
-      const sleepStartUtc = bedTime.toISOString();
-      const sleepEndUtc = wakeTime.toISOString();
-
-      // Fetch last 7 nights for the AI note (before saving this one)
-      // We'll let the Week screen handle the note after save
-
-      // Save the entry (GDPR: only times + timezone, no personal content)
       await saveSleepEntry({
         user_id: user.id,
-        sleep_start_utc: sleepStartUtc,
-        sleep_end_utc: sleepEndUtc,
+        sleep_start_utc: bedTime.toISOString(),
+        sleep_end_utc: wakeTime.toISOString(),
         timezone,
-        duration_minutes: null,
+        duration_minutes: null, // computed by the database
         note: null,
         energy: null,
         mood: null,
       });
-
       onSaved?.();
     } catch (err) {
-      Alert.alert(
-        'Could not save',
-        'Please check your connection and try again.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Could not save', 'Please check your connection and try again.');
       console.error('Save sleep entry error:', err);
     } finally {
       setIsSaving(false);

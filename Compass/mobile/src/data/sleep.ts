@@ -84,31 +84,10 @@ export async function deleteSleepEntry(id: string): Promise<void> {
   if (error) throw error;
 }
 
-/**
- * Subscribe to real-time sleep entry changes
- */
-export function subscribeToSleepEntries(
-  userId: string,
-  callback: (entries: SleepEntry[]) => void
-): () => void {
-  const subscription = supabase
-    .from(`sleep_entries:user_id=eq.${userId}`)
-    .on('*', () => {
-      // Fetch updated data
-      getSleepLastDays(userId, 30).then(callback);
-    })
-    .subscribe();
-
-  return () => {
-    subscription.unsubscribe();
-  };
-}
-
 export default {
   saveSleepEntry,
   getSleepLastDays,
   getSleepHistory,
   updateSleepEntry,
   deleteSleepEntry,
-  subscribeToSleepEntries,
 };

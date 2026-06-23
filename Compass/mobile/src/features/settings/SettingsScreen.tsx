@@ -4,7 +4,7 @@
  * GDPR: user can see what data is stored and sign out (right to access/erasure shown as roadmap)
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,

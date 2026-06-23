@@ -1,7 +1,4 @@
-/**
- * Core domain types for Compass
- * These are the fundamental data structures shared across all features
- */
+// Core domain types, shared across all features.
 
 export interface User {
   id: string;
@@ -19,48 +16,23 @@ export interface Profile {
   updated_at: string;
 }
 
-/**
- * V1 Feature: Sleep Tracking
- */
+// V1: sleep. energy & mood are V2 columns — nullable from day one so the
+// schema never needs migrating when those features arrive.
 export interface SleepEntry {
   id: string;
   user_id: string;
-  sleep_start_utc: string; // ISO 8601 UTC timestamp
-  sleep_end_utc: string; // ISO 8601 UTC timestamp
-  timezone: string; // IANA timezone (e.g., 'Europe/Vilnius')
-  duration_minutes: number;
-  note: string; // AI-generated or rule-based
+  sleep_start_utc: string;
+  sleep_end_utc: string;
+  timezone: string; // IANA, e.g. 'Europe/Vilnius'
+  duration_minutes: number | null; // computed by the database
+  note: string | null;
+  energy: number | null; // V2, 1–10
+  mood: number | null; // V2, 1–10
   created_at: string;
   updated_at: string;
 }
 
-/**
- * V2 Feature: Energy & Mood Tracking
- * Both use nullable fields in sleep_entries to maintain schema compatibility
- */
-export interface EnergyEntry {
-  id: string;
-  user_id: string;
-  date_utc: string;
-  value: number; // 1-10 scale
-  note?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface MoodEntry {
-  id: string;
-  user_id: string;
-  date_utc: string;
-  value: number; // 1-10 scale
-  note?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-/**
- * V3 Feature: Planning & Goals
- */
+// V3: planning.
 export interface Goal {
   id: string;
   user_id: string;
@@ -84,9 +56,7 @@ export interface Task {
   updated_at: string;
 }
 
-/**
- * AI Note Generation Request/Response
- */
+// AI note generation. Only numbers cross the wire — never personal data.
 export interface AINoteRequest {
   nights: Array<{
     start_utc: string;
@@ -102,14 +72,3 @@ export interface AINoteResponse {
   generated_at: string;
 }
 
-/**
- * App State & Navigation
- */
-export type AuthState = 'loading' | 'signed-in' | 'signed-out';
-
-export interface AppContextType {
-  user: User | null;
-  profile: Profile | null;
-  isLoading: boolean;
-  error: string | null;
-}

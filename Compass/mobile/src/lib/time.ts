@@ -1,81 +1,23 @@
-/**
- * Time & Timezone Utilities
- * Core logic for handling timezone-aware sleep tracking
- * 
- * RULE: Always store UTC times in database, remember the timezone they were logged in,
- * and display them back in that timezone.
- */
+// Timezone-aware time helpers.
+// Rule: store UTC, remember the timezone it was logged in, display it back in that zone.
 
-import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 
-/**
- * Convert local time to UTC while remembering the timezone
- */
-export function localToUTC(
-  localTimeStr: string,
-  timezone: string
-): { utc: Date; iso: string } {
-  // Parse local time string (format: "HH:mm")
-  const [hours, minutes] = localTimeStr.split(':').map(Number);
-
-  // Create a date in the specified timezone
-  const today = new Date();
-  const zoned = new Date(
-    today.toLocaleString('en-US', { timeZone: timezone })
-  );
-
-  zoned.setHours(hours, minutes, 0, 0);
-
-  // Convert to UTC
-  const utc = fromZonedTime(zoned, timezone);
-
-  return {
-    utc,
-    iso: utc.toISOString(),
-  };
-}
-
-/**
- * Convert UTC time back to local time in a specific timezone
- */
+// Format a UTC instant as "HH:mm" in a given timezone.
 export function utcToLocal(utcTime: Date, timezone: string): string {
-  const zoned = toZonedTime(utcTime, timezone);
-  return formatInTimeZone(zoned, timezone, 'HH:mm');
+  return formatInTimeZone(utcTime, timezone, 'HH:mm');
 }
 
-/**
- * Calculate duration between two UTC times
- * Always returns correct duration regardless of timezone or DST
- */
+// Minutes between two instants, plus a human "7h 35m" label. DST-safe.
 export function calculateDuration(
   startUtc: Date,
   endUtc: Date
 ): { minutes: number; formatted: string } {
-  const durationMs = endUtc.getTime() - startUtc.getTime();
-  const minutes = Math.round(durationMs / (1000 * 60));
-
+  const minutes = Math.round((endUtc.getTime() - startUtc.getTime()) / 60000);
   const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  const formatted = `${hours}h ${mins}m`;
-
-  return { minutes, formatted };
+  return { minutes, formatted: `${hours}h ${minutes % 60}m` };
 }
 
-/**
- * Get average sleep duration from multiple entries
- */
-export function calculateAverageSleep(durations: number[]): string {
-  if (durations.length === 0) return '0h 0m';
-
-  const totalMinutes = durations.reduce((a, b) => a + b, 0);
-  const avgMinutes = Math.round(totalMinutes / durations.length);
-
-  const hours = Math.floor(avgMinutes / 60);
-  const mins = avgMinutes % 60;
-
-  return `${hours}h ${mins}m`;
-}
 
 /**
  * Get list of supported IANA timezones

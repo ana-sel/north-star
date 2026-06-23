@@ -3,7 +3,7 @@
  * User picks their home timezone on first login
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
