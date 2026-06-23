@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>North Star — Track Tab Refined</title>
+<style>
+:root{
+  --phone:#f8f4ee; --surface:#fffdf8; --line:#d9cdbb; --line2:#eadfce;
+  --ink:#27221d; --muted:#74695c; --deep:#2f271f; --cream:#fffaf3;
+  --health:#77936f; --inner:#937caf; --money:#7395ad; --joy:#c99554; --danger:#ad665e;
+  --shadow:0 24px 70px rgba(45,35,22,.16);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:radial-gradient(circle at 14% 7%,rgba(255,253,247,.96),transparent 28%),
+    radial-gradient(circle at 88% 18%,rgba(207,183,144,.24),transparent 30%),
+    linear-gradient(145deg,#f8f2e9,#e1d4c3);
+}
+.wrap{width:min(1180px,calc(100% - 28px)); margin:28px auto; display:grid; grid-template-columns:390px 1fr; gap:22px; align-items:start}
+.phone{width:390px; padding:14px; border-radius:42px; background:linear-gradient(145deg,#fffaf2,#eee4d8); border:1px solid rgba(130,103,70,.22); box-shadow:var(--shadow)}
+.screen{height:800px; border-radius:32px; overflow:hidden; background:var(--phone); border:1px solid rgba(120,96,62,.2); display:flex; flex-direction:column; position:relative}
+.status{height:34px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:13px; font-weight:800; background:rgba(255,253,248,.74)}
+.header{padding:18px 18px 12px; border-bottom:1px solid var(--line); background:rgba(255,253,248,.92)}
+.headerTop{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+h1{margin:0; font-size:30px; line-height:1; letter-spacing:-.045em}
+.sub{margin:7px 0 0; color:var(--muted); font-size:13px; line-height:1.35}
+.avatar{width:40px;height:40px;border-radius:50%; display:grid;place-items:center; background:linear-gradient(145deg,#e5d8c3,#cab590); border:1px solid #c9b99e; color:#5b4c39; font-weight:900}
+.viewSwitch{margin-top:13px; display:grid; grid-template-columns:repeat(4,1fr); gap:5px; background:#eadfce; border:1px solid var(--line); border-radius:18px; padding:5px}
+.viewSwitch button{border:0; background:transparent; border-radius:13px; padding:8px 4px; font-size:11.5px; font-weight:900; color:#6f6252; cursor:pointer}
+.viewSwitch button.active{background:#fffdf8; color:var(--ink); box-shadow:0 4px 12px rgba(50,35,20,.06)}
+.content{flex:1; overflow:auto; padding:14px 14px 74px}
+.view{display:none}.view.active{display:block}
+.section{margin-bottom:13px}
+.signal{border:1px solid #d8c1a0; background:#f7ead6; border-radius:23px; padding:13px; color:#5c4f40; font-size:12.5px; line-height:1.43}
+.signalTop{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px}
+.signal h2{margin:0; font-size:15px; letter-spacing:-.02em; color:var(--ink)}
+.badge{border:1px solid #d6bc91; background:#fff4df; color:#715333; border-radius:999px; padding:5px 8px; font-size:10.5px; font-weight:900; white-space:nowrap}
+.metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px}
+.metric{background:#fffaf3; border:1px solid var(--line); border-radius:16px; padding:9px; text-align:center}
+.metric strong{display:block; font-size:16px; letter-spacing:-.02em}
+.metric span{font-size:10.5px; color:var(--muted)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:24px; padding:14px; box-shadow:0 12px 28px rgba(52,40,24,.06)}
+.cardHead{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px}
+.cardHead h2{margin:0; font-size:16px; letter-spacing:-.02em}
+.cardHead p{margin:3px 0 0; color:var(--muted); font-size:11.7px; line-height:1.35}
+.linkBtn{border:1px solid var(--line); background:#fffaf3; color:#5e4f3e; border-radius:999px; padding:6px 9px; font-size:10.5px; font-weight:900; white-space:nowrap; cursor:pointer}
+.logGrid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.inputBox{border:1px solid var(--line2); background:#fffaf3; border-radius:16px; padding:10px}
+.inputBox small{display:block; color:var(--muted); font-size:10.5px; font-weight:900; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px}
+.inputBox strong{font-size:15px}
+.inputBox span{display:block; color:#65594c; font-size:11px; margin-top:2px}
+.bars{display:flex; gap:6px; align-items:end; height:72px; margin-top:4px}
+.barWrap{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px}
+.bar{width:100%; border-radius:999px 999px 6px 6px; background:#d8ccb9; min-height:10px}
+.bar.good{background:var(--health)} .bar.low{background:var(--danger)} .bar.mid{background:var(--joy)}
+.barWrap span{font-size:9.5px; color:var(--muted); font-weight:800}
+.insight{border-left:5px solid var(--health); background:#fffaf3; border-radius:17px; padding:11px 12px; font-size:12.5px; line-height:1.45; color:#4d443a}
+.insight.money{border-left-color:var(--money)}
+.habitList{display:grid; gap:8px}
+.habit{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; border-bottom:1px solid var(--line2); padding:9px 0}
+.habit:last-child{border-bottom:0}
+.habit strong{display:block; font-size:12.8px}
+.habit span{display:block; color:var(--muted); font-size:11.2px; margin-top:2px}
+.toggle{width:42px;height:23px;border-radius:999px;background:#ded4c6;padding:3px;display:flex;justify-content:flex-start}
+.toggle.on{background:#8ca884;justify-content:flex-end}
+.knob{width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.12)}
+.rowList{display:grid; gap:8px}
+.row{display:grid; grid-template-columns:5px 1fr auto; gap:9px; align-items:center; background:#fffaf3; border:1px solid var(--line2); border-radius:16px; padding:10px}
+.stripe{min-height:36px; height:100%; border-radius:999px; background:var(--health)}
+.stripe.money{background:var(--money)} .stripe.danger{background:var(--danger)} .stripe.joy{background:var(--joy)} .stripe.inner{background:var(--inner)}
+.row strong{display:block; font-size:12.8px}
+.row span{display:block; color:#665b4e; font-size:10.9px; line-height:1.3; margin-top:2px}
+.pill{border:1px solid var(--line); background:#f1e6d6; color:#665540; border-radius:999px; padding:5px 7px; font-size:10px; font-weight:900}
+.actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:11px}
+.actions button{border:1px solid var(--line); background:#fffaf3; color:#5f4f3d; border-radius:999px; padding:8px 11px; font-size:11.5px; font-weight:900}
+.actions .primary{background:var(--deep); color:white; border-color:var(--deep)}
+.nav{height:58px; position:absolute; left:0;right:0;bottom:0; border-top:1px solid var(--line); background:rgba(255,253,248,.94); display:grid; grid-template-columns:repeat(5,1fr); align-items:center; padding:0 6px}
+.tab{text-align:center; color:#716554; font-size:10px; font-weight:800}
+.tab b{display:block; font-size:17px; line-height:1; margin-bottom:3px}
+.tab.active{color:var(--deep)}
+.panel{align-self:start; background:rgba(255,253,248,.86); border:1px solid rgba(150,120,80,.24); border-radius:28px; padding:18px; box-shadow:0 18px 42px rgba(52,39,24,.1)}
+.panel h2,.panel h3{margin:0 0 8px; letter-spacing:-.025em}
+.panel h2{font-size:28px}.panel h3{font-size:18px;margin-top:16px}
+.panel p{margin:0 0 10px; color:var(--muted); line-height:1.56}
+.beforeAfter{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
+.box{border:1px solid var(--line); border-radius:18px; padding:13px; background:#fffaf3}
+.box strong{display:block;margin-bottom:6px}.box span{font-size:13px;color:var(--muted);line-height:1.4}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;width:min(430px,calc(100% - 18px));margin:12px auto}.phone{width:100%}.beforeAfter{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status"><span>09:52</span><span>◐ 5G · 40</span></div>
+      <div class="header">
+        <div class="headerTop">
+          <div><h1>Track</h1><p class="sub" id="subtitle">Sleep first. It affects everything else.</p></div>
+          <div class="avatar">29</div>
+        </div>
+        <div class="viewSwitch">
+          <button data-view="sleep" class="active">Sleep</button>
+          <button data-view="habits">Habits</button>
+          <button data-view="body">Body</button>
+          <button data-view="money">Money</button>
+        </div>
+      </div>
+      <div class="content">
+        <section class="view active" id="sleep">
+          <div class="section signal">
+            <div class="signalTop"><div><h2>Sleep signal</h2><div>Sleep is the first tracker because it changes mood, focus, food and decisions.</div></div><div class="badge">foundation</div></div>
+            <div class="metrics"><div class="metric"><strong>5h 40</strong><span>last night</span></div><div class="metric"><strong>6h 18</strong><span>7-day avg</span></div><div class="metric"><strong>4/10</strong><span>energy</span></div></div>
+          </div>
+          <div class="section card">
+            <div class="cardHead"><div><h2>Log last night</h2><p>Enough data to detect patterns.</p></div><button class="linkBtn">Edit</button></div>
+            <div class="logGrid">
+              <div class="inputBox"><small>Bed</small><strong>00:50</strong><span>later than target</span></div>
+              <div class="inputBox"><small>Wake</small><strong>06:30</strong><span>work day</span></div>
+              <div class="inputBox"><small>Quality</small><strong>5/10</strong><span>restless</span></div>
+              <div class="inputBox"><small>Note</small><strong>Phone late</strong><span>possible cause</span></div>
+            </div>
+            <div class="actions"><button class="primary">Save sleep</button><button>Use yesterday</button></div>
+          </div>
+          <div class="section card">
+            <div class="cardHead"><div><h2>7-day sleep</h2><p>Visual pattern, not perfection.</p></div><button class="linkBtn">Details</button></div>
+            <div class="bars">
+              <div class="barWrap"><div class="bar low" style="height:38px"></div><span>Mon</span></div>
+              <div class="barWrap"><div class="bar mid" style="height:48px"></div><span>Tue</span></div>
+              <div class="barWrap"><div class="bar good" style="height:66px"></div><span>Wed</span></div>
+              <div class="barWrap"><div class="bar low" style="height:34px"></div><span>Thu</span></div>
+              <div class="barWrap"><div class="bar mid" style="height:51px"></div><span>Fri</span></div>
+              <div class="barWrap"><div class="bar good" style="height:70px"></div><span>Sat</span></div>
+              <div class="barWrap"><div class="bar low" style="height:36px"></div><span>Sun</span></div>
+            </div>
+          </div>
+          <div class="section insight"><strong>Possible pattern:</strong> nights under 6 hours are followed by lower energy and more task carryover. Worth watching for another week.</div>
+        </section>
+
+        <section class="view" id="habits">
+          <div class="section signal">
+            <div class="signalTop"><div><h2>Habit focus</h2><div>Only a few habits active. No habit overload.</div></div><div class="badge">2 active</div></div>
+            <div class="metrics"><div class="metric"><strong>64%</strong><span>7-day done</span></div><div class="metric"><strong>2</strong><span>active</span></div><div class="metric"><strong>1</strong><span>paused</span></div></div>
+          </div>
+          <div class="section card">
+            <div class="cardHead"><div><h2>Today’s habits</h2><p>Done / not done. No guilt.</p></div><button class="linkBtn">Manage</button></div>
+            <div class="habitList">
+              <div class="habit"><div><strong>Sleep before 1am</strong><span>foundation habit</span></div><div class="toggle"><div class="knob"></div></div></div>
+              <div class="habit"><div><strong>Food planned for tomorrow</strong><span>energy + spending support</span></div><div class="toggle on"><div class="knob"></div></div></div>
+              <div class="habit"><div><strong>Water in the morning</strong><span>simple body support</span></div><div class="toggle on"><div class="knob"></div></div></div>
+            </div>
+          </div>
+          <div class="section insight"><strong>Gentle insight:</strong> Food planning seems to reduce next-day decision fatigue. Keep this habit before adding new ones.</div>
+        </section>
+
+        <section class="view" id="body">
+          <div class="section signal">
+            <div class="signalTop"><div><h2>Body & energy</h2><div>Track signals that affect mood, focus and execution.</div></div><div class="badge">simple</div></div>
+            <div class="metrics"><div class="metric"><strong>83kg</strong><span>weight</span></div><div class="metric"><strong>72g</strong><span>protein</span></div><div class="metric"><strong>4k</strong><span>steps</span></div></div>
+          </div>
+          <div class="section card">
+            <div class="cardHead"><div><h2>Today’s body log</h2><p>Light tracking. No obsession.</p></div><button class="linkBtn">Add</button></div>
+            <div class="rowList">
+              <div class="row"><div class="stripe"></div><div><strong>Protein target</strong><span>aim: ~130g / day, logged 72g</span></div><div class="pill">low</div></div>
+              <div class="row"><div class="stripe joy"></div><div><strong>Lunch walk</strong><span>15 minutes outside</span></div><div class="pill">done</div></div>
+              <div class="row"><div class="stripe danger"></div><div><strong>Body signal</strong><span>tired / foggy after poor sleep</span></div><div class="pill">note</div></div>
+            </div>
+          </div>
+          <div class="section insight"><strong>Possible pattern:</strong> low protein + short sleep may be connected with afternoon cravings and lower focus.</div>
+        </section>
+
+        <section class="view" id="money">
+          <div class="section signal">
+            <div class="signalTop"><div><h2>Money & spending</h2><div>Track spending without shame. Detect emotional and status impulses.</div></div><div class="badge">careful</div></div>
+            <div class="metrics"><div class="metric"><strong>£38</strong><span>today</span></div><div class="metric"><strong>1</strong><span>impulse</span></div><div class="metric"><strong>£0</strong><span>AI spend</span></div></div>
+          </div>
+          <div class="section card">
+            <div class="cardHead"><div><h2>Recent money signals</h2><p>Spending is data, not identity.</p></div><button class="linkBtn">Add expense</button></div>
+            <div class="rowList">
+              <div class="row"><div class="stripe money"></div><div><strong>Lunch</strong><span>£12.50 · planned / normal</span></div><div class="pill">food</div></div>
+              <div class="row"><div class="stripe danger"></div><div><strong>Expensive clothes urge</strong><span>not bought · low mood/status signal</span></div><div class="pill">signal</div></div>
+              <div class="row"><div class="stripe money"></div><div><strong>Land decision</strong><span>do not decide on low-sleep day</span></div><div class="pill">blocked</div></div>
+            </div>
+          </div>
+          <div class="section insight money"><strong>Possible pattern:</strong> buying urges appear stronger on tired or emotionally unsettled days. Confirm after more logs.</div>
+        </section>
+      </div>
+      <div class="nav">
+        <div class="tab"><b>✦</b>Chat</div>
+        <div class="tab"><b>◎</b>Today</div>
+        <div class="tab"><b>▦</b>Plan</div>
+        <div class="tab active"><b>⌁</b>Track</div>
+        <div class="tab"><b>◌</b>More</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Track tab — refined</h2>
+    <p>The Track tab is the reality layer: sleep, habits, body, money, and the first pattern signals.</p>
+    <div class="beforeAfter">
+      <div class="box"><strong>Purpose</strong><span>Measure what affects mood, focus, spending, productivity, decisions and emotional stability.</span></div>
+      <div class="box"><strong>Default</strong><span>Sleep first, because it changes almost everything else.</span></div>
+    </div>
+    <h3>How it should work</h3>
+    <p><strong>Sleep:</strong> bedtime, wake time, quality, energy next day, note.</p>
+    <p><strong>Habits:</strong> only active habits, done/not done, no shame.</p>
+    <p><strong>Body:</strong> weight, protein, steps, body signals, cravings.</p>
+    <p><strong>Money:</strong> spending, impulse signals, emotional/status triggers, AI spend.</p>
+  </div>
+</div>
+<script>
+const subtitles = {
+  sleep: "Sleep first. It affects everything else.",
+  habits: "Small repeatable actions. No overload.",
+  body: "Body signals that affect energy and focus.",
+  money: "Spending patterns without shame."
+};
+document.querySelectorAll(".viewSwitch button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.view;
+    document.querySelectorAll(".viewSwitch button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.getElementById("subtitle").textContent = subtitles[id];
+  });
+});
+</script>
+</body>
+</html>
