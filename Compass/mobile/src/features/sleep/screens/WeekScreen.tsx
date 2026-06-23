@@ -1,10 +1,7 @@
-/**
- * WeekScreen — V1 Sleep Summary
- * Shows 7-day bar chart + AI-generated (or rule-based) note
- * GDPR: only duration numbers sent to AI, never user_id or personal data
- */
+// WeekScreen — 7-day bar chart + a gentle note.
+// GDPR: only duration numbers reach the AI, never the user id or personal data.
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,14 +16,10 @@ import { SleepChart } from '../components/SleepChart';
 import { AINoteCard } from '../components/AINoteCard';
 import { getSleepLastDays } from '@data/sleep';
 import { generateNote } from '@lib/ai';
-import { getDeviceTimezone } from '@lib/time';
 import { SleepEntry } from '../../../types/index';
 
 export function WeekScreen() {
   const user = useAuthStore((s: AuthStore) => s.user);
-  const profile = useAuthStore((s: AuthStore) => s.profile);
-
-  const timezone = profile?.active_timezone ?? getDeviceTimezone();
 
   const [entries, setEntries] = useState<SleepEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,10 +43,9 @@ export function WeekScreen() {
         setIsNoteLoading(true);
         try {
           const result = await generateNote(
-            // GDPR: only send duration numbers, not user_id or personal data
             data.map((e) => ({
-              start_utc: e.sleep_start_utc,
-              end_utc: e.sleep_end_utc,
+              sleep_start_utc: e.sleep_start_utc,
+              sleep_end_utc: e.sleep_end_utc,
               timezone: e.timezone,
               duration_minutes: e.duration_minutes ?? 0,
             })),
@@ -116,7 +108,7 @@ export function WeekScreen() {
               </Text>
             </View>
           ) : (
-            <SleepChart entries={entries} timezone={timezone} />
+            <SleepChart entries={entries} />
           )}
         </View>
 

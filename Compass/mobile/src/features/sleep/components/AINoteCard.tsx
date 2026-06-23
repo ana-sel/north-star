@@ -4,7 +4,6 @@
  * GDPR: only numbers sent to AI, never personal data
  */
 
-import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { theme } from '@styles/theme';
 

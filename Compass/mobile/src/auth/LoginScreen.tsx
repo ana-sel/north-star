@@ -3,7 +3,7 @@
  * Google OAuth sign-in for Compass
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,

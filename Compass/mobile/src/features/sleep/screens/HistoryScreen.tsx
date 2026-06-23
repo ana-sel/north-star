@@ -4,7 +4,7 @@
  * Shows local times (not UTC) and duration for each night
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
