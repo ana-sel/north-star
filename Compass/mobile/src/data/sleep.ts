@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@lib/supabase';
-import { SleepEntry } from '@types/index';
+import { SleepEntry } from '../types/index';
 
 /**
  * Save a new sleep entry

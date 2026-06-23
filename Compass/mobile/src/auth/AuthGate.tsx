@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { supabase } from '@lib/supabase';
 import { theme } from '@styles/theme';
-import { useAuthStore } from '@hooks/useAuthStore';
+import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import * as profileData from '@data/profile';
 import { LoginScreen } from './LoginScreen';
 import { Onboarding } from './Onboarding';
@@ -17,15 +17,14 @@ interface AuthGateProps {
 }
 
 export function AuthGate({ children }: AuthGateProps) {
-  const user = useAuthStore((s) => s.user);
-  const profile = useAuthStore((s) => s.profile);
-  const isLoading = useAuthStore((s) => s.isLoading);
-  const hasCompletedOnboarding = useAuthStore((s) => s.hasCompletedOnboarding);
+  const user = useAuthStore((s: AuthStore) => s.user);
+  const isLoading = useAuthStore((s: AuthStore) => s.isLoading);
+  const hasCompletedOnboarding = useAuthStore((s: AuthStore) => s.hasCompletedOnboarding);
 
-  const setUser = useAuthStore((s) => s.setUser);
-  const setProfile = useAuthStore((s) => s.setProfile);
-  const setIsLoading = useAuthStore((s) => s.setIsLoading);
-  const setHasCompletedOnboarding = useAuthStore((s) => s.setHasCompletedOnboarding);
+  const setUser = useAuthStore((s: AuthStore) => s.setUser);
+  const setProfile = useAuthStore((s: AuthStore) => s.setProfile);
+  const setIsLoading = useAuthStore((s: AuthStore) => s.setIsLoading);
+  const setHasCompletedOnboarding = useAuthStore((s: AuthStore) => s.setHasCompletedOnboarding);
 
   // Check session on mount
   useEffect(() => {
@@ -63,7 +62,7 @@ export function AuthGate({ children }: AuthGateProps) {
     checkSession();
 
     // Subscribe to auth changes
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((_event: unknown, session: { user: { id: string; email?: string; created_at: string; updated_at?: string } } | null) => {
       if (session?.user) {
         setUser({
           id: session.user.id,

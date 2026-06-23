@@ -8,7 +8,7 @@
  */
 
 import { supabase } from './supabase';
-import { AINoteRequest, AINoteResponse } from '@types/index';
+import { AINoteRequest, AINoteResponse } from '../types/index';
 
 const AI_FUNCTION_TIMEOUT = 2000; // 2 second timeout
 
@@ -69,9 +69,9 @@ export function generateRuleBasedNote(
   const observations = [];
 
   if (avgHours < 6) {
-    observations.push('You're getting less than 6 hours on average.');
+    observations.push("You're getting less than 6 hours on average.");
   } else if (avgHours > 8) {
-    observations.push('You're averaging over 8 hours — good recovery.');
+    observations.push("You're averaging over 8 hours — good recovery.");
   }
 
   if (durations.length >= 3) {
@@ -94,32 +94,34 @@ export function generateRuleBasedNote(
 
 /**
  * Main function: Get AI note or fall back to rule-based
+ * Returns the note text and whether it came from AI or rule-based fallback
  */
 export async function generateNote(
   sleepData: Array<{
     duration_minutes: number;
     sleep_start_utc: string;
     sleep_end_utc: string;
+    timezone?: string;
   }>,
   userId?: string
-): Promise<string> {
+): Promise<{ note: string; isAI: boolean }> {
   // Try AI first
   const aiNote = await callAIFunction({
     nights: sleepData.map((s) => ({
       start_utc: s.sleep_start_utc,
       end_utc: s.sleep_end_utc,
-      timezone: 'UTC', // Will be enhanced in Edge Function
+      timezone: s.timezone ?? 'UTC',
       duration_minutes: s.duration_minutes,
     })),
     user_id: userId,
   });
 
   if (aiNote) {
-    return aiNote;
+    return { note: aiNote, isAI: true };
   }
 
   // Fall back to rule-based
-  return generateRuleBasedNote(sleepData);
+  return { note: generateRuleBasedNote(sleepData), isAI: false };
 }
 
 export default generateNote;
