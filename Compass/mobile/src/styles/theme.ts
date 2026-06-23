@@ -71,10 +71,12 @@ export const spacing = {
   xxxl: 32,
 } as const;
 
-export const radius = {
+export const radii = {
   sm: 13,
   md: 18,
   lg: 26,
+  card: 24,
+  input: 18,
   full: 999,
 } as const;
 
@@ -100,6 +102,21 @@ export const shadows = {
     shadowRadius: 34,
     elevation: 5,
   },
+} as const;
+
+export const theme = {
+  colors,
+  typography: {
+    hero: typography.sizes.hero,
+    xl: typography.sizes.xl,
+    lg: typography.sizes.lg,
+    md: typography.sizes.md,
+    sm: typography.sizes.sm,
+    xs: typography.sizes.xs,
+  },
+  spacing,
+  radii,
+  shadows,
 } as const;
 
 export type Theme = typeof colors;
