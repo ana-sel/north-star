@@ -4,13 +4,8 @@
  */
 
 import { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '@styles/theme';
 import { TodayScreen, WeekScreen, HistoryScreen } from '@features/sleep';
 import { SettingsScreen } from './features/settings/SettingsScreen';
@@ -26,9 +21,10 @@ const TABS: { key: TabName; label: string }[] = [
 
 export function AppShell() {
   const [activeTab, setActiveTab] = useState<TabName>('today');
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Main content area */}
       <View style={styles.content}>
         {activeTab === 'today' && (
@@ -40,7 +36,7 @@ export function AppShell() {
       </View>
 
       {/* Bottom tab bar */}
-      <View style={styles.tabBar}>
+      <View style={[styles.tabBar, { paddingBottom: insets.bottom + 4 }]}>
         {TABS.map(({ key, label }) => (
           <TouchableOpacity
             key={key}
@@ -54,7 +50,7 @@ export function AppShell() {
           </TouchableOpacity>
         ))}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -71,7 +67,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: theme.colors.line,
     backgroundColor: theme.colors.card,
-    paddingBottom: 4,
   },
   tabButton: {
     flex: 1,

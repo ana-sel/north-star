@@ -17,6 +17,7 @@ import { AINoteCard } from '../components/AINoteCard';
 import { getSleepLastDays } from '@data/sleep';
 import { generateNote } from '@lib/ai';
 import { SleepEntry } from '../../../types/index';
+import { supabaseConfigured } from '@lib/env';
 
 export function WeekScreen() {
   const user = useAuthStore((s: AuthStore) => s.user);
@@ -29,7 +30,7 @@ export function WeekScreen() {
   const [isNoteAI, setIsNoteAI] = useState(true);
 
   const loadData = useCallback(async (refresh = false) => {
-    if (!user?.id) return;
+    if (!user?.id || !supabaseConfigured) { setIsLoading(false); setIsRefreshing(false); return; }
 
     if (refresh) setIsRefreshing(true);
     else setIsLoading(true);

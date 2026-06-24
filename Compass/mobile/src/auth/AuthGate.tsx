@@ -6,6 +6,8 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { supabase } from '@lib/supabase';
+import { supabaseConfigured } from '@lib/env';
+import { getDeviceTimezone } from '@lib/time';
 import { theme } from '@styles/theme';
 import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import * as profileData from '@data/profile';
@@ -28,6 +30,23 @@ export function AuthGate({ children }: AuthGateProps) {
 
   // Check session on mount
   useEffect(() => {
+    // Preview mode: no backend configured — show the app with a mock user.
+    if (!supabaseConfigured) {
+      const tz = getDeviceTimezone();
+      setUser({ id: 'preview-user', email: 'preview@compass.app', created_at: '', updated_at: '' });
+      setProfile({
+        user_id: 'preview-user',
+        display_name: 'Preview',
+        home_timezone: tz,
+        active_timezone: tz,
+        created_at: '',
+        updated_at: '',
+      });
+      setHasCompletedOnboarding(true);
+      setIsLoading(false);
+      return;
+    }
+
     const checkSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
