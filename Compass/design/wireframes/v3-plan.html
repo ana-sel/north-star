@@ -33,6 +33,23 @@ body {
 .topbar { display:flex; align-items:center; justify-content:space-between; padding:26px 24px 10px; flex-shrink:0; background:rgba(246,245,242,.96); }
 .topbar h1 { margin:0; font-size:var(--fs-xl); font-weight:800; letter-spacing:-0.03em; }
 .cog { width:40px; height:40px; border-radius:13px; background:var(--card); border:1px solid var(--line); display:grid; place-items:center; font-size:17px; color:var(--muted); cursor:pointer; box-shadow:var(--shadow-sm); }
+.cog:active { transform:scale(.92); }
+/* Settings overlay */
+.settings-overlay { position:absolute; inset:0; background:var(--bg); z-index:20; display:none; flex-direction:column; animation:fadeIn .2s ease; }
+.settings-overlay.open { display:flex; }
+.settings-topbar { display:flex; align-items:center; justify-content:space-between; padding:26px 24px 10px; flex-shrink:0; }
+.settings-topbar h2 { margin:0; font-size:var(--fs-xl); font-weight:800; letter-spacing:-0.03em; }
+.settings-close { width:40px; height:40px; border-radius:13px; background:var(--card); border:1px solid var(--line); display:grid; place-items:center; font-size:18px; color:var(--muted); cursor:pointer; }
+.settings-body { flex:1; overflow-y:auto; padding:16px 20px 40px; }
+.settings-body::-webkit-scrollbar { width:0; }
+.s-section { margin-bottom:28px; }
+.s-section-title { font-size:var(--fs-xs); font-weight:700; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-bottom:12px; }
+.s-row { background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+.s-field { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line); }
+.s-field:last-child { border-bottom:none; }
+.s-label { font-size:var(--fs-md); font-weight:600; }
+.s-note { font-size:var(--fs-sm); color:var(--muted); line-height:1.55; background:var(--greige); border-radius:14px; padding:12px 14px; margin-top:10px; }
+.save-btn-sign-out { width:100%; border:1px solid var(--error); border-radius:var(--r-input); background:none; color:var(--error); font-family:inherit; font-size:var(--fs-md); font-weight:600; padding:17px; cursor:pointer; margin-top:8px; }
 .content { flex:1; overflow-y:auto; padding:10px 20px 100px; }
 .content::-webkit-scrollbar { width:0; }
 .screen { display:none; }
@@ -249,6 +266,29 @@ body {
       <button class="tab-btn" data-screen="trends" data-title="Trends"><span class="ic">◔</span>Trends</button>
       <button class="tab-btn" data-screen="history" data-title="History"><span class="ic">≡</span>History</button>
     </nav>
+
+    <!-- Settings overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+      <div class="settings-topbar">
+        <h2>Settings</h2>
+        <button class="settings-close" id="settingsClose">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="s-section">
+          <div class="s-section-title">Profile</div>
+          <div class="s-row">
+            <div class="s-field"><div><div class="s-label">Name</div></div><span style="font-size:var(--fs-md);font-weight:600">Ana</span></div>
+            <div class="s-field"><div><div class="s-label">Email</div></div><span style="font-size:var(--fs-sm);color:var(--muted);font-weight:600">ana@example.com</span></div>
+          </div>
+        </div>
+        <div class="s-section">
+          <div class="s-section-title">Privacy</div>
+          <div class="s-note" style="margin-top:0">Compass stores only your sleep times.<br><br>We never share your data. Only anonymous duration numbers are sent to generate your weekly note — never your identity.</div>
+        </div>
+        <button class="save-btn-sign-out" onclick="alert('Sign out')">Sign out</button>
+      </div>
+    </div>
+
   </div><!-- /phone -->
 
   <!-- ══ PANEL ══════════════════════════════════════════ -->
@@ -317,6 +357,12 @@ document.querySelectorAll('.pchip').forEach(c => {
     c.classList.add('active');
   });
 });
+// Settings
+(function(){
+  const overlay = document.getElementById('settingsOverlay');
+  document.querySelector('.cog').addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('settingsClose').addEventListener('click', () => overlay.classList.remove('open'));
+})();
 </script>
 </body>
 </html>

@@ -20,6 +20,9 @@ interface SleepFormProps {
   wakeHint: string;
   onBedTimeChange: (date: Date) => void;
   onWakeTimeChange: (date: Date) => void;
+  bedLabel?: string;
+  wakeLabel?: string;
+  durationSuffix?: string;
 }
 
 type PickerMode = 'bed' | 'wake' | null;
@@ -33,11 +36,14 @@ export function SleepForm({
   wakeHint,
   onBedTimeChange,
   onWakeTimeChange,
+  bedLabel = 'Went to bed',
+  wakeLabel = 'Woke up',
+  durationSuffix = 'time asleep',
 }: SleepFormProps) {
   const [openPicker, setOpenPicker] = useState<PickerMode>(null);
 
-  const bedLabel = utcToLocal(bedTime, timezone);
-  const wakeLabel = utcToLocal(wakeTime, timezone);
+  const bedDisplay = utcToLocal(bedTime, timezone);
+  const wakeDisplay = utcToLocal(wakeTime, timezone);
 
   const handleChange =
     (mode: 'bed' | 'wake') => (event: DateTimePickerEvent, date?: Date) => {
@@ -51,14 +57,14 @@ export function SleepForm({
     <View style={styles.container}>
       {/* Bed time */}
       <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Went to bed</Text>
+        <Text style={styles.fieldLabel}>{bedLabel}</Text>
         <View style={styles.timeRow}>
           <TouchableOpacity
             style={styles.timeBtn}
             onPress={() => setOpenPicker('bed')}
             activeOpacity={0.7}
           >
-            <Text style={styles.timeValue}>{bedLabel}</Text>
+            <Text style={styles.timeValue}>{bedDisplay}</Text>
           </TouchableOpacity>
           <Text style={styles.hint}>{bedHint}</Text>
         </View>
@@ -66,14 +72,14 @@ export function SleepForm({
 
       {/* Wake time */}
       <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Woke up</Text>
+        <Text style={styles.fieldLabel}>{wakeLabel}</Text>
         <View style={styles.timeRow}>
           <TouchableOpacity
             style={styles.timeBtn}
             onPress={() => setOpenPicker('wake')}
             activeOpacity={0.7}
           >
-            <Text style={styles.timeValue}>{wakeLabel}</Text>
+            <Text style={styles.timeValue}>{wakeDisplay}</Text>
           </TouchableOpacity>
           <Text style={styles.hint}>{wakeHint}</Text>
         </View>
@@ -82,7 +88,7 @@ export function SleepForm({
       {/* Duration */}
       <View style={styles.duration}>
         <Text style={styles.durationBig}>{durationLabel}</Text>
-        <Text style={styles.durationSmall}>time asleep</Text>
+        <Text style={styles.durationSmall}>{durationSuffix}</Text>
       </View>
 
       {/* Native time dialog (Android shows it on demand) */}
