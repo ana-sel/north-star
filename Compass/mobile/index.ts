@@ -1,12 +1,6 @@
-/*
- * Compass Mobile App
- * 
- * V1: Sleep tracking with AI notes
- * V2: Energy & mood tracking (same pattern)
- * V3: Planning & goals (same pattern)
- * 
- * This app is designed to scale without refactoring core architecture.
- * See ARCHITECTURE.md for detailed structure and patterns.
- */
+// App entry: register the root component (manual navigation, no expo-router).
+import { registerRootComponent } from 'expo';
+import App from './src/App';
 
-import 'expo-router/entry';
+registerRootComponent(App);
+

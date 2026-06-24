@@ -21,6 +21,7 @@ import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { getSleepHistory, deleteSleepEntry } from '@data/sleep';
 import { utcToLocal, calculateDuration, getDeviceTimezone } from '@lib/time';
 import { SleepEntry } from '../../../types/index';
+import { supabaseConfigured } from '@lib/env';
 
 const PAGE_SIZE = 20;
 
@@ -38,7 +39,7 @@ export function HistoryScreen() {
 
   const loadData = useCallback(
     async (reset = false) => {
-      if (!user?.id) return;
+      if (!user?.id || !supabaseConfigured) { setIsLoading(false); setIsRefreshing(false); return; }
 
       const currentOffset = reset ? 0 : offset;
 

@@ -13,21 +13,8 @@
     "scheme": "compass",
     "userInterfaceStyle": "automatic",
     "plugins": [
-      [
-        "expo-router",
-        {
-          "origin": "https://<your-domain>.exp.direct"
-        }
-      ],
-      [
-        "expo-secure-store"
-      ]
+      "expo-secure-store"
     ],
-    "extra": {
-      "router": {
-        "origin": false
-      }
-    },
     "ios": {
       "supportsTabletMode": true,
       "bundleIdentifier": "com.compass.app",
@@ -45,11 +32,6 @@
         "android.permission.WRITE_CALENDAR",
         "android.permission.ACCESS_FINE_LOCATION"
       ]
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/favicon.png"
     }
   }
 }

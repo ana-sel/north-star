@@ -1,8 +1,4 @@
-/**
- * SleepForm Component
- * Time picker for bed time and wake time
- * Uses react-native-date-picker for native picker UI
- */
+// SleepForm — bed and wake time pickers (Android native time dialog).
 
 import { useState } from 'react';
 import {
@@ -11,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import DatePicker from 'react-native-date-picker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { theme } from '@styles/theme';
 import { utcToLocal } from '@lib/time';
 
@@ -38,6 +34,14 @@ export function SleepForm({
 
   const bedLabel = utcToLocal(bedTime, timezone);
   const wakeLabel = utcToLocal(wakeTime, timezone);
+
+  const handleChange =
+    (mode: 'bed' | 'wake') => (event: DateTimePickerEvent, date?: Date) => {
+      setOpenPicker(null);
+      if (event.type === 'set' && date) {
+        (mode === 'bed' ? onBedTimeChange : onWakeTimeChange)(date);
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -76,32 +80,15 @@ export function SleepForm({
         <Text style={styles.durationText}>= {durationLabel}</Text>
       </View>
 
-      {/* Native date pickers (modal) */}
-      <DatePicker
-        modal
-        open={openPicker === 'bed'}
-        date={bedTime}
-        mode="time"
-        title="Went to bed"
-        onConfirm={(date) => {
-          setOpenPicker(null);
-          onBedTimeChange(date);
-        }}
-        onCancel={() => setOpenPicker(null)}
-      />
-
-      <DatePicker
-        modal
-        open={openPicker === 'wake'}
-        date={wakeTime}
-        mode="time"
-        title="Woke up"
-        onConfirm={(date) => {
-          setOpenPicker(null);
-          onWakeTimeChange(date);
-        }}
-        onCancel={() => setOpenPicker(null)}
-      />
+      {/* Native time dialog (Android shows it on demand) */}
+      {openPicker && (
+        <DateTimePicker
+          value={openPicker === 'bed' ? bedTime : wakeTime}
+          mode="time"
+          is24Hour
+          onChange={handleChange(openPicker)}
+        />
+      )}
     </View>
   );
 }
