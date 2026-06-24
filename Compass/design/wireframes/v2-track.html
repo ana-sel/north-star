@@ -99,6 +99,62 @@ body {
 }
 .cog:active { transform: scale(.92); }
 
+/* ── SETTINGS + TARGET overlays ── */
+.settings-overlay, .target-modal {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  animation: fadeIn .18s ease;
+}
+.settings-overlay.open, .target-modal.open { display: flex; }
+.settings-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 26px 24px 10px; flex-shrink: 0;
+  background: rgba(246,245,242,.96);
+}
+.settings-topbar h2 { margin: 0; font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.03em; }
+.settings-close {
+  width: 40px; height: 40px; border-radius: 13px;
+  background: var(--card); border: 1px solid var(--line);
+  display: grid; place-items: center;
+  font-size: 18px; color: var(--muted); cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.settings-body { flex: 1; overflow-y: auto; padding: 16px 20px 40px; }
+.settings-body::-webkit-scrollbar { width: 0; }
+.s-section { margin-bottom: 28px; }
+.s-section-title {
+  font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--muted); margin-bottom: 12px;
+}
+.s-row {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.s-field {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid var(--line);
+}
+.s-field:last-child { border-bottom: none; }
+.s-label { font-size: var(--fs-md); font-weight: 600; }
+.s-sub   { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
+.s-input {
+  border: none; background: var(--greige);
+  border-radius: 10px; padding: 7px 10px;
+  font-family: inherit; font-size: var(--fs-md); font-weight: 700;
+  color: var(--ink); text-align: center; width: 88px;
+  cursor: pointer;
+}
+.s-input:focus { outline: 2px solid var(--olive); outline-offset: 1px; }
+.s-note {
+  font-size: var(--fs-sm); color: var(--muted); line-height: 1.55;
+  background: var(--greige); border-radius: 14px; padding: 12px 14px;
+  margin-top: 10px;
+}
+
 .content {
   flex: 1;
   overflow-y: auto;
@@ -118,27 +174,6 @@ body {
   margin-bottom: 10px;
   margin-top: 2px;
 }
-.tz-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--greige);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--muted);
-  margin-bottom: 14px;
-  cursor: pointer;
-}
-.tz-pill .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--olive);
-  flex-shrink: 0;
-}
-
 /* Target strip */
 .target-strip {
   display: flex;
@@ -163,7 +198,13 @@ body {
 .t-range {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 32px;
+}
+.t-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 .t-time {
   font-size: 28px;
@@ -732,24 +773,16 @@ body {
 
       <!-- TODAY ─────────────────────────────────────────── -->
       <section class="screen active" id="today">
-        <div class="date">Wednesday, 24 June 2026</div>
+        <div class="date">Wednesday, 24 June 2026 · UTC+1</div>
 
-        <button class="tz-pill">
-          <span class="dot"></span>
-          Europe/London · UTC+1 · home
-        </button>
-
-        <!-- Sleep goal strip (tap to edit in Settings) -->
-        <div class="target-strip" title="Your sleep goal · edit in Settings">
+        <!-- Sleep target strip (tap to set target) -->
+        <div class="target-strip" id="targetStrip">
           <div class="t-header">target</div>
           <div class="t-range">
-            <span class="t-icon">🌙</span>
-            <span class="t-time">23:00</span>
-            <span class="t-dash">–</span>
-            <span class="t-time">07:00</span>
-            <span class="t-icon">☀️</span>
+            <div class="t-col"><span class="t-icon">🌙</span><span class="t-time" id="tBedDisplay">23:00</span></div>
+            <div class="t-col"><span class="t-icon">☀️</span><span class="t-time" id="tWakeDisplay">07:00</span></div>
           </div>
-          <div class="t-dur">8 hours</div>
+          <div class="t-dur" id="tDurDisplay">8 hours</div>
         </div>
 
         <!-- Pattern nudge (shown when 2+ nights off-target) -->
@@ -771,8 +804,6 @@ body {
           </svg>
           <div class="dial-foot">
             <strong id="durDisplay">5h 40m</strong> sleep
-            <span style="margin:0 5px">·</span>
-            <span id="bedHint">↩ yesterday</span> → <span id="wakeHint">↩ today</span>
           </div>
         </div>
 
@@ -811,7 +842,7 @@ body {
         <div class="week-stat-card">
           <div class="stats-single">
             <div class="stats-v" id="avgSleepVal">6h 48m</div>
-            <div class="stats-k">Avg sleep · this week</div>
+            <div class="stats-k" id="avgSleepLabel">Avg sleep · this week</div>
           </div>
         </div>
 
@@ -1040,6 +1071,63 @@ body {
         <span class="ic">≡</span>History
       </button>
     </nav>
+    <!-- Settings overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+      <div class="settings-topbar">
+        <h2>Settings</h2>
+        <button class="settings-close" id="settingsClose">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="s-section">
+          <div class="s-section-title">Profile</div>
+          <div class="s-row">
+            <div class="s-field">
+              <div><div class="s-label">Name</div></div>
+              <span style="font-size:var(--fs-md);font-weight:600;color:var(--ink)">Ana</span>
+            </div>
+            <div class="s-field">
+              <div><div class="s-label">Email</div></div>
+              <span style="font-size:var(--fs-sm);font-weight:600;color:var(--muted)">ana@example.com</span>
+            </div>
+          </div>
+        </div>
+        <div class="s-section">
+          <div class="s-section-title">Privacy</div>
+          <div class="s-note" style="margin-top:0">Compass stores only your sleep times.<br><br>We never share your data. Only anonymous duration numbers are sent to generate your weekly note — never your identity.</div>
+        </div>
+        <button class="save-btn" style="background:none;color:var(--error);border:1px solid var(--error);box-shadow:none;margin-top:8px" onclick="alert('Sign out')">Sign out</button>
+      </div>
+    </div>
+
+    <!-- Target modal -->
+    <div class="target-modal" id="targetModal">
+      <div class="settings-topbar">
+        <h2>Sleep target</h2>
+        <button class="settings-close" id="targetModalClose">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="s-section">
+          <div class="s-section-title">What’s your target?</div>
+          <div class="s-row">
+            <div class="s-field">
+              <div><div class="s-label">🌙 Target bed</div></div>
+              <input class="s-input" type="time" id="modalBed" value="23:00" />
+            </div>
+            <div class="s-field">
+              <div><div class="s-label">☀️ Target wake</div></div>
+              <input class="s-input" type="time" id="modalWake" value="07:00" />
+            </div>
+            <div class="s-field" style="justify-content:center;background:var(--greige)">
+              <span id="modalDur" style="font-size:var(--fs-xl);font-weight:800;letter-spacing:-0.03em">8h 00m</span>
+              <span style="font-size:var(--fs-sm);color:var(--muted);margin-left:8px">target</span>
+            </div>
+          </div>
+          <div class="s-note">Set once; stays consistent wherever you are.</div>
+        </div>
+        <button class="save-btn" id="saveTargetBtn">Save target</button>
+      </div>
+    </div>
+
   </div><!-- /phone -->
 
 
@@ -1096,6 +1184,36 @@ body {
 
 <script>
 // ── Tab switching ─────────────────────────────────────────────
+// ── Settings ─────────────────────────────────────────────
+(function () {
+  const overlay = document.getElementById('settingsOverlay');
+  document.querySelector('.cog').addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('settingsClose').addEventListener('click', () => overlay.classList.remove('open'));
+})();
+
+// ── Target modal ─────────────────────────────────────────
+(function () {
+  const modal   = document.getElementById('targetModal');
+  const strip   = document.getElementById('targetStrip');
+  const bedIn   = document.getElementById('modalBed');
+  const wakeIn  = document.getElementById('modalWake');
+  const durEl   = document.getElementById('modalDur');
+  const saveBtn = document.getElementById('saveTargetBtn');
+  function parseTime(v) { const [h,m]=v.split(':').map(Number); return h+m/60; }
+  function durLabel(bed,wake) { let d=((wake+(wake<bed?24:0))-bed); const h=Math.floor(d),m=Math.round((d-h)*60); return m>0?`${h}h ${m}m`:`${h}h`; }
+  function updateDur() { durEl.textContent = durLabel(parseTime(bedIn.value), parseTime(wakeIn.value)); }
+  bedIn.addEventListener('input', updateDur);
+  wakeIn.addEventListener('input', updateDur);
+  strip.addEventListener('click', () => modal.classList.add('open'));
+  document.getElementById('targetModalClose').addEventListener('click', () => modal.classList.remove('open'));
+  saveBtn.addEventListener('click', () => {
+    document.getElementById('tBedDisplay').textContent  = bedIn.value;
+    document.getElementById('tWakeDisplay').textContent = wakeIn.value;
+    document.getElementById('tDurDisplay').textContent  = durLabel(parseTime(bedIn.value), parseTime(wakeIn.value));
+    modal.classList.remove('open');
+  });
+})();
+
 // Track sub-view switching (V2 addition)
 document.querySelectorAll('.subnav button').forEach(b => {
   b.addEventListener('click', () => {
@@ -1206,6 +1324,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       const valid = w.nights.filter(Boolean);
       const avg = valid.length ? Math.round(valid.reduce((s, n) => s + n.dur, 0) / valid.length) : 0;
       document.getElementById('avgSleepVal').textContent = minToHM(avg);
+      document.getElementById('avgSleepLabel').textContent = 'Avg sleep · this week';
       DAY_NAMES.forEach(d => { const s = document.createElement('span'); s.textContent = d; daysEl.appendChild(s); });
       view === 'hours'
         ? renderHours(w.nights.map(n => n ? n.dur : null))
@@ -1217,6 +1336,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       document.getElementById('weekNavNext').disabled = monthIdx <= 0;
       const avg = Math.round(mo.weeks.reduce((s, w) => s + w.avgDur, 0) / mo.weeks.length);
       document.getElementById('avgSleepVal').textContent = minToHM(avg);
+      document.getElementById('avgSleepLabel').textContent = 'Avg sleep · this month';
       mo.weeks.forEach(w => { const s = document.createElement('span'); s.textContent = w.label; daysEl.appendChild(s); });
       view === 'hours'
         ? renderHours(mo.weeks.map(w => w.avgDur))
@@ -1504,9 +1624,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.getElementById('durDisplay').textContent = fmtDur(sleepH, wakeH);
 
     const sn = ((sleepH % 24) + 24) % 24;
-    document.getElementById('bedHint').textContent  = sn >= 12 ? '↩ yesterday' : '↩ today';
-    document.getElementById('wakeHint').textContent = '↩ today';
-
     // Update insight dynamically
     const dur = ((wakeH - sleepH) + 24) % 24;
     const h   = Math.floor(dur), m = Math.round((dur - h) * 60);

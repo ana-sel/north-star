@@ -1,7 +1,7 @@
 // TodayScreen — log last night's bed and wake time.
 // Stores UTC + the timezone it was logged in (GDPR: minimal data).
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,13 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '@styles/theme';
 import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { SleepForm } from '../components/SleepForm';
-import { calculateDuration, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime } from '@lib/time';
+import { calculateDuration, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime, utcToLocal } from '@lib/time';
 import { saveSleepEntry } from '@data/sleep';
 
 interface TodayScreenProps {
@@ -38,6 +40,58 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
 
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Target sleep times (persisted locally)
+  const [targetBed, setTargetBed] = useState<Date>(() => {
+    const d = new Date(); d.setHours(23, 0, 0, 0); return d;
+  });
+  const [targetWake, setTargetWake] = useState<Date>(() => {
+    const d = new Date(); d.setHours(7, 0, 0, 0); return d;
+  });
+  const [showTargetModal, setShowTargetModal] = useState(false);
+  const [draftBed, setDraftBed] = useState<Date>(targetBed);
+  const [draftWake, setDraftWake] = useState<Date>(targetWake);
+
+  useEffect(() => {
+    AsyncStorage.getItem('compass:sleep-target').then((raw) => {
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { bed: { h: number; m: number }; wake: { h: number; m: number } };
+      const d1 = new Date(); d1.setHours(saved.bed.h, saved.bed.m, 0, 0);
+      const d2 = new Date(); d2.setHours(saved.wake.h, saved.wake.m, 0, 0);
+      setTargetBed(d1);
+      setTargetWake(d2);
+    });
+  }, [])
+
+  const targetDurationLabel = useMemo(() => {
+    let diff = (targetWake.getHours() * 60 + targetWake.getMinutes()) -
+               (targetBed.getHours() * 60 + targetBed.getMinutes());
+    if (diff <= 0) diff += 24 * 60;
+    return `${Math.floor(diff / 60)}h ${diff % 60 === 0 ? '00' : diff % 60}m`;
+  }, [targetBed, targetWake]);
+
+  const draftDurationLabel = useMemo(() => {
+    let diff = (draftWake.getHours() * 60 + draftWake.getMinutes()) -
+               (draftBed.getHours() * 60 + draftBed.getMinutes());
+    if (diff <= 0) diff += 24 * 60;
+    return `${Math.floor(diff / 60)}h ${diff % 60 === 0 ? '00' : diff % 60}m`;
+  }, [draftBed, draftWake]);
+
+  const openTargetModal = useCallback(() => {
+    setDraftBed(targetBed);
+    setDraftWake(targetWake);
+    setShowTargetModal(true);
+  }, [targetBed, targetWake]);
+
+  const handleSaveTarget = useCallback(async () => {
+    setTargetBed(draftBed);
+    setTargetWake(draftWake);
+    await AsyncStorage.setItem('compass:sleep-target', JSON.stringify({
+      bed:  { h: draftBed.getHours(),  m: draftBed.getMinutes() },
+      wake: { h: draftWake.getHours(), m: draftWake.getMinutes() },
+    }));
+    setShowTargetModal(false);
+  }, [draftBed, draftWake]);
 
   // Day hint shown next to each time: "↩ yesterday" / "↩ today"
   const dayHint = (d: Date): string => {
@@ -124,6 +178,23 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
           </View>
         )}
 
+        {/* Target sleep card */}
+        <TouchableOpacity style={styles.targetCard} onPress={openTargetModal} activeOpacity={0.8}>
+          <Text style={styles.targetHeading}>Target</Text>
+          <View style={styles.targetRow}>
+            <View style={styles.targetTime}>
+              <Text style={styles.targetIcon}>🌙</Text>
+              <Text style={styles.targetTimeValue}>{utcToLocal(targetBed, timezone)}</Text>
+            </View>
+            <Text style={styles.targetSep}>→</Text>
+            <View style={styles.targetTime}>
+              <Text style={styles.targetIcon}>☀</Text>
+              <Text style={styles.targetTimeValue}>{utcToLocal(targetWake, timezone)}</Text>
+            </View>
+            <Text style={styles.targetDur}>{targetDurationLabel}</Text>
+          </View>
+        </TouchableOpacity>
+
         {/* Question */}
         <Text style={styles.question}>How did you sleep?</Text>
 
@@ -155,6 +226,60 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Target setter modal */}
+      <Modal
+        visible={showTargetModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowTargetModal(false)}
+      >
+        <SafeAreaView style={styles.container}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Modal header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Sleep target</Text>
+              <TouchableOpacity
+                onPress={() => setShowTargetModal(false)}
+                style={styles.modalDone}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalDoneText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.question}>What's your target?</Text>
+
+            {/* Reuse the same card + SleepForm layout */}
+            <View style={styles.card}>
+              <SleepForm
+                bedTime={draftBed}
+                wakeTime={draftWake}
+                durationLabel={draftDurationLabel}
+                timezone={timezone}
+                bedHint=""
+                wakeHint=""
+                bedLabel="Target bed"
+                wakeLabel="Target wake"
+                durationSuffix="target"
+                onBedTimeChange={(d) => setDraftBed(d)}
+                onWakeTimeChange={(d) => setDraftWake(d)}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.saveBtn}
+              onPress={handleSaveTarget}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.saveBtnText}>Save target</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -239,5 +364,71 @@ const styles = StyleSheet.create({
     color: theme.colors.error,
     fontWeight: '500',
     lineHeight: 20,
+  },
+  targetCard: {
+    backgroundColor: theme.colors.card,
+    borderWidth: 1,
+    borderColor: theme.colors.line,
+    borderRadius: theme.radii.card,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.sm,
+    ...theme.shadows.sm,
+  },
+  targetHeading: {
+    fontSize: theme.typography.xs,
+    fontWeight: '600',
+    color: theme.colors.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  targetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  targetTime: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  targetIcon: {
+    fontSize: theme.typography.md,
+  },
+  targetTimeValue: {
+    fontSize: theme.typography.lg,
+    fontWeight: '700',
+    color: theme.colors.ink,
+    letterSpacing: -0.3,
+  },
+  targetSep: {
+    fontSize: theme.typography.md,
+    color: theme.colors.muted,
+  },
+  targetDur: {
+    marginLeft: 'auto',
+    fontSize: theme.typography.md,
+    fontWeight: '600',
+    color: theme.colors.muted,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: theme.spacing.md,
+  },
+  modalTitle: {
+    fontSize: theme.typography.xl,
+    fontWeight: '800',
+    color: theme.colors.ink,
+    letterSpacing: -0.5,
+  },
+  modalDone: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  modalDoneText: {
+    fontSize: theme.typography.md,
+    fontWeight: '600',
+    color: theme.colors.muted,
   },
 });
