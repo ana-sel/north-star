@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compass — V3 Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ── Design tokens (identical to v1-sleep.html) ── */
+:root {
+  --bg:#F6F5F2; --card:#FFFEFC; --greige:#F0ECE5; --line:#E2DFD9;
+  --muted:#65645F; --ink:#24231F; --steel:#7E8E9F; --olive:#768471; --mauve:#898095;
+  --btn:#3C3A34; --error:#B0746C;
+  /* 7 pillar colour tokens (from v3-plan.md) */
+  --p-health:#77936f; --p-inner:#937caf; --p-money:#7395ad; --p-family:#b77980;
+  --p-joy:#c99554; --p-contrib:#8d8f63; --p-admin:#958572;
+  --fs-xl:28px; --fs-lg:18px; --fs-md:15px; --fs-sm:13px; --fs-xs:11px;
+  --r-screen:34px; --r-card:24px; --r-input:18px;
+  --shadow:0 1px 2px rgba(36,35,31,.04), 0 10px 28px rgba(36,35,31,.07);
+  --shadow-sm:0 1px 2px rgba(36,35,31,.03), 0 4px 14px rgba(36,35,31,.05);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin:0; min-height:100vh; }
+body {
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:var(--ink);
+  background:radial-gradient(ellipse 120% 50% at 50% -5%, #FBFAF8, #EFEDE8 60%, #E8E4DC);
+  display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:28px 16px 60px; -webkit-font-smoothing:antialiased;
+}
+.wrap { display:grid; grid-template-columns:392px 1fr; gap:28px; width:min(1180px,100%); align-items:start; }
+.phone { width:392px; height:min(860px,94vh); background:var(--bg); border-radius:var(--r-screen); overflow:hidden; display:flex; flex-direction:column; position:relative; box-shadow:0 0 0 1px rgba(36,35,31,.05),0 20px 50px rgba(36,35,31,.12),0 60px 120px rgba(36,35,31,.08); }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:26px 24px 10px; flex-shrink:0; background:rgba(246,245,242,.96); }
+.topbar h1 { margin:0; font-size:var(--fs-xl); font-weight:800; letter-spacing:-0.03em; }
+.cog { width:40px; height:40px; border-radius:13px; background:var(--card); border:1px solid var(--line); display:grid; place-items:center; font-size:17px; color:var(--muted); cursor:pointer; box-shadow:var(--shadow-sm); }
+.content { flex:1; overflow-y:auto; padding:10px 20px 100px; }
+.content::-webkit-scrollbar { width:0; }
+.screen { display:none; }
+.screen.active { display:block; animation:fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+.card { background:var(--card); border:1px solid var(--line); border-radius:var(--r-card); padding:16px 18px; margin-bottom:14px; box-shadow:var(--shadow-sm); }
+.muted { color:var(--muted); }
+
+/* view switch + pillar chips */
+.subnav { display:flex; background:var(--greige); border:1px solid var(--line); border-radius:999px; padding:3px; margin-bottom:12px; }
+.subnav button { flex:1; background:none; border:none; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; color:var(--muted); padding:8px 0; border-radius:999px; }
+.subnav button.active { background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.1); }
+.subview { display:none; }
+.subview.active { display:block; animation:fadeIn .2s ease; }
+.pillars { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:14px; }
+.pillars::-webkit-scrollbar { height:0; }
+.pchip { flex-shrink:0; font-size:11px; font-weight:600; border:1px solid var(--line); background:var(--card); color:var(--muted); border-radius:999px; padding:5px 11px; cursor:pointer; display:flex; align-items:center; gap:5px; }
+.pchip .d { width:7px; height:7px; border-radius:50%; }
+.pchip.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+
+/* goal cards (year view) with pillar stripe */
+.lane-h { font-size:var(--fs-xs); font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:6px 2px 8px; }
+.goal { display:flex; gap:0; background:var(--card); border:1px solid var(--line); border-radius:16px; margin-bottom:10px; overflow:hidden; box-shadow:var(--shadow-sm); }
+.goal .stripe { width:5px; flex-shrink:0; }
+.goal .g-body { padding:13px 15px; flex:1; }
+.goal .g-title { font-size:var(--fs-md); font-weight:700; }
+.goal .g-meta { display:flex; gap:8px; align-items:center; margin-top:6px; }
+.pbadge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; color:#fff; }
+.prio { font-size:11px; color:var(--muted); }
+
+/* Margulan month board (7 lanes) */
+.board { display:flex; flex-direction:column; gap:12px; }
+.mlane { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 14px; box-shadow:var(--shadow-sm); }
+.mlane-h { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.mlane-h .ttl { font-size:var(--fs-sm); font-weight:700; }
+.mlane-h .ct { font-size:10px; font-weight:700; color:var(--muted); background:var(--greige); border-radius:999px; padding:2px 8px; }
+.mcard { display:flex; align-items:center; gap:9px; padding:8px 0; border-top:1px solid var(--line); font-size:var(--fs-sm); }
+.mcard:first-of-type { border-top:none; }
+.mcard .pd { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.mlane.mirror { border-color:#D9CFB6; background:#FBF7EE; }
+.mlane.mirror .mlane-h .ttl { color:#7A6A48; }
+
+/* projects */
+.proj { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:15px; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+.proj-h { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.proj-h .pd { width:9px; height:9px; border-radius:50%; }
+.proj-h .pt { font-size:var(--fs-md); font-weight:700; }
+.progress { height:7px; background:var(--greige); border-radius:999px; overflow:hidden; margin-bottom:8px; }
+.progress > i { display:block; height:100%; border-radius:999px; }
+.proj-next { font-size:var(--fs-sm); color:var(--muted); }
+.proj-next b { color:var(--ink); font-weight:600; }
+
+/* map (dependency) view */
+.depmap { background:linear-gradient(165deg,#F4F0E9,#EBE6DD); border:1px solid #DDD8CF; border-radius:18px; padding:18px; margin-bottom:14px; }
+.dep { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.dep:last-child { margin-bottom:0; }
+.dep .node { flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:9px 11px; font-size:var(--fs-sm); font-weight:600; box-shadow:var(--shadow-sm); }
+.dep .node .nd { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+.dep .arrow { color:var(--muted); font-size:16px; flex-shrink:0; }
+
+/* insight */
+.insight { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--steel); border-radius:var(--r-card); padding:14px 18px 14px 16px; margin-bottom:14px; box-shadow:var(--shadow-sm); }
+.insight .tag { display:block; font-size:var(--fs-xs); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--steel); margin-bottom:7px; }
+.insight p { margin:0; font-size:var(--fs-md); line-height:1.6; }
+.insight .soft { color:var(--muted); }
+
+/* placeholder mini screens for Today/Track/Trends/History */
+.mini-note { text-align:center; color:var(--muted); font-size:var(--fs-sm); padding:18px; background:var(--greige); border:1px dashed var(--line); border-radius:16px; margin-bottom:12px; }
+.lede { font-size:var(--fs-lg); font-weight:700; margin:6px 0 12px; }
+
+/* ── TABS ── */
+.tabs { position:absolute; bottom:0; left:0; right:0; height:74px; display:flex; border-top:1px solid var(--line); background:rgba(246,245,242,.94); backdrop-filter:blur(14px); padding:8px 4px 16px; z-index:10; }
+.tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:none; background:none; cursor:pointer; font-family:inherit; color:var(--muted); font-size:10px; font-weight:600; padding:4px 0; border-radius:12px; }
+.tab-btn .ic { font-size:18px; line-height:1; opacity:.55; }
+.tab-btn.active { color:var(--ink); }
+.tab-btn.active .ic { opacity:1; }
+.tab-btn.added { position:relative; }
+.tab-btn.added::after { content:"NEW"; position:absolute; top:-2px; right:8px; font-size:7px; font-weight:800; color:var(--olive); }
+
+/* ── PANEL ── */
+.panel { background:rgba(255,253,248,.94); border:1px solid rgba(140,115,80,.18); border-radius:24px; padding:24px; box-shadow:0 12px 40px rgba(52,39,24,.08); position:sticky; top:28px; align-self:start; }
+.panel h2 { margin:0 0 6px; font-size:24px; font-weight:800; letter-spacing:-0.03em; }
+.panel .sub { margin:0 0 18px; color:var(--muted); font-size:14px; line-height:1.6; }
+.panel h3 { margin:20px 0 8px; font-size:15px; font-weight:700; }
+.panel p { margin:0 0 10px; color:var(--muted); font-size:14px; line-height:1.65; }
+.panel code { font-size:11px; background:var(--greige); border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-family:monospace; }
+.tab-evo { display:flex; flex-direction:column; gap:6px; margin:0 0 16px; }
+.tab-evo .row { display:flex; gap:8px; align-items:center; font-size:12px; }
+.tab-evo .v { font-weight:800; color:var(--ink); width:30px; flex-shrink:0; }
+.tab-evo .t { color:var(--muted); }
+.tab-evo .t b { color:var(--olive); }
+.pillar-key { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:14px; }
+.pk { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
+.pk .d { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.feat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.feat { background:var(--greige); border:1px solid var(--line); border-radius:16px; padding:13px; }
+.feat strong { display:block; font-size:13px; margin-bottom:5px; }
+.feat span { font-size:12px; color:var(--muted); line-height:1.5; display:block; }
+@media (max-width:860px) { .wrap { grid-template-columns:1fr; width:min(440px,100%); } .panel { position:static; } .feat-grid,.pillar-key { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ PHONE ══════════════════════════════════════════ -->
+  <div class="phone">
+    <div class="topbar">
+      <h1 id="screenTitle">Plan</h1>
+      <button class="cog">⚙</button>
+    </div>
+
+    <div class="content">
+
+      <!-- PLAN ──────────────────────────────────────────── -->
+      <section class="screen active" id="plan">
+        <div class="subnav">
+          <button class="active" data-sub="year">Year</button>
+          <button data-sub="month">Month</button>
+          <button data-sub="projects">Projects</button>
+          <button data-sub="map">Map</button>
+        </div>
+        <div class="pillars">
+          <span class="pchip active">All</span>
+          <span class="pchip"><i class="d" style="background:var(--p-health)"></i>Health</span>
+          <span class="pchip"><i class="d" style="background:var(--p-inner)"></i>Inner</span>
+          <span class="pchip"><i class="d" style="background:var(--p-money)"></i>Money</span>
+          <span class="pchip"><i class="d" style="background:var(--p-family)"></i>Family</span>
+          <span class="pchip"><i class="d" style="background:var(--p-joy)"></i>Joy</span>
+          <span class="pchip"><i class="d" style="background:var(--p-contrib)"></i>Contribution</span>
+          <span class="pchip"><i class="d" style="background:var(--p-admin)"></i>Admin</span>
+        </div>
+
+        <!-- Year view -->
+        <div class="subview active" id="sub-year">
+          <div class="lane-h">This year</div>
+          <div class="goal"><div class="stripe" style="background:var(--p-money)"></div><div class="g-body"><div class="g-title">Reach freedom number</div><div class="g-meta"><span class="pbadge" style="background:var(--p-money)">Money</span><span class="prio">high leverage</span></div></div></div>
+          <div class="goal"><div class="stripe" style="background:var(--p-health)"></div><div class="g-body"><div class="g-title">Settle a steady sleep rhythm</div><div class="g-meta"><span class="pbadge" style="background:var(--p-health)">Health</span><span class="prio">foundation</span></div></div></div>
+          <div class="goal"><div class="stripe" style="background:var(--p-joy)"></div><div class="g-body"><div class="g-title">Two weeks by open water</div><div class="g-meta"><span class="pbadge" style="background:var(--p-joy)">Joy</span><span class="prio">nourishing</span></div></div></div>
+          <div class="lane-h" style="margin-top:14px">Moved later</div>
+          <div class="goal"><div class="stripe" style="background:var(--p-contrib)"></div><div class="g-body"><div class="g-title">Mentor one person properly</div><div class="g-meta"><span class="pbadge" style="background:var(--p-contrib)">Contribution</span><span class="prio">when capacity returns</span></div></div></div>
+        </div>
+
+        <!-- Month view (Margulan 7 lanes) -->
+        <div class="subview" id="sub-month">
+          <div class="board">
+            <div class="mlane"><div class="mlane-h"><span class="ttl">Need to do</span><span class="ct">4</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-money)"></i>Compare two land plots</div>
+              <div class="mcard"><i class="pd" style="background:var(--p-admin)"></i>Renew passport</div></div>
+            <div class="mlane"><div class="mlane-h"><span class="ttl">Planned</span><span class="ct">3</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-health)"></i>Book blood panel</div></div>
+            <div class="mlane"><div class="mlane-h"><span class="ttl">My side</span><span class="ct">2</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-money)"></i>Draft freedom-number sheet</div></div>
+            <div class="mlane"><div class="mlane-h"><span class="ttl">Waiting</span><span class="ct">1</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-family)"></i>Reply from solicitor</div></div>
+            <div class="mlane mirror"><div class="mlane-h"><span class="ttl">Today mirror</span><span class="ct">2</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-money)"></i>Call mortgage advisor</div>
+              <div class="mcard"><i class="pd" style="background:var(--p-health)"></i>10-min walk outside</div></div>
+            <div class="mlane"><div class="mlane-h"><span class="ttl">Done</span><span class="ct">6</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-admin)"></i>Set up savings transfer</div></div>
+            <div class="mlane"><div class="mlane-h"><span class="ttl">Review</span><span class="ct">1</span></div>
+              <div class="mcard"><i class="pd" style="background:var(--p-inner)"></i>What drained me this month?</div></div>
+          </div>
+        </div>
+
+        <!-- Projects view -->
+        <div class="subview" id="sub-projects">
+          <div class="proj"><div class="proj-h"><i class="pd" style="background:var(--p-money)"></i><span class="pt">Buy land</span></div><div class="progress"><i style="width:40%;background:var(--p-money)"></i></div><div class="proj-next">Next action: <b>Compare two plots on price + access</b></div></div>
+          <div class="proj"><div class="proj-h"><i class="pd" style="background:var(--p-health)"></i><span class="pt">Sleep rhythm</span></div><div class="progress"><i style="width:65%;background:var(--p-health)"></i></div><div class="proj-next">Next action: <b>Hold 23:30 for 7 nights</b></div></div>
+          <div class="proj"><div class="proj-h"><i class="pd" style="background:var(--p-contrib)"></i><span class="pt">Open-source guide</span></div><div class="progress"><i style="width:20%;background:var(--p-contrib)"></i></div><div class="proj-next">Next action: <b>Outline first chapter</b></div></div>
+        </div>
+
+        <!-- Map (dependency) view -->
+        <div class="subview" id="sub-map">
+          <div class="depmap">
+            <div class="dep"><div class="node"><div class="nd" style="color:var(--p-money)">Money</div>Freedom number</div><span class="arrow">→</span><div class="node"><div class="nd" style="color:var(--p-family)">Family</div>Land decision</div></div>
+            <div class="dep"><div class="node"><div class="nd" style="color:var(--p-health)">Health</div>Steady sleep</div><span class="arrow">→</span><div class="node"><div class="nd" style="color:var(--p-admin)">Plan</div>Execution rate</div></div>
+            <div class="dep"><div class="node"><div class="nd" style="color:var(--p-inner)">Inner</div>Weekly reflection</div><span class="arrow">→</span><div class="node"><div class="nd" style="color:var(--p-money)">Money</div>Calmer decisions</div></div>
+          </div>
+          <div class="insight"><span class="tag">Highest-leverage link</span><p>Freedom number unblocks the land decision. <span class="soft">Resolve the number first — everything downstream waits on it.</span></p></div>
+        </div>
+      </section>
+
+      <!-- TODAY (carried from V1/V2) -->
+      <section class="screen" id="today">
+        <div class="lede">Today</div>
+        <div class="card" style="text-align:center"><div style="font-size:26px;font-weight:800">5h 40m</div><div class="muted" style="font-size:13px;margin-top:4px">00:50 → 06:30 · below 8h goal</div></div>
+        <div class="card"><div style="font-weight:700;margin-bottom:8px">From this month</div><div class="mcard" style="border:none;padding:6px 0"><i class="pd" style="background:var(--p-money)"></i>Call mortgage advisor</div><div class="mcard" style="border-top:1px solid var(--line);padding:8px 0"><i class="pd" style="background:var(--p-health)"></i>10-min walk outside</div></div>
+        <div class="mini-note">Today mirror surfaces month items active today — they live in Plan, shown here, never duplicated.</div>
+      </section>
+
+      <!-- TRACK (carried from V2) -->
+      <section class="screen" id="track">
+        <div class="mini-note">Track tab — Sleep · Habits · Body · Money (unchanged from V2)</div>
+        <div class="card signal" style="display:flex;gap:14px;align-items:center"><div><div style="font-size:30px;font-weight:800">5h 40m</div><div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-top:5px">Last night</div></div></div>
+      </section>
+
+      <!-- TRENDS -->
+      <section class="screen" id="trends">
+        <div class="mini-note">Trends — weekly &amp; monthly charts across tracked areas (carried from V1/V2)</div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="screen" id="history">
+        <div class="mini-note">History — full log of every night &amp; entry with quiet observation lines (carried from V1)</div>
+      </section>
+
+    </div><!-- /content -->
+
+    <!-- Tabs · V1 base + Track (V2) + Plan (V3) -->
+    <nav class="tabs">
+      <button class="tab-btn" data-screen="today" data-title="Today"><span class="ic">☾</span>Today</button>
+      <button class="tab-btn active added" data-screen="plan" data-title="Plan"><span class="ic">◇</span>Plan</button>
+      <button class="tab-btn" data-screen="track" data-title="Track"><span class="ic">◈</span>Track</button>
+      <button class="tab-btn" data-screen="trends" data-title="Trends"><span class="ic">◔</span>Trends</button>
+      <button class="tab-btn" data-screen="history" data-title="History"><span class="ic">≡</span>History</button>
+    </nav>
+  </div><!-- /phone -->
+
+  <!-- ══ PANEL ══════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>V3 — Plan tab</h2>
+    <p class="sub">Adds the <strong>Plan</strong> tab on top of V1+V2. Seven life pillars become a data field on every card; the month flow follows the Margulan 7-lane board. All 7 world regions activate.</p>
+
+    <h3>Tab evolution</h3>
+    <div class="tab-evo">
+      <div class="row"><span class="v">V1</span><span class="t">Today · Trends · History</span></div>
+      <div class="row"><span class="v">V2</span><span class="t">Today · Track · Trends · History</span></div>
+      <div class="row"><span class="v">V3</span><span class="t">Today · <b>Plan</b> · Track · Trends · History</span></div>
+    </div>
+
+    <h3>Plan — 4 views</h3>
+    <div class="feat-grid">
+      <div class="feat"><strong>◷ Year</strong><span>Goals grouped by pillar, "This year" + "Moved later" lanes.</span></div>
+      <div class="feat"><strong>▦ Month</strong><span>Margulan 7 lanes: Need to do → Planned → My side → Waiting → Today mirror → Done → Review.</span></div>
+      <div class="feat"><strong>◰ Projects</strong><span>Pillar-linked containers, progress bar, next action.</span></div>
+      <div class="feat"><strong>⌖ Map</strong><span>Dependency links — highest-leverage shown first.</span></div>
+    </div>
+
+    <h3>7 life pillars (data, not layout)</h3>
+    <div class="pillar-key">
+      <div class="pk"><i class="d" style="background:var(--p-health)"></i>Health / Body</div>
+      <div class="pk"><i class="d" style="background:var(--p-inner)"></i>Inner / Mind</div>
+      <div class="pk"><i class="d" style="background:var(--p-money)"></i>Money / Capital</div>
+      <div class="pk"><i class="d" style="background:var(--p-family)"></i>Family</div>
+      <div class="pk"><i class="d" style="background:var(--p-joy)"></i>Joy / Beauty</div>
+      <div class="pk"><i class="d" style="background:var(--p-contrib)"></i>Contribution</div>
+      <div class="pk"><i class="d" style="background:var(--p-admin)"></i>Plan / Navigation</div>
+    </div>
+
+    <h3>Today mirror</h3>
+    <p>Month items active today appear in the Today tab but <em>live</em> in Plan — never duplicated, exactly as the Margulan flow specifies.</p>
+
+    <h3>World &amp; onboarding</h3>
+    <p>All 7 regions now active as data confirms them. Onboarding gains the story flow: empty landscape → Cartographer walks in → choose a region → dial sets rhythm → first entry → one light appears. Skip always available.</p>
+
+    <p style="margin-top:14px">Source: <code>v3-plan.md</code></p>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.screen).classList.add('active');
+    document.getElementById('screenTitle').textContent = btn.dataset.title;
+  });
+});
+document.querySelectorAll('.subnav button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.subnav button').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.subview').forEach(s => s.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('sub-' + b.dataset.sub).classList.add('active');
+  });
+});
+document.querySelectorAll('.pchip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.pchip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -74,7 +74,7 @@ flowchart TD
 
 **In V1:**
 - Google login.
-- Set your **home time zone once** during onboarding.
+- Timezone **auto-detected from the device** (IANA) — no setup screen required; editable in Settings.
 - Log a night's sleep: **went to bed** time + **woke up** time.
 - See your sleep as a **bar chart** for the last 7 days.
 - See a short **AI note** under the chart (e.g. wake time, bedtime, total, one gentle line).
@@ -237,9 +237,9 @@ flowchart LR
 **Rule of thumb: store everything in UTC, remember which zone it was logged in, and
 display it back in that zone.** This keeps hours accurate even when you travel or DST changes.
 
-- During onboarding you set a **home time zone** (an IANA name like `Europe/Vilnius`).
-- The app keeps an **active time zone** in your profile. It defaults to home.
-- When you travel, you open Settings and switch the active zone (e.g. to `Asia/Tokyo`).
+- Your **home time zone** (IANA) is **auto-detected from the device** on first launch — no setup screen required.
+- The app keeps an **active time zone** in your profile. It defaults to the detected home zone.
+- When you travel, open Settings and switch the active zone (e.g. to `Asia/Tokyo`).
   You keep logging normally; new nights are stamped with the new zone.
 - Each saved night stores:
   - `sleep_start_utc`, `sleep_end_utc` — absolute instants in **UTC**.
@@ -364,7 +364,7 @@ auto-generated REST API, and RLS keeps it safe. Conceptually the operations are:
 |---|---|---|
 | Sign in | `supabase.auth.signInWithOAuth({ provider: 'google' })` | Opens Google consent |
 | Get my profile | `select * from profiles where user_id = me` | RLS enforces "me" |
-| Set home/active tz | `upsert profiles` | Onboarding + Settings |
+| Set home/active tz | `upsert profiles` | Auto-detected on first launch · editable in Settings |
 | Save a night | `insert into sleep_entries (...)` | Times already converted to UTC |
 | Last 7 days | `select ... order by sleep_start_utc desc limit 7` | Feeds chart + note |
 | Full history | `select ... order by sleep_start_utc desc` | Paginated list |
@@ -450,39 +450,43 @@ Each step is independently testable and leaves you with a working app.
 
 ## 9b. How the simple sleep app grows (without rebuilding)
 
-V1 is deliberately tiny, but every choice is made so the full vision — the **Track** and
-**Plan** tabs you mocked up in [future-design/](future-design/) — drops in later without
-a rewrite. The growth is additive, never destructive.
+V1 is deliberately tiny, but every choice is made so the full vision drops in without a rewrite. Growth is additive, never destructive. The World system — a living illustrated landscape that reflects real patterns in your data — is woven through all four versions, growing naturally as the user logs more.
 
 ```mermaid
 flowchart LR
-    V1["V1 — Today / Week / History\nsleep + energy + mood + AI note"]
-    V2["V2 — Track tab\nadd habits, body, money sub-views"]
-    V3["V3 — Plan tab\npillars + Margulan month board"]
-    V4["V4 — Chat + More\nprivate thinking room, deeper tools"]
+    V1["V1 — Sleep Foundation\nlogging · chart · AI note\nworld seed: cottage region"]
+    V2["V2 — Track tab\nhabits · body · money · mood\n3 world regions active"]
+    V3["V3 — Plan tab\n7 pillars · cross-pillar detection\nall 7 regions + full Cartographer"]
+    V4["V4 — World tab + Reflection\nfull world · onboarding story\nmature pattern library"]
     V1 --> V2 --> V3 --> V4
 ```
+
+### Version scope
+
+| Version | Product scope | World scope | Cartographer |
+|---|---|---|---|
+| **V1** | Sleep logging, bar chart, AI note, target strip, history | Cottage region only. "A scene has appeared" card after 3 logs. World otherwise unmapped and visibly empty. | Exists but silent. Walks past once. Never speaks. |
+| **V2** | Track tab (Sleep / Habits / Body / Money), energy & mood, habit tracking | 3 regions: Cottage + Grove + River. Weather system (emotional state) active. | Appears after first cross-pillar pattern confirmed. Up to 3 scene types. |
+| **V3** | Plan tab (Year / Month / Projects / Map), 7 pillars, Margulan month flow, onboarding story with dial | All 7 regions. Lighthouse navigable. Cross-pillar dependency detection fully active. | Full margin-note library. Map room accessible. |
+| **V4** | Dedicated World tab, Chat as Cartographer's journal, mature pattern detection, world personalisation | Full scene library. Contribution nourishing/draining mature. World reflects now, not past glory. | Fully active. Asks one question only. Never lectures. |
+
+### What V1 builds and what it grows into
 
 | What V1 builds | What it grows into | Why no rebuild |
 |---|---|---|
 | `sleep_entries` with nullable `energy`, `mood` | Track → Sleep / Body sub-views | Columns already exist; just surface them |
-| The bottom-tab shell (Today / Week / History) | The 5-tab shell (Chat / Today / Plan / Track / More) | Tabs are data-driven; add entries, don't restructure |
-| `lib/ai.ts` note (LLM + fallback) | Every future insight (habit, money, pattern notes) | One AI seam reused everywhere; same guardrails |
-| One `entries` pattern + RLS | New tables (`habits`, `money`, `cards`) follow the same shape | Same per-user RLS recipe copied per table |
-| "Possible pattern" insight card | Patterns tab (weak / repeated / confirmed signals) | The hypothesis framing is baked in from day one |
+| Bottom-tab shell (Today / Week / History) | 5-tab shell (Chat / Today / Plan / Track / World) | Tabs are data-driven; add entries, don't restructure |
+| `lib/ai.ts` note (LLM + fallback) | Every future insight across all pillars and trackers | One AI seam reused everywhere; same guardrails apply |
+| One `entries` pattern + RLS | New tables (habits, money, cards, scenes) follow same shape | Same per-user RLS recipe copied per table |
+| "Possible pattern" insight card | Pattern detection → scene discovery → World growth | The hypothesis framing is baked in from day one |
+| Observation line under each sleep entry | Same observation layer in every tracking area | Same pattern; different domain |
 
 **Three rules that protect future growth:**
-1. **One AI seam.** All notes go through `lib/ai.ts` (LLM first, rule-based fallback).
-   New trackers reuse it — you never bolt AI on twice.
-2. **Pillars are data, not layout.** When Plan arrives, the life pillars
-   (Health / Inner / Money / Family / Joy / Contribution / Admin) become a colour + filter
-   field on cards — exactly as in [future-design/plan-tab.html](future-design/plan-tab.html).
-3. **Additive schema only.** New features add nullable columns or new tables; they never
-   change or drop what V1 wrote. Old data always keeps working.
+1. **One AI seam.** All notes go through `lib/ai.ts` (LLM first, rule-based fallback). New trackers reuse it — never bolt AI on twice.
+2. **Pillars are data, not layout.** Life pillars (Health / Inner / Money / Family / Joy / Contribution / Admin) become a colour + filter field on cards — exactly as in [future-design/plan-tab.html](future-design/plan-tab.html). Never hardcoded layout.
+3. **Additive schema only.** New features add nullable columns or new tables; they never change or drop what V1 wrote.
 
-> Keep V1 boring on purpose. The job of the first release is to make the daily logging
-> habit stick and prove the AI-note seam — the Track and Plan tabs are already designed,
-> so they slot into the same shell when you're ready.
+> Keep V1 boring on purpose. The job of the first release is to make the daily logging habit stick and prove the AI-note seam. The World grows naturally from real data — it cannot be rushed and should not be faked.
 
 ---
 
@@ -502,4 +506,166 @@ uses **North Star** as the working title. Easy to change later (it's just a stri
 - Expo + EAS (starter usage): free to build and test Android packages.
 - Note for launch: Google Play Console requires a **one-time** developer fee (~$25).
 - Total while building: **£0/month**, fully shareable, AI stays private on your machine.
+
+---
+
+## 12. The World system
+
+Compass is not just a tracker. It is a **living inner world** that reflects the user's real patterns as they emerge from data. Every region is unmapped until the data confirms something real. The world cannot be rushed and should never be faked.
+
+### Two parallel layers
+
+| Layer | What it is | Where it lives |
+|---|---|---|
+| **Data layer** | Raw logs, times, notes, scores | Track / Plan / History screens |
+| **World layer** | Visual expression of confirmed patterns | World screen + scene cards in Today |
+
+The world layer never invents. It only reflects what the data layer has confirmed.
+
+### The 4 energy types
+
+Energy is not a tab or a view. It is the invisible interpretation engine that reads all tracking data. The Track tab stays as Sleep / Habits / Body / Money — energy is the layer above that reads all of them and translates them into world state.
+
+| Energy type | What it measures | Primary app sources | World expression |
+|---|---|---|---|
+| **Physical** | Body power, sleep, recovery, movement | Track → Sleep, Track → Body | Cottage light, road firmness, weather clarity |
+| **Mental** | Focus, decisions, cognitive load, open loops | Track → Habits, Plan open tasks | Library lamps, map clarity, fog density |
+| **Emotional** | Mood, patience, warmth, relational quality | Mood notes, Family pillar | Hearth brightness, river flow, garden colour |
+| **Spiritual** | Purpose, meaning, alignment, service | Contribution pillar, Inner reflection | Stars, lighthouse visibility, horizon clarity |
+
+**Hierarchy:** Physical is the ground. Without it, the other three become fragile. The app understands this — it will not surface spiritual observations when physical energy is critically low.
+
+### The 7 world regions
+
+Each life pillar = one region. Regions start unmapped and grow as real data accumulates.
+
+| Pillar | World region | Visual elements | Fed by |
+|---|---|---|---|
+| **Health / Body** | Moonlit cottage, garden, well, path | Cottage light, garden bloom, well water level | Sleep + Body tracking |
+| **Inner / Mind** | Still grove, small lake, quiet room | Water disturbance, leaf stillness, light quality | Mood notes, reflection logs, patience practice |
+| **Money / Capital** | Quiet market, treasury, stone bridge | Market activity level, bridge open/closed, treasury lamp | Money tracking, plan goals |
+| **Family / Relationships** | Hearth house, long table, lantern path | Hearth warmth, lanterns lit, path visibility | Family logs, relational quality notes |
+| **Joy / Beauty** | River, open water, mountain path | River movement, path openness, light on water | Joy events, beauty moments, experiences |
+| **Contribution / Service** | Town square, workshop, bridge to others | Square presence, bridge strength, workshop light | Contribution acts + nourishing/draining signal |
+| **Plan / Navigation** | Lighthouse, map room, compass tower, roads | Lighthouse visibility, road condition, map clarity | Open loops, goal completion, admin clarity |
+
+### Energy as world atmosphere
+
+The world never shows numbers. It shows state. Energy appears as light, weather, water, road condition, and sky.
+
+| Energy state | World condition |
+|---|---|
+| Physical high | Clear sky, firm road, cottage warmly lit |
+| Physical low | Heavy weather, soft ground, dim cottage |
+| Mental high | Map clear, lighthouse visible, library bright |
+| Mental low | Fog near library, map obscured, unclear roads |
+| Emotional high | Hearth warm, river flowing, garden in colour |
+| Emotional low | Hearth dim, river still, garden grey |
+| Spiritual high | Stars visible, horizon open, lighthouse beam reaches far |
+| Spiritual low | Overcast, horizon hidden, lighthouse dim |
+
+### Observation system — per tracking area
+
+Every tracking area has its own quiet observation layer. Sleep already has this (the italic lines under each history entry). The same pattern extends to all areas as they are built.
+
+| Area | Example observation | Cross-pillar signal emitted |
+|---|---|---|
+| Sleep | *"bedtime shifted · shorter night"* | Physical energy level, impulse control signal |
+| Body | *"lower movement · tension noted"* | Physical recovery rate, mental reset capacity |
+| Habits | *"food planned · decision load lighter"* | Mental energy, impulse signal |
+| Money | *"purchase deferred · unclear day"* | Emotional + mental energy state |
+| Plan | *"three threads unresolved this week"* | Mental load signal, sleep interference risk |
+| Inner | *"quieter than the previous week"* | Emotional energy, family quality signal |
+| Family | *"the hearth was easier to sit beside"* | Emotional energy restoration signal |
+| Joy | *"something entered the day before evening"* | Emotional recharge, mental fog reduction |
+| Contribution | *"the traveller stayed only as long as the light remained"* | Spiritual energy, emotional signal |
+
+### Scene discovery — confidence thresholds
+
+Scenes are earned by data, not scheduled. The Cartographer's certainty scales with data volume.
+
+| Scene type | Trigger condition | Cartographer tone |
+|---|---|---|
+| Single-area observation | 3+ logs in one area show a direction | Tentative — soft, open language |
+| Single-area pattern | 7+ logs confirm consistent signal | Observational — stated as world fact |
+| Cross-pillar correlation | 2 areas both logged ≥5 times, pattern detectable | Named — connection shown |
+| Cross-pillar confirmation | 10+ logs per area, holds over 2+ weeks | Confirmed — written in the map margin |
+
+**Delivery rules:** Maximum one scene per 48 hours. Scenes queue and never expire, but arrive one at a time. No scene on day 1. One button only: "Continue" or "Return."
+
+### Cross-pillar dependency web
+
+The app detects these connections from real data — never assumes them in advance.
+
+| Cause | Effect | Detectable after |
+|---|---|---|
+| Sleep duration low | Money impulse signals increase | 5 sleep + 3 money logs |
+| Sleep consistent | Plan execution rate improves | 7 sleep + plan activity |
+| Sleep low | Habit completion drops | 5 sleep + habit logs |
+| Sleep low | Family / emotional quality drops | 5 sleep + mood notes |
+| Body movement logged | Sleep onset improves | 5 body + 7 sleep logs |
+| Body movement logged | Mental fog reduces next day | 5 body + habit / plan logs |
+| Habits complete (food) | Money impulse reduces | 7 habit + 5 money logs |
+| Open plan loops | Sleep quality drops (rumination) | 5 open-loop weeks + sleep |
+| Money unresolved | Plan blocked / stalled | Plan + money logs |
+| Money unresolved | Sleep disrupted (financial anxiety) | 5 money concern + sleep |
+| Inner reflection logged | Plan decisions improve | 5 inner + plan logs |
+| Family draining | Emotional energy depletes | 5 family quality logs |
+| Family draining | Sleep disrupted (unresolved conflict) | Family + sleep logs |
+| Joy event logged | Mental fog reduces next day | 3 joy + habit / plan logs |
+| Contribution (nourishing) | Spiritual / purpose signal rises | 5 contribution + inner logs |
+| Contribution (draining) | Emotional depletion visible | 5 contribution logs with signal |
+
+### The contribution detection problem
+
+Nourishing giving and obligation giving look identical from outside. After every contribution log, one question: *"Did that restore you or cost you?"* (two taps, no text required). The Cartographer tracks the ratio over time and can then distinguish the two.
+
+### Hard rules
+
+| Rule | Reason |
+|---|---|
+| World never fills faster than data confirms | Trust — the user knows what they logged |
+| No scene on day 1 | Earned, not given |
+| No cross-pillar scene without both streams logged | Never invent a connection the data doesn't confirm |
+| Unmapped regions stay visibly empty | Honest emptiness creates pull — the user wants to map more |
+| Patterns disappear if data stops | The world is alive — it reflects now, not past glory |
+| One scene per 48 hours maximum | Scarcity preserves meaning |
+| Contribution always asks nourishing/draining | The only area where the signal can silently invert |
+
+---
+
+## 13. The Cartographer
+
+**Who:** A small, precise figure with a coat and a notebook. Moves through the world. Always looking at something — never at the user. The name fits: a Cartographer makes maps. The user's life is the territory. The app draws the map as they live.
+
+**Role:** *"I found this in your world. Look."* — never *"Here is what you should do."*
+
+### When it appears
+- A scene has generated (data threshold met)
+- A cross-pillar pattern has confirmed
+- A region has grown or changed significantly
+
+### When it stays silent
+- Fewer than 3 logs in any area
+- Data insufficient to confirm a pattern
+- A scene was already shown within 48 hours
+
+### Voice rules
+
+Past tense. Third-person about the world. Maximum 2 sentences per scene. Never "you."
+
+| ✓ Correct | ✗ Never |
+|---|---|
+| *"The cottage was warmer after the third steady night."* | *"You slept better this week — great progress!"* |
+| *"The market quieted. Nothing was decided from urgency."* | *"Your spending improved because of better sleep."* |
+| *"The water in the grove was less disturbed than before."* | *"Try going to bed earlier tonight."* |
+| *"The lighthouse was visible again. Not closer — just no longer hidden."* | *"You're on a 5-day streak!"* |
+
+### What the Cartographer never does
+- Says "you should"
+- Cheers, congratulates, or scolds
+- Shows percentage scores for energy levels
+- Shows streak counters or reward badges
+- Appears uninvited more than once per 48 hours
+- Speaks when data is insufficient to confirm a pattern
 ```

@@ -10,12 +10,11 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { theme } from '@styles/theme';
 import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { SleepForm } from '../components/SleepForm';
-import { calculateDuration, getDeviceTimezone } from '@lib/time';
+import { calculateDuration, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime } from '@lib/time';
 import { saveSleepEntry } from '@data/sleep';
 
 interface TodayScreenProps {
@@ -27,30 +26,37 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
   const profile = useAuthStore((s: AuthStore) => s.profile);
 
   const timezone = profile?.active_timezone ?? getDeviceTimezone();
+  const isHome = timezone === profile?.home_timezone;
+  const offsetLabel = getTimezoneOffset(timezone);
 
-  // Defaults: bed 23:00 yesterday, wake 07:00 today.
-  const [bedTime, setBedTime] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    d.setHours(23, 0, 0, 0);
-    return d;
-  });
+  const [bedTime, setBedTime] = useState(() => smartBedTime((() => { const d = new Date(); d.setHours(23, 0, 0, 0); return d; })()));
 
   const [wakeTime, setWakeTime] = useState(() => {
-    const d = new Date();
-    d.setHours(7, 0, 0, 0);
-    return d;
+    const d = new Date(); d.setHours(7, 0, 0, 0);
+    return smartWakeTime(d, bedTime);
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Day hint shown next to each time: "↩ yesterday" / "↩ today"
+  const dayHint = (d: Date): string => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return '↩ today';
+    if (d.toDateString() === yesterday.toDateString()) return '↩ yesterday';
+    return `↩ ${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' })}`;
+  };
 
   const { formatted: durationLabel } = calculateDuration(bedTime, wakeTime);
 
   const handleSave = useCallback(async () => {
     if (!user?.id) return;
+    setErrorMsg(null);
 
     if (wakeTime <= bedTime) {
-      Alert.alert('Check your times', 'Wake time should be after bed time.');
+      setErrorMsg('Wake time should be after bed time — check your times.');
       return;
     }
 
@@ -61,19 +67,32 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
         sleep_start_utc: bedTime.toISOString(),
         sleep_end_utc: wakeTime.toISOString(),
         timezone,
-        duration_minutes: null, // computed by the database
+        duration_minutes: null,
         note: null,
         energy: null,
         mood: null,
       });
       onSaved?.();
     } catch (err) {
-      Alert.alert('Could not save', 'Please check your connection and try again.');
+      setErrorMsg('Could not save — please check your connection and try again.');
       console.error('Save sleep entry error:', err);
     } finally {
       setIsSaving(false);
     }
   }, [user, bedTime, wakeTime, timezone, onSaved]);
+
+  const handleBedChange = useCallback((date: Date) => {
+    const smart = smartBedTime(date);
+    setBedTime(smart);
+    setErrorMsg(null);
+    // Keep wake time consistent — must stay after bed
+    setWakeTime(prev => smartWakeTime(prev, smart));
+  }, []);
+
+  const handleWakeChange = useCallback((date: Date) => {
+    setWakeTime(smartWakeTime(date, bedTime));
+    setErrorMsg(null);
+  }, [bedTime]);
 
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
@@ -87,17 +106,23 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Compass</Text>
-          <Text style={styles.date}>{today}</Text>
-        </View>
+        {/* Date */}
+        <Text style={styles.date}>{today}</Text>
 
         {/* Timezone pill */}
         <View style={styles.tzPill}>
           <View style={styles.tzDot} />
-          <Text style={styles.tzText}>{timezone}</Text>
+          <Text style={styles.tzText}>
+            {timezone} · {offsetLabel}{isHome ? ' · home' : ''}
+          </Text>
         </View>
+
+        {/* Error banner */}
+        {errorMsg && (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        )}
 
         {/* Question */}
         <Text style={styles.question}>How did you sleep?</Text>
@@ -109,8 +134,10 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
             wakeTime={wakeTime}
             durationLabel={durationLabel}
             timezone={timezone}
-            onBedTimeChange={setBedTime}
-            onWakeTimeChange={setWakeTime}
+            bedHint={dayHint(bedTime)}
+            wakeHint={dayHint(wakeTime)}
+            onBedTimeChange={handleBedChange}
+            onWakeTimeChange={handleWakeChange}
           />
         </View>
 
@@ -141,15 +168,6 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.xxxl,
-  },
-  header: {
-    paddingTop: theme.spacing.md,
-  },
-  title: {
-    fontSize: theme.typography.xl,
-    fontWeight: '800',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
   },
   date: {
     fontSize: theme.typography.sm,
@@ -207,5 +225,19 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.md,
     fontWeight: '600',
     color: theme.colors.card,
+  },
+  errorBanner: {
+    backgroundColor: '#FDF4F3',
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.error,
+    borderRadius: theme.radii.input,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+  },
+  errorText: {
+    fontSize: theme.typography.sm,
+    color: theme.colors.error,
+    fontWeight: '500',
+    lineHeight: 20,
   },
 });

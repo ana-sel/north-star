@@ -106,39 +106,44 @@ export function HistoryScreen() {
     ({ item }: ListRenderItemInfo<SleepEntry>) => {
       const entryTz = item.timezone ?? timezone;
       const bedLocal = utcToLocal(new Date(item.sleep_start_utc), entryTz);
-      const wakeLocal = utcToLocal(new Date(item.sleep_end_utc), entryTz);
       const { formatted: duration } = calculateDuration(
         new Date(item.sleep_start_utc),
         new Date(item.sleep_end_utc)
       );
 
-      const date = new Date(item.sleep_start_utc).toLocaleDateString('en-GB', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-      });
+      // Day label: Today / Yesterday / Mon 18 Jun
+      const entryDate = new Date(item.sleep_start_utc);
+      const todayDate = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const sameDay = (a: Date, b: Date) =>
+        a.getDate() === b.getDate() &&
+        a.getMonth() === b.getMonth() &&
+        a.getFullYear() === b.getFullYear();
+      let dayLabel: string;
+      if (sameDay(entryDate, todayDate)) {
+        dayLabel = 'Today';
+      } else if (sameDay(entryDate, yesterday)) {
+        dayLabel = 'Yesterday';
+      } else {
+        dayLabel = entryDate.toLocaleDateString('en-GB', {
+          weekday: 'short', day: 'numeric', month: 'short',
+        });
+      }
 
       return (
         <View style={styles.entryCard}>
           <View style={styles.entryLeft}>
-            <Text style={styles.entryDate}>{date}</Text>
-            <Text style={styles.entryTimes}>
-              {bedLocal} → {wakeLocal}
-            </Text>
-            {item.timezone && item.timezone !== timezone && (
-              <Text style={styles.entryTz}>{item.timezone}</Text>
-            )}
+            <Text style={styles.entryDay}>{dayLabel}</Text>
+            <Text style={styles.entryMeta}>{duration} · bed {bedLocal}</Text>
           </View>
-          <View style={styles.entryRight}>
-            <Text style={styles.entryDuration}>{duration}</Text>
-            <TouchableOpacity
-              onPress={() => handleDelete(item)}
-              style={styles.deleteBtn}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text style={styles.deleteBtnText}>✕</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => handleDelete(item)}
+            style={styles.deleteBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.deleteBtnText}>✕</Text>
+          </TouchableOpacity>
         </View>
       );
     },
@@ -149,11 +154,6 @@ export function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerWrapper}>
-        <Text style={styles.title}>History</Text>
-        <Text style={styles.subtitle}>All logged nights</Text>
-      </View>
-
       <FlatList
         data={entries}
         renderItem={renderItem}
@@ -193,23 +193,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.bg,
   },
-  headerWrapper: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg + theme.spacing.md,
-    paddingBottom: theme.spacing.md,
-  },
-  title: {
-    fontSize: theme.typography.xl,
-    fontWeight: '800',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '500',
-    marginTop: 4,
-  },
   listContent: {
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.xxxl,
@@ -220,7 +203,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.line,
     borderRadius: theme.radii.card,
-    padding: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -228,34 +212,21 @@ const styles = StyleSheet.create({
   },
   entryLeft: {
     flex: 1,
-    gap: 2,
+    gap: 3,
   },
-  entryDate: {
-    fontSize: theme.typography.sm,
+  entryDay: {
+    fontSize: theme.typography.md,
     fontWeight: '700',
     color: theme.colors.ink,
+    letterSpacing: -0.2,
   },
-  entryTimes: {
+  entryMeta: {
     fontSize: theme.typography.sm,
     color: theme.colors.muted,
     fontWeight: '500',
   },
-  entryTz: {
-    fontSize: theme.typography.xs,
-    color: theme.colors.muted,
-  },
-  entryRight: {
-    alignItems: 'flex-end',
-    gap: theme.spacing.xs,
-  },
-  entryDuration: {
-    fontSize: theme.typography.md,
-    fontWeight: '700',
-    color: theme.colors.ink,
-    letterSpacing: -0.3,
-  },
   deleteBtn: {
-    padding: 4,
+    padding: 6,
   },
   deleteBtnText: {
     fontSize: 12,

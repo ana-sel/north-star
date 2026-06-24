@@ -4,7 +4,7 @@
  * GDPR: user can see what data is stored and sign out (right to access/erasure shown as roadmap)
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,10 +18,14 @@ import {
 import { theme } from '@styles/theme';
 import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { supabase } from '@lib/supabase';
-import { COMMON_TIMEZONES } from '@lib/time';
+import { COMMON_TIMEZONES, getTimezoneOffset, getTimezoneOffsetMinutes } from '@lib/time';
 import { updateActiveTimezone } from '@data/profile';
 
-export function SettingsScreen() {
+interface SettingsScreenProps {
+  onClose?: () => void;
+}
+
+export function SettingsScreen({ onClose }: SettingsScreenProps) {
   const user = useAuthStore((s: AuthStore) => s.user);
   const profile = useAuthStore((s: AuthStore) => s.profile);
   const setProfile = useAuthStore((s: AuthStore) => s.setProfile);
@@ -29,6 +33,12 @@ export function SettingsScreen() {
 
   const [isChangingTz, setIsChangingTz] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+
+  // Sort west → east by current UTC offset (respects DST)
+  const sortedTimezones = useMemo(
+    () => [...COMMON_TIMEZONES].sort((a, b) => getTimezoneOffsetMinutes(a) - getTimezoneOffsetMinutes(b)),
+    []
+  );
 
   const handleSignOut = async () => {
     Alert.alert('Sign out', 'Are you sure?', [
@@ -74,6 +84,11 @@ export function SettingsScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Settings</Text>
+          {onClose && (
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
+              <Text style={styles.closeBtnText}>Done</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Account section */}
@@ -97,7 +112,7 @@ export function SettingsScreen() {
             Change this when you travel so sleep times stay accurate.
           </Text>
           <View style={styles.tzList}>
-            {COMMON_TIMEZONES.map((tz) => {
+            {sortedTimezones.map((tz) => {
               const isActive = tz === (profile?.active_timezone ?? 'UTC');
               const isHome = tz === profile?.home_timezone;
               return (
@@ -115,6 +130,9 @@ export function SettingsScreen() {
                     ]}
                   >
                     {tz}
+                  </Text>
+                  <Text style={[styles.tzOffset, isActive && styles.tzOffsetActive]}>
+                    {getTimezoneOffset(tz)}
                   </Text>
                   {isHome && (
                     <Text style={styles.homeTag}>home</Text>
@@ -166,6 +184,9 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxxl,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: theme.spacing.md,
   },
   title: {
@@ -251,6 +272,24 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sm,
     color: theme.colors.muted,
     lineHeight: 22,
+  },
+  closeBtn: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+  },
+  closeBtnText: {
+    fontSize: theme.typography.md,
+    fontWeight: '600',
+    color: theme.colors.olive,
+  },
+  tzOffset: {
+    fontSize: theme.typography.sm,
+    color: theme.colors.muted,
+    fontWeight: '400',
+  },
+  tzOffsetActive: {
+    color: theme.colors.ink,
+    fontWeight: '600',
   },
   signOutBtn: {
     borderWidth: 1,

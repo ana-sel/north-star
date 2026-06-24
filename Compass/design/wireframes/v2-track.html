@@ -1,0 +1,1594 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compass — V2 Track</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ── Design tokens (identical to wireframe/index.html) ── */
+:root {
+  --bg:      #F6F5F2;
+  --card:    #FFFEFC;
+  --greige:  #F0ECE5;
+  --line:    #E2DFD9;
+  --muted:   #65645F;
+  --ink:     #24231F;
+  --steel:   #7E8E9F;
+  --olive:   #768471;
+  --mauve:   #898095;
+  --btn:     #3C3A34;
+  --error:   #B0746C;
+
+  --fs-xl:  28px;
+  --fs-lg:  18px;
+  --fs-md:  15px;
+  --fs-sm:  13px;
+  --fs-xs:  11px;
+  --r-screen: 34px;
+  --r-card:   24px;
+  --r-input:  18px;
+  --shadow:    0 1px 2px rgba(36,35,31,.04), 0 10px 28px rgba(36,35,31,.07);
+  --shadow-sm: 0 1px 2px rgba(36,35,31,.03), 0 4px 14px rgba(36,35,31,.05);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100vh; }
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(ellipse 120% 50% at 50% -5%, #FBFAF8, #EFEDE8 60%, #E8E4DC);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 28px 16px 60px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Layout ── */
+.wrap {
+  display: grid;
+  grid-template-columns: 392px 1fr;
+  gap: 28px;
+  width: min(1180px, 100%);
+  align-items: start;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 392px;
+  height: min(860px, 94vh);
+  background: var(--bg);
+  border-radius: var(--r-screen);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(36,35,31,.05),
+    0 20px 50px rgba(36,35,31,.12),
+    0 60px 120px rgba(36,35,31,.08);
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 24px 10px;
+  flex-shrink: 0;
+  background: rgba(246,245,242,.96);
+}
+.topbar h1 {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.cog {
+  width: 40px; height: 40px;
+  border-radius: 13px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  display: grid; place-items: center;
+  font-size: 17px; color: var(--muted);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform .12s;
+}
+.cog:active { transform: scale(.92); }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 20px 100px;
+}
+.content::-webkit-scrollbar { width: 0; }
+
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+/* ── TODAY ── */
+.date {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 10px;
+  margin-top: 2px;
+}
+.tz-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--greige);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+.tz-pill .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--olive);
+  flex-shrink: 0;
+}
+
+/* Target strip */
+.target-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-input);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.t-header {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+.t-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.t-time {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1;
+}
+.t-icon { font-size: 16px; }
+.t-dash {
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--muted);
+  margin: 0 2px;
+}
+.t-dur {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+/* Pattern nudge — only shown after 2+ nights off */
+.nudge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #FDF8F0;
+  border: 1px solid #EAD9C0;
+  border-left: 3px solid var(--olive);
+  border-radius: var(--r-input);
+  padding: 11px 14px;
+  margin-bottom: 14px;
+}
+.nudge-icon { font-size: 15px; flex-shrink: 0; padding-top: 1px; }
+.nudge-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #7A6A48;
+  margin-bottom: 3px;
+}
+.nudge-text {
+  font-size: var(--fs-sm);
+  color: #5C4F3A;
+  line-height: 1.45;
+}
+
+.lede {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0 0 12px;
+}
+
+/* Dial card */
+.dial-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 16px 18px 14px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dial-hint {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  font-weight: 500;
+  text-align: center;
+}
+#dialSvg {
+  width: 216px;
+  height: 216px;
+  cursor: default;
+  touch-action: none;
+  display: block;
+}
+.dial-foot {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  line-height: 1.5;
+}
+.dial-foot strong {
+  color: var(--ink);
+  font-weight: 800;
+  font-size: var(--fs-md);
+  letter-spacing: -0.01em;
+}
+
+/* Insight card (same as wireframe/index.html) */
+.card-insight {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--steel);
+  border-radius: var(--r-card);
+  padding: 14px 18px 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.insight-tag {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--steel);
+  margin-bottom: 7px;
+}
+.insight-p { margin: 0; font-size: var(--fs-md); line-height: 1.6; }
+.insight-p .soft { color: var(--muted); }
+
+/* Save button */
+.save-btn {
+  width: 100%;
+  border: none;
+  border-radius: var(--r-input);
+  background: var(--btn);
+  color: #FBFAF8;
+  font-family: inherit;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  padding: 17px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(60,58,52,.2);
+  letter-spacing: .01em;
+  transition: opacity .15s, transform .12s;
+}
+.save-btn:active { opacity: .88; transform: scale(.984); }
+
+/* ── WEEK ── */
+.week-stat-card {
+  background: linear-gradient(160deg, #F4F0E9, #EDE8DF);
+  border: 1px solid #DDD8CF;
+  border-radius: var(--r-card);
+  padding: 18px 20px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.stats-single { text-align: center; }
+.stats-v { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.stats-k {
+  font-size: var(--fs-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); margin-top: 5px;
+}
+.week-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.wc-head {
+  display: flex; align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.wc-head .t { font-size: var(--fs-md); font-weight: 700; }
+.wc-head .s {
+  font-size: var(--fs-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+}
+/* chart */
+.chart-area {
+  height: 100px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+}
+.chart-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.chart-bar {
+  width: 100%;
+  max-width: 24px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #9BA8B5, #7E8E9F);
+  transition: opacity .2s;
+}
+.chart-bar.above-goal { background: linear-gradient(180deg, #8FA887, #768471); }
+.goal-line {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1.5px dashed #768471;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.goal-label {
+  position: absolute;
+  right: 0;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--olive);
+  background: var(--card);
+  padding: 1px 3px;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  opacity: 0.85;
+}
+.chart-days {
+  display: flex; gap: 7px;
+  margin-top: 6px; padding: 0 1px;
+}
+.chart-days span { flex: 1; text-align: center; font-size: 10px; color: var(--muted); }
+.chart-legend {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 10px;
+}
+.lg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.lg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* week nav + pill toggle */
+.week-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.week-nav-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 18px;
+  padding: 2px 6px; border-radius: 6px; line-height: 1;
+}
+.week-nav-btn:hover { background: var(--greige); color: var(--ink); }
+.week-nav-btn:disabled { opacity: 0.25; cursor: default; }
+.week-nav-label { font-size: var(--fs-sm); font-weight: 600; color: var(--ink); }
+.chart-pill {
+  display: flex; background: var(--greige);
+  border: 1px solid var(--line); border-radius: 999px; padding: 2px;
+}
+.pill-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  padding: 4px 10px; border-radius: 999px; transition: all .15s;
+}
+.pill-btn.active {
+  background: var(--card); color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+/* times (sleep window) chart */
+.tc-chart { display: flex; gap: 6px; height: 152px; }
+.tc-y-axis {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 0 5px 0 0; flex-shrink: 0; width: 30px;
+}
+.tc-y-label { font-size: 8px; color: var(--muted); text-align: right; line-height: 1; }
+.tc-bars { flex: 1; position: relative; display: flex; gap: 7px; align-items: stretch; }
+.tc-col { flex: 1; position: relative; }
+.tc-bar {
+  position: absolute; left: 0; right: 0;
+  background: linear-gradient(0deg, #9BA8B5, #7E8E9F);
+  border-radius: 4px; min-height: 4px;
+}
+.tc-goal-line {
+  position: absolute; left: 0; right: 0;
+  border-top: 1.5px dashed #768471; opacity: 0.55; pointer-events: none;
+}
+
+/* ── HISTORY ── */
+.history-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 4px 16px;
+  margin-top: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.h-row {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+.h-row:last-child { border-bottom: none; }
+.h-day { font-weight: 700; font-size: var(--fs-md); letter-spacing: -0.01em; }
+.h-meta { color: var(--muted); font-size: var(--fs-sm); margin-top: 3px; }
+.h-meta strong { color: var(--ink); font-weight: 600; }
+.h-obs { color: var(--muted); font-size: var(--fs-sm); margin-top: 4px; font-style: italic; }
+.h-row-head {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 4px;
+}
+.h-edit {
+  font-size: 11px; color: var(--muted); cursor: pointer;
+  background: none; border: none; padding: 2px 6px;
+  border-radius: 4px; font-weight: 500;
+}
+.h-edit:hover { background: var(--greige); }
+.h-times {
+  display: flex; justify-content: space-between;
+  align-items: baseline; margin-top: 2px;
+}
+.h-dur  { font-weight: 700; color: var(--ink); font-size: var(--fs-sm); }
+.h-range { color: var(--muted); font-size: var(--fs-sm); }
+
+/* ── TABS ── */
+.tabs {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 74px;
+  display: flex;
+  border-top: 1px solid var(--line);
+  background: rgba(246,245,242,.94);
+  backdrop-filter: blur(14px);
+  padding: 8px 8px 16px;
+  z-index: 10;
+}
+.tab-btn {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  border: none; background: none; cursor: pointer;
+  font-family: inherit;
+  color: var(--muted); font-size: var(--fs-xs); font-weight: 600;
+  padding: 4px 0; border-radius: 12px;
+  transition: color .15s;
+}
+.tab-btn .ic { font-size: 19px; line-height: 1; opacity: .55; transition: opacity .15s; }
+.tab-btn.active { color: var(--ink); }
+.tab-btn.active .ic { opacity: 1; }
+
+/* ── PANEL ── */
+.panel {
+  background: rgba(255,253,248,.94);
+  border: 1px solid rgba(140,115,80,.18);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(52,39,24,.08);
+  position: sticky;
+  top: 28px;
+  align-self: start;
+}
+.panel h2  { margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+.panel .sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.panel h3  { margin: 20px 0 8px; font-size: 15px; font-weight: 700; }
+.panel p   { margin: 0 0 10px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.panel ul  { margin: 0 0 14px; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.9; }
+.panel code {
+  font-size: 11px; background: var(--greige);
+  border: 1px solid var(--line); border-radius: 4px;
+  padding: 1px 5px; font-family: monospace;
+}
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.tag {
+  font-size: 11px; font-weight: 600;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 10px; color: var(--muted);
+}
+.tag.new  { background: #EEF2EA; color: var(--olive); border-color: #D1DBC9; }
+.tag.mod  { background: #ECEFF3; color: var(--steel); border-color: #D0D9E2; }
+
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+.feat { background: var(--greige); border: 1px solid var(--line); border-radius: 16px; padding: 13px; }
+.feat strong { display: block; font-size: 13px; margin-bottom: 5px; }
+.feat span   { font-size: 12px; color: var(--muted); line-height: 1.5; display: block; }
+
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: 1fr; width: min(440px, 100%); }
+  .panel { position: static; }
+  .feat-grid { grid-template-columns: 1fr; }
+}
+
+/* ── V2 ADDITIONS ── */
+
+/* Sub-view pill switch (Track) */
+.subnav {
+  display: flex;
+  background: var(--greige);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  margin-bottom: 16px;
+}
+.subnav button {
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 8px 0;
+  border-radius: 999px;
+  transition: all .15s;
+}
+.subnav button.active {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.subview { display: none; }
+.subview.active { display: block; animation: fadeIn .2s ease; }
+
+/* Energy / mood chips */
+.em-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.em {
+  flex: 1;
+  background: var(--greige);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+.em .lab {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.em .scale { display: flex; gap: 4px; }
+.em .pip { flex: 1; height: 7px; border-radius: 4px; background: var(--line); }
+.em .pip.on { background: var(--olive); }
+.em.mood .pip.on { background: var(--mauve); }
+
+/* World scene card */
+.scene {
+  background: linear-gradient(165deg, #2C3340, #3B4453);
+  border: 1px solid #4A5466;
+  border-radius: var(--r-card);
+  padding: 20px;
+  margin-bottom: 14px;
+  color: #E8ECF2;
+  box-shadow: 0 12px 30px rgba(30,36,46,.28);
+}
+.scene .s-tag {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: #A9B6C8; margin-bottom: 12px;
+}
+.scene .s-text {
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  font-style: italic;
+  color: #DDE3EC;
+}
+.scene .s-btn {
+  margin-top: 16px; width: 100%;
+  border: none; border-radius: 14px;
+  background: rgba(255,255,255,.12); color: #EEF1F6;
+  font-family: inherit; font-size: var(--fs-sm); font-weight: 600;
+  padding: 12px; cursor: pointer;
+}
+
+/* Signal card (Track overview) */
+.signal-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+.signal-card .big { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.signal-card .k {
+  font-size: var(--fs-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); margin-top: 5px;
+}
+.signal-divider { width: 1px; align-self: stretch; background: var(--line); }
+
+/* Habit rows */
+.habit-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 4px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
+.habit {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 0; border-bottom: 1px solid var(--line);
+}
+.habit:last-child { border-bottom: none; }
+.habit-check {
+  width: 26px; height: 26px; border-radius: 9px;
+  border: 2px solid var(--line); flex-shrink: 0;
+  display: grid; place-items: center;
+  cursor: pointer; color: transparent; font-size: 14px;
+}
+.habit-check.done { background: var(--olive); border-color: var(--olive); color: #fff; }
+.habit-name { flex: 1; font-size: var(--fs-md); font-weight: 600; }
+.habit-rate { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; }
+.habit-cap { font-size: var(--fs-xs); color: var(--muted); margin-top: 10px; text-align: center; padding-bottom: 8px; }
+
+/* Body fields */
+.field-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 4px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
+.field {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 0; border-bottom: 1px solid var(--line);
+}
+.field:last-child { border-bottom: none; }
+.field .fk { font-size: var(--fs-md); font-weight: 600; }
+.field .fv { font-size: var(--fs-md); color: var(--muted); }
+.field .fv.empty { color: var(--line); font-style: italic; }
+.tension { display: flex; gap: 5px; }
+.tension .t { width: 18px; height: 18px; border-radius: 6px; background: var(--line); }
+.tension .t.on { background: #B77980; }
+
+/* Money entries */
+.money-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 4px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
+.money-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--line);
+}
+.money-row:last-child { border-bottom: none; }
+.money-left .m-cat { font-size: var(--fs-md); font-weight: 600; }
+.money-left .m-note { font-size: var(--fs-sm); color: var(--muted); margin-top: 2px; }
+.money-amt { font-size: var(--fs-md); font-weight: 700; white-space: nowrap; }
+.flag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; padding: 2px 7px; border-radius: 999px; margin-left: 8px;
+}
+.flag.impulse { background: #F7ECEA; color: var(--error); }
+.flag.planned { background: #EEF2EA; color: var(--olive); }
+
+/* Track bar chart (reuses V1 styles) */
+.track-chart-area { height: 88px; position: relative; display: flex; align-items: flex-end; gap: 7px; margin-top: 6px; }
+.track-chart-col { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.track-chart-bar { width: 100%; max-width: 24px; border-radius: 6px; background: linear-gradient(180deg,#9BA8B5,#7E8E9F); }
+.track-chart-bar.above { background: linear-gradient(180deg,#8FA887,#768471); }
+.track-chart-days { display: flex; gap: 7px; margin-top: 6px; }
+.track-chart-days span { flex: 1; text-align: center; font-size: 10px; color: var(--muted); }
+
+/* "NEW" badge on tab */
+.tab-btn.new-tab { position: relative; }
+.tab-btn.new-tab::after {
+  content: "NEW";
+  position: absolute; top: -2px; right: 14px;
+  font-size: 7px; font-weight: 800; letter-spacing: .05em;
+  color: var(--olive);
+}
+
+/* Tab evolution table in panel */
+.tab-evo { display: flex; flex-direction: column; gap: 6px; margin: 0 0 16px; }
+.tab-evo .row { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+.tab-evo .v { font-weight: 800; color: var(--ink); width: 30px; flex-shrink: 0; }
+.tab-evo .t { color: var(--muted); }
+.tab-evo .t b { color: var(--olive); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ PHONE ══════════════════════════════════════════ -->
+  <div class="phone">
+    <div class="topbar">
+      <h1 id="screenTitle">Compass</h1>
+      <button class="cog">⚙</button>
+    </div>
+
+    <div class="content">
+
+      <!-- TODAY ─────────────────────────────────────────── -->
+      <section class="screen active" id="today">
+        <div class="date">Wednesday, 24 June 2026</div>
+
+        <button class="tz-pill">
+          <span class="dot"></span>
+          Europe/London · UTC+1 · home
+        </button>
+
+        <!-- Sleep goal strip (tap to edit in Settings) -->
+        <div class="target-strip" title="Your sleep goal · edit in Settings">
+          <div class="t-header">target</div>
+          <div class="t-range">
+            <span class="t-icon">🌙</span>
+            <span class="t-time">23:00</span>
+            <span class="t-dash">–</span>
+            <span class="t-time">07:00</span>
+            <span class="t-icon">☀️</span>
+          </div>
+          <div class="t-dur">8 hours</div>
+        </div>
+
+        <!-- Pattern nudge (shown when 2+ nights off-target) -->
+        <div class="nudge">
+          <span class="nudge-icon">🌙</span>
+          <div>
+            <div class="nudge-title">Small adjustment</div>
+            <div class="nudge-text">Your bedtime has been around 01:00 for the last 3 nights. Try 00:30 tonight as a gentle step — small shifts are easier to keep than forcing 23:00 immediately.</div>
+          </div>
+        </div>
+
+        <div class="lede">How did you sleep?</div>
+
+        <!-- 24h Sleep Dial -->
+        <div class="dial-card">
+          <div class="dial-hint">Drag 🌙 or ☀️ to adjust · snaps to 10 min</div>
+          <svg id="dialSvg" viewBox="0 0 216 216" role="img" aria-label="24-hour sleep clock">
+            <!-- built by JS -->
+          </svg>
+          <div class="dial-foot">
+            <strong id="durDisplay">5h 40m</strong> sleep
+            <span style="margin:0 5px">·</span>
+            <span id="bedHint">↩ yesterday</span> → <span id="wakeHint">↩ today</span>
+          </div>
+        </div>
+
+        <!-- Gentle note -->
+        <div class="card-insight">
+          <span class="insight-tag">Gentle note</span>
+          <p class="insight-p" id="insightText">
+            5h 40m is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>
+          </p>
+        </div>
+
+        <!-- V2: energy + mood surfaced (V1's nullable columns) -->
+        <div class="em-row">
+          <div class="em">
+            <div class="lab">Energy today</div>
+            <div class="scale"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span></div>
+          </div>
+          <div class="em mood">
+            <div class="lab">Mood</div>
+            <div class="scale"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip"></span></div>
+          </div>
+        </div>
+
+        <!-- V2: first world seed scene (appears after first cross-pillar pattern confirms) -->
+        <div class="scene">
+          <div class="s-tag">✦ A scene has appeared</div>
+          <div class="s-text">"The cottage was warmer after the third steady night. Something near it began to settle."</div>
+          <button class="s-btn">Continue</button>
+        </div>
+
+        <button class="save-btn">Save night</button>
+      </section>
+
+      <!-- WEEK ──────────────────────────────────────────── -->
+      <section class="screen" id="week">
+        <div class="week-stat-card">
+          <div class="stats-single">
+            <div class="stats-v" id="avgSleepVal">6h 48m</div>
+            <div class="stats-k">Avg sleep · this week</div>
+          </div>
+        </div>
+
+        <div class="week-card">
+          <div class="wc-head">
+            <span class="t">Sleep</span>
+            <div class="chart-pill">
+              <button class="pill-btn active" data-view="hours">Hours</button>
+              <button class="pill-btn" data-view="times">Times</button>
+            </div>
+          </div>
+          <div class="week-nav">
+            <div class="chart-pill">
+              <button class="pill-btn active" data-period="week">Week</button>
+              <button class="pill-btn" data-period="month">Month</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:0">
+              <button class="week-nav-btn" id="weekNavPrev">‹</button>
+              <span class="week-nav-label" id="weekNavLabel">Mon 22 – Sun 28 Jun</span>
+              <button class="week-nav-btn" id="weekNavNext" disabled>›</button>
+            </div>
+          </div>
+          <div class="chart-area" id="hoursChart"><!-- JS --></div>
+          <div class="tc-chart" id="timesChart" style="display:none"><!-- JS --></div>
+          <div class="chart-days" id="hoursDays"><!-- JS --></div>
+          <div class="chart-legend" id="hoursLegend">
+            <div class="lg-item">
+              <div class="lg-dot" style="background:var(--steel)"></div>Under goal
+            </div>
+            <div class="lg-item">
+              <div class="lg-dot" style="background:var(--olive)"></div>At or above goal
+            </div>
+            <div class="lg-item" style="gap:4px;">
+              <div style="width:14px;border-top:1.5px dashed var(--olive);margin-top:1px"></div>8h goal
+            </div>
+          </div>
+        </div>
+
+        <div class="card-insight">
+          <span class="insight-tag">Possible pattern</span>
+          <p class="insight-p">Nights with 7h+ tend to be followed by higher energy scores.
+            <span class="soft">Still early — keep tracking for another 7–14 days before adjusting your goal.</span></p>
+        </div>
+      </section>
+
+      <!-- HISTORY ───────────────────────────────────────── -->
+      <section class="screen" id="history">
+        <div class="history-card">
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Today</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">5h 40m</span>
+              <span class="h-range">00:50 → 06:30</span>
+            </div>
+            <div class="h-obs">bedtime shifted · shorter night</div>
+          </div>
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Yesterday</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">6h 10m</span>
+              <span class="h-range">01:15 → 07:25</span>
+            </div>
+            <div class="h-obs">bedtime shifted later</div>
+          </div>
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Mon 22 Jun</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">7h 20m</span>
+              <span class="h-range">23:40 → 07:00</span>
+            </div>
+            <div class="h-obs">near your rhythm</div>
+          </div>
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Sun 21 Jun</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">8h 05m</span>
+              <span class="h-range">23:00 → 07:05</span>
+            </div>
+            <div class="h-obs">steady night</div>
+          </div>
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Sat 20 Jun</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">7h 50m</span>
+              <span class="h-range">23:10 → 07:00</span>
+            </div>
+            <div class="h-obs">close to your rhythm</div>
+          </div>
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Fri 19 Jun</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">6h 30m</span>
+              <span class="h-range">00:45 → 07:15</span>
+            </div>
+            <div class="h-obs">bedtime shifted · shorter night</div>
+          </div>
+          <div class="h-row">
+            <div class="h-row-head">
+              <div class="h-day">Thu 18 Jun</div>
+              <button class="h-edit">edit</button>
+            </div>
+            <div class="h-times">
+              <span class="h-dur">7h 45m</span>
+              <span class="h-range">23:15 → 07:00</span>
+            </div>
+            <div class="h-obs">steady night</div>
+          </div>
+        </div>
+      </section>
+      <!-- TRACK ─────────────────────────────────────────── -->
+      <section class="screen" id="track">
+        <div class="subnav">
+          <button class="active" data-sub="sleep">Sleep</button>
+          <button data-sub="habits">Habits</button>
+          <button data-sub="body">Body</button>
+          <button data-sub="money">Money</button>
+        </div>
+
+        <!-- Sleep sub-view -->
+        <div class="subview active" id="sub-sleep">
+          <div class="signal-card">
+            <div><div class="big">5h 40m</div><div class="k">Last night</div></div>
+            <div class="signal-divider"></div>
+            <div><div class="big">6h 48m</div><div class="k">7-day avg</div></div>
+            <div class="signal-divider"></div>
+            <div><div class="big">4/6</div><div class="k">Energy</div></div>
+          </div>
+          <div class="week-card">
+            <div class="wc-head"><span class="t">This week</span></div>
+            <div class="track-chart-area">
+              <div class="track-chart-col"><div class="track-chart-bar" style="height:62%"></div></div>
+              <div class="track-chart-col"><div class="track-chart-bar" style="height:48%"></div></div>
+              <div class="track-chart-col"><div class="track-chart-bar" style="height:44%"></div></div>
+              <div class="track-chart-col"><div class="track-chart-bar above" style="height:84%"></div></div>
+              <div class="track-chart-col"><div class="track-chart-bar" style="height:56%"></div></div>
+              <div class="track-chart-col"><div class="track-chart-bar above" style="height:90%"></div></div>
+              <div class="track-chart-col"><div class="track-chart-bar above" style="height:88%"></div></div>
+            </div>
+            <div class="track-chart-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+          </div>
+          <div class="card-insight">
+            <span class="insight-tag">Observation</span>
+            <p class="insight-p">bedtime shifted · shorter night — <span class="soft">the third short night in a row.</span></p>
+          </div>
+        </div>
+
+        <!-- Habits sub-view -->
+        <div class="subview" id="sub-habits">
+          <div class="habit-list">
+            <div class="habit">
+              <div class="habit-check done">✓</div>
+              <div class="habit-name">No screens after 22:30</div>
+              <div class="habit-rate">5/7</div>
+            </div>
+            <div class="habit">
+              <div class="habit-check done">✓</div>
+              <div class="habit-name">Protein at breakfast</div>
+              <div class="habit-rate">6/7</div>
+            </div>
+            <div class="habit">
+              <div class="habit-check"></div>
+              <div class="habit-name">10-min walk outside</div>
+              <div class="habit-rate">3/7</div>
+            </div>
+            <div class="habit-cap">3 / 3 active · finish one to add another</div>
+          </div>
+          <div class="card-insight">
+            <span class="insight-tag">Observation</span>
+            <p class="insight-p">food planned · decision load lighter — <span class="soft">protein habit held 6 of 7 mornings.</span></p>
+          </div>
+        </div>
+
+        <!-- Body sub-view -->
+        <div class="subview" id="sub-body">
+          <div class="field-list">
+            <div class="field"><span class="fk">Weight</span><span class="fv">61.2 kg</span></div>
+            <div class="field"><span class="fk">Protein</span><span class="fv">98 / 110 g</span></div>
+            <div class="field"><span class="fk">Steps</span><span class="fv">7,420</span></div>
+            <div class="field"><span class="fk">Outdoor time</span><span class="fv empty">not logged</span></div>
+            <div class="field"><span class="fk">Tension</span><span class="tension"><i class="t on"></i><i class="t on"></i><i class="t on"></i><i class="t"></i><i class="t"></i></span></div>
+          </div>
+          <div class="card-insight">
+            <span class="insight-tag">Observation</span>
+            <p class="insight-p">lower movement · tension noted — <span class="soft">nothing required here. All fields optional.</span></p>
+          </div>
+        </div>
+
+        <!-- Money sub-view -->
+        <div class="subview" id="sub-money">
+          <div class="money-list">
+            <div class="money-row"><div class="money-left"><div class="m-cat">Coffee + pastry<span class="flag impulse">impulse</span></div><div class="m-note">tired, walked past the café</div></div><div class="money-amt">£6.40</div></div>
+            <div class="money-row"><div class="money-left"><div class="m-cat">Weekly groceries<span class="flag planned">planned</span></div><div class="m-note">list written night before</div></div><div class="money-amt">£42.10</div></div>
+            <div class="money-row"><div class="money-left"><div class="m-cat">Train top-up<span class="flag planned">planned</span></div></div><div class="money-amt">£20.00</div></div>
+          </div>
+          <div class="card-insight">
+            <span class="insight-tag">Possible pattern</span>
+            <p class="insight-p">purchase deferred · unclear day — <span class="soft">impulse spends cluster on shorter-sleep days. Still early.</span></p>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /content -->
+
+    <!-- Tabs · V1 base + Track added -->
+    <nav class="tabs">
+      <button class="tab-btn active" data-screen="today" data-title="Compass">
+        <span class="ic">☾</span>Today
+      </button>
+      <button class="tab-btn new-tab" data-screen="track" data-title="Track">
+        <span class="ic">◈</span>Track
+      </button>
+      <button class="tab-btn" data-screen="week" data-title="Trends">
+        <span class="ic">◔</span>Trends
+      </button>
+      <button class="tab-btn" data-screen="history" data-title="History">
+        <span class="ic">≡</span>History
+      </button>
+    </nav>
+  </div><!-- /phone -->
+
+
+  <!-- ══ PANEL ══════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>V2 — Track tab</h2>
+    <p class="sub">Builds directly on V1's full app — every existing screen and the interactive sleep dial are preserved. V2 adds the <strong>Track</strong> tab, surfaces energy &amp; mood, and seeds the first world regions.</p>
+
+    <h3>Tab evolution</h3>
+    <div class="tab-evo">
+      <div class="row"><span class="v">V1</span><span class="t">Today · Trends · History</span></div>
+      <div class="row"><span class="v">V2</span><span class="t">Today · <b>Track ✦</b> · Trends · History</span></div>
+    </div>
+    <p>The V1 Today, Trends, and History screens are identical and fully functional. Track is inserted between Today and Trends — nothing is removed.</p>
+
+    <div class="tag-row">
+      <span class="tag new">New · Track tab</span>
+      <span class="tag new">New · energy &amp; mood on Today</span>
+      <span class="tag new">New · habits / body / money</span>
+      <span class="tag new">New · world seed scene</span>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat">
+        <strong>☾ Sleep sub-view</strong>
+        <span>Signal card (last night · 7-day avg · energy score), 7-day chart, quiet observation line.</span>
+      </div>
+      <div class="feat">
+        <strong>✓ Habits sub-view</strong>
+        <span>Max 3 active. Done / not done toggle, no streak pressure. 7-day completion rate per habit.</span>
+      </div>
+      <div class="feat">
+        <strong>◍ Body sub-view</strong>
+        <span>Weight, protein, steps, tension, outdoor time — all optional, nothing required.</span>
+      </div>
+      <div class="feat">
+        <strong>£ Money sub-view</strong>
+        <span>Spend log with planned vs impulse flag. Pattern insight vs sleep/energy once ≥5 logs.</span>
+      </div>
+    </div>
+
+    <h3>Energy = invisible layer</h3>
+    <p>Energy is never a tab or a number. It reads all four sub-views and translates into world state. Track stays labelled <strong>Sleep · Habits · Body · Money</strong>.</p>
+
+    <h3>World in V2 — 3 of 7 regions</h3>
+    <ul>
+      <li><strong>Cottage</strong> — sleep + body data accumulates</li>
+      <li><strong>Grove</strong> — mood / reflection logged</li>
+      <li><strong>River</strong> — joy events logged</li>
+    </ul>
+    <p>First cross-pillar scene appears on Today once a pattern confirms (never day 1). Source: <code>v2-track.md</code></p>
+
+    <h3>Try the dial</h3>
+    <p>Drag <strong>🌙</strong> (bedtime) and <strong>☀️</strong> (wake time) on the clock face. Snaps to 10-minute increments.</p>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── Tab switching ─────────────────────────────────────────────
+// Track sub-view switching (V2 addition)
+document.querySelectorAll('.subnav button').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.subview').forEach(s => s.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('sub-' + b.dataset.sub).classList.add('active');
+  });
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.screen).classList.add('active');
+    document.getElementById('screenTitle').textContent = btn.dataset.title;
+  });
+});
+
+// ── Week chart / Trends ──────────────────────────────────────
+(function () {
+  const DAY_NAMES  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const GOAL_MIN   = 480;
+  const GOAL_BED   = 23.0;
+  const GOAL_WAKE  = 31.0;
+  const Y_MIN = 22, Y_MAX = 33;
+
+  const weeks = [
+    {
+      label: 'Mon 22 \u2013 Sun 28 Jun',
+      nights: [
+        { bed: 23.667, wake: 31.0,   dur: 440 },  // Mon 23:40 → 07:00
+        { bed: 25.25,  wake: 31.417, dur: 370 },  // Tue 01:15 → 07:25
+        { bed: 24.833, wake: 30.5,   dur: 340 },  // Wed 00:50 → 06:30
+        null, null, null, null
+      ]
+    },
+    {
+      label: 'Mon 15 \u2013 Sun 21 Jun',
+      nights: [
+        { bed: 23.5,   wake: 30.5,   dur: 420 },  // Mon 23:30 → 06:30
+        { bed: 24.17,  wake: 30.5,   dur: 380 },  // Tue 00:10 → 06:30
+        { bed: 23.25,  wake: 30.25,  dur: 420 },  // Wed 23:15 → 06:15
+        { bed: 23.25,  wake: 31.0,   dur: 465 },  // Thu 23:15 → 07:00
+        { bed: 24.75,  wake: 31.25,  dur: 390 },  // Fri 00:45 → 07:15
+        { bed: 23.167, wake: 31.0,   dur: 470 },  // Sat 23:10 → 07:00
+        { bed: 23.0,   wake: 31.083, dur: 485 },  // Sun 23:00 → 07:05
+      ]
+    },
+    {
+      label: 'Mon 8 \u2013 Sun 14 Jun',
+      nights: [
+        { bed: 23.5,   wake: 31.5,   dur: 480 },
+        { bed: 23.25,  wake: 30.75,  dur: 450 },
+        { bed: 24.5,   wake: 30.5,   dur: 360 },
+        { bed: 23.33,  wake: 31.0,   dur: 460 },
+        { bed: 24.0,   wake: 31.0,   dur: 420 },
+        { bed: 23.0,   wake: 31.5,   dur: 510 },
+        { bed: 23.25,  wake: 31.0,   dur: 465 },
+      ]
+    }
+  ];
+
+  // Monthly summaries
+  const months = [
+    {
+      label: 'June 2026',
+      weeks: [
+        { label: '8–14',  avgDur: 449, avgBed: 23.55, avgWake: 31.11 },
+        { label: '15–21', avgDur: 433, avgBed: 23.58, avgWake: 30.79 },
+        { label: '22–28', avgDur: 383, avgBed: 24.78, avgWake: 30.64 },
+      ]
+    },
+    {
+      label: 'May 2026',
+      weeks: [
+        { label: '5–11',  avgDur: 462, avgBed: 23.3,  avgWake: 31.0  },
+        { label: '12–18', avgDur: 445, avgBed: 23.5,  avgWake: 30.9  },
+        { label: '19–25', avgDur: 418, avgBed: 24.1,  avgWake: 31.1  },
+        { label: '26–1',  avgDur: 438, avgBed: 23.6,  avgWake: 30.9  },
+      ]
+    }
+  ];
+
+  let weekIdx = 0, monthIdx = 0;
+  let view = 'hours', period = 'week';
+
+  function fmtHM(fh) {
+    const h = ((fh % 24) + 24) % 24;
+    const m = Math.round((h % 1) * 60);
+    return `${String(Math.floor(h)).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+  function minToHM(min) {
+    if (!min) return '\u2014';
+    const h = Math.floor(min / 60), m = min % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  }
+
+  function render() {
+    const daysEl = document.getElementById('hoursDays');
+    daysEl.innerHTML = '';
+    if (period === 'week') {
+      const w = weeks[weekIdx];
+      document.getElementById('weekNavLabel').textContent = w.label;
+      document.getElementById('weekNavPrev').disabled = weekIdx >= weeks.length - 1;
+      document.getElementById('weekNavNext').disabled = weekIdx <= 0;
+      const valid = w.nights.filter(Boolean);
+      const avg = valid.length ? Math.round(valid.reduce((s, n) => s + n.dur, 0) / valid.length) : 0;
+      document.getElementById('avgSleepVal').textContent = minToHM(avg);
+      DAY_NAMES.forEach(d => { const s = document.createElement('span'); s.textContent = d; daysEl.appendChild(s); });
+      view === 'hours'
+        ? renderHours(w.nights.map(n => n ? n.dur : null))
+        : renderTimes(w.nights.map(n => n ? n.dur : null), w.nights.map(n => n ? n.bed : null), w.nights.map(n => n ? n.wake : null));
+    } else {
+      const mo = months[monthIdx];
+      document.getElementById('weekNavLabel').textContent = mo.label;
+      document.getElementById('weekNavPrev').disabled = monthIdx >= months.length - 1;
+      document.getElementById('weekNavNext').disabled = monthIdx <= 0;
+      const avg = Math.round(mo.weeks.reduce((s, w) => s + w.avgDur, 0) / mo.weeks.length);
+      document.getElementById('avgSleepVal').textContent = minToHM(avg);
+      mo.weeks.forEach(w => { const s = document.createElement('span'); s.textContent = w.label; daysEl.appendChild(s); });
+      view === 'hours'
+        ? renderHours(mo.weeks.map(w => w.avgDur))
+        : renderTimes(mo.weeks.map(w => w.avgDur), mo.weeks.map(w => w.avgBed), mo.weeks.map(w => w.avgWake));
+    }
+  }
+
+  function renderHours(durs) {
+    document.getElementById('hoursChart').style.display = '';
+    document.getElementById('timesChart').style.display  = 'none';
+    document.getElementById('hoursLegend').style.display = '';
+    const chart = document.getElementById('hoursChart');
+    chart.innerHTML = '';
+    const scale = 9 * 60;
+    const gl = document.createElement('div');
+    gl.className = 'goal-line';
+    gl.style.bottom = ((GOAL_MIN / scale) * 100) + '%';
+    const glLbl = document.createElement('div');
+    glLbl.className = 'goal-label';
+    glLbl.style.bottom = ((GOAL_MIN / scale) * 100) + '%';
+    glLbl.textContent = '8h';
+    chart.appendChild(gl);
+    chart.appendChild(glLbl);
+    durs.forEach(dur => {
+      const col = document.createElement('div');
+      col.className = 'chart-col';
+      if (dur) {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar' + (dur >= GOAL_MIN ? ' above-goal' : '');
+        bar.style.height = ((dur / scale) * 100) + '%';
+        bar.title = minToHM(dur);
+        col.appendChild(bar);
+      }
+      chart.appendChild(col);
+    });
+  }
+
+  function renderTimes(durs, beds, wakes) {
+    document.getElementById('hoursChart').style.display  = 'none';
+    document.getElementById('timesChart').style.display  = '';
+    document.getElementById('hoursLegend').style.display = 'none';
+    const chart = document.getElementById('timesChart');
+    chart.innerHTML = '';
+    const Y_RANGE = Y_MAX - Y_MIN;
+    const yAxis = document.createElement('div');
+    yAxis.className = 'tc-y-axis';
+    ['9 AM','7 AM','5 AM','3 AM','1 AM','11 PM'].forEach(txt => {
+      const s = document.createElement('span'); s.className = 'tc-y-label'; s.textContent = txt; yAxis.appendChild(s);
+    });
+    chart.appendChild(yAxis);
+    const barsWrap = document.createElement('div');
+    barsWrap.className = 'tc-bars';
+    [GOAL_BED, GOAL_WAKE].forEach(gh => {
+      const line = document.createElement('div');
+      line.className = 'tc-goal-line';
+      line.style.bottom = ((gh - Y_MIN) / Y_RANGE * 100) + '%';
+      barsWrap.appendChild(line);
+    });
+    beds.forEach((bed, i) => {
+      const col = document.createElement('div');
+      col.className = 'tc-col';
+      if (bed != null) {
+        const wake = wakes[i];
+        const bedPct  = ((bed  - Y_MIN) / Y_RANGE) * 100;
+        const wakePct = ((wake - Y_MIN) / Y_RANGE) * 100;
+        const bar = document.createElement('div');
+        bar.className = 'tc-bar';
+        bar.style.bottom = bedPct + '%';
+        bar.style.height = Math.max(wakePct - bedPct, 1) + '%';
+        bar.title = fmtHM(bed) + ' \u2192 ' + fmtHM(wake - 24) + ' \u00b7 ' + minToHM(durs[i]);
+        col.appendChild(bar);
+      }
+      barsWrap.appendChild(col);
+    });
+    chart.appendChild(barsWrap);
+  }
+
+  // Period pill (Week / Month)
+  document.querySelectorAll('[data-period]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      period = btn.dataset.period;
+      weekIdx = 0; monthIdx = 0;
+      document.querySelectorAll('[data-period]').forEach(b => b.classList.toggle('active', b.dataset.period === period));
+      render();
+    });
+  });
+
+  // View pill (Hours / Times)
+  document.querySelectorAll('[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      view = btn.dataset.view;
+      document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+      render();
+    });
+  });
+
+  // Navigation
+  document.getElementById('weekNavPrev').addEventListener('click', () => {
+    if (period === 'week') { if (weekIdx < weeks.length - 1) { weekIdx++; render(); } }
+    else { if (monthIdx < months.length - 1) { monthIdx++; render(); } }
+  });
+  document.getElementById('weekNavNext').addEventListener('click', () => {
+    if (period === 'week') { if (weekIdx > 0) { weekIdx--; render(); } }
+    else { if (monthIdx > 0) { monthIdx--; render(); } }
+  });
+
+  render();
+})();
+
+// ── Sleep Dial ────────────────────────────────────────────────
+(function () {
+  const NS  = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('dialSvg');
+
+  // Constants
+  const SZ = 216, CX = 108, CY = 108;
+  const R        = 76;   // arc radius
+  const R_TICKS  = 85;   // outer tick edge
+  const R_LABELS = 99;   // hour-label distance from centre
+  const HR       = 12;   // handle radius
+
+  // Mutable state
+  let sleepH = 50 / 60;  // 00:50 → 0.833…
+  let wakeH  = 6.5;      // 06:30
+  const T_SLEEP = 23;    // goal 23:00
+  const T_WAKE  = 7;     // goal 07:00
+
+  let dragging = null;
+
+  // ── SVG helpers ──────────────────────────────────────────
+  const mk = (tag, attrs, text) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  };
+
+  const toAngle = h => (h / 24) * Math.PI * 2 - Math.PI / 2;
+
+  const toTime = a => {
+    let t = ((a + Math.PI / 2) / (Math.PI * 2)) * 24;
+    return ((t % 24) + 24) % 24;
+  };
+
+  const polar = (h, r) => {
+    const a = toAngle(h);
+    return [+(CX + r * Math.cos(a)).toFixed(2), +(CY + r * Math.sin(a)).toFixed(2)];
+  };
+
+  const arcD = (t1, t2, r) => {
+    const [x1, y1] = polar(t1, r);
+    const [x2, y2] = polar(t2, r);
+    const dur = ((t2 - t1) + 24) % 24;
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2}`;
+  };
+
+  const sectorD = (t1, t2, r) => {
+    const [x1, y1] = polar(t1, r);
+    const [x2, y2] = polar(t2, r);
+    const dur = ((t2 - t1) + 24) % 24;
+    return `M ${CX} ${CY} L ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2} Z`;
+  };
+
+  const fmtTime = h => {
+    const tot = Math.round(((h % 24 + 24) % 24) * 60);
+    return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
+  };
+
+  const fmtDur = (t1, t2) => {
+    const d = ((t2 - t1) + 24) % 24;
+    const h = Math.floor(d);
+    const m = Math.round((d - h) * 60);
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
+
+  const snap10 = h => Math.round(h * 6) / 6;
+
+  // ── Build static layers ───────────────────────────────────
+  // Background disc
+  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R + 22, fill: '#F0ECE5', stroke: 'none' }));
+
+  // Track ring
+  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R, fill: 'none', stroke: '#DDD9D2', 'stroke-width': '1.5' }));
+
+  // Hour ticks
+  for (let h = 0; h < 24; h++) {
+    const major  = h % 6 === 0;
+    const medium = h % 3 === 0;
+    const a = toAngle(h);
+    const r1 = R_TICKS - (major ? 10 : medium ? 5 : 3);
+    const r2 = R_TICKS;
+    const cos = Math.cos(a), sin = Math.sin(a);
+    svg.appendChild(mk('line', {
+      x1: +(CX + r1 * cos).toFixed(2), y1: +(CY + r1 * sin).toFixed(2),
+      x2: +(CX + r2 * cos).toFixed(2), y2: +(CY + r2 * sin).toFixed(2),
+      stroke:          major ? '#65645F' : '#C4BFBA',
+      'stroke-width':  major ? '1.5' : '0.75',
+      'stroke-linecap': 'round'
+    }));
+  }
+
+  // Hour labels: 0 (midnight), 6, 12, 18
+  [{ h: 0, t: '0' }, { h: 6, t: '6' }, { h: 12, t: '12' }, { h: 18, t: '18' }].forEach(({ h, t }) => {
+    const [x, y] = polar(h, R_LABELS);
+    svg.appendChild(mk('text', {
+      x, y,
+      'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-family': 'Inter, sans-serif', 'font-size': '9.5',
+      'font-weight': '600', fill: '#65645F'
+    }, t));
+  });
+
+  // Target arc (dashed — the goal window)
+  const targetArc = mk('path', {
+    fill: 'none', stroke: '#768471',
+    'stroke-width': '3.5', 'stroke-linecap': 'round',
+    'stroke-dasharray': '3 4.5', opacity: '0.45',
+    d: arcD(T_SLEEP, T_WAKE, R)
+  });
+  svg.appendChild(targetArc);
+
+  // Sleep sector fill (translucent)
+  const sector = mk('path', {
+    fill: 'rgba(126,142,159,0.13)', stroke: 'none',
+    d: sectorD(sleepH, wakeH, R)
+  });
+  svg.appendChild(sector);
+
+  // Sleep arc (solid)
+  const sleepArc = mk('path', {
+    fill: 'none', stroke: '#7E8E9F',
+    'stroke-width': '5.5', 'stroke-linecap': 'round',
+    d: arcD(sleepH, wakeH, R)
+  });
+  svg.appendChild(sleepArc);
+
+  // Centre: two combined rows, each centered as a single SVG text string
+  const bedCenterTxt = mk('text', {
+    x: CX, y: CY - 9,
+    'text-anchor': 'middle', 'dominant-baseline': 'central',
+    'font-family': 'Inter, sans-serif', 'font-size': '14',
+    'font-weight': '800', fill: '#24231F'
+  }, '\uD83C\uDF19 ' + fmtTime(sleepH));
+  const wakeCenterTxt = mk('text', {
+    x: CX, y: CY + 11,
+    'text-anchor': 'middle', 'dominant-baseline': 'central',
+    'font-family': 'Inter, sans-serif', 'font-size': '14',
+    'font-weight': '700', fill: '#65645F'
+  }, '\u2600\uFE0F ' + fmtTime(wakeH));
+  svg.appendChild(bedCenterTxt);
+  svg.appendChild(wakeCenterTxt);
+
+  // ── Handles ───────────────────────────────────────────────
+  function makeHandle(emoji, fill) {
+    const g  = mk('g', { cursor: 'grab' });
+    const c  = mk('circle', { r: HR, fill, stroke: '#FFFEFC', 'stroke-width': '2.5' });
+    const ic = mk('text', {
+      'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-size': '11', 'pointer-events': 'none'
+    }, emoji);
+    g.appendChild(c); g.appendChild(ic);
+    svg.appendChild(g);
+    return { g, c, ic };
+  }
+
+  const sh = makeHandle('🌙', '#24231F');  // sleep handle
+  const wh = makeHandle('☀️', '#768471'); // wake handle
+
+  // ── Updater ───────────────────────────────────────────────
+  function posHandle({ c, ic }, h) {
+    const [x, y] = polar(h, R);
+    c.setAttribute('cx', x); c.setAttribute('cy', y);
+    ic.setAttribute('x', x); ic.setAttribute('y', y);
+  }
+
+  function update() {
+    posHandle(sh, sleepH);
+    posHandle(wh, wakeH);
+
+    sleepArc.setAttribute('d', arcD(sleepH, wakeH, R));
+    sector.setAttribute('d',   sectorD(sleepH, wakeH, R));
+
+    bedCenterTxt.textContent  = '\uD83C\uDF19 ' + fmtTime(sleepH);
+    wakeCenterTxt.textContent = '\u2600\uFE0F ' + fmtTime(wakeH);
+    document.getElementById('durDisplay').textContent = fmtDur(sleepH, wakeH);
+
+    const sn = ((sleepH % 24) + 24) % 24;
+    document.getElementById('bedHint').textContent  = sn >= 12 ? '↩ yesterday' : '↩ today';
+    document.getElementById('wakeHint').textContent = '↩ today';
+
+    // Update insight dynamically
+    const dur = ((wakeH - sleepH) + 24) % 24;
+    const h   = Math.floor(dur), m = Math.round((dur - h) * 60);
+    const durStr = m > 0 ? `${h}h ${m}m` : `${h}h`;
+    const diff = dur - 8; // vs 8h goal
+    let note;
+    if (diff >= 0) {
+      note = `${durStr} — at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>`;
+    } else if (diff >= -1) {
+      note = `${durStr} is close to your 8h goal. <span class="soft">See how your energy feels today — one night off is just one night.</span>`;
+    } else {
+      note = `${durStr} is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>`;
+    }
+    document.getElementById('insightText').innerHTML = note;
+
+
+  }
+
+  update(); // initial render
+
+  // ── Drag interaction ──────────────────────────────────────
+  function svgPt(e) {
+    const rect = svg.getBoundingClientRect();
+    const sx = SZ / rect.width, sy = SZ / rect.height;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return [(cx - rect.left) * sx, (cy - rect.top) * sy];
+  }
+
+  function near(px, py, h) {
+    const [hx, hy] = polar(h, R);
+    return Math.hypot(px - hx, py - hy) < HR * 2.4;
+  }
+
+  svg.addEventListener('mousedown', e => {
+    const [px, py] = svgPt(e);
+    if (near(px, py, sleepH)) { dragging = 'sleep'; svg.style.cursor = 'grabbing'; }
+    else if (near(px, py, wakeH)) { dragging = 'wake'; svg.style.cursor = 'grabbing'; }
+  });
+
+  svg.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const [px, py] = svgPt(e);
+    if (near(px, py, sleepH)) dragging = 'sleep';
+    else if (near(px, py, wakeH)) dragging = 'wake';
+  }, { passive: false });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const [px, py] = svgPt(e);
+    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
+    if (dragging === 'sleep') sleepH = t;
+    else wakeH = t;
+    update();
+  });
+
+  window.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    e.preventDefault();
+    const [px, py] = svgPt(e);
+    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
+    if (dragging === 'sleep') sleepH = t;
+    else wakeH = t;
+    update();
+  }, { passive: false });
+
+  window.addEventListener('mouseup',  () => { dragging = null; svg.style.cursor = 'default'; });
+  window.addEventListener('touchend', () => { dragging = null; });
+
+})();
+</script>
+</body>
+</html>

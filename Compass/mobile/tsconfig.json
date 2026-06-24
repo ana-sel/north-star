@@ -19,6 +19,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -32,9 +33,6 @@
       ],
       "@features/*": [
         "src/features/*"
-      ],
-      "@components/*": [
-        "src/components/*"
       ],
       "@hooks/*": [
         "src/hooks/*"
