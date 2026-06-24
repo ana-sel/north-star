@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compass — V4 World (Final)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ── Design tokens (identical to v1-sleep.html) ── */
+:root {
+  --bg:#F6F5F2; --card:#FFFEFC; --greige:#F0ECE5; --line:#E2DFD9;
+  --muted:#65645F; --ink:#24231F; --steel:#7E8E9F; --olive:#768471; --mauve:#898095;
+  --btn:#3C3A34; --error:#B0746C;
+  --p-health:#77936f; --p-inner:#937caf; --p-money:#7395ad; --p-family:#b77980;
+  --p-joy:#c99554; --p-contrib:#8d8f63; --p-admin:#958572;
+  --fs-xl:28px; --fs-lg:18px; --fs-md:15px; --fs-sm:13px; --fs-xs:11px;
+  --r-screen:34px; --r-card:24px; --r-input:18px;
+  --shadow:0 1px 2px rgba(36,35,31,.04), 0 10px 28px rgba(36,35,31,.07);
+  --shadow-sm:0 1px 2px rgba(36,35,31,.03), 0 4px 14px rgba(36,35,31,.05);
+}
+*, *::before, *::after { box-sizing:border-box; }
+html, body { margin:0; min-height:100vh; }
+body {
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:var(--ink);
+  background:radial-gradient(ellipse 120% 50% at 50% -5%, #FBFAF8, #EFEDE8 60%, #E8E4DC);
+  display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:28px 16px 60px; -webkit-font-smoothing:antialiased;
+}
+.wrap { display:grid; grid-template-columns:392px 1fr; gap:28px; width:min(1180px,100%); align-items:start; }
+.phone { width:392px; height:min(860px,94vh); background:var(--bg); border-radius:var(--r-screen); overflow:hidden; display:flex; flex-direction:column; position:relative; box-shadow:0 0 0 1px rgba(36,35,31,.05),0 20px 50px rgba(36,35,31,.12),0 60px 120px rgba(36,35,31,.08); }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:26px 24px 10px; flex-shrink:0; background:rgba(246,245,242,.96); }
+.topbar h1 { margin:0; font-size:var(--fs-xl); font-weight:800; letter-spacing:-0.03em; }
+.cog { width:40px; height:40px; border-radius:13px; background:var(--card); border:1px solid var(--line); display:grid; place-items:center; font-size:17px; color:var(--muted); cursor:pointer; box-shadow:var(--shadow-sm); }
+.content { flex:1; overflow-y:auto; padding:10px 20px 100px; }
+.content::-webkit-scrollbar { width:0; }
+.screen { display:none; }
+.screen.active { display:block; animation:fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+.card { background:var(--card); border:1px solid var(--line); border-radius:var(--r-card); padding:16px 18px; margin-bottom:14px; box-shadow:var(--shadow-sm); }
+.muted { color:var(--muted); }
+.lede { font-size:var(--fs-lg); font-weight:700; margin:6px 0 12px; }
+.mini-note { text-align:center; color:var(--muted); font-size:var(--fs-sm); padding:16px; background:var(--greige); border:1px dashed var(--line); border-radius:16px; margin-bottom:12px; }
+
+/* ── WORLD tab ── */
+.world {
+  position:relative; border-radius:var(--r-card); overflow:hidden; margin-bottom:14px;
+  border:1px solid #3A4356; box-shadow:0 14px 36px rgba(28,34,46,.3);
+  background:linear-gradient(180deg,#2A3140 0%,#39414F 42%,#46504A 70%,#525B43 100%);
+  height:300px;
+}
+/* sky reflects energy state — here: physical high (clear), with stars */
+.world .star { position:absolute; width:2px; height:2px; border-radius:50%; background:#E6ECF6; opacity:.8; }
+.world .moon { position:absolute; top:22px; right:30px; width:26px; height:26px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#FBFAF4,#D9DCE0); box-shadow:0 0 18px rgba(240,240,230,.5); }
+.world .beam { position:absolute; top:60px; left:46px; width:90px; height:3px; background:linear-gradient(90deg,rgba(244,228,180,.8),transparent); transform:rotate(-12deg); transform-origin:left; }
+/* region markers placed on the map */
+.region-dot { position:absolute; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+.region-dot .ic { font-size:22px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
+.region-dot .lab { font-size:8px; font-weight:700; color:#E8ECF2; text-shadow:0 1px 3px rgba(0,0,0,.6); letter-spacing:.03em; }
+.region-dot.dim { opacity:.4; }
+.world-legend { display:flex; align-items:center; justify-content:center; gap:14px; font-size:11px; color:var(--muted); margin-bottom:14px; }
+.world-legend .li { display:flex; align-items:center; gap:5px; }
+.world-legend .sw { width:18px; height:8px; border-radius:3px; }
+
+/* Cartographer scene card */
+.scene { background:linear-gradient(165deg,#2C3340,#3B4453); border:1px solid #4A5466; border-radius:var(--r-card); padding:20px; margin-bottom:14px; color:#E8ECF2; box-shadow:0 12px 30px rgba(30,36,46,.28); }
+.scene .s-tag { display:flex; align-items:center; gap:8px; font-size:var(--fs-xs); font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#A9B6C8; margin-bottom:12px; }
+.scene .s-text { font-size:var(--fs-md); line-height:1.6; font-style:italic; color:#DDE3EC; }
+.scene .s-btn { margin-top:16px; width:100%; border:none; border-radius:14px; background:rgba(255,255,255,.12); color:#EEF1F6; font-family:inherit; font-size:var(--fs-sm); font-weight:600; padding:12px; cursor:pointer; }
+
+/* energy atmosphere readout */
+.atmos { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+.atmos .e { background:var(--greige); border:1px solid var(--line); border-radius:14px; padding:11px 13px; }
+.atmos .e .name { font-size:var(--fs-xs); font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:5px; }
+.atmos .e .state { font-size:var(--fs-sm); font-weight:600; }
+.atmos .e .bar { height:5px; border-radius:999px; background:var(--line); margin-top:7px; overflow:hidden; }
+.atmos .e .bar > i { display:block; height:100%; border-radius:999px; }
+
+/* ── CHAT (Cartographer's journal) ── */
+.journal-entry { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:15px 16px; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+.journal-entry .jdate { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; }
+.journal-entry .jtext { font-size:var(--fs-md); line-height:1.6; font-style:italic; color:var(--ink); }
+.you { display:flex; justify-content:flex-end; margin-bottom:12px; }
+.you .bubble { background:var(--btn); color:#FBFAF8; border-radius:16px 16px 4px 16px; padding:11px 14px; font-size:var(--fs-sm); max-width:80%; line-height:1.5; }
+.reply-box { display:flex; gap:8px; align-items:center; background:var(--greige); border:1px solid var(--line); border-radius:999px; padding:6px 6px 6px 16px; }
+.reply-box input { flex:1; border:none; background:none; font-family:inherit; font-size:var(--fs-sm); color:var(--ink); outline:none; }
+.reply-box button { width:34px; height:34px; border:none; border-radius:50%; background:var(--btn); color:#fff; cursor:pointer; font-size:15px; }
+
+/* ── TODAY ── */
+.em-row { display:flex; gap:10px; margin-bottom:14px; }
+.em { flex:1; background:var(--greige); border:1px solid var(--line); border-radius:16px; padding:12px 14px; }
+.em .lab { font-size:var(--fs-xs); font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:8px; }
+.em .scale { display:flex; gap:4px; }
+.em .pip { flex:1; height:7px; border-radius:4px; background:var(--line); }
+.em .pip.on { background:var(--olive); }
+.em.mood .pip.on { background:var(--mauve); }
+.insight { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--steel); border-radius:var(--r-card); padding:14px 18px 14px 16px; margin-bottom:14px; box-shadow:var(--shadow-sm); }
+.insight .tag { display:block; font-size:var(--fs-xs); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--steel); margin-bottom:7px; }
+.insight p { margin:0; font-size:var(--fs-md); line-height:1.6; }
+.insight .soft { color:var(--muted); }
+.mcard { display:flex; align-items:center; gap:9px; padding:8px 0; font-size:var(--fs-sm); }
+.mcard .pd { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* compact subnav for Plan/Track previews */
+.subnav { display:flex; background:var(--greige); border:1px solid var(--line); border-radius:999px; padding:3px; margin-bottom:12px; }
+.subnav button { flex:1; background:none; border:none; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; color:var(--muted); padding:8px 0; border-radius:999px; }
+.subnav button.active { background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.1); }
+
+/* ── TABS (final 5) ── */
+.tabs { position:absolute; bottom:0; left:0; right:0; height:74px; display:flex; border-top:1px solid var(--line); background:rgba(246,245,242,.94); backdrop-filter:blur(14px); padding:8px 6px 16px; z-index:10; }
+.tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:none; background:none; cursor:pointer; font-family:inherit; color:var(--muted); font-size:var(--fs-xs); font-weight:600; padding:4px 0; border-radius:12px; }
+.tab-btn .ic { font-size:19px; line-height:1; opacity:.55; }
+.tab-btn.active { color:var(--ink); }
+.tab-btn.active .ic { opacity:1; }
+.tab-btn.added { position:relative; }
+.tab-btn.added::after { content:"NEW"; position:absolute; top:-2px; right:10px; font-size:7px; font-weight:800; color:var(--olive); }
+
+/* ── PANEL ── */
+.panel { background:rgba(255,253,248,.94); border:1px solid rgba(140,115,80,.18); border-radius:24px; padding:24px; box-shadow:0 12px 40px rgba(52,39,24,.08); position:sticky; top:28px; align-self:start; }
+.panel h2 { margin:0 0 6px; font-size:24px; font-weight:800; letter-spacing:-0.03em; }
+.panel .sub { margin:0 0 18px; color:var(--muted); font-size:14px; line-height:1.6; }
+.panel h3 { margin:20px 0 8px; font-size:15px; font-weight:700; }
+.panel p { margin:0 0 10px; color:var(--muted); font-size:14px; line-height:1.65; }
+.panel code { font-size:11px; background:var(--greige); border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-family:monospace; }
+.tab-evo { display:flex; flex-direction:column; gap:6px; margin:0 0 14px; }
+.tab-evo .row { display:flex; gap:8px; align-items:center; font-size:12px; }
+.tab-evo .v { font-weight:800; color:var(--ink); width:30px; flex-shrink:0; }
+.tab-evo .t { color:var(--muted); }
+.tab-evo .t b { color:var(--olive); }
+.note-box { background:var(--greige); border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:14px; }
+.feat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.feat { background:var(--greige); border:1px solid var(--line); border-radius:16px; padding:13px; }
+.feat strong { display:block; font-size:13px; margin-bottom:5px; }
+.feat span { font-size:12px; color:var(--muted); line-height:1.5; display:block; }
+.vrules { margin:0; padding-left:18px; color:var(--muted); font-size:13px; line-height:1.8; }
+@media (max-width:860px) { .wrap { grid-template-columns:1fr; width:min(440px,100%); } .panel { position:static; } .feat-grid,.atmos { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ PHONE ══════════════════════════════════════════ -->
+  <div class="phone">
+    <div class="topbar">
+      <h1 id="screenTitle">World</h1>
+      <button class="cog">⚙</button>
+    </div>
+
+    <div class="content">
+
+      <!-- CHAT — Cartographer's journal ──────────────────── -->
+      <section class="screen" id="chat">
+        <div class="journal-entry"><div class="jdate">This morning</div><div class="jtext">"The cottage was warmer after the third steady night. Something near it began to settle."</div></div>
+        <div class="you"><div class="bubble">It did feel easier to get up.</div></div>
+        <div class="journal-entry"><div class="jdate">Tuesday</div><div class="jtext">"The market quieted. Nothing was decided from urgency this week."</div></div>
+        <div class="journal-entry"><div class="jdate">Sunday</div><div class="jtext">"The lighthouse was visible again. Not closer — just no longer hidden."</div></div>
+        <div class="reply-box"><input placeholder="Write back, or just read…" /><button>↑</button></div>
+      </section>
+
+      <!-- TODAY ──────────────────────────────────────────── -->
+      <section class="screen" id="today">
+        <div class="scene">
+          <div class="s-tag">✦ A scene has appeared</div>
+          <div class="s-text">"The water in the grove was less disturbed than before. The reflection held steady for the first time in a while."</div>
+          <button class="s-btn">Continue</button>
+        </div>
+        <div class="lede">Today</div>
+        <div class="card" style="text-align:center"><div style="font-size:26px;font-weight:800">7h 20m</div><div class="muted" style="font-size:13px;margin-top:4px">23:40 → 07:00 · near your rhythm</div></div>
+        <div class="em-row">
+          <div class="em"><div class="lab">Energy</div><div class="scale"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip"></span></div></div>
+          <div class="em mood"><div class="lab">Mood</div><div class="scale"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span></div></div>
+        </div>
+        <div class="card"><div style="font-weight:700;margin-bottom:4px">From this month</div><div class="mcard"><i class="pd" style="background:var(--p-money)"></i>Call mortgage advisor</div><div class="mcard" style="border-top:1px solid var(--line)"><i class="pd" style="background:var(--p-health)"></i>10-min walk outside</div></div>
+      </section>
+
+      <!-- PLAN ───────────────────────────────────────────── -->
+      <section class="screen" id="plan">
+        <div class="subnav"><button class="active">Year</button><button>Month</button><button>Projects</button><button>Map</button></div>
+        <div class="card"><div class="mcard"><i class="pd" style="background:var(--p-money)"></i><b>Reach freedom number</b></div><div class="mcard" style="border-top:1px solid var(--line)"><i class="pd" style="background:var(--p-health)"></i>Settle a steady sleep rhythm</div><div class="mcard" style="border-top:1px solid var(--line)"><i class="pd" style="background:var(--p-joy)"></i>Two weeks by open water</div></div>
+        <div class="mini-note">Plan tab unchanged from V3 — Year · Month · Projects · Map, 7 pillars, Margulan flow.</div>
+      </section>
+
+      <!-- TRACK ──────────────────────────────────────────── -->
+      <section class="screen" id="track">
+        <div class="subnav"><button class="active">Sleep</button><button>Habits</button><button>Body</button><button>Money</button></div>
+        <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:800">7h 20m</div><div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-top:5px">Last night</div></div>
+        <div class="mini-note">Track tab unchanged from V2 — energy reads all four sub-views invisibly.</div>
+      </section>
+
+      <!-- WORLD ──────────────────────────────────────────── -->
+      <section class="screen active" id="world">
+        <div class="world" id="worldMap">
+          <div class="moon"></div>
+          <div class="beam"></div>
+          <!-- 7 regions placed across the landscape -->
+          <div class="region-dot" style="top:188px; left:40px;"><span class="ic">🏡</span><span class="lab">Cottage</span></div>
+          <div class="region-dot" style="top:150px; left:128px;"><span class="ic">🌿</span><span class="lab">Grove</span></div>
+          <div class="region-dot" style="top:210px; left:196px;"><span class="ic">🏛️</span><span class="lab">Market</span></div>
+          <div class="region-dot" style="top:158px; left:268px;"><span class="ic">🔥</span><span class="lab">Hearth</span></div>
+          <div class="region-dot" style="top:236px; left:300px;"><span class="ic">🌊</span><span class="lab">River</span></div>
+          <div class="region-dot dim" style="top:120px; left:206px;"><span class="ic">🏘️</span><span class="lab">Square</span></div>
+          <div class="region-dot" style="top:96px; left:300px;"><span class="ic">🗼</span><span class="lab">Lighthouse</span></div>
+        </div>
+        <div class="world-legend">
+          <div class="li"><span class="sw" style="background:linear-gradient(90deg,#2A3140,#525B43)"></span>lit = data confirms it</div>
+          <div class="li"><span class="sw" style="background:#3A4356;opacity:.5"></span>dim = unmapped</div>
+        </div>
+
+        <div class="scene">
+          <div class="s-tag">✦ Written in the margin</div>
+          <div class="s-text">"After steady weeks, the lighthouse held its light through the night. The roads between the cottage and the market were easier to walk."</div>
+          <button class="s-btn">Return</button>
+        </div>
+
+        <div class="lede" style="font-size:var(--fs-md)">Atmosphere — read from your data</div>
+        <div class="atmos">
+          <div class="e"><div class="name">Physical</div><div class="state">Clear sky · firm road</div><div class="bar"><i style="width:78%;background:var(--p-health)"></i></div></div>
+          <div class="e"><div class="name">Mental</div><div class="state">Map clear · low fog</div><div class="bar"><i style="width:64%;background:var(--p-admin)"></i></div></div>
+          <div class="e"><div class="name">Emotional</div><div class="state">Hearth warm</div><div class="bar"><i style="width:70%;background:var(--p-family)"></i></div></div>
+          <div class="e"><div class="name">Spiritual</div><div class="state">Horizon opening</div><div class="bar"><i style="width:52%;background:var(--p-contrib)"></i></div></div>
+        </div>
+      </section>
+
+    </div><!-- /content -->
+
+    <!-- Tabs · final 5 (Chat · Today · Plan · Track · World) -->
+    <nav class="tabs">
+      <button class="tab-btn added" data-screen="chat" data-title="Chat"><span class="ic">✦</span>Chat</button>
+      <button class="tab-btn" data-screen="today" data-title="Today"><span class="ic">☾</span>Today</button>
+      <button class="tab-btn" data-screen="plan" data-title="Plan"><span class="ic">◇</span>Plan</button>
+      <button class="tab-btn" data-screen="track" data-title="Track"><span class="ic">◈</span>Track</button>
+      <button class="tab-btn active added" data-screen="world" data-title="World"><span class="ic">◉</span>World</button>
+    </nav>
+  </div><!-- /phone -->
+
+  <!-- ══ PANEL ══════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>V4 — World (final)</h2>
+    <p class="sub">The complete app. Every feature from V1–V3 plus the dedicated <strong>World</strong> tab and the Cartographer's journal. This is the full living landscape — it only ever reflects what the data has confirmed.</p>
+
+    <h3>Tab evolution → final</h3>
+    <div class="tab-evo">
+      <div class="row"><span class="v">V1</span><span class="t">Today · Trends · History</span></div>
+      <div class="row"><span class="v">V2</span><span class="t">Today · Track · Trends · History</span></div>
+      <div class="row"><span class="v">V3</span><span class="t">Today · Plan · Track · Trends · History</span></div>
+      <div class="row"><span class="v">V4</span><span class="t"><b>Chat</b> · Today · Plan · Track · <b>World</b></span></div>
+    </div>
+    <div class="note-box">Mobile nav caps at 5 slots. In V4, Trends &amp; History stop being top-level tabs — each tracker now carries its own trend + history inside Track, freeing the two slots for the cross-cutting <strong>Chat</strong> and <strong>World</strong>. This matches the final structure in <code>v4-world.md</code>.</div>
+
+    <h3>The five tabs</h3>
+    <div class="feat-grid">
+      <div class="feat"><strong>✦ Chat</strong><span>Cartographer's journal — it writes, you may respond or just read.</span></div>
+      <div class="feat"><strong>☾ Today</strong><span>Daily log, energy/mood, scene cards, month mirror.</span></div>
+      <div class="feat"><strong>◇ Plan</strong><span>Year · Month · Projects · Map, 7 pillars (V3).</span></div>
+      <div class="feat"><strong>◈ Track</strong><span>Sleep · Habits · Body · Money (V2).</span></div>
+      <div class="feat"><strong>◉ World</strong><span>The full navigable landscape, 7 regions, energy as atmosphere.</span></div>
+    </div>
+
+    <h3>Energy as atmosphere</h3>
+    <p>The world shows state, never numbers. 4 invisible energy types (Physical · Mental · Emotional · Spiritual) read every tracker and translate into sky, light, fog, and road condition across the 7 regions.</p>
+
+    <h3>The Cartographer — hard rules</h3>
+    <ul class="vrules">
+      <li>Past tense, third-person, max 2 sentences, never "you"</li>
+      <li>No scene on day 1 — earned, not given</li>
+      <li>Max one scene per 48 hours</li>
+      <li>No cross-pillar scene without both streams logged</li>
+      <li>Unmapped regions stay visibly empty</li>
+      <li>Patterns fade if the data stops</li>
+    </ul>
+
+    <p style="margin-top:14px">Source: <code>v4-world.md</code></p>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// scatter stars in the world sky
+(function () {
+  const w = document.getElementById('worldMap');
+  if (w) for (let i = 0; i < 26; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = (Math.random() * 360) + 'px';
+    s.style.top  = (Math.random() * 90) + 'px';
+    s.style.opacity = (0.4 + Math.random() * 0.5).toFixed(2);
+    w.appendChild(s);
+  }
+})();
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.screen).classList.add('active');
+    document.getElementById('screenTitle').textContent = btn.dataset.title;
+  });
+});
+document.querySelectorAll('.subnav button').forEach(b => {
+  b.addEventListener('click', () => {
+    const sibs = b.parentElement.querySelectorAll('button');
+    sibs.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

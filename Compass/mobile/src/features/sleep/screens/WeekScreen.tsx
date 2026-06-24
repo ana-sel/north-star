@@ -70,12 +70,6 @@ export function WeekScreen() {
     loadData();
   }, [loadData]);
 
-  const weekStart = (() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 6);
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  })();
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -89,12 +83,6 @@ export function WeekScreen() {
           />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>This week</Text>
-          <Text style={styles.subtitle}>Since {weekStart}</Text>
-        </View>
-
         {/* Chart card */}
         <View style={styles.card}>
           {isLoading ? (
@@ -135,21 +123,6 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.xxxl,
-  },
-  header: {
-    paddingTop: theme.spacing.md,
-  },
-  title: {
-    fontSize: theme.typography.xl,
-    fontWeight: '800',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '500',
-    marginTop: 4,
   },
   card: {
     backgroundColor: theme.colors.card,

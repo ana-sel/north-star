@@ -16,6 +16,8 @@ interface SleepFormProps {
   wakeTime: Date;
   durationLabel: string;
   timezone: string;
+  bedHint: string;
+  wakeHint: string;
   onBedTimeChange: (date: Date) => void;
   onWakeTimeChange: (date: Date) => void;
 }
@@ -27,6 +29,8 @@ export function SleepForm({
   wakeTime,
   durationLabel,
   timezone,
+  bedHint,
+  wakeHint,
   onBedTimeChange,
   onWakeTimeChange,
 }: SleepFormProps) {
@@ -56,7 +60,7 @@ export function SleepForm({
           >
             <Text style={styles.timeValue}>{bedLabel}</Text>
           </TouchableOpacity>
-          <Text style={styles.hint}>yesterday</Text>
+          <Text style={styles.hint}>{bedHint}</Text>
         </View>
       </View>
 
@@ -71,13 +75,14 @@ export function SleepForm({
           >
             <Text style={styles.timeValue}>{wakeLabel}</Text>
           </TouchableOpacity>
-          <Text style={styles.hint}>today</Text>
+          <Text style={styles.hint}>{wakeHint}</Text>
         </View>
       </View>
 
       {/* Duration */}
       <View style={styles.duration}>
-        <Text style={styles.durationText}>= {durationLabel}</Text>
+        <Text style={styles.durationBig}>{durationLabel}</Text>
+        <Text style={styles.durationSmall}>time asleep</Text>
       </View>
 
       {/* Native time dialog (Android shows it on demand) */}
@@ -134,17 +139,25 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   duration: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
     backgroundColor: theme.colors.greige,
     borderWidth: 1,
     borderColor: theme.colors.line,
     borderRadius: theme.radii.input,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
   },
-  durationText: {
-    fontSize: theme.typography.md,
-    fontWeight: '700',
+  durationBig: {
+    fontSize: theme.typography.xl,
+    fontWeight: '800',
     color: theme.colors.ink,
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
+  },
+  durationSmall: {
+    fontSize: theme.typography.sm,
+    color: theme.colors.muted,
+    fontWeight: '500',
   },
 });

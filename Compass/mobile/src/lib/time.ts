@@ -66,3 +66,47 @@ export function getDeviceTimezone(): string {
     return 'UTC';
   }
 }
+
+// Return the UTC offset for an IANA timezone at the current moment,
+// e.g. "UTC+1", "UTC-5", "UTC+5:30", "UTC".
+export function getTimezoneOffset(tz: string): string {
+  const mins = getTimezoneOffsetMinutes(tz);
+  if (mins === 0) return 'UTC';
+  const sign = mins > 0 ? '+' : '-';
+  const abs = Math.abs(mins);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  return `UTC${sign}${h}${m > 0 ? ':' + String(m).padStart(2, '0') : ''}`;
+}
+
+// Return the UTC offset in minutes (positive = east of UTC).
+export function getTimezoneOffsetMinutes(tz: string): number {
+  const now = new Date();
+  const localMs = new Date(now.toLocaleString('sv-SE', { timeZone: tz })).getTime();
+  const utcMs   = new Date(now.toLocaleString('sv-SE', { timeZone: 'UTC' })).getTime();
+  return Math.round((localMs - utcMs) / 60000);
+}
+
+// Given a time value from the picker (correct HH:MM, arbitrary date),
+// return the most-recent past occurrence of that time.
+// Mirrors how clock/alarm apps decide "bed time was last night".
+export function smartBedTime(selected: Date): Date {
+  const now = new Date();
+  const candidate = new Date(now);
+  candidate.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+  if (candidate > now) {
+    candidate.setDate(candidate.getDate() - 1);
+  }
+  return candidate;
+}
+
+// Given a wake time from the picker and an already-resolved bed time,
+// return the wake date that is strictly after bedTime.
+export function smartWakeTime(selected: Date, bedTime: Date): Date {
+  const candidate = new Date(bedTime);
+  candidate.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+  if (candidate <= bedTime) {
+    candidate.setDate(candidate.getDate() + 1);
+  }
+  return candidate;
+}
