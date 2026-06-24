@@ -948,7 +948,7 @@ body {
           <button data-sub="money">Money</button>
         </div>
 
-        <!-- Sleep sub-view -->
+        <!-- Sleep sub-view — signal + log shortcut only; full chart lives in Trends -->
         <div class="subview active" id="sub-sleep">
           <div class="signal-card">
             <div><div class="big">5h 40m</div><div class="k">Last night</div></div>
@@ -957,22 +957,14 @@ body {
             <div class="signal-divider"></div>
             <div><div class="big">4/6</div><div class="k">Energy</div></div>
           </div>
-          <div class="week-card">
-            <div class="wc-head"><span class="t">This week</span></div>
-            <div class="track-chart-area">
-              <div class="track-chart-col"><div class="track-chart-bar" style="height:62%"></div></div>
-              <div class="track-chart-col"><div class="track-chart-bar" style="height:48%"></div></div>
-              <div class="track-chart-col"><div class="track-chart-bar" style="height:44%"></div></div>
-              <div class="track-chart-col"><div class="track-chart-bar above" style="height:84%"></div></div>
-              <div class="track-chart-col"><div class="track-chart-bar" style="height:56%"></div></div>
-              <div class="track-chart-col"><div class="track-chart-bar above" style="height:90%"></div></div>
-              <div class="track-chart-col"><div class="track-chart-bar above" style="height:88%"></div></div>
-            </div>
-            <div class="track-chart-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
-          </div>
           <div class="card-insight">
             <span class="insight-tag">Observation</span>
             <p class="insight-p">bedtime shifted · shorter night — <span class="soft">the third short night in a row.</span></p>
+          </div>
+          <!-- shortcut back to Today to log, and to Trends for the full chart -->
+          <div style="display:flex;gap:10px;margin-bottom:14px">
+            <button class="save-btn" style="font-size:var(--fs-sm);padding:13px" onclick="document.querySelector('[data-screen=today]').click()">Log tonight →</button>
+            <button class="save-btn" style="font-size:var(--fs-sm);padding:13px;background:var(--greige);color:var(--ink);box-shadow:none;border:1px solid var(--line)" onclick="document.querySelector('[data-screen=week]').click()">See chart →</button>
           </div>
         </div>
 
@@ -1073,7 +1065,7 @@ body {
     <div class="feat-grid">
       <div class="feat">
         <strong>☾ Sleep sub-view</strong>
-        <span>Signal card (last night · 7-day avg · energy score), 7-day chart, quiet observation line.</span>
+        <span>Signal card only — last night · 7-day avg · energy score · observation line. Shortcuts to Today (log) and Trends (full chart). No chart here — that stays in Trends.</span>
       </div>
       <div class="feat">
         <strong>✓ Habits sub-view</strong>
@@ -1089,19 +1081,15 @@ body {
       </div>
     </div>
 
-    <h3>Energy = invisible layer</h3>
-    <p>Energy is never a tab or a number. It reads all four sub-views and translates into world state. Track stays labelled <strong>Sleep · Habits · Body · Money</strong>.</p>
-
-    <h3>World in V2 — 3 of 7 regions</h3>
+    <h3>One thing, one place</h3>
     <ul>
-      <li><strong>Cottage</strong> — sleep + body data accumulates</li>
-      <li><strong>Grove</strong> — mood / reflection logged</li>
-      <li><strong>River</strong> — joy events logged</li>
+      <li><strong>Today</strong> — log (dial, energy/mood, save)</li>
+      <li><strong>Track</strong> — compact state + log forms for all areas. No charts.</li>
+      <li><strong>Trends</strong> — the full interactive sleep chart (week/month, hours/times)</li>
+      <li><strong>History</strong> — chronological list of every night</li>
     </ul>
-    <p>First cross-pillar scene appears on Today once a pattern confirms (never day 1). Source: <code>v2-track.md</code></p>
-
-    <h3>Try the dial</h3>
-    <p>Drag <strong>🌙</strong> (bedtime) and <strong>☀️</strong> (wake time) on the clock face. Snaps to 10-minute increments.</p>
+    <p>In V4, when Chat and World need their nav slots, Trends and History are removed from the top bar and their content migrates <em>inside</em> Track → Sleep (full chart + history list). Until then each screen has a single clear purpose.</p>
+    <p>Source: <code>v2-track.md</code></p>
   </div>
 
 </div><!-- /wrap -->
