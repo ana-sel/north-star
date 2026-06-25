@@ -3,35 +3,25 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Compass — V2 Track</title>
+<title>Compass — V2 Capture & Browse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
-/* ── Design tokens (identical to wireframe/index.html) ── */
 :root {
-  --bg:      #F6F5F2;
-  --card:    #FFFEFC;
-  --greige:  #F0ECE5;
-  --line:    #E2DFD9;
-  --muted:   #65645F;
-  --ink:     #24231F;
-  --steel:   #7E8E9F;
-  --olive:   #768471;
-  --mauve:   #898095;
-  --btn:     #3C3A34;
-  --error:   #B0746C;
-
-  --fs-xl:  28px;
-  --fs-lg:  18px;
-  --fs-md:  15px;
-  --fs-sm:  13px;
-  --fs-xs:  11px;
-  --r-screen: 34px;
-  --r-card:   24px;
-  --r-input:  18px;
-  --shadow:    0 1px 2px rgba(36,35,31,.04), 0 10px 28px rgba(36,35,31,.07);
+  --bg:#F6F5F2; --card:#FFFEFC; --greige:#F0ECE5; --line:#E2DFD9;
+  --muted:#65645F; --ink:#24231F; --steel:#7E8E9F; --olive:#768471;
+  --mauve:#898095; --btn:#3C3A34; --error:#B0746C;
+  --fs-xl:28px; --fs-lg:18px; --fs-md:15px; --fs-sm:13px; --fs-xs:11px;
+  --r-screen:34px; --r-card:24px; --r-input:18px;
+  --shadow: 0 1px 2px rgba(36,35,31,.04), 0 10px 28px rgba(36,35,31,.07);
   --shadow-sm: 0 1px 2px rgba(36,35,31,.03), 0 4px 14px rgba(36,35,31,.05);
+  --p-health:#77936f; --p-inner:#937caf; --p-money:#7395ad; --p-family:#b77980;
+  --p-joy:#c99554; --p-contrib:#8d8f63; --p-admin:#958572;
+  --p-sleep:var(--p-health); --p-body:var(--p-health); --p-mind:var(--p-admin);
+  --p-heart:var(--p-family); --p-craft:var(--p-joy); --p-spirit:var(--p-contrib);
+  --m-roof:#6987a8; --m-move:#8a7e72; --m-food:#5a9e7a; --m-ess:#7889a8;
+  --m-living:#c9a057; --m-invest:#4a998a; --m-give:#a87d94; --m-aspire:#9a8c7a;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100vh; }
@@ -39,1612 +29,1484 @@ body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: var(--ink);
   background: radial-gradient(ellipse 120% 50% at 50% -5%, #FBFAF8, #EFEDE8 60%, #E8E4DC);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 28px 16px 60px;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  display: flex; justify-content: center; align-items: flex-start;
+  min-height: 100vh; padding: 28px 16px 60px;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
-
-/* ── Layout ── */
 .wrap {
-  display: grid;
-  grid-template-columns: 392px 1fr;
-  gap: 28px;
-  width: min(1180px, 100%);
-  align-items: start;
+  display: grid; grid-template-columns: 392px 1fr;
+  gap: 28px; width: min(1180px, 100%); align-items: start;
 }
-
-/* ── Phone shell ── */
+@media (max-width: 860px){ .wrap { grid-template-columns: 1fr; } }
 .phone {
-  width: 392px;
-  height: min(860px, 94vh);
-  background: var(--bg);
-  border-radius: var(--r-screen);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  width: 392px; height: min(860px, 94vh);
+  background: var(--bg); border-radius: var(--r-screen);
+  overflow: hidden; display: flex; flex-direction: column;
   position: relative;
-  box-shadow:
-    0 0 0 1px rgba(36,35,31,.05),
-    0 20px 50px rgba(36,35,31,.12),
-    0 60px 120px rgba(36,35,31,.08);
+  box-shadow: 0 0 0 1px rgba(36,35,31,.05),
+              0 20px 50px rgba(36,35,31,.12),
+              0 60px 120px rgba(36,35,31,.08);
 }
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 26px 24px 10px;
-  flex-shrink: 0;
-  background: rgba(246,245,242,.96);
-}
-.topbar h1 {
-  margin: 0;
-  font-size: var(--fs-xl);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-.cog {
-  width: 40px; height: 40px;
-  border-radius: 13px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  display: grid; place-items: center;
-  font-size: 17px; color: var(--muted);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: transform .12s;
-}
-.cog:active { transform: scale(.92); }
+.topbar { display: flex; align-items: center; justify-content: space-between;
+  padding: 26px 24px 10px; flex-shrink: 0; }
+.topbar h1 { font-size: var(--fs-xl); font-weight: 800;
+  letter-spacing: -0.02em; margin: 0; line-height: 1; }
+.cog { background: var(--card); border: 1px solid var(--line);
+  width: 38px; height: 38px; border-radius: 50%;
+  font-size: 16px; cursor: pointer; color: var(--ink);
+  box-shadow: var(--shadow-sm); display: grid; place-items: center; }
+.content { flex: 1; overflow-y: auto; padding: 6px 18px 90px; position: relative; }
+.screen { display: none; animation: fade .25s ease-out; }
+.screen.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.dt { font-size: var(--fs-sm); color: var(--muted); margin: 4px 0 14px; font-weight: 500; }
 
-/* ── SETTINGS + TARGET overlays ── */
-.settings-overlay, .target-modal {
-  position: absolute;
-  inset: 0;
-  background: var(--bg);
-  z-index: 20;
-  display: none;
-  flex-direction: column;
-  animation: fadeIn .18s ease;
-}
-.settings-overlay.open, .target-modal.open { display: flex; }
-.settings-topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 26px 24px 10px; flex-shrink: 0;
-  background: rgba(246,245,242,.96);
-}
-.settings-topbar h2 { margin: 0; font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.03em; }
-.settings-close {
-  width: 40px; height: 40px; border-radius: 13px;
-  background: var(--card); border: 1px solid var(--line);
-  display: grid; place-items: center;
-  font-size: 18px; color: var(--muted); cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
-.settings-body { flex: 1; overflow-y: auto; padding: 16px 20px 40px; }
-.settings-body::-webkit-scrollbar { width: 0; }
-.s-section { margin-bottom: 28px; }
-.s-section-title {
-  font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase;
-  letter-spacing: .09em; color: var(--muted); margin-bottom: 12px;
-}
-.s-row {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm);
-}
-.s-field {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px; border-bottom: 1px solid var(--line);
-}
-.s-field:last-child { border-bottom: none; }
-.s-label { font-size: var(--fs-md); font-weight: 600; }
-.s-sub   { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
-.s-input {
-  border: none; background: var(--greige);
-  border-radius: 10px; padding: 7px 10px;
-  font-family: inherit; font-size: var(--fs-md); font-weight: 700;
-  color: var(--ink); text-align: center; width: 88px;
-  cursor: pointer;
-}
-.s-input:focus { outline: 2px solid var(--olive); outline-offset: 1px; }
-.s-note {
-  font-size: var(--fs-sm); color: var(--muted); line-height: 1.55;
-  background: var(--greige); border-radius: 14px; padding: 12px 14px;
-  margin-top: 10px;
-}
+/* TODAY cards */
+.scene { background: linear-gradient(155deg, #3a3850 0%, #23202b 100%);
+  color: #F2EDE3; border-radius: var(--r-card); padding: 16px 18px;
+  margin-bottom: 12px; box-shadow: var(--shadow); }
+.scene-tag { font-size: var(--fs-xs); text-transform: uppercase;
+  letter-spacing: .08em; opacity: .55; margin-bottom: 6px; }
+.scene-body { font-size: var(--fs-md); line-height: 1.55; }
+.scene-cta { font-size: var(--fs-xs); opacity: .65; margin-top: 8px; }
+.qcard { background: var(--card); border: 1px solid var(--line);
+  border-left: 3px solid var(--mauve); border-radius: var(--r-card);
+  padding: 14px 18px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.qtag { font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--mauve); margin-bottom: 6px; }
+.qbody { font-size: var(--fs-md); color: var(--muted); line-height: 1.5; }
+.card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 14px 18px; margin-bottom: 12px;
+  box-shadow: var(--shadow-sm); }
+.card-h { font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; }
+.needs-row, .task-row { display: flex; align-items: center; gap: 10px; padding: 9px 0;
+  border-bottom: 1px solid var(--line); cursor: pointer; }
+.needs-row:last-child, .task-row:last-child { border-bottom: none; }
+.needs-row .nb, .task-row .nb { flex: 1; font-size: var(--fs-md); }
+.needs-row .roi { font-size: var(--fs-xs); color: var(--muted);
+  background: var(--greige); padding: 2px 8px; border-radius: 999px; }
+.needs-row.done .nb, .task-row.done .nb { color: var(--muted); text-decoration: line-through;
+  text-decoration-color: rgba(101,100,95,.5); }
+.check-mini { width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--line); background: var(--card);
+  flex-shrink: 0; display: grid; place-items: center;
+  color: transparent; font-size: 12px; font-weight: 800;
+  transition: all .15s; }
+.check-mini.done { background: var(--olive); border-color: var(--olive); color: #fff; }
+.task-row .pd { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.qlrow { display: flex; gap: 6px; align-items: stretch;
+  background: var(--greige); border-radius: var(--r-input);
+  padding: 6px; margin-top: 2px; }
+.qbtn { flex: 1; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 0; font-size: 18px; cursor: pointer;
+  display: grid; place-items: center; transition: transform .12s, background .15s; }
+.qbtn:active { transform: scale(.95); }
+.qbtn .ql-label { font-size: 9px; color: var(--muted);
+  margin-top: 2px; font-weight: 600; }
 
-.content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 20px 100px;
-}
-.content::-webkit-scrollbar { width: 0; }
+/* LOG sub-tabs */
+.subnav { display: flex; background: var(--greige); border: 1px solid var(--line);
+  border-radius: 999px; padding: 3px; margin-bottom: 14px; gap: 2px;
+  overflow-x: auto; scrollbar-width: none; }
+.subnav::-webkit-scrollbar { display: none; }
+.sn-btn { background: none; border: none; cursor: pointer; flex: 1;
+  font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
+  padding: 7px 8px; border-radius: 999px; transition: all .15s;
+  white-space: nowrap; }
+.sn-btn.active { background: var(--card); color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
-.screen { display: none; }
-.screen.active { display: block; animation: fadeIn .2s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
-
-/* ── TODAY ── */
-.date {
-  font-size: var(--fs-sm);
-  color: var(--muted);
-  font-weight: 500;
-  margin-bottom: 10px;
-  margin-top: 2px;
-}
-/* Target strip */
-.target-strip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-}
-.t-header {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--muted);
-}
-.t-range {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-.t-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.t-time {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-  line-height: 1;
-}
-.t-icon { font-size: 16px; }
-.t-dash {
-  font-size: 18px;
-  font-weight: 300;
-  color: var(--muted);
-  margin: 0 2px;
-}
-.t-dur {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  letter-spacing: .04em;
-}
-
-/* Pattern nudge — only shown after 2+ nights off */
-.nudge {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: #FDF8F0;
-  border: 1px solid #EAD9C0;
-  border-left: 3px solid var(--olive);
-  border-radius: var(--r-input);
-  padding: 11px 14px;
-  margin-bottom: 14px;
-}
-.nudge-icon { font-size: 15px; flex-shrink: 0; padding-top: 1px; }
-.nudge-title {
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: #7A6A48;
-  margin-bottom: 3px;
-}
-.nudge-text {
-  font-size: var(--fs-sm);
-  color: #5C4F3A;
-  line-height: 1.45;
-}
-
-.lede {
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  margin: 0 0 12px;
-}
-
-/* Dial card */
-.dial-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 16px 18px 14px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.dial-hint {
-  font-size: var(--fs-xs);
-  color: var(--muted);
-  font-weight: 500;
-  text-align: center;
-}
-#dialSvg {
-  width: 216px;
-  height: 216px;
-  cursor: default;
-  touch-action: none;
-  display: block;
-}
-.dial-foot {
-  text-align: center;
-  font-size: var(--fs-sm);
-  color: var(--muted);
-  line-height: 1.5;
-}
-.dial-foot strong {
-  color: var(--ink);
-  font-weight: 800;
-  font-size: var(--fs-md);
-  letter-spacing: -0.01em;
-}
-
-/* Insight card (same as wireframe/index.html) */
-.card-insight {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--steel);
-  border-radius: var(--r-card);
-  padding: 14px 18px 14px 16px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-sm);
-}
-.insight-tag {
-  display: block;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--steel);
-  margin-bottom: 7px;
-}
+/* Sleep dial */
+.t-strip { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 11px 14px; margin-bottom: 12px;
+  display: flex; justify-content: space-around; align-items: center;
+  box-shadow: var(--shadow-sm); cursor: pointer; }
+.t-strip .t-it { text-align: center; }
+.t-strip .t-label { font-size: var(--fs-xs); color: var(--muted);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.t-strip .t-val { font-size: var(--fs-md); font-weight: 700; }
+.t-strip .t-dur { font-size: var(--fs-md); font-weight: 700; color: var(--olive); }
+.lede { font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.015em;
+  margin: 12px 0 12px; }
+.dial-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 16px 18px 14px; margin-bottom: 14px;
+  box-shadow: var(--shadow); display: flex; flex-direction: column;
+  align-items: center; gap: 12px; user-select: none; -webkit-user-select: none; }
+.dial-hint { font-size: var(--fs-xs); color: var(--muted);
+  font-weight: 500; text-align: center; }
+#dialSvg, #targetDialSvg { width: 216px; height: 216px; cursor: default;
+  touch-action: none; display: block; }
+.dial-foot { text-align: center; font-size: var(--fs-sm); color: var(--muted);
+  line-height: 1.5; }
+.dial-foot strong { color: var(--ink); font-weight: 800;
+  font-size: var(--fs-md); letter-spacing: -.01em; }
+.insight { background: var(--card); border: 1px solid var(--line);
+  border-left: 3px solid var(--steel); border-radius: var(--r-card);
+  padding: 14px 18px 14px 16px; margin-bottom: 14px;
+  box-shadow: var(--shadow-sm); }
+.insight-tag { display: block; font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--steel); margin-bottom: 7px; }
 .insight-p { margin: 0; font-size: var(--fs-md); line-height: 1.6; }
 .insight-p .soft { color: var(--muted); }
+.btn-prim { width: 100%; border: none; border-radius: var(--r-input);
+  background: var(--btn); color: #FBFAF8; font: 600 var(--fs-md) inherit;
+  padding: 16px; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(60,58,52,.2); letter-spacing: .01em;
+  transition: opacity .15s, transform .12s; }
+.btn-prim:active { opacity: .88; transform: scale(.984); }
 
-/* Save button */
-.save-btn {
-  width: 100%;
-  border: none;
-  border-radius: var(--r-input);
-  background: var(--btn);
-  color: #FBFAF8;
-  font-family: inherit;
-  font-size: var(--fs-md);
-  font-weight: 600;
-  padding: 17px;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(60,58,52,.2);
-  letter-spacing: .01em;
-  transition: opacity .15s, transform .12s;
-}
-.save-btn:active { opacity: .88; transform: scale(.984); }
-
-/* ── WEEK ── */
-.week-stat-card {
-  background: linear-gradient(160deg, #F4F0E9, #EDE8DF);
-  border: 1px solid #DDD8CF;
-  border-radius: var(--r-card);
-  padding: 18px 20px;
-  margin-top: 14px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-sm);
-}
-.stats-single { text-align: center; }
-.stats-v { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
-.stats-k {
-  font-size: var(--fs-xs); font-weight: 600;
-  text-transform: uppercase; letter-spacing: .07em;
-  color: var(--muted); margin-top: 5px;
-}
-.week-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 16px 20px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-sm);
-}
-.wc-head {
-  display: flex; align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.wc-head .t { font-size: var(--fs-md); font-weight: 700; }
-.wc-head .s {
-  font-size: var(--fs-xs); font-weight: 600;
-  text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
-}
-/* chart */
-.chart-area {
-  height: 100px;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: 7px;
-}
-.chart-col {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-}
-.chart-bar {
-  width: 100%;
-  max-width: 24px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #9BA8B5, #7E8E9F);
-  transition: opacity .2s;
-}
-.chart-bar.above-goal { background: linear-gradient(180deg, #8FA887, #768471); }
-.goal-line {
-  position: absolute;
-  left: 0; right: 0;
-  border-top: 1.5px dashed #768471;
-  opacity: 0.55;
-  pointer-events: none;
-}
-.goal-label {
-  position: absolute;
-  right: 0;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--olive);
-  background: var(--card);
-  padding: 1px 3px;
-  border-radius: 3px;
-  transform: translateY(-50%);
-  opacity: 0.85;
-}
-.chart-days {
-  display: flex; gap: 7px;
-  margin-top: 6px; padding: 0 1px;
-}
-.chart-days span { flex: 1; text-align: center; font-size: 10px; color: var(--muted); }
-.chart-legend {
+/* Habits */
+.h-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 14px 16px; margin-bottom: 10px;
   display: flex; align-items: center; gap: 12px;
-  margin-top: 10px;
-}
-.lg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
+.h-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--p-sleep); }
+.h-card.body::before { background: var(--p-body); }
+.h-card.mind::before { background: var(--p-mind); }
+.h-card.heart::before { background: var(--p-heart); }
+.h-tick { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line);
+  background: none; cursor: pointer; display: grid; place-items: center;
+  flex-shrink: 0; transition: all .15s; }
+.h-tick.done { background: var(--olive); border-color: var(--olive); color: #fff; }
+.h-tick.done::before { content: '✓'; font-size: 14px; font-weight: 800; }
+.h-text { flex: 1; min-width: 0; }
+.h-name { font-size: var(--fs-md); font-weight: 600; }
+.h-meta { font-size: var(--fs-xs); color: var(--muted); margin-top: 1px; }
+.h-rate { display: none; gap: 6px; flex-shrink: 0; }
+.h-card.done .h-rate { display: flex; }
+.h-rate button { background: var(--greige); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 10px;
+  font: 600 var(--fs-xs) inherit; color: var(--muted); cursor: pointer; }
+.h-rate button.sel { background: var(--btn); color: #FBFAF8; border-color: var(--btn); }
+.add-row { background: var(--greige); border: 1px dashed var(--line);
+  border-radius: var(--r-card); padding: 14px; text-align: center;
+  font-size: var(--fs-sm); color: var(--muted); cursor: pointer;
+  margin-top: 6px; }
+
+/* Body */
+.b-sect { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 14px 16px;
+  margin-bottom: 10px; box-shadow: var(--shadow-sm); }
+.b-sect-h { font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); margin-bottom: 8px; }
+.b-row { display: flex; gap: 10px; align-items: flex-start; }
+.b-field { flex: 1; min-width: 0; }
+.b-label { font-size: var(--fs-xs); color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+.b-input-wrap { display: flex; gap: 6px; align-items: center; }
+.b-input { width: 100%; background: var(--greige); border: 1.5px solid var(--line);
+  border-radius: 12px; padding: 9px 11px;
+  font: 500 var(--fs-md) inherit; color: var(--muted); opacity: .55;
+  transition: all .15s; outline: none; }
+.b-input.active { background: var(--card); color: var(--ink);
+  font-weight: 700; opacity: 1; }
+.b-input.off { background: var(--greige); color: var(--muted);
+  border-color: var(--line); box-shadow: none; opacity: .55; font-weight: 500; }
+.b-input:focus { background: var(--card); border-color: var(--btn);
+  box-shadow: 0 0 0 3px rgba(60,58,52,.08);
+  color: var(--ink); font-weight: 700; opacity: 1; }
+.b-x { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--greige); color: var(--muted); font: 700 13px/1 inherit;
+  display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.b-x.on { background: var(--error); color: #fff; border-color: var(--error); }
+.save-hint { font-size: 10px; color: var(--olive); font-weight: 700;
+  margin-top: 3px; height: 12px; opacity: 0; transition: opacity .15s; }
+.b-field.touched .save-hint,
+.b-field:has(.b-input.active) .save-hint { opacity: 1; }
+.bmi-wrap { padding: 32px 2px 0; position: relative; }
+.bmi-bar { position: relative; display: flex; height: 8px;
+  border-radius: 999px; overflow: visible; }
+.bmi-z { height: 100%; }
+.bmi-z:first-child { border-radius: 999px 0 0 999px; }
+.bmi-z:last-child { border-radius: 0 999px 999px 0; }
+.bmi-z.under { background: #C6D2DE; flex: 14; }
+.bmi-z.ok    { background: var(--olive); flex: 26; }
+.bmi-z.over  { background: #D9C28A; flex: 20; }
+.bmi-z.high  { background: var(--error); flex: 40; }
+.bmi-pin { position: absolute; top: 4px; transform: translateX(-50%);
+  font: 800 11px inherit; color: var(--ink);
+  background: var(--card); padding: 2px 6px; border-radius: 5px;
+  border: 1px solid var(--ink); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.bmi-pin::after { content: ''; position: absolute; left: 50%; bottom: -14px;
+  width: 2px; height: 14px; background: var(--ink); transform: translateX(-50%); }
+.bmi-ticks { display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--muted); margin-top: 8px;
+  padding: 0 2px; font-weight: 600; }
+.bmi-status { font-size: 10px; color: var(--olive); font-weight: 700;
+  margin-top: 2px; }
+.score-row { display: flex; gap: 4px; margin-bottom: 6px; }
+.score-btn { flex: 1; background: var(--card); border: 1px solid var(--line);
+  border-radius: 9px; padding: 9px 0; font: 700 var(--fs-xs) inherit;
+  color: var(--muted); cursor: pointer; transition: all .12s; }
+.score-btn:hover { border-color: var(--steel); }
+.score-btn.sel { background: var(--btn); color: #FBFAF8; border-color: var(--btn);
+  transform: scale(1.05); }
+.score-label { font-size: var(--fs-sm); font-weight: 700; color: var(--ink);
+  margin: 8px 0 6px; display: flex; align-items: center; gap: 6px; }
+.score-scale { display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--muted); padding: 0 2px;
+  margin-top: 2px; margin-bottom: 4px; font-weight: 600; }
+.b-feel { display: flex; gap: 6px; }
+.feel-btn { flex: 1; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 4px; font-size: var(--fs-xs);
+  font-weight: 600; color: var(--muted); cursor: pointer; text-align: center; }
+.feel-btn.sel { background: var(--btn); color: #FBFAF8; border-color: var(--btn); }
+.area-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.area-chip { background: var(--greige); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 10px;
+  font: 600 var(--fs-xs) inherit; color: var(--muted); cursor: pointer; }
+.area-chip.sel { background: var(--steel); color: #fff; border-color: var(--steel); }
+.note-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.note-chip { background: var(--bg); border: 1px dashed var(--line);
+  border-radius: 999px; padding: 5px 10px;
+  font: 500 var(--fs-xs) inherit; color: var(--muted); cursor: pointer; }
+.note-chip.sel { background: var(--card); border-style: solid; border-color: var(--steel);
+  color: var(--ink); font-weight: 600; }
+.note-chip.sel::before { content: '✓ '; color: var(--olive); }
+.b-note { width: 100%; min-height: 60px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 11px; font: 400 var(--fs-sm) inherit; color: var(--ink);
+  resize: vertical; }
+
+/* Money quick */
+.m-amount { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 18px; text-align: center;
+  margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.m-amount input { background: none; border: none; outline: none;
+  font: 800 32px inherit; letter-spacing: -.03em;
+  width: 100%; text-align: center; color: var(--ink); }
+.cat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cat-chip { background: var(--card); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 11px;
+  font: 600 var(--fs-xs) inherit; color: var(--muted); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; }
+.cat-chip::before { content: ''; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--m-roof); }
+.cat-chip[data-cat="move"]::before { background: var(--m-move); }
+.cat-chip[data-cat="food"]::before { background: var(--m-food); }
+.cat-chip[data-cat="ess"]::before { background: var(--m-ess); }
+.cat-chip[data-cat="living"]::before { background: var(--m-living); }
+.cat-chip[data-cat="invest"]::before { background: var(--m-invest); }
+.cat-chip[data-cat="give"]::before { background: var(--m-give); }
+.cat-chip[data-cat="aspire"]::before { background: var(--m-aspire); }
+.cat-chip.sel { background: var(--btn); color: #FBFAF8; border-color: var(--btn); }
+.m-list-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 12px 16px; margin-top: 12px;
+  box-shadow: var(--shadow-sm); }
+.m-row { display: flex; align-items: center; padding: 8px 0;
+  border-bottom: 1px solid var(--line); gap: 10px; font-size: var(--fs-sm); }
+.m-row:last-child { border-bottom: none; }
+.m-amt { font-weight: 700; min-width: 56px; }
+.m-cat { color: var(--muted); width: 60px; font-weight: 600; }
+.m-note { color: var(--muted); flex: 1; }
+.m-status { background: var(--greige); border-radius: 10px; padding: 9px 12px;
+  font-size: var(--fs-sm); display: flex; align-items: center;
+  justify-content: space-between; margin-top: 8px; }
+.m-status.ok { color: var(--olive); font-weight: 600; }
+
+/* Mood */
+.mood-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 14px 18px; margin-bottom: 10px;
+  box-shadow: var(--shadow-sm); }
+.mood-h { font-size: var(--fs-md); font-weight: 700; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px; }
+.mood-row { display: flex; gap: 6px; }
+.mood-btn { flex: 1; background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px 0; cursor: pointer;
+  font: 600 var(--fs-md) inherit; color: var(--muted); text-align: center;
+  transition: all .15s; }
+.mood-btn.sel { background: var(--btn); color: #FBFAF8; border-color: var(--btn); }
+
+/* MAP */
+.placeholder { background: var(--card); border: 1px dashed var(--line);
+  border-radius: var(--r-card); padding: 32px 18px;
+  text-align: center; color: var(--muted); box-shadow: var(--shadow-sm); }
+.placeholder-h { font-size: var(--fs-md); font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.placeholder-b { font-size: var(--fs-sm); line-height: 1.5; }
+.kanban { display: flex; gap: 10px; overflow-x: auto;
+  padding: 4px 0 12px; scrollbar-width: thin;
+  margin-left: -18px; margin-right: -18px; padding-left: 18px; padding-right: 18px; }
+.kanban::-webkit-scrollbar { height: 6px; }
+.kanban::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+.kcol { min-width: 200px; flex-shrink: 0;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 12px; box-shadow: var(--shadow-sm); }
+.kcol.today-mirror { background: #FBF7EE; }
+.kcol-h { display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px; }
+.kcol-h .ktitle { font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.kcol-h .kcount { font-size: var(--fs-xs); color: var(--muted);
+  background: var(--greige); border-radius: 999px; padding: 1px 7px; font-weight: 700; }
+.kcard { background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 10px; margin-bottom: 6px;
+  font-size: var(--fs-sm); display: flex; gap: 8px; align-items: flex-start; }
+.kcard .pd { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  margin-top: 6px; }
+.kanban-hint { font-size: var(--fs-xs); color: var(--muted);
+  text-align: center; margin-bottom: 6px; }
+
+/* YOU */
+.you-section { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 14px 16px; margin-bottom: 10px;
+  box-shadow: var(--shadow-sm); cursor: pointer;
+  display: flex; align-items: center; gap: 14px; }
+.you-icon { width: 40px; height: 40px; border-radius: 12px;
+  background: var(--greige); display: grid; place-items: center;
+  font-size: 20px; flex-shrink: 0; }
+.you-text { flex: 1; min-width: 0; }
+.you-h { font-size: var(--fs-md); font-weight: 700; }
+.you-b { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; line-height: 1.4; }
+.you-arrow { color: var(--muted); font-size: 16px; }
+
+/* Trends */
+.range-pill { display: flex; background: var(--greige); border: 1px solid var(--line);
+  border-radius: 999px; padding: 2px; margin-bottom: 12px; }
+.range-btn { flex: 1; background: none; border: none; cursor: pointer;
+  font: 600 var(--fs-xs) inherit; color: var(--muted);
+  padding: 6px 10px; border-radius: 999px; }
+.range-btn.active { background: var(--card); color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.tile { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 12px 14px;
+  box-shadow: var(--shadow-sm); cursor: pointer; }
+.tile-h { font-size: var(--fs-xs); font-weight: 600;
+  color: var(--muted); margin-bottom: 4px; display: flex; gap: 4px; align-items: center; }
+.tile-v { font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+.tile-arrow { font-size: var(--fs-xs); margin-top: 4px; font-weight: 600; }
+.tile-arrow.up { color: var(--olive); }
+.tile-arrow.down { color: var(--error); }
+.tile-arrow.flat { color: var(--muted); }
+.tile.active-tile { box-shadow: var(--shadow); border-color: var(--steel); }
+
+.chart-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 16px; box-shadow: var(--shadow-sm);
+  margin-bottom: 12px; }
+.chart-h { display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 12px; }
+.chart-h .t { font-size: var(--fs-md); font-weight: 700; }
+.chart-h .s { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; }
+.chart-area { height: 110px; position: relative; display: flex;
+  align-items: flex-end; gap: 7px; }
+.chart-col { flex: 1; height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end; }
+.chart-bar { width: 100%; max-width: 24px; border-radius: 6px;
+  background: linear-gradient(180deg, #9BA8B5, #7E8E9F); }
+.chart-bar.above-goal { background: linear-gradient(180deg, #8FA887, #768471); }
+.goal-line { position: absolute; left: 0; right: 0;
+  border-top: 1.5px dashed #768471; opacity: .55; pointer-events: none; }
+.goal-label { position: absolute; right: 0; font-size: 9px;
+  font-weight: 700; color: var(--olive); background: var(--card);
+  padding: 1px 3px; border-radius: 3px;
+  transform: translateY(-50%); opacity: .85; }
+.chart-days { display: flex; gap: 7px; margin-top: 6px; padding: 0 1px; }
+.chart-days span { flex: 1; text-align: center;
+  font-size: 10px; color: var(--muted); }
+.chart-legend { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.lg-item { display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--muted); }
 .lg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
-/* week nav + pill toggle */
-.week-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
-}
-.week-nav-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: 18px;
-  padding: 2px 6px; border-radius: 6px; line-height: 1;
-}
-.week-nav-btn:hover { background: var(--greige); color: var(--ink); }
-.week-nav-btn:disabled { opacity: 0.25; cursor: default; }
-.week-nav-label { font-size: var(--fs-sm); font-weight: 600; color: var(--ink); }
-.chart-pill {
-  display: flex; background: var(--greige);
-  border: 1px solid var(--line); border-radius: 999px; padding: 2px;
-}
-.pill-btn {
-  background: none; border: none; cursor: pointer;
-  font-size: 11px; font-weight: 600; color: var(--muted);
-  padding: 4px 10px; border-radius: 999px; transition: all .15s;
-}
-.pill-btn.active {
-  background: var(--card); color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0,0,0,.1);
-}
-/* times (sleep window) chart */
-.tc-chart { display: flex; gap: 6px; height: 152px; }
-.tc-y-axis {
+/* History */
+.h-tl-row { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 12px 14px; margin-bottom: 8px;
+  box-shadow: var(--shadow-sm); display: flex; gap: 10px; align-items: center; }
+.tl-date { font-size: var(--fs-xs); color: var(--muted);
+  font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  width: 60px; flex-shrink: 0; }
+.tl-tag { background: var(--greige); border-radius: 999px;
+  padding: 2px 8px; font-size: var(--fs-xs); font-weight: 700; color: var(--muted); }
+.tl-body { font-size: var(--fs-sm); flex: 1; }
+
+/* Money detail */
+.money-sub { display: flex; gap: 6px; overflow-x: auto;
+  margin-bottom: 12px; scrollbar-width: none; }
+.money-sub::-webkit-scrollbar { display: none; }
+.money-sub button { background: var(--card); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 12px; flex-shrink: 0;
+  font: 600 var(--fs-xs) inherit; color: var(--muted); cursor: pointer; }
+.money-sub button.active { background: var(--btn); color: #FBFAF8; border-color: var(--btn); }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.dash-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 12px 14px; box-shadow: var(--shadow-sm); }
+.dash-h { font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
+  margin-bottom: 4px; }
+.dash-v { font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.dash-d { font-size: var(--fs-xs); color: var(--muted); margin-top: 4px; }
+.bud-row { background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 10px 12px; margin-bottom: 6px;
+  box-shadow: var(--shadow-sm); }
+.bud-row-h { display: flex; justify-content: space-between;
+  font-size: var(--fs-sm); margin-bottom: 6px; }
+.bud-row-h .nm { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.bud-row-h .nm::before { content: ''; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--m-roof); }
+.bud-row[data-cat="move"] .nm::before { background: var(--m-move); }
+.bud-row[data-cat="food"] .nm::before { background: var(--m-food); }
+.bud-row[data-cat="ess"] .nm::before { background: var(--m-ess); }
+.bud-row[data-cat="living"] .nm::before { background: var(--m-living); }
+.bud-row[data-cat="invest"] .nm::before { background: var(--m-invest); }
+.bud-row[data-cat="give"] .nm::before { background: var(--m-give); }
+.bud-row[data-cat="aspire"] .nm::before { background: var(--m-aspire); }
+.bud-row-h .nb { font-size: var(--fs-xs); color: var(--muted); }
+.bar { width: 100%; height: 6px; background: var(--greige);
+  border-radius: 999px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--steel); border-radius: 999px; }
+.bar-fill.over { background: var(--error); }
+
+/* Overlays */
+.settings-overlay, .target-modal {
+  position: absolute; inset: 0; background: var(--bg);
+  border-radius: var(--r-screen); z-index: 80;
+  transform: translateY(100%); transition: transform .26s ease;
   display: flex; flex-direction: column;
-  justify-content: space-between;
-  padding: 0 5px 0 0; flex-shrink: 0; width: 30px;
 }
-.tc-y-label { font-size: 8px; color: var(--muted); text-align: right; line-height: 1; }
-.tc-bars { flex: 1; position: relative; display: flex; gap: 7px; align-items: stretch; }
-.tc-col { flex: 1; position: relative; }
-.tc-bar {
-  position: absolute; left: 0; right: 0;
-  background: linear-gradient(0deg, #9BA8B5, #7E8E9F);
-  border-radius: 4px; min-height: 4px;
-}
-.tc-goal-line {
-  position: absolute; left: 0; right: 0;
-  border-top: 1.5px dashed #768471; opacity: 0.55; pointer-events: none;
-}
-
-/* ── HISTORY ── */
-.history-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 4px 16px;
-  margin-top: 14px;
-  box-shadow: var(--shadow-sm);
-}
-.h-row {
-  padding: 13px 0;
-  border-bottom: 1px solid var(--line);
-}
-.h-row:last-child { border-bottom: none; }
-.h-day { font-weight: 700; font-size: var(--fs-md); letter-spacing: -0.01em; }
-.h-meta { color: var(--muted); font-size: var(--fs-sm); margin-top: 3px; }
-.h-meta strong { color: var(--ink); font-weight: 600; }
-.h-obs { color: var(--muted); font-size: var(--fs-sm); margin-top: 4px; font-style: italic; }
-.h-row-head {
-  display: flex; justify-content: space-between;
-  align-items: center; margin-bottom: 4px;
-}
-.h-edit {
-  font-size: 11px; color: var(--muted); cursor: pointer;
-  background: none; border: none; padding: 2px 6px;
-  border-radius: 4px; font-weight: 500;
-}
-.h-edit:hover { background: var(--greige); }
-.h-times {
-  display: flex; justify-content: space-between;
-  align-items: baseline; margin-top: 2px;
-}
-.h-dur  { font-weight: 700; color: var(--ink); font-size: var(--fs-sm); }
-.h-range { color: var(--muted); font-size: var(--fs-sm); }
-
-/* ── TABS ── */
-.tabs {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 74px;
-  display: flex;
-  border-top: 1px solid var(--line);
-  background: rgba(246,245,242,.94);
-  backdrop-filter: blur(14px);
-  padding: 8px 8px 16px;
-  z-index: 10;
-}
-.tab-btn {
-  flex: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 4px;
-  border: none; background: none; cursor: pointer;
-  font-family: inherit;
-  color: var(--muted); font-size: var(--fs-xs); font-weight: 600;
-  padding: 4px 0; border-radius: 12px;
-  transition: color .15s;
-}
-.tab-btn .ic { font-size: 19px; line-height: 1; opacity: .55; transition: opacity .15s; }
-.tab-btn.active { color: var(--ink); }
-.tab-btn.active .ic { opacity: 1; }
-
-/* ── PANEL ── */
-.panel {
-  background: rgba(255,253,248,.94);
-  border: 1px solid rgba(140,115,80,.18);
-  border-radius: 24px;
-  padding: 24px;
-  box-shadow: 0 12px 40px rgba(52,39,24,.08);
-  position: sticky;
-  top: 28px;
-  align-self: start;
-}
-.panel h2  { margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
-.panel .sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.panel h3  { margin: 20px 0 8px; font-size: 15px; font-weight: 700; }
-.panel p   { margin: 0 0 10px; color: var(--muted); font-size: 14px; line-height: 1.65; }
-.panel ul  { margin: 0 0 14px; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.9; }
-.panel code {
-  font-size: 11px; background: var(--greige);
-  border: 1px solid var(--line); border-radius: 4px;
-  padding: 1px 5px; font-family: monospace;
-}
-
-.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
-.tag {
-  font-size: 11px; font-weight: 600;
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: 999px; padding: 4px 10px; color: var(--muted);
-}
-.tag.new  { background: #EEF2EA; color: var(--olive); border-color: #D1DBC9; }
-.tag.mod  { background: #ECEFF3; color: var(--steel); border-color: #D0D9E2; }
-
-.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
-.feat { background: var(--greige); border: 1px solid var(--line); border-radius: 16px; padding: 13px; }
-.feat strong { display: block; font-size: 13px; margin-bottom: 5px; }
-.feat span   { font-size: 12px; color: var(--muted); line-height: 1.5; display: block; }
-
-@media (max-width: 860px) {
-  .wrap { grid-template-columns: 1fr; width: min(440px, 100%); }
-  .panel { position: static; }
-  .feat-grid { grid-template-columns: 1fr; }
-}
-
-/* ── V2 ADDITIONS ── */
-
-/* Sub-view pill switch (Track) */
-.subnav {
-  display: flex;
-  background: var(--greige);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px;
-  margin-bottom: 16px;
-}
-.subnav button {
-  flex: 1;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  padding: 8px 0;
-  border-radius: 999px;
-  transition: all .15s;
-}
-.subnav button.active {
-  background: var(--card);
-  color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0,0,0,.1);
-}
-.subview { display: none; }
-.subview.active { display: block; animation: fadeIn .2s ease; }
-
-/* Energy / mood chips */
-.em-row { display: flex; gap: 10px; margin-bottom: 14px; }
-.em {
-  flex: 1;
-  background: var(--greige);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 12px 14px;
-}
-.em .lab {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.em .scale { display: flex; gap: 4px; }
-.em .pip { flex: 1; height: 7px; border-radius: 4px; background: var(--line); }
-.em .pip.on { background: var(--olive); }
-.em.mood .pip.on { background: var(--mauve); }
-
-/* World scene card */
-.scene {
-  background: linear-gradient(165deg, #2C3340, #3B4453);
-  border: 1px solid #4A5466;
-  border-radius: var(--r-card);
-  padding: 20px;
-  margin-bottom: 14px;
-  color: #E8ECF2;
-  box-shadow: 0 12px 30px rgba(30,36,46,.28);
-}
-.scene .s-tag {
-  display: flex; align-items: center; gap: 8px;
-  font-size: var(--fs-xs); font-weight: 700;
-  text-transform: uppercase; letter-spacing: .1em;
-  color: #A9B6C8; margin-bottom: 12px;
-}
-.scene .s-text {
-  font-size: var(--fs-md);
-  line-height: 1.6;
-  font-style: italic;
-  color: #DDE3EC;
-}
-.scene .s-btn {
-  margin-top: 16px; width: 100%;
-  border: none; border-radius: 14px;
-  background: rgba(255,255,255,.12); color: #EEF1F6;
-  font-family: inherit; font-size: var(--fs-sm); font-weight: 600;
-  padding: 12px; cursor: pointer;
-}
-
-/* Signal card (Track overview) */
-.signal-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 16px 18px;
-  margin-bottom: 14px;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  box-shadow: var(--shadow-sm);
-}
-.signal-card .big { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
-.signal-card .k {
-  font-size: var(--fs-xs); font-weight: 600;
+.settings-overlay.open, .target-modal.open { transform: translateY(0); }
+.set-topbar { display: flex; justify-content: space-between; align-items: center;
+  padding: 26px 24px 10px; flex-shrink: 0; }
+.set-topbar h2 { font-size: var(--fs-xl); font-weight: 800;
+  letter-spacing: -.02em; margin: 0; }
+.set-close { background: var(--card); border: 1px solid var(--line);
+  width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+  font-size: 14px; box-shadow: var(--shadow-sm); }
+.set-body { flex: 1; overflow-y: auto; padding: 6px 18px 30px; }
+.s-sect { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 12px 16px; margin-bottom: 12px;
+  box-shadow: var(--shadow-sm); }
+.s-sect-h { font-size: var(--fs-xs); font-weight: 700;
   text-transform: uppercase; letter-spacing: .07em;
-  color: var(--muted); margin-top: 5px;
-}
-.signal-divider { width: 1px; align-self: stretch; background: var(--line); }
+  color: var(--muted); margin-bottom: 10px; }
+.s-field { display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--line); }
+.s-field:last-child { border-bottom: none; }
+.s-label { font-size: var(--fs-sm); color: var(--muted); }
+.s-val { font-size: var(--fs-md); font-weight: 600; color: var(--ink); }
+.s-input { background: var(--greige); border: 1px solid var(--line);
+  border-radius: 10px; padding: 6px 10px; font: 600 var(--fs-md) inherit;
+  text-align: right; width: 100px; }
 
-/* Habit rows */
-.habit-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 4px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
-.habit {
-  display: flex; align-items: center; gap: 12px;
-  padding: 13px 0; border-bottom: 1px solid var(--line);
-}
-.habit:last-child { border-bottom: none; }
-.habit-check {
-  width: 26px; height: 26px; border-radius: 9px;
-  border: 2px solid var(--line); flex-shrink: 0;
-  display: grid; place-items: center;
-  cursor: pointer; color: transparent; font-size: 14px;
-}
-.habit-check.done { background: var(--olive); border-color: var(--olive); color: #fff; }
-.habit-name { flex: 1; font-size: var(--fs-md); font-weight: 600; }
-.habit-rate { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; }
-.habit-cap { font-size: var(--fs-xs); color: var(--muted); margin-top: 10px; text-align: center; padding-bottom: 8px; }
+/* Bottom tabs */
+.tabs { display: flex; padding: 8px 18px 14px; background: var(--bg);
+  border-top: 1px solid rgba(36,35,31,.04); flex-shrink: 0; position: relative; }
+.tab-btn { flex: 1; background: none; border: none; cursor: pointer; padding: 6px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--muted); font: 500 var(--fs-xs) inherit; transition: color .15s; }
+.tab-btn.active { color: var(--ink); font-weight: 700; }
+.tab-btn .ic { font-size: 18px; }
 
-/* Body fields */
-.field-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 4px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
-.field {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 13px 0; border-bottom: 1px solid var(--line);
-}
-.field:last-child { border-bottom: none; }
-.field .fk { font-size: var(--fs-md); font-weight: 600; }
-.field .fv { font-size: var(--fs-md); color: var(--muted); }
-.field .fv.empty { color: var(--line); font-style: italic; }
-.tension { display: flex; gap: 5px; }
-.tension .t { width: 18px; height: 18px; border-radius: 6px; background: var(--line); }
-.tension .t.on { background: #B77980; }
+/* Chat pill */
+.chat-pill { position: absolute; right: 16px; bottom: 76px; z-index: 60;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--card); border: 1px solid var(--line);
+  box-shadow: var(--shadow); cursor: pointer;
+  display: grid; place-items: center; font-size: 22px;
+  transition: transform .15s; }
+.chat-pill:active { transform: scale(.94); }
 
-/* Money entries */
-.money-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-card); padding: 4px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
-.money-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 0; border-bottom: 1px solid var(--line);
-}
-.money-row:last-child { border-bottom: none; }
-.money-left .m-cat { font-size: var(--fs-md); font-weight: 600; }
-.money-left .m-note { font-size: var(--fs-sm); color: var(--muted); margin-top: 2px; }
-.money-amt { font-size: var(--fs-md); font-weight: 700; white-space: nowrap; }
-.flag {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .05em; padding: 2px 7px; border-radius: 999px; margin-left: 8px;
-}
-.flag.impulse { background: #F7ECEA; color: var(--error); }
-.flag.planned { background: #EEF2EA; color: var(--olive); }
+/* Chat sheet */
+.chat-sheet { position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--bg); border-top-left-radius: var(--r-screen);
+  border-top-right-radius: var(--r-screen); z-index: 90;
+  transform: translateY(100%); transition: transform .28s ease;
+  height: 80%; display: flex; flex-direction: column;
+  box-shadow: 0 -10px 30px rgba(36,35,31,.18); }
+.chat-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 4px; background: var(--line);
+  border-radius: 999px; margin: 8px auto 4px; flex-shrink: 0; }
+.sheet-top { display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 22px 8px; flex-shrink: 0; }
+.sheet-top h2 { font-size: var(--fs-lg); font-weight: 800;
+  letter-spacing: -.02em; margin: 0; }
+.sheet-body { flex: 1; overflow-y: auto; padding: 4px 18px 12px;
+  display: flex; flex-direction: column; gap: 10px; }
+.chat-shell { background: var(--card); border: 1px dashed var(--line);
+  border-radius: var(--r-card); padding: 22px 18px;
+  text-align: center; color: var(--muted); font-size: var(--fs-sm);
+  line-height: 1.5; }
+.chat-shell strong { color: var(--ink); display: block; margin-bottom: 6px; }
+.composer { padding: 10px 16px 16px; flex-shrink: 0;
+  display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--line); }
+.composer input { flex: 1; background: var(--card); border: 1px solid var(--line);
+  border-radius: 999px; padding: 11px 16px; font: 400 var(--fs-sm) inherit;
+  color: var(--ink); opacity: .55; }
+.composer button { width: 40px; height: 40px; border-radius: 50%;
+  background: var(--btn); color: #FBFAF8; border: none; cursor: pointer;
+  font-size: 16px; opacity: .4; }
 
-/* Track bar chart (reuses V1 styles) */
-.track-chart-area { height: 88px; position: relative; display: flex; align-items: flex-end; gap: 7px; margin-top: 6px; }
-.track-chart-col { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-.track-chart-bar { width: 100%; max-width: 24px; border-radius: 6px; background: linear-gradient(180deg,#9BA8B5,#7E8E9F); }
-.track-chart-bar.above { background: linear-gradient(180deg,#8FA887,#768471); }
-.track-chart-days { display: flex; gap: 7px; margin-top: 6px; }
-.track-chart-days span { flex: 1; text-align: center; font-size: 10px; color: var(--muted); }
-
-/* "NEW" badge on tab */
-.tab-btn.new-tab { position: relative; }
-.tab-btn.new-tab::after {
-  content: "NEW";
-  position: absolute; top: -2px; right: 14px;
-  font-size: 7px; font-weight: 800; letter-spacing: .05em;
-  color: var(--olive);
-}
-
-/* Tab evolution table in panel */
-.tab-evo { display: flex; flex-direction: column; gap: 6px; margin: 0 0 16px; }
-.tab-evo .row { display: flex; gap: 8px; align-items: center; font-size: 12px; }
-.tab-evo .v { font-weight: 800; color: var(--ink); width: 30px; flex-shrink: 0; }
-.tab-evo .t { color: var(--muted); }
-.tab-evo .t b { color: var(--olive); }
+/* PANEL */
+.panel { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 24px 26px;
+  box-shadow: var(--shadow); max-height: min(860px, 94vh); overflow-y: auto; }
+.panel h2 { font-size: 22px; font-weight: 800;
+  letter-spacing: -.02em; margin: 0 0 6px; }
+.panel .sub { font-size: var(--fs-sm); color: var(--muted); margin: 0 0 16px; line-height: 1.55; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.tag.new { background: #E8F0E5; color: #4F6B47; }
+.tag.mod { background: #F3EDDD; color: #6F5E2D; }
+.panel h3 { font-size: var(--fs-md); font-weight: 700; margin: 18px 0 8px;
+  letter-spacing: -.01em; }
+.panel ul { margin: 0 0 12px; padding-left: 18px;
+  font-size: var(--fs-sm); line-height: 1.65; color: var(--muted); }
+.panel code { background: var(--greige); padding: 1px 6px;
+  border-radius: 4px; font-size: 12px; }
+.feat-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 8px 0 16px; }
+.feat { background: var(--bg); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 12px; }
+.feat strong { font-size: var(--fs-sm); display: block; margin-bottom: 2px; }
+.feat span { font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- ══ PHONE ══════════════════════════════════════════ -->
-  <div class="phone">
-    <div class="topbar">
-      <h1 id="screenTitle">Compass</h1>
-      <button class="cog">⚙</button>
-    </div>
+<div class="phone">
+  <div class="topbar">
+    <h1 id="screenTitle">Today</h1>
+    <button class="cog" id="openSettings">⚙</button>
+  </div>
+  <div class="content">
 
-    <div class="content">
-
-      <!-- TODAY ─────────────────────────────────────────── -->
-      <section class="screen active" id="today">
-        <div class="date">Wednesday, 24 June 2026 · UTC+1</div>
-
-        <!-- Sleep target strip (tap to set target) -->
-        <div class="target-strip" id="targetStrip">
-          <div class="t-header">target</div>
-          <div class="t-range">
-            <div class="t-col"><span class="t-icon">🌙</span><span class="t-time" id="tBedDisplay">23:00</span></div>
-            <div class="t-col"><span class="t-icon">☀️</span><span class="t-time" id="tWakeDisplay">07:00</span></div>
-          </div>
-          <div class="t-dur" id="tDurDisplay">8 hours</div>
+    <section class="screen active" id="today">
+      <div class="dt">Wednesday, 24 June · UTC+1</div>
+      <div class="scene">
+        <div class="scene-tag">A scene has appeared</div>
+        <div class="scene-body">The river ran clearer the morning after rest.</div>
+        <div class="scene-cta">Tap to view →</div>
+      </div>
+      <div class="qcard">
+        <div class="qtag">Today's quality</div>
+        <div class="qbody">Quality practice arrives in V3.</div>
+      </div>
+      <div class="card">
+        <div class="card-h">What needs you today</div>
+        <div class="needs-row done" onclick="goTab('log','sleep')">
+          <span class="check-mini done">✓</span>
+          <span class="nb">Log sleep</span>
+          <span class="roi">6h 48m</span>
         </div>
-
-        <!-- Pattern nudge (shown when 2+ nights off-target) -->
-        <div class="nudge">
-          <span class="nudge-icon">🌙</span>
-          <div>
-            <div class="nudge-title">Small adjustment</div>
-            <div class="nudge-text">Your bedtime has been around 01:00 for the last 3 nights. Try 00:30 tonight as a gentle step — small shifts are easier to keep than forcing 23:00 immediately.</div>
-          </div>
+        <div class="needs-row" onclick="goTab('log','sleep')">
+          <span class="check-mini"></span>
+          <span class="nb">Log mood &amp; energy</span>
+          <span class="roi">in Sleep</span>
         </div>
+        <div class="needs-row" onclick="goTab('log','body')">
+          <span class="check-mini"></span>
+          <span class="nb">Log body</span>
+          <span class="roi">optional</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">Today's tasks · 1 of 3</div>
+        <div class="task-row done" onclick="toggleTask(this)">
+          <span class="check-mini done">✓</span>
+          <span class="nb">Drink water</span>
+          <span class="pd" style="background:var(--p-body)"></span>
+        </div>
+        <div class="task-row" onclick="toggleTask(this)">
+          <span class="check-mini"></span>
+          <span class="nb">Morning walk</span>
+          <span class="pd" style="background:var(--p-sleep)"></span>
+        </div>
+        <div class="task-row" onclick="toggleTask(this)">
+          <span class="check-mini"></span>
+          <span class="nb">Read one page before bed</span>
+          <span class="pd" style="background:var(--p-mind)"></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">+ Quick log</div>
+        <div class="qlrow">
+          <button class="qbtn" onclick="goTab('log','sleep')">💤<span class="ql-label">Sleep</span></button>
+          <button class="qbtn" onclick="goTab('log','habits')">✓<span class="ql-label">Habit</span></button>
+          <button class="qbtn" onclick="goTab('log','body')">🍽<span class="ql-label">Body</span></button>
+          <button class="qbtn" onclick="goTab('log','money')">💷<span class="ql-label">Money</span></button>
+        </div>
+      </div>
+    </section>
 
+    <section class="screen" id="log">
+      <div class="subnav" id="logSub">
+        <button class="sn-btn active" data-sub="sleep">Sleep</button>
+        <button class="sn-btn" data-sub="habits">Habits</button>
+        <button class="sn-btn" data-sub="body">Body</button>
+        <button class="sn-btn" data-sub="money">Money</button>
+      </div>
+
+      <div class="log-sub" id="log-sleep">
+        <div class="t-strip" id="targetStrip">
+          <div class="t-it"><div class="t-label">🌙 Bed</div><div class="t-val" id="tBed">23:00</div></div>
+          <div class="t-it"><div class="t-label">☀ Wake</div><div class="t-val" id="tWake">07:00</div></div>
+          <div class="t-it"><div class="t-label">Target</div><div class="t-dur" id="tDur">8 hours</div></div>
+        </div>
         <div class="lede">How did you sleep?</div>
-
-        <!-- 24h Sleep Dial -->
         <div class="dial-card">
-          <div class="dial-hint">Drag 🌙 or ☀️ to adjust · snaps to 10 min</div>
-          <svg id="dialSvg" viewBox="0 0 216 216" role="img" aria-label="24-hour sleep clock">
-            <!-- built by JS -->
-          </svg>
-          <div class="dial-foot">
-            <strong id="durDisplay">5h 40m</strong> sleep
-          </div>
+          <div class="dial-hint">Drag 🌙 or ☀ to adjust · snaps to 10 min</div>
+          <svg id="dialSvg" viewBox="0 0 216 216" role="img" aria-label="24-hour sleep clock"></svg>
+          <div class="dial-foot"><strong id="durDisplay">5h 40m</strong> sleep</div>
         </div>
-
-        <!-- Gentle note -->
-        <div class="card-insight">
+        <div class="insight">
           <span class="insight-tag">Gentle note</span>
           <p class="insight-p" id="insightText">
             5h 40m is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>
           </p>
         </div>
-
-        <!-- V2: energy + mood surfaced (V1's nullable columns) -->
-        <div class="em-row">
-          <div class="em">
-            <div class="lab">Energy today</div>
-            <div class="scale"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span></div>
+        <div class="b-sect">
+          <div class="score-label">☺ Mood · today</div>
+          <div class="score-row" data-name="mood">
+            <button class="score-btn">1</button><button class="score-btn">2</button>
+            <button class="score-btn">3</button><button class="score-btn">4</button>
+            <button class="score-btn">5</button><button class="score-btn">6</button>
+            <button class="score-btn sel">7</button><button class="score-btn">8</button>
+            <button class="score-btn">9</button><button class="score-btn">10</button>
           </div>
-          <div class="em mood">
-            <div class="lab">Mood</div>
-            <div class="scale"><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip on"></span><span class="pip"></span></div>
+          <div class="score-scale"><span>low</span><span>okay</span><span>great</span></div>
+          <div class="score-label">⚡ Energy · today</div>
+          <div class="score-row" data-name="energy">
+            <button class="score-btn">1</button><button class="score-btn">2</button>
+            <button class="score-btn">3</button><button class="score-btn">4</button>
+            <button class="score-btn">5</button><button class="score-btn">6</button>
+            <button class="score-btn">7</button><button class="score-btn sel">8</button>
+            <button class="score-btn">9</button><button class="score-btn">10</button>
           </div>
+          <div class="score-scale"><span>flat</span><span>steady</span><span>buzzing</span></div>
+          <div class="b-label" style="margin-top:10px">Note (optional)</div>
+          <textarea class="b-note" placeholder="What's on your mind…"></textarea>
         </div>
-
-        <!-- V2: first world seed scene (appears after first cross-pillar pattern confirms) -->
-        <div class="scene">
-          <div class="s-tag">✦ A scene has appeared</div>
-          <div class="s-text">"The cottage was warmer after the third steady night. Something near it began to settle."</div>
-          <button class="s-btn">Continue</button>
-        </div>
-
-        <button class="save-btn">Save night</button>
-      </section>
-
-      <!-- WEEK ──────────────────────────────────────────── -->
-      <section class="screen" id="week">
-        <div class="week-stat-card">
-          <div class="stats-single">
-            <div class="stats-v" id="avgSleepVal">6h 48m</div>
-            <div class="stats-k" id="avgSleepLabel">Avg sleep · this week</div>
-          </div>
-        </div>
-
-        <div class="week-card">
-          <div class="wc-head">
-            <span class="t">Sleep</span>
-            <div class="chart-pill">
-              <button class="pill-btn active" data-view="hours">Hours</button>
-              <button class="pill-btn" data-view="times">Times</button>
-            </div>
-          </div>
-          <div class="week-nav">
-            <div class="chart-pill">
-              <button class="pill-btn active" data-period="week">Week</button>
-              <button class="pill-btn" data-period="month">Month</button>
-            </div>
-            <div style="display:flex;align-items:center;gap:0">
-              <button class="week-nav-btn" id="weekNavPrev">‹</button>
-              <span class="week-nav-label" id="weekNavLabel">Mon 22 – Sun 28 Jun</span>
-              <button class="week-nav-btn" id="weekNavNext" disabled>›</button>
-            </div>
-          </div>
-          <div class="chart-area" id="hoursChart"><!-- JS --></div>
-          <div class="tc-chart" id="timesChart" style="display:none"><!-- JS --></div>
-          <div class="chart-days" id="hoursDays"><!-- JS --></div>
-          <div class="chart-legend" id="hoursLegend">
-            <div class="lg-item">
-              <div class="lg-dot" style="background:var(--steel)"></div>Under goal
-            </div>
-            <div class="lg-item">
-              <div class="lg-dot" style="background:var(--olive)"></div>At or above goal
-            </div>
-            <div class="lg-item" style="gap:4px;">
-              <div style="width:14px;border-top:1.5px dashed var(--olive);margin-top:1px"></div>8h goal
-            </div>
-          </div>
-        </div>
-
-        <div class="card-insight">
-          <span class="insight-tag">Possible pattern</span>
-          <p class="insight-p">Nights with 7h+ tend to be followed by higher energy scores.
-            <span class="soft">Still early — keep tracking for another 7–14 days before adjusting your goal.</span></p>
-        </div>
-      </section>
-
-      <!-- HISTORY ───────────────────────────────────────── -->
-      <section class="screen" id="history">
-        <div class="history-card">
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Today</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">5h 40m</span>
-              <span class="h-range">00:50 → 06:30</span>
-            </div>
-            <div class="h-obs">bedtime shifted · shorter night</div>
-          </div>
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Yesterday</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">6h 10m</span>
-              <span class="h-range">01:15 → 07:25</span>
-            </div>
-            <div class="h-obs">bedtime shifted later</div>
-          </div>
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Mon 22 Jun</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">7h 20m</span>
-              <span class="h-range">23:40 → 07:00</span>
-            </div>
-            <div class="h-obs">near your rhythm</div>
-          </div>
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Sun 21 Jun</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">8h 05m</span>
-              <span class="h-range">23:00 → 07:05</span>
-            </div>
-            <div class="h-obs">steady night</div>
-          </div>
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Sat 20 Jun</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">7h 50m</span>
-              <span class="h-range">23:10 → 07:00</span>
-            </div>
-            <div class="h-obs">close to your rhythm</div>
-          </div>
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Fri 19 Jun</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">6h 30m</span>
-              <span class="h-range">00:45 → 07:15</span>
-            </div>
-            <div class="h-obs">bedtime shifted · shorter night</div>
-          </div>
-          <div class="h-row">
-            <div class="h-row-head">
-              <div class="h-day">Thu 18 Jun</div>
-              <button class="h-edit">edit</button>
-            </div>
-            <div class="h-times">
-              <span class="h-dur">7h 45m</span>
-              <span class="h-range">23:15 → 07:00</span>
-            </div>
-            <div class="h-obs">steady night</div>
-          </div>
-        </div>
-      </section>
-      <!-- TRACK ─────────────────────────────────────────── -->
-      <section class="screen" id="track">
-        <div class="subnav">
-          <button class="active" data-sub="sleep">Sleep</button>
-          <button data-sub="habits">Habits</button>
-          <button data-sub="body">Body</button>
-          <button data-sub="money">Money</button>
-        </div>
-
-        <!-- Sleep sub-view — signal + log shortcut only; full chart lives in Trends -->
-        <div class="subview active" id="sub-sleep">
-          <div class="signal-card">
-            <div><div class="big">5h 40m</div><div class="k">Last night</div></div>
-            <div class="signal-divider"></div>
-            <div><div class="big">6h 48m</div><div class="k">7-day avg</div></div>
-            <div class="signal-divider"></div>
-            <div><div class="big">4/6</div><div class="k">Energy</div></div>
-          </div>
-          <div class="card-insight">
-            <span class="insight-tag">Observation</span>
-            <p class="insight-p">bedtime shifted · shorter night — <span class="soft">the third short night in a row.</span></p>
-          </div>
-          <!-- shortcut back to Today to log, and to Trends for the full chart -->
-          <div style="display:flex;gap:10px;margin-bottom:14px">
-            <button class="save-btn" style="font-size:var(--fs-sm);padding:13px" onclick="document.querySelector('[data-screen=today]').click()">Log tonight →</button>
-            <button class="save-btn" style="font-size:var(--fs-sm);padding:13px;background:var(--greige);color:var(--ink);box-shadow:none;border:1px solid var(--line)" onclick="document.querySelector('[data-screen=week]').click()">See chart →</button>
-          </div>
-        </div>
-
-        <!-- Habits sub-view -->
-        <div class="subview" id="sub-habits">
-          <div class="habit-list">
-            <div class="habit">
-              <div class="habit-check done">✓</div>
-              <div class="habit-name">No screens after 22:30</div>
-              <div class="habit-rate">5/7</div>
-            </div>
-            <div class="habit">
-              <div class="habit-check done">✓</div>
-              <div class="habit-name">Protein at breakfast</div>
-              <div class="habit-rate">6/7</div>
-            </div>
-            <div class="habit">
-              <div class="habit-check"></div>
-              <div class="habit-name">10-min walk outside</div>
-              <div class="habit-rate">3/7</div>
-            </div>
-            <div class="habit-cap">3 / 3 active · finish one to add another</div>
-          </div>
-          <div class="card-insight">
-            <span class="insight-tag">Observation</span>
-            <p class="insight-p">food planned · decision load lighter — <span class="soft">protein habit held 6 of 7 mornings.</span></p>
-          </div>
-        </div>
-
-        <!-- Body sub-view -->
-        <div class="subview" id="sub-body">
-          <div class="field-list">
-            <div class="field"><span class="fk">Weight</span><span class="fv">61.2 kg</span></div>
-            <div class="field"><span class="fk">Protein</span><span class="fv">98 / 110 g</span></div>
-            <div class="field"><span class="fk">Steps</span><span class="fv">7,420</span></div>
-            <div class="field"><span class="fk">Outdoor time</span><span class="fv empty">not logged</span></div>
-            <div class="field"><span class="fk">Tension</span><span class="tension"><i class="t on"></i><i class="t on"></i><i class="t on"></i><i class="t"></i><i class="t"></i></span></div>
-          </div>
-          <div class="card-insight">
-            <span class="insight-tag">Observation</span>
-            <p class="insight-p">lower movement · tension noted — <span class="soft">nothing required here. All fields optional.</span></p>
-          </div>
-        </div>
-
-        <!-- Money sub-view -->
-        <div class="subview" id="sub-money">
-          <div class="money-list">
-            <div class="money-row"><div class="money-left"><div class="m-cat">Coffee + pastry<span class="flag impulse">impulse</span></div><div class="m-note">tired, walked past the café</div></div><div class="money-amt">£6.40</div></div>
-            <div class="money-row"><div class="money-left"><div class="m-cat">Weekly groceries<span class="flag planned">planned</span></div><div class="m-note">list written night before</div></div><div class="money-amt">£42.10</div></div>
-            <div class="money-row"><div class="money-left"><div class="m-cat">Train top-up<span class="flag planned">planned</span></div></div><div class="money-amt">£20.00</div></div>
-          </div>
-          <div class="card-insight">
-            <span class="insight-tag">Possible pattern</span>
-            <p class="insight-p">purchase deferred · unclear day — <span class="soft">impulse spends cluster on shorter-sleep days. Still early.</span></p>
-          </div>
-        </div>
-      </section>
-
-    </div><!-- /content -->
-
-    <!-- Tabs · V1 base + Track added -->
-    <nav class="tabs">
-      <button class="tab-btn active" data-screen="today" data-title="Compass">
-        <span class="ic">☾</span>Today
-      </button>
-      <button class="tab-btn new-tab" data-screen="track" data-title="Track">
-        <span class="ic">◈</span>Track
-      </button>
-      <button class="tab-btn" data-screen="week" data-title="Trends">
-        <span class="ic">◔</span>Trends
-      </button>
-      <button class="tab-btn" data-screen="history" data-title="History">
-        <span class="ic">≡</span>History
-      </button>
-    </nav>
-    <!-- Settings overlay -->
-    <div class="settings-overlay" id="settingsOverlay">
-      <div class="settings-topbar">
-        <h2>Settings</h2>
-        <button class="settings-close" id="settingsClose">✕</button>
+        <button class="btn-prim">Save night</button>
       </div>
-      <div class="settings-body">
-        <div class="s-section">
-          <div class="s-section-title">Profile</div>
-          <div class="s-row">
-            <div class="s-field">
-              <div><div class="s-label">Name</div></div>
-              <span style="font-size:var(--fs-md);font-weight:600;color:var(--ink)">Ana</span>
+
+      <div class="log-sub" id="log-habits" style="display:none">
+        <div class="card-h" style="padding-left:4px;margin-bottom:8px">Active · 2 of 3</div>
+        <div class="h-card sleep">
+          <button class="h-tick" onclick="toggleHabit(this)"></button>
+          <div class="h-text"><div class="h-name">Morning walk</div>
+            <div class="h-meta">Sleep · 8 min</div></div>
+          <div class="h-rate">
+            <button onclick="rateHabit(this)">easy</button>
+            <button onclick="rateHabit(this)">hard</button>
+          </div>
+        </div>
+        <div class="h-card body done">
+          <button class="h-tick done" onclick="toggleHabit(this)"></button>
+          <div class="h-text"><div class="h-name">Drink water</div>
+            <div class="h-meta">Body · all day</div></div>
+          <div class="h-rate">
+            <button onclick="rateHabit(this)">easy</button>
+            <button class="sel" onclick="rateHabit(this)">hard</button>
+          </div>
+        </div>
+        <div class="h-card mind">
+          <button class="h-tick" onclick="toggleHabit(this)"></button>
+          <div class="h-text"><div class="h-name">Read one page</div>
+            <div class="h-meta">Mind · before bed</div></div>
+          <div class="h-rate">
+            <button onclick="rateHabit(this)">easy</button>
+            <button onclick="rateHabit(this)">hard</button>
+          </div>
+        </div>
+        <div class="add-row">＋ Add a habit</div>
+      </div>
+
+      <div class="log-sub" id="log-body" style="display:none">
+        <div class="b-sect">
+          <div class="b-sect-h">Weight</div>
+          <div class="b-row">
+            <div class="b-field">
+              <div class="b-label">Weight (kg)</div>
+              <div class="b-input-wrap"><input class="b-input active" value="72.4" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
             </div>
-            <div class="s-field">
-              <div><div class="s-label">Email</div></div>
-              <span style="font-size:var(--fs-sm);font-weight:600;color:var(--muted)">ana@example.com</span>
+            <div class="b-field">
+              <div class="b-label">Height (cm)</div>
+              <div class="b-input-wrap"><input class="b-input active" value="170" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
             </div>
           </div>
         </div>
-        <div class="s-section">
-          <div class="s-section-title">Privacy</div>
-          <div class="s-note" style="margin-top:0">Compass stores only your sleep times.<br><br>We never share your data. Only anonymous duration numbers are sent to generate your weekly note — never your identity.</div>
-        </div>
-        <button class="save-btn" style="background:none;color:var(--error);border:1px solid var(--error);box-shadow:none;margin-top:8px" onclick="alert('Sign out')">Sign out</button>
-      </div>
-    </div>
 
-    <!-- Target modal -->
-    <div class="target-modal" id="targetModal">
-      <div class="settings-topbar">
-        <h2>Sleep target</h2>
-        <button class="settings-close" id="targetModalClose">✕</button>
-      </div>
-      <div class="settings-body">
-        <div class="s-section">
-          <div class="s-section-title">What’s your target?</div>
-          <div class="s-row">
-            <div class="s-field">
-              <div><div class="s-label">🌙 Target bed</div></div>
-              <input class="s-input" type="time" id="modalBed" value="23:00" />
+        <div class="b-sect">
+          <div class="b-sect-h">BMI · auto from weight & height</div>
+          <div class="bmi-wrap">
+            <div class="bmi-pin" style="left:29.2%"><strong>22.3</strong></div>
+            <div class="bmi-bar">
+              <div class="bmi-z under"></div>
+              <div class="bmi-z ok"></div>
+              <div class="bmi-z over"></div>
+              <div class="bmi-z high"></div>
             </div>
-            <div class="s-field">
-              <div><div class="s-label">☀️ Target wake</div></div>
-              <input class="s-input" type="time" id="modalWake" value="07:00" />
+            <div class="bmi-ticks"><span>15</span><span>18.5</span><span>25</span><span>30</span><span>40</span></div>
+            <div class="bmi-status">Healthy ✓ — comfortably in range</div>
+          </div>
+        </div>
+
+        <div class="b-sect">
+          <div class="b-sect-h">Nutrition</div>
+          <div class="b-row">
+            <div class="b-field">
+              <div class="b-label">Calories</div>
+              <div class="b-input-wrap"><input class="b-input active" value="2140" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
             </div>
-            <div class="s-field" style="justify-content:center;background:var(--greige)">
-              <span id="modalDur" style="font-size:var(--fs-xl);font-weight:800;letter-spacing:-0.03em">8h 00m</span>
-              <span style="font-size:var(--fs-sm);color:var(--muted);margin-left:8px">target</span>
+            <div class="b-field">
+              <div class="b-label">Protein g</div>
+              <div class="b-input-wrap"><input class="b-input active" value="115" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
             </div>
           </div>
-          <div class="s-note">Set once; stays consistent wherever you are.</div>
+          <div class="b-row" style="margin-top:8px">
+            <div class="b-field">
+              <div class="b-label">Carbs g</div>
+              <div class="b-input-wrap"><input class="b-input" placeholder="—" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
+            </div>
+            <div class="b-field">
+              <div class="b-label">Fat g</div>
+              <div class="b-input-wrap"><input class="b-input" placeholder="—" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
+            </div>
+          </div>
         </div>
-        <button class="save-btn" id="saveTargetBtn">Save target</button>
+
+        <div class="b-sect">
+          <div class="b-sect-h">Movement</div>
+          <div class="b-row">
+            <div class="b-field">
+              <div class="b-label">Steps</div>
+              <div class="b-input-wrap"><input class="b-input active" value="8 420" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
+            </div>
+            <div class="b-field">
+              <div class="b-label">Outdoor (min)</div>
+              <div class="b-input-wrap"><input class="b-input active" value="25" /><button class="b-x" title="Exclude from save">✕</button></div>
+              <div class="save-hint">✓ will save</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="b-sect">
+          <div class="b-sect-h">Body feel</div>
+          <div class="b-feel">
+            <button class="feel-btn">relaxed</button>
+            <button class="feel-btn sel">easy</button>
+            <button class="feel-btn">tight</button>
+            <button class="feel-btn">sore</button>
+          </div>
+          <div class="area-row" id="bodyArea" style="display:none">
+            <div class="b-label" style="width:100%;margin-top:8px;margin-bottom:0">Area</div>
+            <div class="area-chip">back</div>
+            <div class="area-chip">neck</div>
+            <div class="area-chip">knees</div>
+            <div class="area-chip">hips</div>
+            <div class="area-chip">jaw</div>
+          </div>
+        </div>
+
+        <div class="b-sect">
+          <div class="b-sect-h">Today I noticed (optional)</div>
+          <div class="note-chips">
+            <div class="note-chip">headache</div>
+            <div class="note-chip sel">period</div>
+            <div class="note-chip">low energy</div>
+            <div class="note-chip">cold</div>
+            <div class="note-chip">allergies</div>
+            <div class="note-chip">cramp</div>
+          </div>
+        </div>
+
+        <div class="b-sect">
+          <div class="b-sect-h">Note</div>
+          <textarea class="b-note" placeholder="Anything else…"></textarea>
+        </div>
+
+        <button class="btn-prim">Save</button>
       </div>
-    </div>
 
-  </div><!-- /phone -->
-
-
-  <!-- ══ PANEL ══════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>V2 — Track tab</h2>
-    <p class="sub">Builds directly on V1's full app — every existing screen and the interactive sleep dial are preserved. V2 adds the <strong>Track</strong> tab, surfaces energy &amp; mood, and seeds the first world regions.</p>
-
-    <h3>Tab evolution</h3>
-    <div class="tab-evo">
-      <div class="row"><span class="v">V1</span><span class="t">Today · Trends · History</span></div>
-      <div class="row"><span class="v">V2</span><span class="t">Today · <b>Track ✦</b> · Trends · History</span></div>
-    </div>
-    <p>The V1 Today, Trends, and History screens are identical and fully functional. Track is inserted between Today and Trends — nothing is removed.</p>
-
-    <div class="tag-row">
-      <span class="tag new">New · Track tab</span>
-      <span class="tag new">New · energy &amp; mood on Today</span>
-      <span class="tag new">New · habits / body / money</span>
-      <span class="tag new">New · world seed scene</span>
-    </div>
-
-    <div class="feat-grid">
-      <div class="feat">
-        <strong>☾ Sleep sub-view</strong>
-        <span>Signal card only — last night · 7-day avg · energy score · observation line. Shortcuts to Today (log) and Trends (full chart). No chart here — that stays in Trends.</span>
+      <div class="log-sub" id="log-money" style="display:none">
+        <div class="m-amount"><input type="text" value="£ 14.20" /></div>
+        <div class="card-h" style="padding-left:4px;margin-bottom:6px">Category</div>
+        <div class="cat-chips">
+          <div class="cat-chip" data-cat="roof">Roof</div>
+          <div class="cat-chip" data-cat="move">Move</div>
+          <div class="cat-chip sel" data-cat="food">Food</div>
+          <div class="cat-chip" data-cat="ess">Essentials</div>
+          <div class="cat-chip" data-cat="living">Living</div>
+          <div class="cat-chip" data-cat="invest">Investing</div>
+          <div class="cat-chip" data-cat="give">Giving</div>
+          <div class="cat-chip" data-cat="aspire">Aspire</div>
+        </div>
+        <div class="b-sect" style="margin-bottom:8px">
+          <div class="b-label">Note (optional)</div>
+          <input class="b-input active" value="lunch — bakery" style="margin-top:4px" />
+        </div>
+        <button class="btn-prim" style="margin-bottom:14px">Log expense</button>
+        <div class="m-list-card">
+          <div class="card-h" style="margin-bottom:6px">Today · 2 expenses</div>
+          <div class="m-row"><span class="m-amt">£14.20</span><span class="m-cat" style="color:var(--m-food)">Food</span><span class="m-note">lunch — bakery</span></div>
+          <div class="m-row"><span class="m-amt">£8.50</span><span class="m-cat" style="color:var(--m-move)">Move</span><span class="m-note">bus</span></div>
+          <div class="m-status ok">
+            <span>Food budget · £200 / £450 left</span>
+            <span>Within plan ✓</span>
+          </div>
+        </div>
       </div>
-      <div class="feat">
-        <strong>✓ Habits sub-view</strong>
-        <span>Max 3 active. Done / not done toggle, no streak pressure. 7-day completion rate per habit.</span>
-      </div>
-      <div class="feat">
-        <strong>◍ Body sub-view</strong>
-        <span>Weight, protein, steps, tension, outdoor time — all optional, nothing required.</span>
-      </div>
-      <div class="feat">
-        <strong>£ Money sub-view</strong>
-        <span>Spend log with planned vs impulse flag. Pattern insight vs sleep/energy once ≥5 logs.</span>
-      </div>
-    </div>
+    </section>
 
-    <h3>One thing, one place</h3>
-    <ul>
-      <li><strong>Today</strong> — log (dial, energy/mood, save)</li>
-      <li><strong>Track</strong> — compact state + log forms for all areas. No charts.</li>
-      <li><strong>Trends</strong> — the full interactive sleep chart (week/month, hours/times)</li>
-      <li><strong>History</strong> — chronological list of every night</li>
-    </ul>
-    <p>In V4, when Chat and World need their nav slots, Trends and History are removed from the top bar and their content migrates <em>inside</em> Track → Sleep (full chart + history list). Until then each screen has a single clear purpose.</p>
-    <p>Source: <code>v2-track.md</code></p>
+    <section class="screen" id="map">
+      <div class="subnav" id="mapSub">
+        <button class="sn-btn" data-sub="year">Year</button>
+        <button class="sn-btn active" data-sub="month">Month</button>
+        <button class="sn-btn" data-sub="projects">Projects</button>
+        <button class="sn-btn" data-sub="mapviz">Map</button>
+      </div>
+      <div class="map-sub" id="map-year" style="display:none">
+        <div class="placeholder">
+          <div class="placeholder-h">Year goals arrive in V3</div>
+          <div class="placeholder-b">Set goals with motivation gate, mission filter, and qualities/skills gap before adding.</div>
+        </div>
+      </div>
+      <div class="map-sub" id="map-month">
+        <div class="kanban-hint">Slide columns ↔</div>
+        <div class="kanban">
+          <div class="kcol">
+            <div class="kcol-h"><span class="ktitle">Need to do</span><span class="kcount">4</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-craft)"></span>Compare two land plots</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-mind)"></span>Renew passport</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-money)"></span>Email accountant</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-body)"></span>Book blood panel</div>
+          </div>
+          <div class="kcol">
+            <div class="kcol-h"><span class="ktitle">Planned</span><span class="kcount">3</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-craft)"></span>Outline article</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-money)"></span>Draft freedom-number sheet</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-heart)"></span>Plan weekend with M.</div>
+          </div>
+          <div class="kcol">
+            <div class="kcol-h"><span class="ktitle">My side</span><span class="kcount">2</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-money)"></span>Compare savings rates</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-mind)"></span>Read one chapter</div>
+          </div>
+          <div class="kcol">
+            <div class="kcol-h"><span class="ktitle">Waiting</span><span class="kcount">1</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-mind)"></span>Reply from solicitor</div>
+          </div>
+          <div class="kcol today-mirror">
+            <div class="kcol-h"><span class="ktitle">Today mirror</span><span class="kcount">2</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-money)"></span>Call mortgage advisor</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-body)"></span>10-min walk outside</div>
+          </div>
+          <div class="kcol">
+            <div class="kcol-h"><span class="ktitle">Done</span><span class="kcount">6</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-money)"></span>Set up savings transfer</div>
+            <div class="kcard"><span class="pd" style="background:var(--p-body)"></span>Walk Mon morning</div>
+          </div>
+          <div class="kcol">
+            <div class="kcol-h"><span class="ktitle">Review</span><span class="kcount">1</span></div>
+            <div class="kcard"><span class="pd" style="background:var(--p-spirit)"></span>What drained me this week?</div>
+          </div>
+        </div>
+      </div>
+      <div class="map-sub" id="map-projects" style="display:none">
+        <div class="placeholder">
+          <div class="placeholder-h">Projects skeleton</div>
+          <div class="placeholder-b">Simple list in V2. Want / Have-to badges + qualities link in V3.</div>
+        </div>
+      </div>
+      <div class="map-sub" id="map-mapviz" style="display:none">
+        <div class="placeholder">
+          <div class="placeholder-h">Now → Mission map arrives in V3</div>
+          <div class="placeholder-b">Pillar-coloured paths, conflict glyphs, "What blocks happiness" entry.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="you">
+      <div id="you-home">
+        <div class="you-section" onclick="openYou('trends')">
+          <div class="you-icon">📊</div>
+          <div class="you-text"><div class="you-h">Trends</div>
+            <div class="you-b">Sleep · Mood · Energy · Habits · Body · Money</div></div>
+          <div class="you-arrow">›</div>
+        </div>
+        <div class="you-section" onclick="openYou('history')">
+          <div class="you-icon">📜</div>
+          <div class="you-text"><div class="you-h">History</div>
+            <div class="you-b">Past entries across all pillars</div></div>
+          <div class="you-arrow">›</div>
+        </div>
+        <div class="you-section" onclick="openYou('money')">
+          <div class="you-icon">💷</div>
+          <div class="you-text"><div class="you-h">Money</div>
+            <div class="you-b">Budget · Transactions · Worth · Freedom · Property</div></div>
+          <div class="you-arrow">›</div>
+        </div>
+        <div class="you-section" onclick="openSettings()">
+          <div class="you-icon">⚙</div>
+          <div class="you-text"><div class="you-h">Settings</div>
+            <div class="you-b">Profile · height · privacy · sign out</div></div>
+          <div class="you-arrow">›</div>
+        </div>
+      </div>
+
+      <div id="you-trends" style="display:none">
+        <button class="sn-btn active" style="background:var(--card);margin-bottom:12px;width:auto;padding:6px 12px" onclick="closeYouSub()">← You</button>
+        <div class="range-pill">
+          <button class="range-btn active">Week</button>
+          <button class="range-btn">Month</button>
+          <button class="range-btn">Year</button>
+          <button class="range-btn">All</button>
+        </div>
+        <div class="tiles">
+          <div class="tile active-tile">
+            <div class="tile-h">💤 Sleep</div>
+            <div class="tile-v">6h 48m</div>
+            <div class="tile-arrow up">▲ improving</div>
+          </div>
+          <div class="tile">
+            <div class="tile-h">☺ Mood</div>
+            <div class="tile-v">ok · 7</div>
+            <div class="tile-arrow flat">— steady</div>
+          </div>
+          <div class="tile">
+            <div class="tile-h">⚡ Energy</div>
+            <div class="tile-v">ok · 7</div>
+            <div class="tile-arrow down">▼ slight</div>
+          </div>
+          <div class="tile">
+            <div class="tile-h">✓ Habits</div>
+            <div class="tile-v">18 / 21</div>
+            <div class="tile-arrow up">▲ steady</div>
+          </div>
+          <div class="tile">
+            <div class="tile-h">🏃 Body</div>
+            <div class="tile-v">8 420</div>
+            <div class="tile-arrow up">▲ better</div>
+          </div>
+          <div class="tile">
+            <div class="tile-h">💷 Money</div>
+            <div class="tile-v">£142</div>
+            <div class="tile-arrow down">▼ -8%</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-h">
+            <span class="t">Sleep · this week</span>
+            <span class="s">avg 6h 48m</span>
+          </div>
+          <div class="chart-area" id="trendsChart"></div>
+          <div class="chart-days" id="trendsDays"></div>
+          <div class="chart-legend">
+            <div class="lg-item"><div class="lg-dot" style="background:var(--steel)"></div>Under goal</div>
+            <div class="lg-item"><div class="lg-dot" style="background:var(--olive)"></div>At or above goal</div>
+            <div class="lg-item" style="gap:4px"><div style="width:14px;border-top:1.5px dashed var(--olive);margin-top:1px"></div>8h goal</div>
+          </div>
+        </div>
+        <div class="insight">
+          <span class="insight-tag">Pattern</span>
+          <p class="insight-p">Nights with 7h+ tend to be followed by higher energy scores. <span class="soft">Still early — keep tracking for another 7–14 days.</span></p>
+        </div>
+      </div>
+
+      <div id="you-history" style="display:none">
+        <button class="sn-btn active" style="background:var(--card);margin-bottom:12px;width:auto;padding:6px 12px" onclick="closeYouSub()">← You</button>
+        <div class="h-tl-row"><div class="tl-date">Today</div>
+          <span class="tl-tag" style="color:var(--p-sleep)">SLEEP</span>
+          <div class="tl-body">5h 40m · 00:50 → 06:30</div></div>
+        <div class="h-tl-row"><div class="tl-date">Today</div>
+          <span class="tl-tag" style="color:var(--p-body)">BODY</span>
+          <div class="tl-body">72.4kg · 8 420 steps</div></div>
+        <div class="h-tl-row"><div class="tl-date">Today</div>
+          <span class="tl-tag" style="color:var(--p-money)">MONEY</span>
+          <div class="tl-body">£14.20 Food · lunch</div></div>
+        <div class="h-tl-row"><div class="tl-date">Yest.</div>
+          <span class="tl-tag" style="color:var(--p-sleep)">SLEEP</span>
+          <div class="tl-body">6h 10m · 01:15 → 07:25</div></div>
+        <div class="h-tl-row"><div class="tl-date">Yest.</div>
+          <span class="tl-tag" style="color:var(--p-mind)">MOOD</span>
+          <div class="tl-body">ok / good</div></div>
+        <div class="h-tl-row"><div class="tl-date">Mon 22</div>
+          <span class="tl-tag" style="color:var(--p-sleep)">SLEEP</span>
+          <div class="tl-body">7h 20m · 23:40 → 07:00</div></div>
+        <div class="h-tl-row"><div class="tl-date">Mon 22</div>
+          <span class="tl-tag" style="color:var(--p-body)">BODY</span>
+          <div class="tl-body">72.6kg · 11 200 steps</div></div>
+      </div>
+
+      <div id="you-money" style="display:none">
+        <button class="sn-btn active" style="background:var(--card);margin-bottom:12px;width:auto;padding:6px 12px" onclick="closeYouSub()">← You</button>
+        <div class="money-sub" id="moneySub">
+          <button class="active" data-m="over">Overview</button>
+          <button data-m="bud">Budget</button>
+          <button data-m="tx">Transactions</button>
+          <button data-m="setup">Setup</button>
+          <button data-m="worth">Worth</button>
+          <button data-m="free">Freedom</button>
+          <button data-m="prop">Property</button>
+        </div>
+        <div class="money-sub-view" id="money-over">
+          <div class="dash-grid">
+            <div class="dash-card"><div class="dash-h">Net worth</div>
+              <div class="dash-v">£1.25M</div>
+              <div class="dash-d" style="color:var(--olive)">▲ £12.5k (2.3%)</div></div>
+            <div class="dash-card"><div class="dash-h">Financial calm</div>
+              <div class="dash-v">78%</div><div class="dash-d">Stable 😌</div></div>
+            <div class="dash-card"><div class="dash-h">Savings rate</div>
+              <div class="dash-v">42%</div><div class="dash-d">£3.4k saved</div></div>
+            <div class="dash-card"><div class="dash-h">FIRE</div>
+              <div class="dash-v">62%</div><div class="dash-d">8.4 yrs · on track</div></div>
+          </div>
+          <div class="card">
+            <div class="card-h">Recent transactions</div>
+            <div class="m-row"><span class="m-amt">£14.20</span><span class="m-cat" style="color:var(--m-food)">Food</span><span class="m-note">bakery</span></div>
+            <div class="m-row"><span class="m-amt">£8.50</span><span class="m-cat" style="color:var(--m-move)">Move</span><span class="m-note">bus</span></div>
+            <div class="m-row"><span class="m-amt">£420</span><span class="m-cat" style="color:var(--m-ess)">Ess.</span><span class="m-note">groceries</span></div>
+          </div>
+        </div>
+        <div class="money-sub-view" id="money-bud" style="display:none">
+          <div class="bud-row" data-cat="roof"><div class="bud-row-h"><span class="nm">Roof</span><span class="nb">£420 / £1,200</span></div>
+            <div class="bar"><div class="bar-fill" style="width:35%"></div></div></div>
+          <div class="bud-row" data-cat="move"><div class="bud-row-h"><span class="nm">Move</span><span class="nb">£180 / £250</span></div>
+            <div class="bar"><div class="bar-fill" style="width:72%"></div></div></div>
+          <div class="bud-row" data-cat="food"><div class="bud-row-h"><span class="nm">Food</span><span class="nb">£250 / £450</span></div>
+            <div class="bar"><div class="bar-fill" style="width:56%"></div></div></div>
+          <div class="bud-row" data-cat="ess"><div class="bud-row-h"><span class="nm">Essentials</span><span class="nb">£540 / £500 · over</span></div>
+            <div class="bar"><div class="bar-fill over" style="width:100%"></div></div></div>
+          <div class="bud-row" data-cat="living"><div class="bud-row-h"><span class="nm">Living</span><span class="nb">£80 / £300</span></div>
+            <div class="bar"><div class="bar-fill" style="width:27%"></div></div></div>
+          <div class="bud-row" data-cat="invest"><div class="bud-row-h"><span class="nm">Investing</span><span class="nb">£1,500 / £1,500 ✓</span></div>
+            <div class="bar"><div class="bar-fill" style="background:var(--olive);width:100%"></div></div></div>
+          <div class="bud-row" data-cat="give"><div class="bud-row-h"><span class="nm">Giving</span><span class="nb">£60 / £100</span></div>
+            <div class="bar"><div class="bar-fill" style="width:60%"></div></div></div>
+          <div class="bud-row" data-cat="aspire"><div class="bud-row-h"><span class="nm">Aspire</span><span class="nb">£0 / £400</span></div>
+            <div class="bar"><div class="bar-fill" style="width:0%"></div></div></div>
+        </div>
+        <div class="money-sub-view" id="money-tx" style="display:none"><div class="placeholder"><div class="placeholder-h">Transactions list</div><div class="placeholder-b">Full list with filter / sort + import / export + slide-panel add/edit.<br>Ported from Quiet Capital.</div></div></div>
+        <div class="money-sub-view" id="money-setup" style="display:none"><div class="placeholder"><div class="placeholder-h">Setup</div><div class="placeholder-b">Income sources · donut allocation · category sliders.</div></div></div>
+        <div class="money-sub-view" id="money-worth" style="display:none"><div class="placeholder"><div class="placeholder-h">Net worth</div><div class="placeholder-b">Hero number + area chart + asset breakdown.</div></div></div>
+        <div class="money-sub-view" id="money-free" style="display:none"><div class="placeholder"><div class="placeholder-h">Freedom (FIRE)</div><div class="placeholder-b">FIRE status, settings, what-if scenarios.</div></div></div>
+        <div class="money-sub-view" id="money-prop" style="display:none"><div class="placeholder"><div class="placeholder-h">Property</div><div class="placeholder-b">Rent vs buy with UK / LT defaults.</div></div></div>
+      </div>
+    </section>
   </div>
 
-</div><!-- /wrap -->
+  <button class="chat-pill" id="chatPill">💬</button>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-screen="today" data-title="Today">
+      <span class="ic">☾</span>Today</button>
+    <button class="tab-btn" data-screen="log" data-title="Log">
+      <span class="ic">◈</span>Log</button>
+    <button class="tab-btn" data-screen="map" data-title="Map">
+      <span class="ic">◇</span>Map</button>
+    <button class="tab-btn" data-screen="you" data-title="You">
+      <span class="ic">◯</span>You</button>
+  </nav>
+
+  <div class="chat-sheet" id="chatSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-top">
+      <h2>💬 Chat</h2>
+      <button class="set-close" id="chatClose">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="chat-shell">
+        <strong>Conversation arrives in V3.</strong>
+        By then we'll know your mission, goals, and qualities — and Compass can help you think them through. The pill stays here so the gesture is already familiar.
+      </div>
+    </div>
+    <div class="composer">
+      <input placeholder="Type a message…" disabled />
+      <button disabled>↑</button>
+    </div>
+  </div>
+
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="set-topbar"><h2>Settings</h2>
+      <button class="set-close" id="setClose">✕</button></div>
+    <div class="set-body">
+      <div class="s-sect">
+        <div class="s-sect-h">Profile</div>
+        <div class="s-field"><span class="s-label">Name</span><span class="s-val">Ana</span></div>
+        <div class="s-field"><span class="s-label">Email</span><span class="s-val">ana@example.com</span></div>
+        <div class="s-field"><span class="s-label">Height (cm)</span><input class="s-input" value="168" /></div>
+      </div>
+      <div class="s-sect">
+        <div class="s-sect-h">Focus areas (V2)</div>
+        <div style="font-size:var(--fs-sm);color:var(--muted);line-height:1.55">
+          Pick 1–3 pillars to focus on right now. Habits & qualities suggestions filter to your focus.
+        </div>
+      </div>
+      <div class="s-sect">
+        <div class="s-sect-h">Privacy</div>
+        <div style="font-size:var(--fs-sm);color:var(--muted);line-height:1.55">
+          Compass stores only the data you log. Only anonymous numbers (durations, counts, codes) reach AI services — never your name, notes, or amounts.
+        </div>
+      </div>
+      <button class="btn-prim" style="background:none;color:var(--error);border:1px solid var(--error);box-shadow:none">Sign out</button>
+    </div>
+  </div>
+
+  <div class="target-modal" id="targetModal">
+    <div class="set-topbar"><h2>Sleep target</h2>
+      <button class="set-close" id="targetClose">✕</button></div>
+    <div class="set-body">
+      <p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin:0 0 12px">
+        Drag 🌙 and ☀️ to set the bed and wake times you're aiming for.
+      </p>
+      <div class="dial-card">
+        <div class="dial-hint">Same dial — just for your target window</div>
+        <svg id="targetDialSvg" viewBox="0 0 216 216"></svg>
+        <div class="dial-foot">
+          <strong id="mDur">8h 00m</strong> target
+          · <span id="mBedTxt">23:00</span> → <span id="mWakeTxt">07:00</span>
+        </div>
+      </div>
+      <button class="btn-prim" id="mSave">Save target</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>V2 — Capture & Browse</h2>
+  <p class="sub">The navigation shape that survives all the way to V4: <strong>4 mode-tabs</strong> (Today · Log · Map · You) plus a <strong>floating Chat pill</strong> on every screen. Structure by mode of engagement, not by feature.</p>
+
+  <div class="tag-row">
+    <span class="tag new">New · 4-tab architecture</span>
+    <span class="tag new">New · Floating chat pill</span>
+    <span class="tag mod">Moved · Sleep entry → Log</span>
+    <span class="tag mod">Merged · Mood &amp; energy into Sleep · 1–10 score</span>
+    <span class="tag mod">Redesigned · Body inputs + ✕ exclude + BMI slider</span>
+    <span class="tag mod">Redesigned · Target uses the same dial as entry</span>
+    <span class="tag new">New · Today = needs you + tasks done/not</span>
+    <span class="tag new">New · Money (Quiet-Capital port)</span>
+    <span class="tag new">New · You → Trends with W/M/Y/A</span>
+  </div>
+
+  <h3>4 mode-tabs</h3>
+  <div class="feat-grid">
+    <div class="feat"><strong>☾ Today</strong><span>Glance — needs-you + tasks done/not + quick log.</span></div>
+    <div class="feat"><strong>◈ Log</strong><span>Capture — Sleep (with mood/energy) · Habits · Body · Money.</span></div>
+    <div class="feat"><strong>◇ Map</strong><span>Direction — Year/Map placeholder in V2; Month kanban active.</span></div>
+    <div class="feat"><strong>◯ You</strong><span>Browse — Trends · History · Money detail · Settings.</span></div>
+  </div>
+
+  <h3>Body redesign</h3>
+  <ul>
+    <li><strong>✕ toggle</strong> per field — untouched fields write <code>NULL</code>, not <code>0</code></li>
+    <li>BMI auto from <code>profiles.height_cm</code> + weight, with status</li>
+    <li><strong>Tension</strong> → renamed <em>Body feel</em> (relaxed/easy/tight/sore) + optional body-area chip</li>
+    <li><strong>Flag</strong> → renamed <em>Today I noticed</em> — optional chips</li>
+    <li>Calories + macros grouped in one section</li>
+  </ul>
+
+  <h3>Money — Quiet Capital in Compass language</h3>
+  <ul>
+    <li>8 categories with QC's palette renamed Roof / Move / Food / Essentials / Living / Investing / Giving / Aspire</li>
+    <li>Quick log in Log → Money; full app in You → Money</li>
+    <li>Calm beige adaptation of QC's dark zinc design</li>
+    <li>CSV importer for existing QC data</li>
+  </ul>
+
+  <h3>Floating Chat (V2 shell)</h3>
+  <ul>
+    <li>Bottom-right pill, ChatGPT-style</li>
+    <li>Always visible across every screen</li>
+    <li>V2 ships shell with disabled composer</li>
+    <li>V3 wakes it up: Mission / Goal / Free modes, contextual</li>
+  </ul>
+
+  <h3>Try it</h3>
+  <ul>
+    <li>Tap <strong>Log</strong>, switch sub-tabs (Sleep dial, Body ✕-toggle, Money quick)</li>
+    <li>Tap <strong>Map</strong>, swipe the horizontal kanban</li>
+    <li>Tap <strong>You</strong>, open Trends or Money</li>
+    <li>Tap the <strong>💬 pill</strong> any time</li>
+  </ul>
+
+  <p style="font-size:12px;color:var(--muted);margin-top:18px">
+    Source: <code>design/v2-track.md</code>
+  </p>
+</div>
+
+</div>
 
 <script>
-// ── Tab switching ─────────────────────────────────────────────
-// ── Settings ─────────────────────────────────────────────
-(function () {
-  const overlay = document.getElementById('settingsOverlay');
-  document.querySelector('.cog').addEventListener('click', () => overlay.classList.add('open'));
-  document.getElementById('settingsClose').addEventListener('click', () => overlay.classList.remove('open'));
-})();
-
-// ── Target modal ─────────────────────────────────────────
-(function () {
-  const modal   = document.getElementById('targetModal');
-  const strip   = document.getElementById('targetStrip');
-  const bedIn   = document.getElementById('modalBed');
-  const wakeIn  = document.getElementById('modalWake');
-  const durEl   = document.getElementById('modalDur');
-  const saveBtn = document.getElementById('saveTargetBtn');
-  function parseTime(v) { const [h,m]=v.split(':').map(Number); return h+m/60; }
-  function durLabel(bed,wake) { let d=((wake+(wake<bed?24:0))-bed); const h=Math.floor(d),m=Math.round((d-h)*60); return m>0?`${h}h ${m}m`:`${h}h`; }
-  function updateDur() { durEl.textContent = durLabel(parseTime(bedIn.value), parseTime(wakeIn.value)); }
-  bedIn.addEventListener('input', updateDur);
-  wakeIn.addEventListener('input', updateDur);
-  strip.addEventListener('click', () => modal.classList.add('open'));
-  document.getElementById('targetModalClose').addEventListener('click', () => modal.classList.remove('open'));
-  saveBtn.addEventListener('click', () => {
-    document.getElementById('tBedDisplay').textContent  = bedIn.value;
-    document.getElementById('tWakeDisplay').textContent = wakeIn.value;
-    document.getElementById('tDurDisplay').textContent  = durLabel(parseTime(bedIn.value), parseTime(wakeIn.value));
-    modal.classList.remove('open');
-  });
-})();
-
-// Track sub-view switching (V2 addition)
-document.querySelectorAll('.subnav button').forEach(b => {
+function goTab(tab, sub) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === tab));
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === tab));
+  const t = document.querySelector(`.tab-btn[data-screen="${tab}"]`);
+  document.getElementById('screenTitle').textContent = t ? t.dataset.title : tab;
+  if (sub && tab === 'log') showLogSub(sub);
+}
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', () => goTab(b.dataset.screen));
+});
+function showLogSub(s) {
+  document.querySelectorAll('#logSub .sn-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === s));
+  document.querySelectorAll('#log .log-sub').forEach(el => el.style.display = (el.id === 'log-' + s) ? '' : 'none');
+}
+document.querySelectorAll('#logSub .sn-btn').forEach(b => {
+  b.addEventListener('click', () => showLogSub(b.dataset.sub));
+});
+document.querySelectorAll('#mapSub .sn-btn').forEach(b => {
   b.addEventListener('click', () => {
-    b.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.subview').forEach(s => s.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('sub-' + b.dataset.sub).classList.add('active');
+    document.querySelectorAll('#mapSub .sn-btn').forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('#map .map-sub').forEach(el => el.style.display = (el.id === 'map-' + b.dataset.sub) ? '' : 'none');
   });
 });
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.screen).classList.add('active');
-    document.getElementById('screenTitle').textContent = btn.dataset.title;
+function openYou(sub) {
+  document.getElementById('you-home').style.display = 'none';
+  ['trends','history','money'].forEach(k => {
+    const el = document.getElementById('you-' + k);
+    if (el) el.style.display = (k === sub) ? '' : 'none';
+  });
+  document.getElementById('screenTitle').textContent =
+    sub === 'trends' ? 'Trends' : sub === 'history' ? 'History' :
+    sub === 'money' ? 'Money' : 'You';
+}
+function closeYouSub() {
+  document.getElementById('you-home').style.display = '';
+  ['trends','history','money'].forEach(k => {
+    const el = document.getElementById('you-' + k);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('screenTitle').textContent = 'You';
+}
+document.querySelectorAll('#moneySub button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#moneySub button').forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('.money-sub-view').forEach(el => el.style.display = (el.id === 'money-' + b.dataset.m) ? '' : 'none');
   });
 });
-
-// ── Week chart / Trends ──────────────────────────────────────
-(function () {
-  const DAY_NAMES  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const GOAL_MIN   = 480;
-  const GOAL_BED   = 23.0;
-  const GOAL_WAKE  = 31.0;
-  const Y_MIN = 22, Y_MAX = 33;
-
-  const weeks = [
-    {
-      label: 'Mon 22 \u2013 Sun 28 Jun',
-      nights: [
-        { bed: 23.667, wake: 31.0,   dur: 440 },  // Mon 23:40 → 07:00
-        { bed: 25.25,  wake: 31.417, dur: 370 },  // Tue 01:15 → 07:25
-        { bed: 24.833, wake: 30.5,   dur: 340 },  // Wed 00:50 → 06:30
-        null, null, null, null
-      ]
-    },
-    {
-      label: 'Mon 15 \u2013 Sun 21 Jun',
-      nights: [
-        { bed: 23.5,   wake: 30.5,   dur: 420 },  // Mon 23:30 → 06:30
-        { bed: 24.17,  wake: 30.5,   dur: 380 },  // Tue 00:10 → 06:30
-        { bed: 23.25,  wake: 30.25,  dur: 420 },  // Wed 23:15 → 06:15
-        { bed: 23.25,  wake: 31.0,   dur: 465 },  // Thu 23:15 → 07:00
-        { bed: 24.75,  wake: 31.25,  dur: 390 },  // Fri 00:45 → 07:15
-        { bed: 23.167, wake: 31.0,   dur: 470 },  // Sat 23:10 → 07:00
-        { bed: 23.0,   wake: 31.083, dur: 485 },  // Sun 23:00 → 07:05
-      ]
-    },
-    {
-      label: 'Mon 8 \u2013 Sun 14 Jun',
-      nights: [
-        { bed: 23.5,   wake: 31.5,   dur: 480 },
-        { bed: 23.25,  wake: 30.75,  dur: 450 },
-        { bed: 24.5,   wake: 30.5,   dur: 360 },
-        { bed: 23.33,  wake: 31.0,   dur: 460 },
-        { bed: 24.0,   wake: 31.0,   dur: 420 },
-        { bed: 23.0,   wake: 31.5,   dur: 510 },
-        { bed: 23.25,  wake: 31.0,   dur: 465 },
-      ]
+function toggleHabit(btn) {
+  const card = btn.closest('.h-card');
+  card.classList.toggle('done');
+  btn.classList.toggle('done');
+}
+function rateHabit(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('sel', b === btn));
+}
+document.querySelectorAll('.feel-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('.feel-btn').forEach(x => x.classList.toggle('sel', x === b));
+    const reveal = b.textContent === 'tight' || b.textContent === 'sore';
+    document.getElementById('bodyArea').style.display = reveal ? 'flex' : 'none';
+  });
+});
+document.querySelectorAll('.area-chip').forEach(c => {
+  c.addEventListener('click', () => c.classList.toggle('sel'));
+});
+document.querySelectorAll('.note-chip').forEach(c => {
+  c.addEventListener('click', () => c.classList.toggle('sel'));
+});
+document.querySelectorAll('.cat-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    c.parentElement.querySelectorAll('.cat-chip').forEach(x => x.classList.toggle('sel', x === c));
+  });
+});
+document.querySelectorAll('.score-row').forEach(row => {
+  row.querySelectorAll('.score-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      row.querySelectorAll('.score-btn').forEach(x => x.classList.toggle('sel', x === b));
+    });
+  });
+});
+function toggleTask(row) {
+  row.classList.toggle('done');
+  const ck = row.querySelector('.check-mini');
+  if (ck) { ck.classList.toggle('done'); ck.textContent = ck.classList.contains('done') ? '\u2713' : ''; }
+}
+document.querySelectorAll('.b-input').forEach(i => {
+  i.addEventListener('focus', () => {
+    if (i.classList.contains('off')) {
+      i.classList.remove('off');
+      i.value = '';
+      const xb = i.closest('.b-input-wrap')?.querySelector('.b-x');
+      if (xb) xb.classList.remove('on');
     }
-  ];
-
-  // Monthly summaries
-  const months = [
-    {
-      label: 'June 2026',
-      weeks: [
-        { label: '8–14',  avgDur: 449, avgBed: 23.55, avgWake: 31.11 },
-        { label: '15–21', avgDur: 433, avgBed: 23.58, avgWake: 30.79 },
-        { label: '22–28', avgDur: 383, avgBed: 24.78, avgWake: 30.64 },
-      ]
-    },
-    {
-      label: 'May 2026',
-      weeks: [
-        { label: '5–11',  avgDur: 462, avgBed: 23.3,  avgWake: 31.0  },
-        { label: '12–18', avgDur: 445, avgBed: 23.5,  avgWake: 30.9  },
-        { label: '19–25', avgDur: 418, avgBed: 24.1,  avgWake: 31.1  },
-        { label: '26–1',  avgDur: 438, avgBed: 23.6,  avgWake: 30.9  },
-      ]
+    i.classList.add('active');
+    const f = i.closest('.b-field');
+    if (f) {
+      f.classList.add('touched');
+      const hint = f.querySelector('.save-hint');
+      if (hint) hint.textContent = '✓ will save';
     }
-  ];
-
-  let weekIdx = 0, monthIdx = 0;
-  let view = 'hours', period = 'week';
-
-  function fmtHM(fh) {
-    const h = ((fh % 24) + 24) % 24;
-    const m = Math.round((h % 1) * 60);
-    return `${String(Math.floor(h)).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-  }
-  function minToHM(min) {
-    if (!min) return '\u2014';
-    const h = Math.floor(min / 60), m = min % 60;
-    return m > 0 ? `${h}h ${m}m` : `${h}h`;
-  }
-
-  function render() {
-    const daysEl = document.getElementById('hoursDays');
-    daysEl.innerHTML = '';
-    if (period === 'week') {
-      const w = weeks[weekIdx];
-      document.getElementById('weekNavLabel').textContent = w.label;
-      document.getElementById('weekNavPrev').disabled = weekIdx >= weeks.length - 1;
-      document.getElementById('weekNavNext').disabled = weekIdx <= 0;
-      const valid = w.nights.filter(Boolean);
-      const avg = valid.length ? Math.round(valid.reduce((s, n) => s + n.dur, 0) / valid.length) : 0;
-      document.getElementById('avgSleepVal').textContent = minToHM(avg);
-      document.getElementById('avgSleepLabel').textContent = 'Avg sleep · this week';
-      DAY_NAMES.forEach(d => { const s = document.createElement('span'); s.textContent = d; daysEl.appendChild(s); });
-      view === 'hours'
-        ? renderHours(w.nights.map(n => n ? n.dur : null))
-        : renderTimes(w.nights.map(n => n ? n.dur : null), w.nights.map(n => n ? n.bed : null), w.nights.map(n => n ? n.wake : null));
+  });
+  i.addEventListener('blur', () => {
+    const v = i.value.trim();
+    if (v === '' || v === '—' || i.classList.contains('off')) {
+      i.classList.remove('active');
+      if (!i.classList.contains('off')) i.value = '';
+      const f = i.closest('.b-field');
+      if (f) f.classList.remove('touched');
+    }
+  });
+});
+document.querySelectorAll('.b-x').forEach(x => {
+  x.addEventListener('click', () => {
+    const wrap = x.closest('.b-input-wrap');
+    const i = wrap ? wrap.querySelector('.b-input') : null;
+    if (!i) return;
+    const f = i.closest('.b-field');
+    const hint = f ? f.querySelector('.save-hint') : null;
+    if (i.classList.contains('off')) {
+      i.classList.remove('off');
+      x.classList.remove('on');
+      i.value = i.dataset.last || '';
+      if (i.value.trim() !== '') {
+        i.classList.add('active');
+        if (f) f.classList.add('touched');
+      }
+      if (hint) hint.textContent = '✓ will save';
     } else {
-      const mo = months[monthIdx];
-      document.getElementById('weekNavLabel').textContent = mo.label;
-      document.getElementById('weekNavPrev').disabled = monthIdx >= months.length - 1;
-      document.getElementById('weekNavNext').disabled = monthIdx <= 0;
-      const avg = Math.round(mo.weeks.reduce((s, w) => s + w.avgDur, 0) / mo.weeks.length);
-      document.getElementById('avgSleepVal').textContent = minToHM(avg);
-      document.getElementById('avgSleepLabel').textContent = 'Avg sleep · this month';
-      mo.weeks.forEach(w => { const s = document.createElement('span'); s.textContent = w.label; daysEl.appendChild(s); });
-      view === 'hours'
-        ? renderHours(mo.weeks.map(w => w.avgDur))
-        : renderTimes(mo.weeks.map(w => w.avgDur), mo.weeks.map(w => w.avgBed), mo.weeks.map(w => w.avgWake));
+      i.dataset.last = i.value;
+      i.classList.add('off');
+      i.classList.remove('active');
+      i.value = '—';
+      x.classList.add('on');
+      if (f) f.classList.remove('touched');
+      if (hint) hint.textContent = '✕ not saved';
     }
-  }
-
-  function renderHours(durs) {
-    document.getElementById('hoursChart').style.display = '';
-    document.getElementById('timesChart').style.display  = 'none';
-    document.getElementById('hoursLegend').style.display = '';
-    const chart = document.getElementById('hoursChart');
-    chart.innerHTML = '';
-    const scale = 9 * 60;
-    const gl = document.createElement('div');
-    gl.className = 'goal-line';
-    gl.style.bottom = ((GOAL_MIN / scale) * 100) + '%';
-    const glLbl = document.createElement('div');
-    glLbl.className = 'goal-label';
-    glLbl.style.bottom = ((GOAL_MIN / scale) * 100) + '%';
-    glLbl.textContent = '8h';
-    chart.appendChild(gl);
-    chart.appendChild(glLbl);
-    durs.forEach(dur => {
-      const col = document.createElement('div');
-      col.className = 'chart-col';
-      if (dur) {
-        const bar = document.createElement('div');
-        bar.className = 'chart-bar' + (dur >= GOAL_MIN ? ' above-goal' : '');
-        bar.style.height = ((dur / scale) * 100) + '%';
-        bar.title = minToHM(dur);
-        col.appendChild(bar);
-      }
-      chart.appendChild(col);
-    });
-  }
-
-  function renderTimes(durs, beds, wakes) {
-    document.getElementById('hoursChart').style.display  = 'none';
-    document.getElementById('timesChart').style.display  = '';
-    document.getElementById('hoursLegend').style.display = 'none';
-    const chart = document.getElementById('timesChart');
-    chart.innerHTML = '';
-    const Y_RANGE = Y_MAX - Y_MIN;
-    const yAxis = document.createElement('div');
-    yAxis.className = 'tc-y-axis';
-    ['9 AM','7 AM','5 AM','3 AM','1 AM','11 PM'].forEach(txt => {
-      const s = document.createElement('span'); s.className = 'tc-y-label'; s.textContent = txt; yAxis.appendChild(s);
-    });
-    chart.appendChild(yAxis);
-    const barsWrap = document.createElement('div');
-    barsWrap.className = 'tc-bars';
-    [GOAL_BED, GOAL_WAKE].forEach(gh => {
-      const line = document.createElement('div');
-      line.className = 'tc-goal-line';
-      line.style.bottom = ((gh - Y_MIN) / Y_RANGE * 100) + '%';
-      barsWrap.appendChild(line);
-    });
-    beds.forEach((bed, i) => {
-      const col = document.createElement('div');
-      col.className = 'tc-col';
-      if (bed != null) {
-        const wake = wakes[i];
-        const bedPct  = ((bed  - Y_MIN) / Y_RANGE) * 100;
-        const wakePct = ((wake - Y_MIN) / Y_RANGE) * 100;
-        const bar = document.createElement('div');
-        bar.className = 'tc-bar';
-        bar.style.bottom = bedPct + '%';
-        bar.style.height = Math.max(wakePct - bedPct, 1) + '%';
-        bar.title = fmtHM(bed) + ' \u2192 ' + fmtHM(wake - 24) + ' \u00b7 ' + minToHM(durs[i]);
-        col.appendChild(bar);
-      }
-      barsWrap.appendChild(col);
-    });
-    chart.appendChild(barsWrap);
-  }
-
-  // Period pill (Week / Month)
-  document.querySelectorAll('[data-period]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      period = btn.dataset.period;
-      weekIdx = 0; monthIdx = 0;
-      document.querySelectorAll('[data-period]').forEach(b => b.classList.toggle('active', b.dataset.period === period));
-      render();
-    });
   });
+});
+const setOv = document.getElementById('settingsOverlay');
+function openSettings() { setOv.classList.add('open'); }
+document.getElementById('openSettings').addEventListener('click', openSettings);
+document.getElementById('setClose').addEventListener('click', () => setOv.classList.remove('open'));
 
-  // View pill (Hours / Times)
-  document.querySelectorAll('[data-view]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      view = btn.dataset.view;
-      document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-      render();
-    });
-  });
+const tMod = document.getElementById('targetModal');
+document.getElementById('targetStrip').addEventListener('click', () => tMod.classList.add('open'));
+document.getElementById('targetClose').addEventListener('click', () => tMod.classList.remove('open'));
+function fmtT(h) {
+  const tot = Math.round(((h % 24 + 24) % 24) * 60);
+  return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
+}
+function fmtDurHours(t1, t2) {
+  const d = ((t2 - t1) + 24) % 24;
+  const h = Math.floor(d), m = Math.round((d - h) * 60);
+  return m > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${h} hours`;
+}
+document.getElementById('mSave').addEventListener('click', () => {
+  document.getElementById('tBed').textContent = fmtT(window._target.sleep);
+  document.getElementById('tWake').textContent = fmtT(window._target.wake);
+  document.getElementById('tDur').textContent = fmtDurHours(window._target.sleep, window._target.wake);
+  tMod.classList.remove('open');
+});
 
-  // Navigation
-  document.getElementById('weekNavPrev').addEventListener('click', () => {
-    if (period === 'week') { if (weekIdx < weeks.length - 1) { weekIdx++; render(); } }
-    else { if (monthIdx < months.length - 1) { monthIdx++; render(); } }
-  });
-  document.getElementById('weekNavNext').addEventListener('click', () => {
-    if (period === 'week') { if (weekIdx > 0) { weekIdx--; render(); } }
-    else { if (monthIdx > 0) { monthIdx--; render(); } }
-  });
+const sheet = document.getElementById('chatSheet');
+document.getElementById('chatPill').addEventListener('click', () => sheet.classList.add('open'));
+document.getElementById('chatClose').addEventListener('click', () => sheet.classList.remove('open'));
 
-  render();
-})();
-
-// ── Sleep Dial ────────────────────────────────────────────────
+// V1 Sleep Dial — port
 (function () {
-  const NS  = 'http://www.w3.org/2000/svg';
+  const NS = 'http://www.w3.org/2000/svg';
   const svg = document.getElementById('dialSvg');
-
-  // Constants
   const SZ = 216, CX = 108, CY = 108;
-  const R        = 76;   // arc radius
-  const R_TICKS  = 85;   // outer tick edge
-  const R_LABELS = 99;   // hour-label distance from centre
-  const HR       = 12;   // handle radius
-
-  // Mutable state
-  let sleepH = 50 / 60;  // 00:50 → 0.833…
-  let wakeH  = 6.5;      // 06:30
-  const T_SLEEP = 23;    // goal 23:00
-  const T_WAKE  = 7;     // goal 07:00
-
+  const R = 76, R_TICKS = 85, R_LABELS = 99, HR = 12;
+  let sleepH = 50 / 60, wakeH = 6.5;
+  const T_SLEEP = 23, T_WAKE = 7;
   let dragging = null;
-
-  // ── SVG helpers ──────────────────────────────────────────
   const mk = (tag, attrs, text) => {
     const e = document.createElementNS(NS, tag);
     for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
     if (text !== undefined) e.textContent = text;
     return e;
   };
-
   const toAngle = h => (h / 24) * Math.PI * 2 - Math.PI / 2;
-
-  const toTime = a => {
-    let t = ((a + Math.PI / 2) / (Math.PI * 2)) * 24;
-    return ((t % 24) + 24) % 24;
-  };
-
-  const polar = (h, r) => {
-    const a = toAngle(h);
-    return [+(CX + r * Math.cos(a)).toFixed(2), +(CY + r * Math.sin(a)).toFixed(2)];
-  };
-
+  const toTime = a => { let t = ((a + Math.PI / 2) / (Math.PI * 2)) * 24; return ((t % 24) + 24) % 24; };
+  const polar = (h, r) => { const a = toAngle(h); return [+(CX + r * Math.cos(a)).toFixed(2), +(CY + r * Math.sin(a)).toFixed(2)]; };
   const arcD = (t1, t2, r) => {
-    const [x1, y1] = polar(t1, r);
-    const [x2, y2] = polar(t2, r);
+    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
     const dur = ((t2 - t1) + 24) % 24;
     return `M ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2}`;
   };
-
   const sectorD = (t1, t2, r) => {
-    const [x1, y1] = polar(t1, r);
-    const [x2, y2] = polar(t2, r);
+    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
     const dur = ((t2 - t1) + 24) % 24;
     return `M ${CX} ${CY} L ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2} Z`;
   };
-
   const fmtTime = h => {
     const tot = Math.round(((h % 24 + 24) % 24) * 60);
     return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
   };
-
   const fmtDur = (t1, t2) => {
     const d = ((t2 - t1) + 24) % 24;
-    const h = Math.floor(d);
-    const m = Math.round((d - h) * 60);
+    const h = Math.floor(d), m = Math.round((d - h) * 60);
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   };
-
   const snap10 = h => Math.round(h * 6) / 6;
 
-  // ── Build static layers ───────────────────────────────────
-  // Background disc
   svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R + 22, fill: '#F0ECE5', stroke: 'none' }));
-
-  // Track ring
   svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R, fill: 'none', stroke: '#DDD9D2', 'stroke-width': '1.5' }));
-
-  // Hour ticks
   for (let h = 0; h < 24; h++) {
-    const major  = h % 6 === 0;
-    const medium = h % 3 === 0;
+    const major = h % 6 === 0, medium = h % 3 === 0;
     const a = toAngle(h);
-    const r1 = R_TICKS - (major ? 10 : medium ? 5 : 3);
-    const r2 = R_TICKS;
+    const r1 = R_TICKS - (major ? 10 : medium ? 5 : 3), r2 = R_TICKS;
     const cos = Math.cos(a), sin = Math.sin(a);
     svg.appendChild(mk('line', {
       x1: +(CX + r1 * cos).toFixed(2), y1: +(CY + r1 * sin).toFixed(2),
       x2: +(CX + r2 * cos).toFixed(2), y2: +(CY + r2 * sin).toFixed(2),
-      stroke:          major ? '#65645F' : '#C4BFBA',
-      'stroke-width':  major ? '1.5' : '0.75',
-      'stroke-linecap': 'round'
+      stroke: major ? '#65645F' : '#C4BFBA',
+      'stroke-width': major ? '1.5' : '0.75', 'stroke-linecap': 'round'
     }));
   }
-
-  // Hour labels: 0 (midnight), 6, 12, 18
   [{ h: 0, t: '0' }, { h: 6, t: '6' }, { h: 12, t: '12' }, { h: 18, t: '18' }].forEach(({ h, t }) => {
     const [x, y] = polar(h, R_LABELS);
-    svg.appendChild(mk('text', {
-      x, y,
-      'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-family': 'Inter, sans-serif', 'font-size': '9.5',
-      'font-weight': '600', fill: '#65645F'
-    }, t));
+    svg.appendChild(mk('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-family': 'Inter, sans-serif', 'font-size': '9.5', 'font-weight': '600', fill: '#65645F' }, t));
   });
-
-  // Target arc (dashed — the goal window)
-  const targetArc = mk('path', {
-    fill: 'none', stroke: '#768471',
-    'stroke-width': '3.5', 'stroke-linecap': 'round',
-    'stroke-dasharray': '3 4.5', opacity: '0.45',
-    d: arcD(T_SLEEP, T_WAKE, R)
-  });
+  const targetArc = mk('path', { fill: 'none', stroke: '#768471', 'stroke-width': '3.5',
+    'stroke-linecap': 'round', 'stroke-dasharray': '3 4.5', opacity: '0.45', d: arcD(T_SLEEP, T_WAKE, R) });
   svg.appendChild(targetArc);
-
-  // Sleep sector fill (translucent)
-  const sector = mk('path', {
-    fill: 'rgba(126,142,159,0.13)', stroke: 'none',
-    d: sectorD(sleepH, wakeH, R)
-  });
+  const sector = mk('path', { fill: 'rgba(126,142,159,0.13)', stroke: 'none', d: sectorD(sleepH, wakeH, R) });
   svg.appendChild(sector);
-
-  // Sleep arc (solid)
-  const sleepArc = mk('path', {
-    fill: 'none', stroke: '#7E8E9F',
-    'stroke-width': '5.5', 'stroke-linecap': 'round',
-    d: arcD(sleepH, wakeH, R)
-  });
+  const sleepArc = mk('path', { fill: 'none', stroke: '#7E8E9F', 'stroke-width': '5.5',
+    'stroke-linecap': 'round', d: arcD(sleepH, wakeH, R) });
   svg.appendChild(sleepArc);
-
-  // Centre: two combined rows, each centered as a single SVG text string
-  const bedCenterTxt = mk('text', {
-    x: CX, y: CY - 9,
-    'text-anchor': 'middle', 'dominant-baseline': 'central',
-    'font-family': 'Inter, sans-serif', 'font-size': '14',
-    'font-weight': '800', fill: '#24231F'
-  }, '\uD83C\uDF19 ' + fmtTime(sleepH));
-  const wakeCenterTxt = mk('text', {
-    x: CX, y: CY + 11,
-    'text-anchor': 'middle', 'dominant-baseline': 'central',
-    'font-family': 'Inter, sans-serif', 'font-size': '14',
-    'font-weight': '700', fill: '#65645F'
-  }, '\u2600\uFE0F ' + fmtTime(wakeH));
-  svg.appendChild(bedCenterTxt);
-  svg.appendChild(wakeCenterTxt);
-
-  // ── Handles ───────────────────────────────────────────────
+  const bedTxt = mk('text', { x: CX, y: CY - 9, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '800', fill: '#24231F' },
+    '\uD83C\uDF19 ' + fmtTime(sleepH));
+  const wakeTxt = mk('text', { x: CX, y: CY + 11, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '700', fill: '#65645F' },
+    '\u2600\uFE0F ' + fmtTime(wakeH));
+  svg.appendChild(bedTxt); svg.appendChild(wakeTxt);
   function makeHandle(emoji, fill) {
-    const g  = mk('g', { cursor: 'grab' });
-    const c  = mk('circle', { r: HR, fill, stroke: '#FFFEFC', 'stroke-width': '2.5' });
-    const ic = mk('text', {
-      'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-size': '11', 'pointer-events': 'none'
-    }, emoji);
-    g.appendChild(c); g.appendChild(ic);
-    svg.appendChild(g);
+    const g = mk('g', { cursor: 'grab' });
+    const c = mk('circle', { r: HR, fill, stroke: '#FFFEFC', 'stroke-width': '2.5' });
+    const ic = mk('text', { 'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-size': '11', 'pointer-events': 'none' }, emoji);
+    g.appendChild(c); g.appendChild(ic); svg.appendChild(g);
     return { g, c, ic };
   }
-
-  const sh = makeHandle('🌙', '#24231F');  // sleep handle
-  const wh = makeHandle('☀️', '#768471'); // wake handle
-
-  // ── Updater ───────────────────────────────────────────────
+  const sh = makeHandle('🌙', '#24231F'), wh = makeHandle('☀️', '#768471');
   function posHandle({ c, ic }, h) {
     const [x, y] = polar(h, R);
     c.setAttribute('cx', x); c.setAttribute('cy', y);
     ic.setAttribute('x', x); ic.setAttribute('y', y);
   }
-
   function update() {
-    posHandle(sh, sleepH);
-    posHandle(wh, wakeH);
-
+    posHandle(sh, sleepH); posHandle(wh, wakeH);
     sleepArc.setAttribute('d', arcD(sleepH, wakeH, R));
-    sector.setAttribute('d',   sectorD(sleepH, wakeH, R));
-
-    bedCenterTxt.textContent  = '\uD83C\uDF19 ' + fmtTime(sleepH);
-    wakeCenterTxt.textContent = '\u2600\uFE0F ' + fmtTime(wakeH);
+    sector.setAttribute('d', sectorD(sleepH, wakeH, R));
+    bedTxt.textContent = '\uD83C\uDF19 ' + fmtTime(sleepH);
+    wakeTxt.textContent = '\u2600\uFE0F ' + fmtTime(wakeH);
     document.getElementById('durDisplay').textContent = fmtDur(sleepH, wakeH);
-
-    const sn = ((sleepH % 24) + 24) % 24;
-    // Update insight dynamically
     const dur = ((wakeH - sleepH) + 24) % 24;
-    const h   = Math.floor(dur), m = Math.round((dur - h) * 60);
+    const h = Math.floor(dur), m = Math.round((dur - h) * 60);
     const durStr = m > 0 ? `${h}h ${m}m` : `${h}h`;
-    const diff = dur - 8; // vs 8h goal
+    const diff = dur - 8;
     let note;
-    if (diff >= 0) {
-      note = `${durStr} — at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>`;
-    } else if (diff >= -1) {
-      note = `${durStr} is close to your 8h goal. <span class="soft">See how your energy feels today — one night off is just one night.</span>`;
-    } else {
-      note = `${durStr} is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>`;
-    }
+    if (diff >= 0) note = `${durStr} — at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>`;
+    else if (diff >= -1) note = `${durStr} is close to your 8h goal. <span class="soft">See how your energy feels today — one night off is just one night.</span>`;
+    else note = `${durStr} is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>`;
     document.getElementById('insightText').innerHTML = note;
-
-
   }
-
-  update(); // initial render
-
-  // ── Drag interaction ──────────────────────────────────────
+  update();
   function svgPt(e) {
     const rect = svg.getBoundingClientRect();
     const sx = SZ / rect.width, sy = SZ / rect.height;
@@ -1652,48 +1514,207 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const cy = e.touches ? e.touches[0].clientY : e.clientY;
     return [(cx - rect.left) * sx, (cy - rect.top) * sy];
   }
-
   function near(px, py, h) {
     const [hx, hy] = polar(h, R);
     return Math.hypot(px - hx, py - hy) < HR * 2.4;
   }
-
   svg.addEventListener('mousedown', e => {
     const [px, py] = svgPt(e);
     if (near(px, py, sleepH)) { dragging = 'sleep'; svg.style.cursor = 'grabbing'; }
     else if (near(px, py, wakeH)) { dragging = 'wake'; svg.style.cursor = 'grabbing'; }
   });
-
   svg.addEventListener('touchstart', e => {
     e.preventDefault();
     const [px, py] = svgPt(e);
     if (near(px, py, sleepH)) dragging = 'sleep';
     else if (near(px, py, wakeH)) dragging = 'wake';
   }, { passive: false });
-
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
     const [px, py] = svgPt(e);
     const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
-    if (dragging === 'sleep') sleepH = t;
-    else wakeH = t;
+    if (dragging === 'sleep') sleepH = t; else wakeH = t;
     update();
   });
-
   window.addEventListener('touchmove', e => {
     if (!dragging) return;
     e.preventDefault();
     const [px, py] = svgPt(e);
     const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
-    if (dragging === 'sleep') sleepH = t;
-    else wakeH = t;
+    if (dragging === 'sleep') sleepH = t; else wakeH = t;
     update();
   }, { passive: false });
-
-  window.addEventListener('mouseup',  () => { dragging = null; svg.style.cursor = 'default'; });
-  window.addEventListener('touchend', () => { dragging = null; });
-
+  window.addEventListener('mouseup',   () => { dragging = null; svg.style.cursor = 'default'; });
+  window.addEventListener('touchend',  () => { dragging = null; });
 })();
+
+// Target dial — same design, sets target bed/wake
+window._target = { sleep: 23, wake: 7 };
+(function () {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('targetDialSvg');
+  const SZ = 216, CX = 108, CY = 108;
+  const R = 76, R_TICKS = 85, R_LABELS = 99, HR = 12;
+  let sleepH = 23, wakeH = 7;
+  let dragging = null;
+  const mk = (tag, attrs, text) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  };
+  const toAngle = h => (h / 24) * Math.PI * 2 - Math.PI / 2;
+  const toTime = a => { let t = ((a + Math.PI / 2) / (Math.PI * 2)) * 24; return ((t % 24) + 24) % 24; };
+  const polar = (h, r) => { const a = toAngle(h); return [+(CX + r * Math.cos(a)).toFixed(2), +(CY + r * Math.sin(a)).toFixed(2)]; };
+  const arcD = (t1, t2, r) => {
+    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
+    const dur = ((t2 - t1) + 24) % 24;
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2}`;
+  };
+  const sectorD = (t1, t2, r) => {
+    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
+    const dur = ((t2 - t1) + 24) % 24;
+    return `M ${CX} ${CY} L ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2} Z`;
+  };
+  const fmtTime = h => {
+    const tot = Math.round(((h % 24 + 24) % 24) * 60);
+    return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
+  };
+  const fmtDur = (t1, t2) => {
+    const d = ((t2 - t1) + 24) % 24;
+    const h = Math.floor(d), m = Math.round((d - h) * 60);
+    return m > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${h}h 00m`;
+  };
+  const snap10 = h => Math.round(h * 6) / 6;
+  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R + 22, fill: '#F0ECE5', stroke: 'none' }));
+  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R, fill: 'none', stroke: '#DDD9D2', 'stroke-width': '1.5' }));
+  for (let h = 0; h < 24; h++) {
+    const major = h % 6 === 0, medium = h % 3 === 0;
+    const a = toAngle(h);
+    const r1 = R_TICKS - (major ? 10 : medium ? 5 : 3), r2 = R_TICKS;
+    const cos = Math.cos(a), sin = Math.sin(a);
+    svg.appendChild(mk('line', {
+      x1: +(CX + r1 * cos).toFixed(2), y1: +(CY + r1 * sin).toFixed(2),
+      x2: +(CX + r2 * cos).toFixed(2), y2: +(CY + r2 * sin).toFixed(2),
+      stroke: major ? '#65645F' : '#C4BFBA',
+      'stroke-width': major ? '1.5' : '0.75', 'stroke-linecap': 'round'
+    }));
+  }
+  [{ h: 0, t: '0' }, { h: 6, t: '6' }, { h: 12, t: '12' }, { h: 18, t: '18' }].forEach(({ h, t }) => {
+    const [x, y] = polar(h, R_LABELS);
+    svg.appendChild(mk('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-family': 'Inter, sans-serif', 'font-size': '9.5', 'font-weight': '600', fill: '#65645F' }, t));
+  });
+  const sector = mk('path', { fill: 'rgba(118,132,113,0.18)', stroke: 'none', d: sectorD(sleepH, wakeH, R) });
+  svg.appendChild(sector);
+  const arc = mk('path', { fill: 'none', stroke: '#768471', 'stroke-width': '5.5',
+    'stroke-linecap': 'round', d: arcD(sleepH, wakeH, R) });
+  svg.appendChild(arc);
+  const bedTxt = mk('text', { x: CX, y: CY - 9, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '800', fill: '#24231F' },
+    '\uD83C\uDF19 ' + fmtTime(sleepH));
+  const wakeTxt = mk('text', { x: CX, y: CY + 11, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '700', fill: '#65645F' },
+    '\u2600\uFE0F ' + fmtTime(wakeH));
+  svg.appendChild(bedTxt); svg.appendChild(wakeTxt);
+  function makeHandle(emoji, fill) {
+    const g = mk('g', { cursor: 'grab' });
+    const c = mk('circle', { r: HR, fill, stroke: '#FFFEFC', 'stroke-width': '2.5' });
+    const ic = mk('text', { 'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-size': '11', 'pointer-events': 'none' }, emoji);
+    g.appendChild(c); g.appendChild(ic); svg.appendChild(g);
+    return { g, c, ic };
+  }
+  const sh = makeHandle('🌙', '#24231F'), wh = makeHandle('☀️', '#768471');
+  function posHandle({ c, ic }, h) {
+    const [x, y] = polar(h, R);
+    c.setAttribute('cx', x); c.setAttribute('cy', y);
+    ic.setAttribute('x', x); ic.setAttribute('y', y);
+  }
+  function update() {
+    posHandle(sh, sleepH); posHandle(wh, wakeH);
+    arc.setAttribute('d', arcD(sleepH, wakeH, R));
+    sector.setAttribute('d', sectorD(sleepH, wakeH, R));
+    bedTxt.textContent = '\uD83C\uDF19 ' + fmtTime(sleepH);
+    wakeTxt.textContent = '\u2600\uFE0F ' + fmtTime(wakeH);
+    document.getElementById('mBedTxt').textContent = fmtTime(sleepH);
+    document.getElementById('mWakeTxt').textContent = fmtTime(wakeH);
+    document.getElementById('mDur').textContent = fmtDur(sleepH, wakeH);
+    window._target.sleep = sleepH; window._target.wake = wakeH;
+  }
+  update();
+  function svgPt(e) {
+    const rect = svg.getBoundingClientRect();
+    const sx = SZ / rect.width, sy = SZ / rect.height;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return [(cx - rect.left) * sx, (cy - rect.top) * sy];
+  }
+  function near(px, py, h) {
+    const [hx, hy] = polar(h, R);
+    return Math.hypot(px - hx, py - hy) < HR * 2.4;
+  }
+  svg.addEventListener('mousedown', e => {
+    const [px, py] = svgPt(e);
+    if (near(px, py, sleepH)) { dragging = 'sleep'; svg.style.cursor = 'grabbing'; }
+    else if (near(px, py, wakeH)) { dragging = 'wake'; svg.style.cursor = 'grabbing'; }
+  });
+  svg.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const [px, py] = svgPt(e);
+    if (near(px, py, sleepH)) dragging = 'sleep';
+    else if (near(px, py, wakeH)) dragging = 'wake';
+  }, { passive: false });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const [px, py] = svgPt(e);
+    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
+    if (dragging === 'sleep') sleepH = t; else wakeH = t;
+    update();
+  });
+  window.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    e.preventDefault();
+    const [px, py] = svgPt(e);
+    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
+    if (dragging === 'sleep') sleepH = t; else wakeH = t;
+    update();
+  }, { passive: false });
+  window.addEventListener('mouseup',   () => { dragging = null; svg.style.cursor = 'default'; });
+  window.addEventListener('touchend',  () => { dragging = null; });
+})();
+
+// Trends chart
+(function () {
+  const GOAL_MIN = 480;
+  const nights = [440, 370, 340, null, null, null, null];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const chart = document.getElementById('trendsChart');
+  const daysEl = document.getElementById('trendsDays');
+  const scale = 9 * 60;
+  const gl = document.createElement('div');
+  gl.className = 'goal-line'; gl.style.bottom = ((GOAL_MIN / scale) * 100) + '%';
+  const glLbl = document.createElement('div');
+  glLbl.className = 'goal-label'; glLbl.style.bottom = ((GOAL_MIN / scale) * 100) + '%'; glLbl.textContent = '8h';
+  chart.appendChild(gl); chart.appendChild(glLbl);
+  nights.forEach(dur => {
+    const col = document.createElement('div'); col.className = 'chart-col';
+    if (dur) {
+      const bar = document.createElement('div');
+      bar.className = 'chart-bar' + (dur >= GOAL_MIN ? ' above-goal' : '');
+      bar.style.height = ((dur / scale) * 100) + '%';
+      col.appendChild(bar);
+    }
+    chart.appendChild(col);
+  });
+  days.forEach(d => { const s = document.createElement('span'); s.textContent = d; daysEl.appendChild(s); });
+})();
+
+document.querySelectorAll('.range-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('.range-btn').forEach(x => x.classList.toggle('active', x === b));
+  });
+});
 </script>
 </body>
 </html>
