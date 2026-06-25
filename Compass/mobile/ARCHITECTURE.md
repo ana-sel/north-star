@@ -101,12 +101,24 @@ AINoteCard
 ```
 
 ### Timezone Handling
+
+Two distinct patterns — never mix them:
+
+**Sleep log entries (real events) → store UTC**
 ```
 User logs 23:10 bed, 06:45 wake in Vilnius timezone
-  ├→ Convert to UTC using lib/time.ts
-  ├→ Save: sleep_start_utc, sleep_end_utc, tz="Europe/Vilnius"
-  └→ When fetching: convert back to stored tz for display
+  ├→ Save: sleep_start_utc, sleep_end_utc (UTC), timezone="Europe/Vilnius"
+  └→ Display: utcToLocal(utcDate, timezone) → shows original local time
 ```
+
+**User preferences (clock times) → store local clock hours**
+```
+User sets sleep target: 23:00
+  ├→ Save: { h: 23, m: 0 }  ← getHours()/getMinutes(), NOT getUTCHours()
+  └→ Restore: d.setHours(23, 0); utcToLocal(d, timezone) → always shows 23:00
+```
+Preferences use local hours so the target stays "23:00 wherever I am" when travelling.
+Sleep log entries use UTC so the exact moment is never lost.
 
 ## Feature Module Pattern
 
