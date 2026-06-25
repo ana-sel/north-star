@@ -1,10 +1,6 @@
-/**
- * SettingsScreen
- * Timezone management + sign out
- * GDPR: user can see what data is stored and sign out (right to access/erasure shown as roadmap)
- */
+// SettingsScreen — profile info + sign out.
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -18,8 +14,6 @@ import {
 import { theme } from '@styles/theme';
 import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { supabase } from '@lib/supabase';
-import { COMMON_TIMEZONES, getTimezoneOffset, getTimezoneOffsetMinutes } from '@lib/time';
-import { updateActiveTimezone } from '@data/profile';
 
 interface SettingsScreenProps {
   onClose?: () => void;
@@ -28,17 +22,9 @@ interface SettingsScreenProps {
 export function SettingsScreen({ onClose }: SettingsScreenProps) {
   const user = useAuthStore((s: AuthStore) => s.user);
   const profile = useAuthStore((s: AuthStore) => s.profile);
-  const setProfile = useAuthStore((s: AuthStore) => s.setProfile);
   const reset = useAuthStore((s: AuthStore) => s.reset);
 
-  const [isChangingTz, setIsChangingTz] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
-
-  // Sort west → east by current UTC offset (respects DST)
-  const sortedTimezones = useMemo(
-    () => [...COMMON_TIMEZONES].sort((a, b) => getTimezoneOffsetMinutes(a) - getTimezoneOffsetMinutes(b)),
-    []
-  );
 
   const handleSignOut = async () => {
     Alert.alert('Sign out', 'Are you sure?', [
@@ -61,20 +47,6 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
     ]);
   };
 
-  const handleTimezoneChange = async (tz: string) => {
-    if (!user?.id || tz === profile?.active_timezone) return;
-    setIsChangingTz(true);
-    try {
-      const updated = await updateActiveTimezone(user.id, tz);
-      setProfile(updated);
-    } catch (err) {
-      Alert.alert('Error', 'Could not update timezone. Please try again.');
-      console.error('Timezone update error:', err);
-    } finally {
-      setIsChangingTz(false);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -91,55 +63,20 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
           )}
         </View>
 
-        {/* Account section */}
+        {/* Profile section */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Account</Text>
+          <Text style={styles.sectionLabel}>Profile</Text>
           <View style={styles.card}>
-            <Text style={styles.infoLabel}>Signed in as</Text>
-            <Text style={styles.infoValue}>{user?.email ?? '—'}</Text>
-          </View>
-        </View>
-
-        {/* Timezone section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Active timezone</Text>
-            {isChangingTz && (
-              <ActivityIndicator size="small" color={theme.colors.steel} />
+            {!!profile?.display_name && (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Name</Text>
+                <Text style={styles.infoValue}>{profile.display_name}</Text>
+              </View>
             )}
-          </View>
-          <Text style={styles.sectionHint}>
-            Change this when you travel so sleep times stay accurate.
-          </Text>
-          <View style={styles.tzList}>
-            {sortedTimezones.map((tz) => {
-              const isActive = tz === (profile?.active_timezone ?? 'UTC');
-              const isHome = tz === profile?.home_timezone;
-              return (
-                <TouchableOpacity
-                  key={tz}
-                  style={[styles.tzOption, isActive && styles.tzOptionActive]}
-                  onPress={() => handleTimezoneChange(tz)}
-                  disabled={isChangingTz}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={[
-                      styles.tzOptionText,
-                      isActive && styles.tzOptionTextActive,
-                    ]}
-                  >
-                    {tz}
-                  </Text>
-                  <Text style={[styles.tzOffset, isActive && styles.tzOffsetActive]}>
-                    {getTimezoneOffset(tz)}
-                  </Text>
-                  {isHome && (
-                    <Text style={styles.homeTag}>home</Text>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoValue}>{user?.email ?? '—'}</Text>
+            </View>
           </View>
         </View>
 
@@ -148,7 +85,7 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
           <Text style={styles.sectionLabel}>Privacy</Text>
           <View style={styles.card}>
             <Text style={styles.privacyText}>
-              Compass stores only your sleep times and timezone.{'\n\n'}
+              Compass stores only your sleep times.{'\n\n'}
               We never share your data. Only anonymous duration numbers are
               sent to generate your weekly note — never your identity.
             </Text>
@@ -198,11 +135,6 @@ const styles = StyleSheet.create({
   section: {
     gap: theme.spacing.sm,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   sectionLabel: {
     fontSize: theme.typography.xs,
     fontWeight: '600',
@@ -210,17 +142,16 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  sectionHint: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    lineHeight: 20,
-  },
   card: {
     backgroundColor: theme.colors.card,
     borderWidth: 1,
     borderColor: theme.colors.line,
     borderRadius: theme.radii.card,
     padding: theme.spacing.lg,
+    gap: theme.spacing.md,
+  },
+  infoRow: {
+    gap: 4,
   },
   infoLabel: {
     fontSize: theme.typography.xs,
@@ -228,45 +159,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 4,
   },
   infoValue: {
     fontSize: theme.typography.md,
     color: theme.colors.ink,
     fontWeight: '600',
-  },
-  tzList: {
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.card,
-    overflow: 'hidden',
-  },
-  tzOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.line,
-  },
-  tzOptionActive: {
-    backgroundColor: theme.colors.greige,
-  },
-  tzOptionText: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.ink,
-  },
-  tzOptionTextActive: {
-    fontWeight: '700',
-  },
-  homeTag: {
-    fontSize: theme.typography.xs,
-    color: theme.colors.olive,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   privacyText: {
     fontSize: theme.typography.sm,
@@ -281,15 +178,6 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.md,
     fontWeight: '600',
     color: theme.colors.olive,
-  },
-  tzOffset: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '400',
-  },
-  tzOffsetActive: {
-    color: theme.colors.ink,
-    fontWeight: '600',
   },
   signOutBtn: {
     borderWidth: 1,

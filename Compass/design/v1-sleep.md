@@ -13,7 +13,7 @@
 | Login | Google sign-in via Supabase Auth | Free, multi-user, almost no auth code |
 | Database | Supabase hosted Postgres, free tier | Auto API, per-user RLS, zero maintenance |
 | AI note | Edge Function → free hosted model (Gemini / Groq) + rule-based fallback | AI from day one, never breaks |
-| Timezone | Auto-detected from device (IANA) — no setup screen | Zero friction; editable in Settings |
+| Timezone | Auto-detected from device (IANA) — no setup screen | Zero friction; not editable (device is always correct) |
 | Cost | £0 / month | Free tiers throughout |
 
 ---
@@ -22,8 +22,9 @@
 
 **In V1:**
 - Google login.
-- Timezone auto-detected from device — editable in Settings.
+- Timezone auto-detected from device.
 - Log a night's sleep: bed time + wake time.
+- Sleep target (bed + wake clock times) — tap the target strip to set.
 - 7-day bar chart of sleep hours.
 - Short AI note under the chart.
 - Plain history list of past nights.
@@ -41,8 +42,8 @@ Three tabs: **Today · Week · History**
 LOGIN → (auto-detect timezone) → TODAY
 
 TODAY ─── WEEK ─── HISTORY
-              ↓
-           SETTINGS (change active timezone)
+              ↑
+           SETTINGS (⚙) — profile + privacy + sign out
 ```
 
 ### Today — log a night
@@ -51,31 +52,51 @@ TODAY ─── WEEK ─── HISTORY
 ┌──────────────────────────────┐
 │  Compass               ⚙    │
 ├──────────────────────────────┤
-│  Wednesday, 24 June          │
+│  Wednesday, 24 June · UTC+1  │
 │                              │
-│  TARGET                      │
-│  🌙 23:00 – 07:00 ☀️         │   ← goal strip (dial sets this)
-│       8 hours                │
+│  TARGET  (tap to set)        │   ← opens target modal
+│    🌙          ☀️            │
+│  23:00        07:00          │
+│          8 hours             │
 │                              │
-│  [dial: drag 🌙 or ☀️]       │   ← circular time dial
-│  5h 40m sleep                │
+│  How did you sleep?          │
+│  [Went to bed]  [Woke up]    │   ← time pickers
+│       5h 40m time asleep     │
 │                              │
-│  HISTORY                     │
-│  Today     5h 40m  00:50→06:30  │
-│  Yesterday 6h 20m  00:10→06:30  │
-│  Mon 22    7h 20m  23:40→07:00  │
-│                              │
+│  [Save night]                │
 ├──────────────────────────────┤
-│  ●Today  Trends  History     │
+│  ●Today  Week  History       │
 └──────────────────────────────┘
 ```
 
-### Trends (Week view)
+Tapping the **TARGET** strip opens a modal with the same card layout as the sleep form, but with "Target bed" / "Target wake" labels and a "Save target" button. Target times are stored as local clock hours (see `mobile/ARCHITECTURE.md` — Time storage convention).
+
+### Settings (⚙ overlay)
+
+Tapping ⚙ slides a full-screen overlay. No timezone picker — device timezone is used silently.
 
 ```
 ┌──────────────────────────────┐
-│  Avg sleep · this week       │
-│  6h 48m                      │
+│  Settings              ✕    │
+├──────────────────────────────┤
+│  PROFILE                     │
+│  Name     Ana                │
+│  Email    ana@example.com    │
+│                              │
+│  PRIVACY                     │
+│  Compass stores only your    │
+│  sleep times. Never shared.  │
+│                              │
+│  [Sign out]                  │
+└──────────────────────────────┘
+```
+
+### Trends
+
+```
+┌──────────────────────────────┐
+│  Avg sleep · this week       │  ← label updates: "this week" or "this month"
+│  6h 48m                      │  ← average recalculated from selected period
 │                              │
 │  [Sleep chart]               │
 │  Hours ● / Times  ← toggle  │
@@ -88,6 +109,10 @@ TODAY ─── WEEK ─── HISTORY
 │  Today  ●Trends  History     │
 └──────────────────────────────┘
 ```
+
+The average label and value both update when the Week / Month toggle changes:
+- **Week selected** → "Avg sleep · this week" · avg of logged nights in that week
+- **Month selected** → "Avg sleep · this month" · avg of weekly averages in that month
 
 ### History — plain list
 
@@ -132,7 +157,7 @@ src/
         SleepForm.tsx      # bed/wake pickers + duration
         AiNoteCard.tsx
     settings/
-      SettingsScreen.tsx   # change active timezone
+      SettingsScreen.tsx   # profile info + sign out
   data/
     sleep.ts               # read/write sleep_entries
     profile.ts             # read/write profile (timezone)
@@ -142,16 +167,14 @@ src/
 
 ---
 
-## 4. Time-zone handling
+## 4. Time handling
 
-Store UTC. Remember the zone. Display in the original zone.
+See `mobile/ARCHITECTURE.md` — **Time storage convention** for the canonical two-pattern rule.
 
-- Timezone **auto-detected from device** on first launch — no setup screen.
-- `home_tz` saved to profile silently on first sync.
-- `active_tz` defaults to `home_tz`; user can shift in Settings when travelling.
-- Every entry stores `sleep_start_utc`, `sleep_end_utc`, and `tz` (IANA at time of logging).
-- Duration = `end_utc − start_utc` — always correct across DST and travel.
-- Display: each entry renders in its own stored `tz` — "bed 23:10" means 23:10 local-at-the-time.
+Short summary:
+- Sleep log entries → UTC to Supabase; displayed via `utcToLocal(d, timezone)`.
+- Sleep target times → local clock hours to AsyncStorage; displayed via `utcToLocal(d, timezone)`. Stays "23:00" in any timezone.
+- Timezone auto-detected from device on every launch; stored on each entry as the IANA zone at time of logging.
 
 ---
 
@@ -163,7 +186,7 @@ create table profiles (
   user_id      uuid primary key references auth.users(id) on delete cascade,
   display_name text,
   home_tz      text not null,   -- IANA, auto-detected on first launch
-  active_tz    text not null,   -- IANA, editable in Settings
+  active_tz    text not null,   -- IANA, matches device timezone at log time
   created_at   timestamptz not null default now()
 );
 
@@ -204,7 +227,6 @@ create policy "own sleep"   on sleep_entries for all
 |---|---|---|
 | Sign in | `supabase.auth.signInWithOAuth({ provider: 'google' })` | Opens Google consent |
 | Get profile | `select * from profiles where user_id = me` | RLS enforces ownership |
-| Set timezone | `upsert profiles` | Auto-detected on first launch · editable in Settings |
 | Save a night | `insert into sleep_entries (...)` | Times already converted to UTC |
 | Last 7 days | `select ... order by sleep_start_utc desc limit 7` | Feeds chart + note |
 | Full history | `select ... order by sleep_start_utc desc` | Paginated list |
@@ -259,9 +281,10 @@ See [v4-world.md](v4-world.md) for the full world architecture.
 5. AI note: `ruleNote()` + Edge Function `generate-note` together (both live from day 1)
 6. History: list past nights in stored timezone
 7. Week/Trends: bar chart + AI note card + chart toggle + week nav
-8. Settings: change `active_tz`
-9. World seed: "A scene has appeared" card after 3 logs
-10. EAS Build → internal test track → Play Store
+8. Settings: profile info + sign out
+9. Target strip: tap to open target modal, save to AsyncStorage
+10. World seed: "A scene has appeared" card after 3 logs
+11. EAS Build → internal test track → Play Store
 
 ---
 
