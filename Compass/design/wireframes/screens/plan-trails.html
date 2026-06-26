@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Paths</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<style>
+.sect{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+
+/* ── Active path card — status only ── */
+.ap{
+  border-radius:var(--r-card);overflow:hidden;margin-bottom:10px;
+  box-shadow:var(--shadow);cursor:pointer;
+}
+.ap-bg{padding:18px 18px 0;color:#F2EDE3;}
+.ap-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ap-type{font-size:var(--fs-xs);opacity:.45;text-transform:uppercase;letter-spacing:.08em;}
+.ap-streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);padding:4px 11px;border-radius:999px;font-size:var(--fs-sm);font-weight:700;}
+.ap-name{font-size:20px;font-weight:800;margin-bottom:12px;line-height:1.2;}
+/* Progress bar — thin, simple */
+.ap-prog-wrap{margin-bottom:6px;}
+.ap-prog-bar{height:4px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
+.ap-prog-fill{height:100%;border-radius:999px;background:#768471;transition:width .4s;}
+.ap-prog-label{font-size:var(--fs-xs);opacity:.45;margin-top:5px;margin-bottom:14px;}
+/* Anchor row */
+.ap-anchor{
+  background:rgba(255,255,255,.07);margin:0 -18px;
+  padding:12px 18px;display:flex;align-items:center;gap:12px;
+}
+.ap-ck{
+  width:24px;height:24px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.3);
+  display:grid;place-items:center;font-size:12px;
+  color:transparent;flex-shrink:0;cursor:pointer;transition:all .15s;
+}
+.ap-ck.done{background:#768471;border-color:#768471;color:#fff;}
+.ap-anchor-text{flex:1;font-size:var(--fs-sm);}
+.ap-anchor-hint{font-size:var(--fs-xs);opacity:.4;}
+
+/* ── Browse cards — minimal ── */
+.path-card{
+  border-radius:var(--r-card);overflow:hidden;margin-bottom:8px;
+  cursor:pointer;box-shadow:var(--shadow-sm);
+  transition:transform .12s;position:relative;
+}
+.path-card:active{transform:scale(.98);}
+.pc-bg{
+  padding:16px;color:#F2EDE3;min-height:80px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  position:relative;
+}
+.pc-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,rgba(0,0,0,.45));}
+.pc-badge{
+  position:absolute;top:12px;right:12px;z-index:1;
+  font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;background:rgba(255,255,255,.14);
+  padding:3px 10px;border-radius:999px;color:rgba(255,255,255,.8);
+}
+.pc-lock{position:absolute;top:12px;left:12px;z-index:1;font-size:12px;background:rgba(0,0,0,.3);padding:2px 8px;border-radius:999px;color:rgba(255,255,255,.4);}
+.pc-name{font-size:var(--fs-md);font-weight:800;position:relative;z-index:1;}
+.pc-line{font-size:var(--fs-xs);opacity:.6;margin-top:2px;position:relative;z-index:1;}
+
+/* ── Retired virtue chips ── */
+.vshelf{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
+.vchip{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:var(--fs-xs);font-weight:600;box-shadow:var(--shadow-sm);}
+.vdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.vnote{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
+
+/* ── Camp celebration overlay ── */
+.celebrate{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.65);opacity:0;pointer-events:none;transition:opacity .3s;}
+.celebrate.open{opacity:1;pointer-events:auto;}
+.cel-sheet{background:var(--btn);color:#F2EDE3;border-radius:22px 22px 0 0;padding:28px 24px 36px;text-align:center;transform:translateY(20px);transition:transform .3s;}
+.celebrate.open .cel-sheet{transform:translateY(0);}
+.cel-icon{font-size:44px;display:block;margin-bottom:12px;}
+.cel-h{font-size:21px;font-weight:800;margin-bottom:8px;}
+.cel-body{font-size:var(--fs-sm);opacity:.72;line-height:1.65;margin-bottom:20px;}
+.cel-quote{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;font-size:var(--fs-sm);font-style:italic;margin-bottom:20px;text-align:left;opacity:.85;}
+.cel-btn{width:100%;padding:14px;border-radius:999px;border:none;background:#fff;color:var(--btn);font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;}
+
+/* ── Detail sheet ── */
+.detail-sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;flex-direction:column;justify-content:flex-end;}
+.detail-sheet.open{opacity:1;pointer-events:auto;}
+.d-inner{background:var(--bg);border-radius:22px 22px 0 0;max-height:88vh;overflow-y:auto;transform:translateY(28px);transition:transform .25s;}
+.detail-sheet.open .d-inner{transform:translateY(0);}
+/* Hero */
+.d-hero{padding:20px 20px 16px;border-radius:22px 22px 0 0;color:#F2EDE3;}
+.d-handle{width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:999px;margin:0 auto 14px;}
+.d-type{font-size:var(--fs-xs);opacity:.4;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.d-name{font-size:20px;font-weight:800;margin-bottom:4px;}
+.d-virtue{font-size:var(--fs-sm);opacity:.65;font-style:italic;margin-bottom:10px;line-height:1.5;}
+.d-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.d-tag{font-size:var(--fs-xs);font-weight:600;background:rgba(255,255,255,.12);padding:3px 10px;border-radius:999px;}
+/* Body */
+.d-body{padding:16px 20px 36px;}
+/* Effort summary */
+.d-effort{display:flex;gap:0;background:var(--greige);border-radius:var(--r-card);overflow:hidden;margin-bottom:18px;}
+.d-ef-col{flex:1;padding:12px 0;text-align:center;border-right:1px solid var(--line);}
+.d-ef-col:last-child{border-right:none;}
+.d-ef-val{font-size:var(--fs-lg);font-weight:800;}
+.d-ef-lbl{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;}
+/* Stack */
+.d-stack-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:flex-start;}
+.d-stack-row:last-child{border-bottom:none;}
+.d-sk-lbl{width:70px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);flex-shrink:0;padding-top:2px;}
+.d-sk-val{flex:1;font-size:var(--fs-sm);line-height:1.55;color:var(--ink);}
+/* Camp timeline */
+.d-camp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+.d-camp:last-child{border-bottom:none;}
+.d-camp-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.d-camp-c{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--muted);}
+.d-camp-c.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+.d-camp-c.active{background:var(--btn);border-color:var(--btn);color:#fff;}
+.d-camp-vl{flex:1;width:2px;background:var(--line);min-height:10px;}
+.d-camp-vl.done{background:var(--olive);}
+.d-camp-r{flex:1;}
+.d-camp-name{font-size:var(--fs-md);font-weight:700;}
+.d-camp-meta{font-size:var(--fs-xs);color:var(--muted);margin-bottom:5px;}
+.d-layer{display:flex;align-items:flex-start;gap:5px;margin-bottom:2px;}
+.d-ldot{width:5px;height:5px;border-radius:50%;background:var(--line);margin-top:5px;flex-shrink:0;}
+.d-ldot.on{background:var(--olive);}
+.d-ltext{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;}
+.d-ltext strong{color:var(--ink);}
+.d-locked{opacity:.38;}
+.d-effort-pill{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-xs);background:var(--greige);padding:2px 8px;border-radius:999px;color:var(--muted);margin-top:5px;}
+/* CTAs */
+.d-cta{width:100%;padding:14px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;margin-top:16px;}
+.d-sec{width:100%;padding:13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:inherit;font-size:var(--fs-md);font-weight:500;color:var(--muted);cursor:pointer;margin-top:8px;}
+</style>
+</head>
+<body class="screen-body">
+
+  <div class="sect">Active paths · 2 of 2</div>
+
+  <!-- Active: Stillness -->
+  <div class="ap" onclick="openDetail('stillness')">
+    <div class="ap-bg" style="background:linear-gradient(155deg,#3a3850,#23202b)">
+      <div class="ap-row1">
+        <div class="ap-type">Inner path</div>
+        <div class="ap-streak">🔥 9 days</div>
+      </div>
+      <div class="ap-name">The Stillness Path</div>
+      <div class="ap-prog-wrap">
+        <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:64%"></div></div>
+        <div class="ap-prog-label">Camp 2 of 3 · Day 9 of 14 · 5 days left</div>
+      </div>
+      <div class="ap-anchor">
+        <div class="ap-ck done" onclick="event.stopPropagation()">✓</div>
+        <div class="ap-anchor-text">5-min silent sit before first screen</div>
+        <div class="ap-anchor-hint">done today</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active: Land -->
+  <div class="ap" onclick="openDetail('land')">
+    <div class="ap-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
+      <div class="ap-row1">
+        <div class="ap-type">Material goal</div>
+        <div class="ap-streak">🔥 5 days</div>
+      </div>
+      <div class="ap-name">The Land Path</div>
+      <div class="ap-prog-wrap">
+        <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:36%"></div></div>
+        <div class="ap-prog-label">Camp 1 of 3 · Day 5 of 14 · 9 days left</div>
+      </div>
+      <div class="ap-anchor">
+        <div class="ap-ck" onclick="event.stopPropagation();toggleCk(this)"></div>
+        <div class="ap-anchor-text">Save £50 to the land fund this week</div>
+        <div class="ap-anchor-hint">tap when done</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retired -->
+  <div class="sect">Earned</div>
+  <div class="vshelf">
+    <div class="vchip"><div class="vdot" style="background:#768471"></div>Foundation · 5 wks</div>
+    <div class="vchip"><div class="vdot" style="background:#937caf"></div>Noticing · 4 wks</div>
+  </div>
+  <div class="vnote">Completed paths become permanent virtues in You → Identity</div>
+
+  <!-- Browse -->
+  <div class="sect">Available paths</div>
+
+  <div class="path-card" onclick="openDetail('boundaries')">
+    <div class="pc-bg" style="background:linear-gradient(145deg,#4a3040,#2e1c2c)">
+      <div class="pc-badge">Healing</div>
+      <div class="pc-name">The Boundaries Path</div>
+      <div class="pc-line">Become someone who honours their limits · 6 wks</div>
+    </div>
+  </div>
+
+  <div class="path-card" onclick="openDetail('restoration')">
+    <div class="pc-bg" style="background:linear-gradient(145deg,#3a3020,#251e14)">
+      <div class="pc-badge">Healing</div>
+      <div class="pc-name">The Restoration Path</div>
+      <div class="pc-line">Return to yourself after a hard period · 8 wks</div>
+    </div>
+  </div>
+
+  <div class="path-card" style="opacity:.5;pointer-events:none">
+    <div class="pc-bg" style="background:linear-gradient(145deg,#3a2828,#251818)">
+      <div class="pc-lock">🔒 Unlocks after Boundaries</div>
+      <div class="pc-badge">Healing</div>
+      <div class="pc-name">The Grief Path</div>
+      <div class="pc-line">Process loss — a person, a dream, a version of yourself</div>
+    </div>
+  </div>
+
+  <!-- Camp celebration (demo button) -->
+  <div style="margin-top:10px;text-align:center">
+    <button onclick="showCelebrate()" style="background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;font-family:inherit;">▶ Preview camp completion moment</button>
+  </div>
+
+<!-- ── Camp celebration ── -->
+<div class="celebrate" id="celebrate">
+  <div class="cel-sheet">
+    <span class="cel-icon">🌿</span>
+    <div class="cel-h">Camp 1 complete</div>
+    <div class="cel-body">You spent 7 days just noticing. You didn't fix anything. That was the whole point.</div>
+    <div class="cel-quote">"I notice when I rush. I don't always stop it yet — but I see it."</div>
+    <button class="cel-btn" onclick="closeCelebrate()">Continue to Camp 2 →</button>
+  </div>
+</div>
+
+<!-- ── Detail sheet ── -->
+<div class="detail-sheet" id="detailSheet" onclick="maybeClose(event)">
+  <div class="d-inner">
+    <div class="d-hero" id="dHero">
+      <div class="d-handle"></div>
+      <div class="d-type" id="dType"></div>
+      <div class="d-name" id="dName"></div>
+      <div class="d-virtue" id="dVirtue"></div>
+      <div class="d-tags" id="dTags"></div>
+    </div>
+    <div class="d-body">
+      <div class="d-effort" id="dEffort"></div>
+      <div class="sect" style="margin-top:4px">What this path works on</div>
+      <div id="dStack"></div>
+      <div class="sect">How it unfolds</div>
+      <div id="dCamps"></div>
+      <button class="d-cta" id="dCta"></button>
+      <button class="d-sec" id="dSec" style="display:none"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  stillness:{
+    type:'Inner path',name:'The Stillness Path',
+    virtue:'"I am becoming someone who rests without guilt and meets silence without fear"',
+    bg:'linear-gradient(155deg,#3a3850,#23202b)',
+    values:['Peace','Presence'],active:true,
+    effort:[{v:'2',l:'actions/day'},{v:'7 min',l:'daily effort'},{v:'6 wks',l:'total'}],
+    stack:[
+      {l:'Value',v:'Peace · Presence — being, not doing, has worth'},
+      {l:'Virtue',v:'Calm, unhurried, at home in silence'},
+      {l:'Quality',v:'Stillness this week — "Notice the moment before you react"'},
+      {l:'Practice',v:'5-min silent sit before any screen (added in Camp 2)'},
+      {l:'Habit',v:'1 min silence on waking — your anchor across all 3 camps'},
+    ],
+    camps:[
+      {name:'First Contact',dur:'7 days · complete',state:'done',effort:'1 action · 2 min/day',
+        layers:[{s:'Quality:',r:' Quiet — notice 3 moments of rushing'},{s:'Habit:',r:' 1 min silence on waking'},{s:'Note:',r:' No practice yet. Just noticing.'}]},
+      {name:'Deepening',dur:'14 days · in progress',state:'active',effort:'2 actions · 7 min/day',
+        layers:[{s:'Quality:',r:' Stillness — notice the moment before reacting'},{s:'Habit:',r:' Same 1 min anchor — unchanged'},{s:'Practice:',r:' 5-min sit before screens (new in Camp 2)'},{s:'Inner work:',r:' Journal once this week — where did I rush and why?'}]},
+      {name:'Embodied',dur:'21 days · locked',state:'locked',effort:'2 actions · 10 min/day',
+        layers:[{s:'Virtue test:',r:' Stillness under real pressure'},{s:'Integration:',r:' 3 logins before reminder fires → Camp 3 closes'}]},
+    ],
+    cta:'View today\'s anchor',
+  },
+  land:{
+    type:'Material goal',name:'The Land Path',
+    virtue:'"I am becoming someone who builds deliberately toward what they love"',
+    bg:'linear-gradient(145deg,#2e4a3e,#1a3028)',
+    values:['Security','Freedom'],active:true,
+    effort:[{v:'1–2',l:'actions/day'},{v:'2–12 min',l:'daily effort'},{v:'10 wks',l:'total'}],
+    stack:[
+      {l:'Value',v:'Security · Freedom — a piece of ground that is yours'},
+      {l:'Virtue',v:'Patient, deliberate, financially grounded'},
+      {l:'Quality',v:'Patience — "One action toward the goal is enough today"'},
+      {l:'Habit',v:'Weekly savings transfer — the only Camp 1 action'},
+      {l:'Practice',v:'10 min/day research — added in Camp 2 only'},
+      {l:'Goal',v:'Buy land — target + timeline set on Camp 1 Day 3'},
+    ],
+    camps:[
+      {name:'Groundwork',dur:'14 days · in progress',state:'active',effort:'1 action · 2 min/day',
+        layers:[{s:'Day 3:',r:' Set your target amount and timeline'},{s:'Quality:',r:' Patience — one action is enough'},{s:'Habit:',r:' Weekly savings transfer (Camp 1\'s only action)'},{s:'No research yet:',r:' Premature research before clarity creates paralysis'}]},
+      {name:'Research',dur:'21 days · locked',state:'locked',effort:'2 actions · 12 min/day',
+        layers:[{s:'Practice added:',r:' 10 min/day — mortgages, plots, legal steps'},{s:'Quality:',r:' Clarity — "What do I actually need to decide?"'}]},
+      {name:'Action',dur:'21 days · locked',state:'locked',effort:'2 actions · 10 min/day',
+        layers:[{s:'Virtue tested:',r:' First real steps — viewing, agents, applying'},{s:'Inner work:',r:' What fears come up when the goal gets real?'}]},
+    ],
+    cta:'View today\'s anchor',
+  },
+  boundaries:{
+    type:'Healing path',name:'The Boundaries Path',
+    virtue:'"I am becoming someone who knows their limits and honours them without apology"',
+    bg:'linear-gradient(145deg,#4a3040,#2e1c2c)',
+    values:['Self-respect','Dignity'],active:false,
+    effort:[{v:'1–2',l:'actions/day'},{v:'8 min',l:'daily effort'},{v:'6 wks',l:'total'}],
+    stack:[
+      {l:'Value',v:'Self-respect · Dignity — your needs are not negotiable'},
+      {l:'Virtue',v:'Someone who can say no and hold space for themselves'},
+      {l:'Quality',v:'Noticing (Camp 1) — "Where did I shrink today?"'},
+      {l:'Habit',v:'One sentence before sleep: a boundary moment observed'},
+      {l:'Inner work',v:'What happened early that made "no" feel dangerous?'},
+    ],
+    camps:[
+      {name:'Noticing',dur:'10 days',state:'locked',effort:'1 action · 2 min/day',
+        layers:[{s:'Rule:',r:' No action needed yet — just observe'},{s:'Habit:',r:' One sentence journal before sleep'}]},
+      {name:'Practising',dur:'21 days',state:'locked',effort:'2 actions · 7 min/day',
+        layers:[{s:'Practice:',r:' Hold one small no per week — a moment, not a confrontation'},{s:'Inner work:',r:' The fear underneath the yes you didn\'t mean'}]},
+      {name:'Embodied',dur:'21 days',state:'locked',effort:'2 actions · 8 min/day',
+        layers:[{s:'Virtue test:',r:' Holding a boundary under real pressure'}]},
+    ],
+    cta:'Start this path',sec:'Add as second path (2 max)',
+  },
+  restoration:{
+    type:'Healing path',name:'The Restoration Path',
+    virtue:'"I am becoming someone who can return to themselves — slowly, without force"',
+    bg:'linear-gradient(145deg,#3a3020,#251e14)',
+    values:['Wholeness'],active:false,
+    effort:[{v:'1–2',l:'actions/day'},{v:'5 min',l:'daily effort'},{v:'8 wks',l:'total'}],
+    stack:[
+      {l:'Value',v:'Wholeness — all parts of you belong, including the ones that broke'},
+      {l:'Virtue',v:'Tender with yourself after loss or exhaustion'},
+      {l:'Quality',v:'Tenderness (Camp 1) — "What does this part of me need?"'},
+      {l:'Habit',v:'Name one thing that was okay today — however small'},
+      {l:'Inner work',v:'Grief work, allowing rather than fixing'},
+    ],
+    camps:[
+      {name:'Permission',dur:'10 days',state:'locked',effort:'1 action · 1 min/day',
+        layers:[{s:'No goals:',r:' Just permission to not be okay'},{s:'Habit:',r:' Name one thing that was okay today (30 sec)'}]},
+      {name:'Returning',dur:'21 days',state:'locked',effort:'2 actions · 7 min/day',
+        layers:[{s:'Practice:',r:' One intentional rest per day. One small pleasure.'},{s:'Inner work:',r:' What am I actually grieving?'}]},
+      {name:'Rebuilding',dur:'21 days',state:'locked',effort:'2 actions · 8 min/day',
+        layers:[{s:'Gently:',r:' One new habit of your choice (only one)'},{s:'Practice:',r:' Write — who am I now, after this?'}]},
+    ],
+    cta:'Start this path',sec:'Add as second path (2 max)',
+  },
+};
+
+function openDetail(id){
+  const p=DATA[id];
+  document.getElementById('dType').textContent=p.type;
+  document.getElementById('dName').textContent=p.name;
+  document.getElementById('dVirtue').textContent=p.virtue;
+  document.getElementById('dHero').style.background=p.bg;
+  document.getElementById('dTags').innerHTML=p.values.map(v=>`<span class="d-tag">${v}</span>`).join('');
+  document.getElementById('dEffort').innerHTML=p.effort.map(e=>`<div class="d-ef-col"><div class="d-ef-val">${e.v}</div><div class="d-ef-lbl">${e.l}</div></div>`).join('');
+  document.getElementById('dStack').innerHTML=p.stack.map(s=>`<div class="d-stack-row"><div class="d-sk-lbl">${s.l}</div><div class="d-sk-val">${s.v}</div></div>`).join('');
+  document.getElementById('dCamps').innerHTML=p.camps.map((c,i)=>{
+    const sc=c.state==='done'?'done':c.state==='active'?'active':'';
+    const icon=c.state==='done'?'✓':c.state==='active'?'▶':(i+1);
+    const last=i===p.camps.length-1;
+    return `<div class="d-camp ${c.state==='locked'?'d-locked':''}">
+      <div class="d-camp-left">
+        <div class="d-camp-c ${sc}">${icon}</div>
+        ${!last?`<div class="d-camp-vl ${c.state==='done'?'done':''}"></div>`:''}
+      </div>
+      <div class="d-camp-r">
+        <div class="d-camp-name">${c.name}</div>
+        <div class="d-camp-meta">${c.dur}</div>
+        ${c.layers.map(l=>`<div class="d-layer"><div class="d-ldot ${c.state==='active'?'on':''}"></div><div class="d-ltext"><strong>${l.s}</strong>${l.r}</div></div>`).join('')}
+        <div class="d-effort-pill">⏱ ${c.effort}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('dCta').textContent=p.cta;
+  const sec=document.getElementById('dSec');
+  if(p.sec&&!p.active){sec.style.display='';sec.textContent=p.sec;}
+  else{sec.style.display='none';}
+  document.getElementById('detailSheet').classList.add('open');
+}
+function maybeClose(e){if(e.target===document.getElementById('detailSheet'))document.getElementById('detailSheet').classList.remove('open');}
+function toggleCk(el){el.classList.toggle('done');el.textContent=el.classList.contains('done')?'✓':'';}
+function showCelebrate(){document.getElementById('celebrate').classList.add('open');}
+function closeCelebrate(){document.getElementById('celebrate').classList.remove('open');}
+</script>
+</body>
+</html>

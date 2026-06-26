@@ -366,4 +366,4 @@ alter table chat_messages
 
 - V1: [v1-sleep.md](v1-sleep.md) · V2: [v2-track.md](v2-track.md) · V3: [v3-plan.md](v3-plan.md)
 - Source: Lally, P. et al. (2010) — habit formation
-- Wireframe: [wireframes/v4-world.html](wireframes/v4-world.html) *(to be authored)*
+- Wireframe: [wireframes/v4-world.html](wireframes/v4-world.html)

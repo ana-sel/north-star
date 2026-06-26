@@ -13,7 +13,7 @@ The app is a "one life" app, so it has many surfaces (sleep, body, habits, mood,
 | Tab | Mode | Holds |
 |---|---|---|
 | **Today** | *Glance* — how today is going | Briefing (3–4 cards max) |
-| **Log** | *Capture* — record something | Sleep · Habits · Body · Money quick · Mood |
+| **Log** | *Capture* — record something | Sleep · Habits · Body · Money quick |
 | **Map** | *Direction* — the long view | Year · Month · Projects · Map *(mostly placeholder in V2; full in V3)* |
 | **You** | *Browse* — your life data | Trends · History · Money detail · Settings *(Identity in V3, World in V4)* |
 
@@ -53,11 +53,11 @@ Legacy aliases (`sleep`, `body`, `mind`, `heart`, `craft`, `spirit`) may still a
 |---|---|
 | **Navigation** | New — 4 mode-tabs + floating Chat pill (sheet shell) |
 | **Today tab** | Redesigned — calm briefing, 3–4 cards |
-| **Log tab** | New — Sleep dial (V1, preserved) · Habits · Body (redesigned) · Money quick · Mood |
+| **Log tab** | New — Sleep dial (V1, preserved) · Habits · Body (redesigned) · Money quick |
 | **Map tab** | Skeleton — Year/Month/Projects/Map sub-tabs; Year + Map = placeholder; Month = horizontal kanban; Projects = simple list |
 | **You tab** | New — Trends (with range selector) · History · Money detail (Quiet-Capital-style sub-app) · Settings |
 | **Chat pill** | Shell only — opens sheet with "Conversation arrives in V3" + composer disabled |
-| **Mood + Energy** | Two independent single taps in Log → Mood |
+| **Mood + Energy** | 1–10 score rows captured in Log → Sleep (same save, same row) |
 | **Body redesign** | Focus-first inputs + explicit ✕ per field (exclude from save), BMI auto, calorie+macro grouping, body feel scale, "Today I noticed" chips, note |
 | **Money detail** | Ported from `D:\My Archive\quiet-capital` in Compass's calm beige language |
 
@@ -122,7 +122,7 @@ Calm briefing, no entry forms. Maximum 4 cards. Today is *the home screen*, stru
 
 ### What's removed from V1's Today
 - The inline sleep form → moves to **Log → Sleep** (same V1 dial, just relocated).
-- Mood/energy taps → move to **Log → Mood**.
+- Mood/energy → captured as 1–10 score rows at the bottom of Log → Sleep (same save action).
 - Pattern observation → moves to **You → Trends** (surfaces in the relevant tile drill-down).
 
 ### Quick log row icons
@@ -133,7 +133,6 @@ Calm briefing, no entry forms. Maximum 4 cards. Today is *the home screen*, stru
 | ✓ | Log | Habits |
 | 🍽 | Log | Body |
 | 💷 | Log | Money (quick) |
-| ☺ | Log | Mood |
 
 ---
 
@@ -145,7 +144,7 @@ Sub-tabs across the top. *Capture only* — no charts here.
 ┌──────────────────────────────────┐
 │  Log                         ⚙  │
 ├──────────────────────────────────┤
-│  Sleep · Habits · Body · Money · Mood
+│  Sleep · Habits · Body · Money
 │                                  │
 │  [active sub-tab content]        │
 └──────────────────────────────────┘
@@ -286,26 +285,11 @@ Quick expense logger. **Detail / budgets / net worth live in You → Money** —
 
 The 8 categories use Quiet Capital's colour palette (see §6).
 
-### 2.5 Log → Mood
+### 2.5 Note on Mood + Energy
 
-```
-┌──────────────────────────────────┐
-│  How are you today?              │
-│                                  │
-│  ☺ Mood                          │
-│  ◯ low    ● okay    ◯ good       │
-│                                  │
-│  ⚡ Energy                       │
-│  ◯ low    ◯ okay    ● good       │
-│                                  │
-│  Note (optional)                 │
-│  [_____________________________] │
-│                                  │
-│  [ Save ]                        │
-└──────────────────────────────────┘
-```
+Mood and Energy are captured **within Log → Sleep**, not as a separate sub-tab. They appear as 1–10 score rows below the insight card, saved together with the sleep log entry. This keeps the gesture minimal — one save for one night’s data.
 
-Mood and Energy are **two independent signals**. Both required to count as "logged today". Saves to `daily_state` (one row per `user_id + date`, with `mood`, `energy`, `note`).
+Scores are stored in `daily_state` (one row per `user_id + date`) and surface in You → Trends alongside the sleep chart.
 
 ---
 
@@ -490,12 +474,12 @@ A **CSV importer** ingests Quiet Capital's existing `transactions.csv` so the us
 ## 7. Database schema additions (V2)
 
 ```sql
--- Mood + Energy (replaces V1's nullable cols on sleep_entries)
+-- Mood + Energy (captured in Log → Sleep, saved with the night entry)
 create table daily_state (
   user_id      uuid not null references auth.users(id) on delete cascade,
   date         date not null,
-  mood         smallint check (mood between 1 and 3),    -- 1=low, 2=ok, 3=good
-  energy       smallint check (energy between 1 and 3),
+  mood         smallint check (mood between 1 and 10),   -- 1=low … 10=great
+  energy       smallint check (energy between 1 and 10), -- 1=flat … 10=buzzing
   note         text,
   timezone     text not null,
   created_at   timestamptz not null default now(),
@@ -558,7 +542,7 @@ alter table profiles add column height_cm integer;
 
 1. Bottom-nav refactor: 4 tabs (Today / Log / Map / You), keep V1's settings + sleep components routed under Log → Sleep.
 2. Floating Chat pill component (V2 = sheet shell only).
-3. `daily_state` table + Log → Mood screen.
+3. `daily_state` table (mood/energy captured via Log → Sleep score rows).
 4. Today redesign: 3–4 cards, quick-log row.
 5. Log → Habits (habits + habit_logs schema, habit-card, library picker, custom add).
 6. Log → Body (body_logs schema, ✕-toggle field component, BMI auto, Today-I-noticed chip selector).
