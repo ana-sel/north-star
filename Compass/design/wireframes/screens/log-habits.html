@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Log · Habits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<style>
+/* ── Routine tabs ── */
+.rtabs{display:flex;gap:4px;margin-bottom:14px;}
+.rtab{
+  flex:1;padding:7px 0;border-radius:999px;border:none;
+  font-family:inherit;font-size:var(--fs-sm);font-weight:600;
+  cursor:pointer;transition:all .15s;
+  background:var(--greige);color:var(--muted);
+}
+.rtab.active{background:var(--btn);color:#fff;}
+
+/* ── Routine block ── */
+.routine{display:none;}
+.routine.active{display:block;}
+
+/* ── Routine header ── */
+.rh{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);
+}
+.rh-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rh-icon{font-size:22px;line-height:1;}
+.rh-col{flex:1;}
+.rh-name{font-size:var(--fs-md);font-weight:700;line-height:1.2;}
+.rh-time{font-size:var(--fs-xs);color:var(--muted);}
+.rh-count{
+  font-size:var(--fs-xs);font-weight:600;color:var(--olive);
+  background:#f0f3ef;padding:3px 10px;border-radius:999px;
+}
+/* Progress arc bar */
+.rh-prog{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;}
+.rh-prog-fill{height:100%;border-radius:999px;background:var(--olive);transition:width .3s;}
+
+/* ── Habit rows ── */
+.habit-list{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;
+}
+.habit-row{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-bottom:1px solid var(--line);
+  cursor:pointer;user-select:none;
+}
+.habit-row:last-child{border-bottom:none;}
+.habit-check{
+  width:24px;height:24px;border-radius:50%;
+  border:2px solid var(--line);background:var(--bg);
+  display:grid;place-items:center;font-size:13px;
+  color:transparent;flex-shrink:0;transition:all .15s;
+}
+.habit-check.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+.habit-emoji{font-size:17px;flex-shrink:0;}
+.habit-info{flex:1;}
+.habit-name{font-size:var(--fs-md);}
+.habit-dur{font-size:var(--fs-xs);color:var(--muted);}
+.habit-row.done .habit-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.habit-streak{
+  font-size:var(--fs-xs);font-weight:600;color:var(--p-joy);
+  display:flex;align-items:center;gap:2px;
+}
+
+/* ── Add habit row ── */
+.add-habit{
+  display:flex;align-items:center;gap:8px;padding:11px 14px;
+  color:var(--muted);font-size:var(--fs-sm);cursor:pointer;
+  background:var(--card);border:1px dashed var(--line);border-radius:var(--r-card);
+}
+.add-habit span{font-size:16px;}
+
+/* ── Streak callout ── */
+.streak-bar{
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(120deg,#f7f3ec,#fff);
+  border:1px solid var(--line);border-radius:var(--r-card);
+  padding:12px 14px;margin-bottom:12px;box-shadow:var(--shadow-sm);
+}
+.streak-emoji{font-size:24px;}
+.streak-text{font-size:var(--fs-sm);color:var(--muted);}
+.streak-text strong{color:var(--ink);}
+</style>
+</head>
+<body class="screen-body">
+
+  <!-- Streak callout -->
+  <div class="streak-bar">
+    <div class="streak-emoji">🔥</div>
+    <div class="streak-text"><strong>3-day streak</strong> — morning routine · keep it going</div>
+  </div>
+
+  <!-- Routine tabs -->
+  <div class="rtabs">
+    <button class="rtab active" onclick="switchRoutine('morning', this)">🌅 Morning</button>
+    <button class="rtab" onclick="switchRoutine('evening', this)">🌙 Evening</button>
+  </div>
+
+  <!-- Morning routine -->
+  <div class="routine active" id="routine-morning">
+    <div class="rh" id="rh-morning">
+      <div class="rh-top">
+        <div class="rh-icon">🌅</div>
+        <div class="rh-col">
+          <div class="rh-name">Morning Routine</div>
+          <div class="rh-time">Starts 07:00 · ~35 min total</div>
+        </div>
+        <div class="rh-count" id="rc-morning">1 of 4</div>
+      </div>
+      <div class="rh-prog"><div class="rh-prog-fill" id="rp-morning" style="width:25%"></div></div>
+    </div>
+
+    <div class="habit-list" id="hl-morning">
+      <div class="habit-row done" onclick="toggleHabit(this,'morning')">
+        <div class="habit-check done">✓</div>
+        <div class="habit-emoji">💧</div>
+        <div class="habit-info">
+          <div class="habit-name">Drink a glass of water</div>
+          <div class="habit-dur">2 min · right on waking</div>
+        </div>
+        <div class="habit-streak">🔥3</div>
+      </div>
+      <div class="habit-row" onclick="toggleHabit(this,'morning')">
+        <div class="habit-check"></div>
+        <div class="habit-emoji">🚶</div>
+        <div class="habit-info">
+          <div class="habit-name">Morning walk</div>
+          <div class="habit-dur">20 min</div>
+        </div>
+        <div class="habit-streak">🔥3</div>
+      </div>
+      <div class="habit-row" onclick="toggleHabit(this,'morning')">
+        <div class="habit-check"></div>
+        <div class="habit-emoji">📖</div>
+        <div class="habit-info">
+          <div class="habit-name">Read 10 pages</div>
+          <div class="habit-dur">15 min</div>
+        </div>
+        <div class="habit-streak">🔥1</div>
+      </div>
+      <div class="habit-row" onclick="toggleHabit(this,'morning')">
+        <div class="habit-check"></div>
+        <div class="habit-emoji">🧘</div>
+        <div class="habit-info">
+          <div class="habit-name">5-min stillness sit</div>
+          <div class="habit-dur">5 min</div>
+        </div>
+        <div class="habit-streak"></div>
+      </div>
+    </div>
+    <div class="add-habit"><span>＋</span> Add morning habit</div>
+  </div>
+
+  <!-- Evening routine -->
+  <div class="routine" id="routine-evening">
+    <div class="rh" id="rh-evening">
+      <div class="rh-top">
+        <div class="rh-icon">🌙</div>
+        <div class="rh-col">
+          <div class="rh-name">Evening Routine</div>
+          <div class="rh-time">Starts 22:00 · ~20 min total</div>
+        </div>
+        <div class="rh-count" id="rc-evening">0 of 3</div>
+      </div>
+      <div class="rh-prog"><div class="rh-prog-fill" id="rp-evening" style="width:0%"></div></div>
+    </div>
+
+    <div class="habit-list" id="hl-evening">
+      <div class="habit-row" onclick="toggleHabit(this,'evening')">
+        <div class="habit-check"></div>
+        <div class="habit-emoji">📵</div>
+        <div class="habit-info">
+          <div class="habit-name">No screens after 22:00</div>
+          <div class="habit-dur">Starts 22:00</div>
+        </div>
+        <div class="habit-streak">🔥2</div>
+      </div>
+      <div class="habit-row" onclick="toggleHabit(this,'evening')">
+        <div class="habit-check"></div>
+        <div class="habit-emoji">📓</div>
+        <div class="habit-info">
+          <div class="habit-name">Journal · one line</div>
+          <div class="habit-dur">5 min</div>
+        </div>
+        <div class="habit-streak"></div>
+      </div>
+      <div class="habit-row" onclick="toggleHabit(this,'evening')">
+        <div class="habit-check"></div>
+        <div class="habit-emoji">🌿</div>
+        <div class="habit-info">
+          <div class="habit-name">Herbal tea, lights dim</div>
+          <div class="habit-dur">10 min · wind-down</div>
+        </div>
+        <div class="habit-streak">🔥2</div>
+      </div>
+    </div>
+    <div class="add-habit"><span>＋</span> Add evening habit</div>
+  </div>
+
+<script>
+function switchRoutine(id, btn){
+  document.querySelectorAll('.routine').forEach(r => r.classList.remove('active'));
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+  document.getElementById('routine-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleHabit(row, routineId){
+  row.classList.toggle('done');
+  const ck = row.querySelector('.habit-check');
+  ck.classList.toggle('done');
+  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+  updateProgress(routineId);
+}
+
+function updateProgress(routineId){
+  const list = document.getElementById('hl-' + routineId);
+  const rows = list.querySelectorAll('.habit-row');
+  const done = list.querySelectorAll('.habit-row.done').length;
+  const total = rows.length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('rp-' + routineId).style.width = pct + '%';
+  document.getElementById('rc-' + routineId).textContent = done + ' of ' + total;
+}
+</script>
+</body>
+</html>
