@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · You · Progress</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<style>
+
+/* ─────────────────── Period tabs ─────────────────── */
+.period-tabs{display:flex;gap:4px;margin-bottom:14px;}
+.ptab{flex:1;padding:7px 0;border-radius:999px;border:none;font-family:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;background:var(--greige);color:var(--muted);transition:all .15s;}
+.ptab.active{background:var(--btn);color:#fff;}
+
+/* ─────────────────── Hero week card ─────────────────── */
+.hero{background:linear-gradient(145deg,#2d2b27,#3a3734);border-radius:var(--r-card);padding:18px 16px 16px;margin-bottom:14px;color:#fff;}
+.hero-tag{font-size:var(--fs-xs);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:5px;}
+.hero-headline{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:4px;}
+.hero-sub{font-size:var(--fs-xs);color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.5;}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
+.hs{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 6px;text-align:center;}
+.hs-val{font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.hs-lbl{font-size:8px;color:rgba(255,255,255,.4);margin-top:3px;font-weight:500;line-height:1.2;}
+.hs-arrow{font-size:8px;font-weight:700;margin-top:2px;}
+.arr-up{color:#8fc48a;}
+.arr-dn{color:#d98f8f;}
+.arr-eq{color:rgba(255,255,255,.3);}
+
+/* ─────────────────── Section headers ─────────────────── */
+.sect{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+.sect::before{content:'';display:block;width:3px;height:14px;border-radius:99px;background:var(--line);flex-shrink:0;}
+.sect.s-sleep::before{background:var(--p-health);}
+.sect.s-mood::before{background:var(--p-inner);}
+.sect.s-habits::before{background:var(--olive);}
+.sect.s-paths::before{background:var(--p-inner);}
+.sect.s-qual::before{background:#c9a253;}
+.sect.s-goals::before{background:var(--p-money);}
+
+/* ─────────────────── Sleep chart ─────────────────── */
+.spark-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+.spark-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.spark-title{font-size:var(--fs-sm);font-weight:700;}
+.chart-toggle{display:flex;background:var(--greige);border-radius:999px;padding:2px;gap:1px;}
+.ctog{border:none;background:transparent;font-family:inherit;font-size:var(--fs-xs);font-weight:600;color:var(--muted);padding:3px 10px;border-radius:999px;cursor:pointer;transition:all .15s;}
+.ctog.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.spark-avg{font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;}
+.spark-avg strong{color:var(--ink);}
+.bar-chart svg{width:100%;display:block;}
+.spark-footer{display:flex;justify-content:space-between;margin-top:4px;}
+.spark-day{font-size:var(--fs-xs);color:var(--muted);text-align:center;flex:1;}
+.spark-legend{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.leg-it{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.times-note{font-size:var(--fs-xs);color:var(--muted);margin-top:6px;font-style:italic;}
+.best-night{display:flex;align-items:center;gap:8px;background:var(--greige);border-radius:8px;padding:8px 10px;margin-top:10px;}
+.best-badge{font-size:var(--fs-xs);font-weight:700;color:var(--olive);}
+.best-detail{font-size:var(--fs-xs);color:var(--muted);}
+
+/* ─────────────────── Mood & Energy ─────────────────── */
+.me-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.me-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:12px 14px;box-shadow:var(--shadow-sm);}
+.me-label{font-size:var(--fs-xs);color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.me-score{font-size:32px;font-weight:800;letter-spacing:-.04em;line-height:1;}
+.me-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;margin-bottom:8px;}
+.me-dots{display:flex;gap:4px;margin-bottom:6px;}
+.md{width:11px;height:11px;border-radius:50%;background:var(--greige);}
+.md.hi{background:var(--olive);}
+.md.hi2{background:#4a7a42;}
+.md.lo{background:#7395ad;}
+.md.today{outline:2px solid var(--ink);outline-offset:1px;}
+.me-bar{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;}
+.me-fill{height:100%;border-radius:999px;}
+
+/* ─────────────────── Habit streaks ─────────────────── */
+.streak-wrap{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow);}
+.streak-hd{display:flex;align-items:center;justify-content:space-between;background:var(--btn);color:#fff;padding:10px 16px;}
+.streak-hd-lbl{font-size:var(--fs-xs);font-weight:600;opacity:.65;}
+.streak-hd-fire{font-size:var(--fs-sm);font-weight:800;}
+.streak-body{background:var(--card);border:1px solid var(--line);border-top:none;}
+.streak-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);position:relative;}
+.streak-row:last-child{border-bottom:none;}
+.streak-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.streak-row.perfect::before{background:var(--olive);}
+.streak-row.good::before{background:#a3b89e;}
+.streak-row.broken::before{background:#dac4c4;}
+.streak-row.perfect{background:#f5f8f5;}
+.streak-emoji{font-size:18px;flex-shrink:0;}
+.streak-name{flex:1;font-size:var(--fs-sm);font-weight:500;}
+.dot-track{display:flex;gap:4px;flex-shrink:0;}
+.td{width:12px;height:12px;border-radius:50%;background:var(--greige);}
+.td.on{background:var(--olive);}
+.td.miss{background:#e0bebe;}
+.streak-fire{font-size:var(--fs-md);font-weight:800;color:var(--p-joy);flex-shrink:0;min-width:34px;text-align:right;}
+.streak-fire.cold{color:var(--muted);font-size:var(--fs-xs);font-weight:600;}
+
+/* ─────────────────── Active paths (ports plan-trails style) ─────────────────── */
+.ap{border-radius:var(--r-card);overflow:hidden;margin-bottom:10px;box-shadow:0 3px 16px rgba(0,0,0,.22);}
+.ap-bg{padding:18px 18px 0;color:#F2EDE3;}
+.ap-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ap-type{font-size:var(--fs-xs);opacity:.4;text-transform:uppercase;letter-spacing:.08em;}
+.ap-streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.11);padding:4px 11px;border-radius:999px;font-size:var(--fs-sm);font-weight:700;}
+.ap-name{font-size:20px;font-weight:800;margin-bottom:12px;line-height:1.2;}
+.ap-prog-wrap{margin-bottom:6px;}
+.ap-prog-bar{height:4px;background:rgba(255,255,255,.14);border-radius:999px;overflow:hidden;}
+.ap-prog-fill{height:100%;border-radius:999px;background:rgba(255,255,255,.58);}
+.ap-prog-label{font-size:var(--fs-xs);opacity:.4;margin-top:5px;margin-bottom:14px;}
+/* Status row (anchor habit read-only) */
+.ap-status{background:rgba(255,255,255,.07);margin:0 -18px;padding:11px 18px;display:flex;align-items:center;gap:12px;}
+.ap-ck{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;}
+.ap-ck.done{background:rgba(118,132,113,.9);border-color:rgba(118,132,113,.9);color:#fff;}
+.ap-status-text{flex:1;font-size:var(--fs-sm);}
+.ap-status-hint{font-size:var(--fs-xs);opacity:.38;}
+/* Camp mini-chips inside status row */
+.ap-camps{display:flex;gap:6px;margin-top:8px;margin-bottom:14px;}
+.camp-chip{flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,.15);}
+.camp-chip.done{background:rgba(255,255,255,.55);}
+.camp-chip.active{background:rgba(255,255,255,.35);}
+
+/* ─────────────────── Quality mini-cards ─────────────────── */
+.qual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.qc{border-radius:var(--r-card);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.18);}
+.qc-bg{padding:13px 13px 12px;color:#F2EDE3;}
+.qc-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.qc-badge{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;background:rgba(255,255,255,.12);padding:3px 8px;border-radius:999px;color:rgba(255,255,255,.65);}
+.qc-src{font-size:8px;opacity:.32;text-align:right;line-height:1.3;}
+.qc-name{font-size:16px;font-weight:800;margin-bottom:3px;}
+.qc-virtue{font-size:9.5px;opacity:.5;font-style:italic;line-height:1.4;margin-bottom:9px;}
+.qc-bar{height:3px;background:rgba(255,255,255,.14);border-radius:999px;overflow:hidden;}
+.qc-fill{height:100%;border-radius:999px;background:rgba(255,255,255,.55);}
+/* Earned — full width gold treatment */
+.qc-earned{border-radius:var(--r-card);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.18);}
+.qce-bg{padding:13px 16px;background:linear-gradient(135deg,#3a2e14,#2c2310);color:#f2e8c8;}
+.qce-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.qce-badge{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;background:rgba(201,162,83,.22);color:#d4b56a;padding:3px 9px;border-radius:999px;}
+.qce-name{font-size:15px;font-weight:800;color:#f0d98a;margin-bottom:2px;}
+.qce-virtue{font-size:9.5px;opacity:.55;font-style:italic;line-height:1.4;}
+.qce-bar{height:3px;background:rgba(255,255,255,.1);border-radius:999px;margin-top:9px;overflow:hidden;}
+.qce-fill{height:100%;background:linear-gradient(90deg,#c9a253,#e0c97a);border-radius:999px;}
+
+/* ─────────────────── Goal cards ─────────────────── */
+.goal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px 13px;margin-bottom:8px;box-shadow:var(--shadow-sm);}
+.gc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:10px;}
+.gc-pct{font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1;flex-shrink:0;width:68px;}
+.gc-right{flex:1;}
+.gc-name{font-size:var(--fs-sm);font-weight:700;margin-bottom:3px;}
+.gc-meta{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;}
+.gc-path-tag{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-xs);background:var(--greige);padding:2px 8px;border-radius:999px;color:var(--muted);margin-top:4px;}
+.gc-pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.gc-bar-wrap{height:7px;background:var(--greige);border-radius:999px;overflow:visible;position:relative;}
+.gc-bar-wrap::after{content:'';position:absolute;left:50%;top:-3px;width:1.5px;height:13px;background:rgba(0,0,0,.1);border-radius:1px;}
+.gc-fill{height:7px;border-radius:999px;}
+
+/* ─────────────────── AI insight ─────────────────── */
+.insight-card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--olive);border-radius:var(--r-card);padding:13px 14px;box-shadow:var(--shadow-sm);margin-bottom:12px;}
+.insight-lbl{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--olive);margin-bottom:6px;}
+.insight-text{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;}
+.insight-src{font-size:var(--fs-xs);color:var(--muted);margin-top:5px;}
+
+</style>
+</head>
+<body class="screen-body">
+
+  <!-- Period tabs -->
+  <div class="period-tabs">
+    <button class="ptab active" onclick="setPeriod(this)">Week</button>
+    <button class="ptab" onclick="setPeriod(this)">Month</button>
+    <button class="ptab" onclick="setPeriod(this)">3 Months</button>
+  </div>
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <div class="hero-tag">Jun 23 – 29, 2026</div>
+    <div class="hero-headline">Building momentum</div>
+    <div class="hero-sub">4 of 7 sleep nights on target · streak alive · mood climbing</div>
+    <div class="hero-stats">
+      <div class="hs">
+        <div class="hs-val">6h50</div>
+        <div class="hs-lbl">avg sleep</div>
+        <div class="hs-arrow arr-dn">↓ 25m</div>
+      </div>
+      <div class="hs">
+        <div class="hs-val">6.8</div>
+        <div class="hs-lbl">avg mood</div>
+        <div class="hs-arrow arr-up">↑ 0.4</div>
+      </div>
+      <div class="hs">
+        <div class="hs-val">🔥9</div>
+        <div class="hs-lbl">best streak</div>
+        <div class="hs-arrow arr-eq">Stillness</div>
+      </div>
+      <div class="hs">
+        <div class="hs-val">68%</div>
+        <div class="hs-lbl">habits done</div>
+        <div class="hs-arrow arr-up">↑ 12%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLEEP ── -->
+  <div class="sect s-sleep">Sleep</div>
+  <div class="spark-card">
+    <div class="spark-head">
+      <div class="spark-title">Last 7 nights</div>
+      <div class="chart-toggle">
+        <button class="ctog active" onclick="setSleepView('hours',this)">Hours</button>
+        <button class="ctog" onclick="setSleepView('times',this)">Times</button>
+      </div>
+    </div>
+    <div class="spark-avg">Avg <strong>6h 50m</strong> · target 8h</div>
+
+    <!-- HOURS -->
+    <div id="sv-hours">
+      <div class="bar-chart">
+        <svg viewBox="0 0 280 70" style="height:70px">
+          <line x1="0" y1="13" x2="280" y2="13" stroke="#768471" stroke-width="1" stroke-dasharray="4 3" opacity=".4"/>
+          <text x="276" y="11" text-anchor="end" font-family="Inter" font-size="6.5" fill="#768471" font-weight="600">8h target</text>
+          <rect x="4"   y="24" width="26" height="46" rx="4" fill="#7395ad" opacity=".75"/>
+          <rect x="44"  y="19" width="26" height="51" rx="4" fill="#768471" opacity=".85"/>
+          <rect x="84"  y="29" width="26" height="41" rx="4" fill="#b07070" opacity=".7"/>
+          <rect x="124" y="12" width="26" height="58" rx="4" fill="#768471"/>
+          <text x="137" y="9" text-anchor="middle" font-family="Inter" font-size="7" fill="#768471" font-weight="800">★</text>
+          <rect x="164" y="17" width="26" height="53" rx="4" fill="#768471" opacity=".85"/>
+          <rect x="204" y="28" width="26" height="42" rx="4" fill="#7395ad" opacity=".7"/>
+          <rect x="244" y="30" width="26" height="40" rx="4" fill="#b07070" opacity=".7"/>
+          <text x="257" y="10" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#65645f" font-weight="700">today</text>
+        </svg>
+      </div>
+      <div class="spark-footer">
+        <span class="spark-day">Sun</span><span class="spark-day">Mon</span>
+        <span class="spark-day">Tue</span><span class="spark-day">Wed</span>
+        <span class="spark-day">Thu</span><span class="spark-day">Fri</span>
+        <span class="spark-day">Sat</span>
+      </div>
+      <div class="spark-legend">
+        <div class="leg-it"><div class="leg-dot" style="background:#768471"></div>≥ 7h</div>
+        <div class="leg-it"><div class="leg-dot" style="background:#7395ad"></div>6–7h</div>
+        <div class="leg-it"><div class="leg-dot" style="background:#b07070"></div>&lt; 6h</div>
+        <div class="leg-it"><div style="width:14px;height:1px;border-top:1.5px dashed #768471;opacity:.7"></div>target</div>
+      </div>
+      <div class="best-night">
+        <div class="best-badge">★ Best night</div>
+        <div class="best-detail">Wednesday · 8h 6m · early bed 22:00, wake 06:06</div>
+      </div>
+    </div>
+
+    <!-- TIMES: 21:00–09:00 = 12h, x=30–280=250px, 1h=20.83px -->
+    <div id="sv-times" style="display:none">
+      <svg viewBox="0 0 280 112" width="100%" style="height:112px;display:block">
+        <rect x="61" y="0" width="167" height="93" rx="3" fill="#768471" opacity=".07"/>
+        <line x1="92" y1="0" x2="92" y2="93" stroke="#e2dfd9" stroke-width="1"/>
+        <!-- Sun 23:00→05:30 steel -->
+        <text x="27" y="8" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Sun</text>
+        <rect x="72" y="1" width="135" height="10" rx="3" fill="#7395ad" opacity=".78"/>
+        <text x="74" y="6" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">23:00</text>
+        <text x="206" y="6" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:30</text>
+        <!-- Mon 22:30→05:42 olive -->
+        <text x="27" y="22" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Mon</text>
+        <rect x="61" y="15" width="150" height="10" rx="3" fill="#768471" opacity=".85"/>
+        <text x="63" y="20" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">22:30</text>
+        <text x="210" y="20" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:42</text>
+        <!-- Tue 00:30→06:18 red -->
+        <text x="27" y="36" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Tue</text>
+        <rect x="103" y="29" width="121" height="10" rx="3" fill="#b07070" opacity=".75"/>
+        <text x="105" y="34" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">00:30</text>
+        <text x="223" y="34" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">06:18</text>
+        <!-- Wed 22:00→06:06 olive best -->
+        <text x="27" y="50" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Wed</text>
+        <rect x="51" y="43" width="169" height="10" rx="3" fill="#768471"/>
+        <text x="53" y="48" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">22:00 ★</text>
+        <text x="219" y="48" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">06:06</text>
+        <!-- Thu 22:15→05:45 olive -->
+        <text x="27" y="64" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Thu</text>
+        <rect x="56" y="57" width="156" height="10" rx="3" fill="#768471" opacity=".85"/>
+        <text x="58" y="62" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">22:15</text>
+        <text x="211" y="62" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:45</text>
+        <!-- Fri 23:30→05:30 steel -->
+        <text x="27" y="78" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Fri</text>
+        <rect x="82" y="71" width="125" height="10" rx="3" fill="#7395ad" opacity=".75"/>
+        <text x="84" y="76" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">23:30</text>
+        <text x="206" y="76" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:30</text>
+        <!-- Sat 01:00→06:42 red today -->
+        <text x="27" y="91" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Sat</text>
+        <rect x="113" y="84" width="119" height="10" rx="3" fill="#b07070" opacity=".75"/>
+        <text x="115" y="89" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">01:00</text>
+        <text x="231" y="89" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">06:42 · today</text>
+        <!-- Axis -->
+        <line x1="30" y1="96" x2="280" y2="96" stroke="#e2dfd9" stroke-width="1"/>
+        <text x="30"  y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">21:00</text>
+        <text x="92"  y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">00:00</text>
+        <text x="155" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">03:00</text>
+        <text x="218" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">06:00</text>
+        <text x="280" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">09:00</text>
+      </svg>
+      <div class="times-note">Pale green band = target window 22:30 – 06:30</div>
+    </div>
+  </div>
+
+  <!-- ── MOOD & ENERGY ── -->
+  <div class="sect s-mood">Mood &amp; energy</div>
+  <div class="me-grid">
+    <div class="me-card">
+      <div class="me-label">Mood</div>
+      <div class="me-score">6.8</div>
+      <div class="me-sub">↑ 0.4 vs last week</div>
+      <!-- Sun7 Mon7 Tue6 Wed8 Thu7 Fri6 Sat6 -->
+      <div class="me-dots">
+        <div class="md hi"></div><div class="md hi"></div><div class="md lo"></div>
+        <div class="md hi2"></div><div class="md hi"></div><div class="md lo"></div>
+        <div class="md lo today"></div>
+      </div>
+      <div class="me-bar"><div class="me-fill" style="width:68%;background:var(--p-inner)"></div></div>
+    </div>
+    <div class="me-card">
+      <div class="me-label">Energy</div>
+      <div class="me-score">5.9</div>
+      <div class="me-sub">↓ 0.6 vs last week</div>
+      <!-- Sun6 Mon6 Tue5 Wed7 Thu6 Fri5 Sat6 -->
+      <div class="me-dots">
+        <div class="md lo"></div><div class="md lo"></div><div class="md"></div>
+        <div class="md hi"></div><div class="md lo"></div><div class="md"></div>
+        <div class="md lo today"></div>
+      </div>
+      <div class="me-bar"><div class="me-fill" style="width:59%;background:var(--p-joy)"></div></div>
+    </div>
+  </div>
+
+  <!-- ── HABIT STREAKS ── -->
+  <div class="sect s-habits">Habit streaks</div>
+  <div class="streak-wrap">
+    <div class="streak-hd">
+      <div class="streak-hd-lbl">Last 7 days</div>
+      <div class="streak-hd-fire">Best this week: 🔥 7</div>
+    </div>
+    <div class="streak-body">
+      <div class="streak-row perfect">
+        <div class="streak-emoji">💧</div>
+        <div class="streak-name">Drink water on waking</div>
+        <div class="dot-track">
+          <div class="td on"></div><div class="td on"></div><div class="td on"></div>
+          <div class="td on"></div><div class="td on"></div><div class="td on"></div>
+          <div class="td on"></div>
+        </div>
+        <div class="streak-fire">🔥7</div>
+      </div>
+      <div class="streak-row good">
+        <div class="streak-emoji">🧘</div>
+        <div class="streak-name">5-min silent sit</div>
+        <div class="dot-track">
+          <div class="td on"></div><div class="td on"></div><div class="td miss"></div>
+          <div class="td on"></div><div class="td on"></div><div class="td on"></div>
+          <div class="td on"></div>
+        </div>
+        <div class="streak-fire">🔥5</div>
+      </div>
+      <div class="streak-row good">
+        <div class="streak-emoji">🚶</div>
+        <div class="streak-name">Morning walk</div>
+        <div class="dot-track">
+          <div class="td on"></div><div class="td miss"></div><div class="td on"></div>
+          <div class="td on"></div><div class="td miss"></div><div class="td on"></div>
+          <div class="td"></div>
+        </div>
+        <div class="streak-fire">🔥1</div>
+      </div>
+      <div class="streak-row broken">
+        <div class="streak-emoji">📵</div>
+        <div class="streak-name">No screens after 22:00</div>
+        <div class="dot-track">
+          <div class="td miss"></div><div class="td on"></div><div class="td on"></div>
+          <div class="td miss"></div><div class="td on"></div><div class="td miss"></div>
+          <div class="td"></div>
+        </div>
+        <div class="streak-fire cold">– –</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVE PATHS — ported from plan-trails.html ── -->
+  <div class="sect s-paths">Active paths</div>
+
+  <!-- Stillness Path -->
+  <div class="ap">
+    <div class="ap-bg" style="background:linear-gradient(155deg,#3a3850,#23202b)">
+      <div class="ap-row1">
+        <div class="ap-type">Inner path · Camp 2 of 3</div>
+        <div class="ap-streak">🔥 9 days</div>
+      </div>
+      <div class="ap-name">The Stillness Path</div>
+      <!-- Camp progress chips -->
+      <div class="ap-camps">
+        <div class="camp-chip done"></div>
+        <div class="camp-chip active"></div>
+        <div class="camp-chip"></div>
+      </div>
+      <div class="ap-prog-wrap">
+        <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:64%"></div></div>
+        <div class="ap-prog-label">Day 9 of 14 · 5 days to Camp 3</div>
+      </div>
+      <div class="ap-status">
+        <div class="ap-ck done">✓</div>
+        <div class="ap-status-text">5-min silent sit before first screen</div>
+        <div class="ap-status-hint">done today</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Land Path -->
+  <div class="ap">
+    <div class="ap-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
+      <div class="ap-row1">
+        <div class="ap-type">Material goal · Camp 1 of 3</div>
+        <div class="ap-streak">🔥 5 days</div>
+      </div>
+      <div class="ap-name">The Land Path</div>
+      <div class="ap-camps">
+        <div class="camp-chip active"></div>
+        <div class="camp-chip"></div>
+        <div class="camp-chip"></div>
+      </div>
+      <div class="ap-prog-wrap">
+        <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:36%"></div></div>
+        <div class="ap-prog-label">Day 5 of 14 · 9 days to Camp 2</div>
+      </div>
+      <div class="ap-status">
+        <div class="ap-ck"></div>
+        <div class="ap-status-text">Save £50 to the land fund this week</div>
+        <div class="ap-status-hint">not done today</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUALITY GROWTH — dark mini cards ── -->
+  <div class="sect s-qual">Quality growth</div>
+
+  <div class="qual-grid">
+    <!-- Stillness -->
+    <div class="qc">
+      <div class="qc-bg" style="background:linear-gradient(145deg,#3a3648,#28243a)">
+        <div class="qc-row1">
+          <div class="qc-badge">Camp 2</div>
+          <div class="qc-src">Stillness Path</div>
+        </div>
+        <div class="qc-name">Stillness</div>
+        <div class="qc-virtue">"Pausing before reacting"</div>
+        <div class="qc-bar"><div class="qc-fill" style="width:64%"></div></div>
+      </div>
+    </div>
+    <!-- Patience -->
+    <div class="qc">
+      <div class="qc-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
+        <div class="qc-row1">
+          <div class="qc-badge">Camp 1</div>
+          <div class="qc-src">Land Path</div>
+        </div>
+        <div class="qc-name">Patience</div>
+        <div class="qc-virtue">"Trust in the pace of things"</div>
+        <div class="qc-bar"><div class="qc-fill" style="width:36%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Earned — full width gold -->
+  <div class="qc-earned">
+    <div class="qce-bg">
+      <div class="qce-row1">
+        <div class="qce-name">🏅 Foundation</div>
+        <div class="qce-badge">✓ Earned · permanent</div>
+      </div>
+      <div class="qce-virtue">"The first discipline is showing up" · 5 weeks practiced · part of you now</div>
+      <div class="qce-bar"><div class="qce-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <!-- ── MATERIAL GOALS ── -->
+  <div class="sect s-goals">Material goals</div>
+
+  <div class="goal-card">
+    <div class="gc-top">
+      <div class="gc-pct" style="color:var(--p-money)">35%</div>
+      <div class="gc-right">
+        <div class="gc-name">Buy land</div>
+        <div class="gc-meta">£3,500 of £10,000 saved</div>
+        <div class="gc-path-tag"><div class="gc-pdot" style="background:var(--p-health)"></div>via The Land Path</div>
+      </div>
+    </div>
+    <div class="gc-bar-wrap"><div class="gc-fill" style="width:35%;background:var(--p-money);border-radius:999px"></div></div>
+  </div>
+
+  <div class="goal-card">
+    <div class="gc-top">
+      <div class="gc-pct" style="color:var(--p-health)">60%</div>
+      <div class="gc-right">
+        <div class="gc-name">Sleep 7h+ consistently</div>
+        <div class="gc-meta">4 of 7 nights this week · avg 6h 50m</div>
+        <div class="gc-path-tag"><div class="gc-pdot" style="background:var(--p-health)"></div>linked to sleep target</div>
+      </div>
+    </div>
+    <div class="gc-bar-wrap"><div class="gc-fill" style="width:60%;background:var(--p-health);border-radius:999px"></div></div>
+  </div>
+
+  <div class="goal-card">
+    <div class="gc-top">
+      <div class="gc-pct" style="color:var(--p-inner)">50%</div>
+      <div class="gc-right">
+        <div class="gc-name">Read 24 books this year</div>
+        <div class="gc-meta">12 of 24 · on pace for December</div>
+        <div class="gc-path-tag"><div class="gc-pdot" style="background:var(--p-inner)"></div>personal goal</div>
+      </div>
+    </div>
+    <div class="gc-bar-wrap"><div class="gc-fill" style="width:50%;background:var(--p-inner);border-radius:999px"></div></div>
+  </div>
+
+  <!-- ── AI Insight ── -->
+  <div class="insight-card">
+    <div class="insight-lbl">Pattern · this week</div>
+    <div class="insight-text">Your best sleep (Wed 8h 6m) followed your earliest bedtime. Late screens on Tue and Sat pushed bedtime past midnight and cost you roughly 2h of sleep each time.</div>
+    <div class="insight-src">Based on your 7-night log · tap to dismiss</div>
+  </div>
+
+<script>
+function setPeriod(btn){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function setSleepView(v,btn){
+  document.querySelectorAll('.ctog').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sv-hours').style.display = v==='hours'?'block':'none';
+  document.getElementById('sv-times').style.display = v==='times'?'block':'none';
+}
+</script>
+</body>
+</html>

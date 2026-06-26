@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<style>
+.dt{font-size:var(--fs-sm);color:var(--muted);margin:4px 0 14px;font-weight:500;}
+
+/* ── Scene ── */
+.scene{
+  background:linear-gradient(155deg,#3a3850,#23202b);
+  color:#F2EDE3;border-radius:var(--r-card);padding:16px 18px;
+  margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;
+}
+.scene-tag{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:6px;}
+.scene-body{font-size:var(--fs-md);line-height:1.55;}
+.scene-cta{font-size:var(--fs-xs);opacity:.5;margin-top:8px;}
+
+/* ── Path anchors (Fabulous-style routine rows) ── */
+.anchors{
+  border-radius:var(--r-card);overflow:hidden;
+  margin-bottom:12px;box-shadow:var(--shadow);
+}
+.anchors-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;
+  background:var(--btn);color:#F2EDE3;
+}
+.anchors-title{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+.anchors-count{font-size:var(--fs-xs);opacity:.55;}
+.anchor-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-bottom:1px solid var(--line);
+  background:var(--card);cursor:pointer;
+}
+.anchor-row:last-child{border-bottom:none;}
+.anchor-ck{
+  width:26px;height:26px;border-radius:50%;
+  border:2px solid var(--line);background:var(--bg);
+  display:grid;place-items:center;font-size:13px;
+  color:transparent;flex-shrink:0;transition:all .15s;
+}
+.anchor-ck.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+.anchor-col{flex:1;}
+.anchor-path{font-size:var(--fs-xs);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.anchor-habit{font-size:var(--fs-md);}
+.anchor-streak{font-size:var(--fs-xs);color:var(--muted);display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.anchor-row.done .anchor-habit{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+
+/* ── Shared check rows ── */
+.check-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer;
+}
+.check-row:last-child{border-bottom:none;}
+.ck{
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid var(--line);background:var(--card);
+  display:grid;place-items:center;font-size:11px;
+  color:transparent;flex-shrink:0;transition:all .15s;
+}
+.ck.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+.check-row .nb{flex:1;font-size:var(--fs-md);}
+.check-row .roi{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);padding:2px 8px;border-radius:999px;}
+.check-row.done .nb{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+
+/* ── Practice rows ── */
+.practice-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer;
+}
+.practice-row:last-child{border-bottom:none;}
+.practice-row .pr-col{flex:1;}
+.practice-row .pr-name{font-size:var(--fs-md);}
+.practice-row .pr-cue{font-size:var(--fs-sm);color:var(--muted);font-style:italic;margin-top:2px;}
+.practice-row.done .pr-name{color:var(--muted);}
+
+/* ── Quality card ── */
+.qcard{
+  background:var(--card);border:1px solid var(--line);
+  border-left:3px solid #898095;border-radius:var(--r-card);
+  padding:14px 18px;margin-bottom:12px;box-shadow:var(--shadow-sm);
+  display:flex;align-items:flex-start;gap:12px;
+}
+.qcol{flex:1;}
+.qtag{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#898095;margin-bottom:4px;}
+.q-name{font-size:var(--fs-md);font-weight:800;}
+.q-cue{font-size:var(--fs-sm);color:var(--muted);font-style:italic;margin-top:4px;line-height:1.5;}
+.q-check{
+  width:30px;height:30px;border-radius:50%;border:2px solid #898095;
+  background:var(--bg);cursor:pointer;flex-shrink:0;
+  display:grid;place-items:center;font-size:14px;
+  color:transparent;transition:all .15s;
+}
+.q-check.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+
+/* ── Kanban "Do today" ── */
+.kanban-today{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-card);overflow:hidden;
+  box-shadow:var(--shadow-sm);margin-bottom:12px;
+}
+.kt-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px 10px 16px;border-bottom:1px solid var(--line);
+}
+.kt-title{font-size:var(--fs-sm);font-weight:700;}
+.kt-meta{font-size:var(--fs-xs);color:var(--muted);}
+.kt-add{
+  font-size:18px;color:var(--muted);background:none;border:none;
+  cursor:pointer;line-height:1;padding:0 0 0 8px;
+}
+.kt-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+}
+.kt-row:last-of-type{border-bottom:none;}
+.kt-ck{
+  width:22px;height:22px;border-radius:6px;
+  border:1.5px solid var(--line);background:var(--bg);
+  display:grid;place-items:center;font-size:11px;
+  color:transparent;flex-shrink:0;transition:all .15s;
+}
+.kt-ck.done{background:var(--olive);border-color:var(--olive);color:#fff;border-radius:6px;}
+.kt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.kt-name{flex:1;font-size:var(--fs-md);}
+.kt-row.done .kt-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.kt-add-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px;color:var(--muted);font-size:var(--fs-sm);cursor:pointer;
+  border-top:1px solid var(--line);
+}
+
+/* ── Check-in prompt (shows Thursday–Friday) ── */
+.checkin-prompt{
+  background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--p-inner);border-radius:var(--r-card);
+  padding:12px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+}
+.cp-icon{font-size:20px;flex-shrink:0;}
+.cp-text{flex:1;}
+.cp-h{font-size:var(--fs-sm);font-weight:700;}
+.cp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.cp-arrow{font-size:16px;color:var(--muted);}
+</style>
+</head>
+<body class="screen-body">
+
+  <div class="dt">Wednesday, 25 June · UTC+1</div>
+
+  <!-- 1. Scene -->
+  <div class="scene">
+    <div class="scene-tag">A scene has appeared</div>
+    <div class="scene-body">The river ran clearer the morning after rest.</div>
+    <div class="scene-cta">Tap to view →</div>
+  </div>
+
+  <!-- 2. Path anchors — Fabulous-style routine rows from active Paths -->
+  <div class="anchors">
+    <div class="anchors-hd">
+      <div class="anchors-title">Active paths · today's actions</div>
+      <div class="anchors-count">1 of 2 done</div>
+    </div>
+    <div class="anchor-row done" onclick="toggleAnchor(this)">
+      <div class="anchor-ck done">✓</div>
+      <div class="anchor-col">
+        <div class="anchor-path">The Stillness Path · Camp 2</div>
+        <div class="anchor-habit">5-min silent sit before first screen</div>
+      </div>
+      <div class="anchor-streak">🔥 9</div>
+    </div>
+    <div class="anchor-row" onclick="toggleAnchor(this)">
+      <div class="anchor-ck"></div>
+      <div class="anchor-col">
+        <div class="anchor-path">The Land Path · Camp 1</div>
+        <div class="anchor-habit">Save £50 to the land fund this week</div>
+      </div>
+      <div class="anchor-streak">🔥 5</div>
+    </div>
+  </div>
+
+  <!-- 3. What needs you today — logging checklist -->
+  <div class="card">
+    <div class="card-h">What needs you today · 1 of 4</div>
+    <div class="check-row done" onclick="toggleRow(this)">
+      <span class="ck done">✓</span>
+      <span class="nb">Log sleep</span><span class="roi">5h 40m</span>
+    </div>
+    <div class="check-row" onclick="toggleRow(this)">
+      <span class="ck"></span>
+      <span class="nb">Log mood &amp; energy</span><span class="roi">in Sleep</span>
+    </div>
+    <div class="check-row" onclick="toggleRow(this)">
+      <span class="ck"></span>
+      <span class="nb">Tick today's habits</span><span class="roi">3 left</span>
+    </div>
+    <div class="check-row" onclick="toggleRow(this)">
+      <span class="ck"></span>
+      <span class="nb">Log expenses</span><span class="roi">optional</span>
+    </div>
+  </div>
+
+  <!-- 4. Today's quality -->
+  <div class="qcard">
+    <div class="qcol">
+      <div class="qtag">Today's quality · from Stillness Path</div>
+      <div class="q-name">Stillness</div>
+      <div class="q-cue">"Notice the moment before you react today, and pause there."</div>
+    </div>
+    <button class="q-check" id="qCheck">✓</button>
+  </div>
+
+  <!-- 5. Practices · inner work -->
+  <div class="card">
+    <div class="card-h">Practices · inner work</div>
+    <div class="practice-row" onclick="togglePractice(this)">
+      <span class="ck" style="margin-top:1px;border-radius:6px"></span>
+      <div class="pr-col">
+        <div class="pr-name">Self-parenting</div>
+        <div class="pr-cue">One moment of self-compassion today — catch a harsh thought</div>
+      </div>
+    </div>
+    <div class="practice-row" onclick="togglePractice(this)">
+      <span class="ck" style="margin-top:1px;border-radius:6px"></span>
+      <div class="pr-col">
+        <div class="pr-name">Setting boundaries</div>
+        <div class="pr-cue">Notice one moment where you can say no</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Do today — Kanban Today column -->
+  <div class="kanban-today">
+    <div class="kt-head">
+      <div class="kt-title">Do today</div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div class="kt-meta">1 done · 3 left</div>
+        <button class="kt-add" title="Add task">＋</button>
+      </div>
+    </div>
+    <div class="kt-row done" onclick="toggleKt(this)">
+      <div class="kt-ck done">✓</div>
+      <div class="kt-dot" style="background:var(--p-admin)"></div>
+      <div class="kt-name">Book dentist</div>
+    </div>
+    <div class="kt-row" onclick="toggleKt(this)">
+      <div class="kt-ck"></div>
+      <div class="kt-dot" style="background:var(--p-admin)"></div>
+      <div class="kt-name">Research mortgages</div>
+    </div>
+    <div class="kt-row" onclick="toggleKt(this)">
+      <div class="kt-ck"></div>
+      <div class="kt-dot" style="background:var(--p-inner)"></div>
+      <div class="kt-name">Read chapter 3</div>
+    </div>
+    <div class="kt-row" onclick="toggleKt(this)">
+      <div class="kt-ck"></div>
+      <div class="kt-dot" style="background:var(--p-health)"></div>
+      <div class="kt-name">Morning walk</div>
+    </div>
+    <div class="kt-add-row">＋ Add task for today</div>
+  </div>
+
+  <!-- 7. Weekly check-in prompt — shows Thu/Fri when reflection is due -->
+  <div class="checkin-prompt">
+    <div class="cp-icon">🪞</div>
+    <div class="cp-text">
+      <div class="cp-h">Weekly check-in is ready</div>
+      <div class="cp-sub">3 questions · 2 min · due today</div>
+    </div>
+    <div class="cp-arrow">→</div>
+  </div>
+
+  <!-- 8. Coach -->
+  <div class="ai-card">
+    <div class="ai-tag">Coach · Buy land goal</div>
+    <div class="ai-body">Read 1 article on mortgage pre-approval today. Add "Compare loan types" to This Week. Set aside £200 to the land fund this month.</div>
+    <div class="ai-btns">
+      <button class="ai-btn ai-accept">Add to plan</button>
+      <button class="ai-btn ai-reject">Not now</button>
+    </div>
+  </div>
+
+<script>
+function toggleAnchor(row){
+  row.classList.toggle('done');
+  const ck = row.querySelector('.anchor-ck');
+  ck.classList.toggle('done');
+  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+  updateAnchorCount();
+}
+function updateAnchorCount(){
+  const rows = document.querySelectorAll('.anchor-row');
+  const done = document.querySelectorAll('.anchor-row.done').length;
+  document.querySelector('.anchors-count').textContent = done + ' of ' + rows.length + ' done';
+}
+
+function toggleRow(row){
+  row.classList.toggle('done');
+  const ck = row.querySelector('.ck');
+  ck.classList.toggle('done');
+  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+  updateNeedsCount();
+}
+function updateNeedsCount(){
+  const rows = document.querySelectorAll('.check-row');
+  const done = document.querySelectorAll('.check-row.done').length;
+  document.querySelector('.card-h').textContent =
+    'What needs you today · ' + done + ' of ' + rows.length;
+}
+
+function togglePractice(row){
+  row.classList.toggle('done');
+  const ck = row.querySelector('.ck');
+  ck.classList.toggle('done');
+  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+}
+
+function toggleKt(row){
+  row.classList.toggle('done');
+  const ck = row.querySelector('.kt-ck');
+  ck.classList.toggle('done');
+  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+  updateKtCount();
+}
+function updateKtCount(){
+  const rows = document.querySelectorAll('.kt-row');
+  const done = document.querySelectorAll('.kt-row.done').length;
+  document.querySelector('.kt-meta').textContent =
+    done + ' done · ' + (rows.length - done) + ' left';
+}
+
+document.getElementById('qCheck').addEventListener('click', function(){
+  this.classList.toggle('done');
+  this.textContent = '✓';
+});
+</script>
+</body>
+</html>

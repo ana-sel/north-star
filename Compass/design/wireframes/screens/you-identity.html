@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · You · Identity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<style>
+
+/* ─────────────────── Section headers ─────────────────── */
+.sect{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+.sect:first-of-type{margin-top:0;}
+.sect::before{content:'';display:block;width:3px;height:14px;border-radius:99px;background:var(--line);flex-shrink:0;}
+.sect.s-becoming::before{background:var(--p-inner);}
+.sect.s-values::before{background:var(--olive);}
+.sect.s-quality::before{background:#898095;}
+.sect.s-practices::before{background:var(--p-family);}
+.sect.s-earned::before{background:#c9a253;}
+.sect.s-skills::before{background:var(--p-contrib);}
+.sect.s-edu::before{background:var(--p-admin);}
+.sect.s-family::before{background:var(--p-family);}
+
+/* ─────────────────── Becoming — dark gradient cards ─────────────────── */
+.bec-card{border-radius:var(--r-card);overflow:hidden;margin-bottom:10px;box-shadow:0 3px 16px rgba(0,0,0,.22);}
+.bec-bg{padding:18px 18px 0;color:#F2EDE3;}
+.bec-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.bec-type{font-size:var(--fs-xs);opacity:.38;text-transform:uppercase;letter-spacing:.08em;}
+.bec-streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);padding:4px 11px;border-radius:999px;font-size:var(--fs-sm);font-weight:700;}
+.bec-path{font-size:var(--fs-xs);font-weight:600;opacity:.45;margin-bottom:8px;letter-spacing:.02em;}
+.bec-statement{font-size:15px;font-style:italic;line-height:1.55;margin-bottom:14px;opacity:.92;}
+/* Camp pips */
+.bec-camps{display:flex;gap:5px;margin-bottom:7px;}
+.bec-pip{flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,.15);}
+.bec-pip.done{background:rgba(255,255,255,.6);}
+.bec-pip.active{background:rgba(255,255,255,.38);}
+/* Progress bar */
+.bec-prog-bar{height:3px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-bottom:5px;}
+.bec-prog-fill{height:100%;border-radius:999px;background:rgba(255,255,255,.52);}
+.bec-prog-label{font-size:var(--fs-xs);opacity:.38;margin-bottom:16px;}
+
+/* ─────────────────── Values ─────────────────── */
+.values-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:12px;}
+.v-intro{font-size:var(--fs-xs);color:var(--muted);margin-bottom:11px;font-style:italic;}
+.values-wrap{display:flex;flex-wrap:wrap;gap:7px;}
+.v-pill{display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:600;background:var(--bg);border:1.5px solid var(--line);padding:6px 14px;border-radius:999px;box-shadow:var(--shadow-sm);}
+.v-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.v-add{font-size:var(--fs-sm);color:var(--muted);background:transparent;border:1.5px dashed var(--line);padding:6px 14px;border-radius:999px;cursor:pointer;font-family:inherit;}
+
+/* ─────────────────── Quality of the week — dark card ─────────────────── */
+.qual-week{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.2);}
+.qw-bg{padding:16px 18px;background:linear-gradient(145deg,#38324a,#27223b);color:#F2EDE3;}
+.qw-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:10px;}
+.qw-name{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px;}
+.qw-cue{font-size:var(--fs-sm);font-style:italic;opacity:.7;line-height:1.55;margin-bottom:8px;}
+.qw-from{font-size:var(--fs-xs);opacity:.35;margin-bottom:14px;}
+.qw-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.08);padding-top:12px;}
+.qw-foot-lbl{font-size:var(--fs-xs);opacity:.45;}
+.qw-check{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;display:grid;place-items:center;font-size:14px;color:transparent;cursor:pointer;transition:all .18s;}
+.qw-check.done{background:#768471;border-color:#768471;color:#fff;}
+
+/* ─────────────────── Practices — richer rows ─────────────────── */
+.practice-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;}
+.practice-row{display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-bottom:1px solid var(--line);}
+.practice-row:last-child{border-bottom:none;}
+.practice-row.paused{opacity:.55;}
+.pr-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.pr-body{flex:1;}
+.pr-name{font-size:var(--fs-md);font-weight:700;margin-bottom:2px;}
+.pr-desc{font-size:var(--fs-xs);color:var(--muted);line-height:1.45;margin-bottom:4px;}
+.pr-dur{font-size:var(--fs-xs);color:var(--muted);}
+.pr-state{font-size:var(--fs-xs);font-weight:700;padding:3px 10px;border-radius:999px;flex-shrink:0;margin-top:1px;}
+.pr-state.active{background:#eaf2e8;color:#3d6e37;}
+.pr-state.paused{background:var(--greige);color:var(--muted);}
+.pr-add{display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--muted);font-size:var(--fs-sm);cursor:pointer;}
+
+/* ─────────────────── Earned — gold dark card ─────────────────── */
+.earned-card{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.2);}
+.earned-bg{padding:16px 18px;background:linear-gradient(135deg,#3a2e14,#2c2310);color:#f2e8c8;}
+.earned-heading{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.5;margin-bottom:12px;}
+.earned-shelf{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.ec-chip{display:flex;align-items:center;gap:7px;background:rgba(201,162,83,.18);border:1px solid rgba(201,162,83,.3);border-radius:12px;padding:8px 12px;}
+.ec-medal{font-size:16px;}
+.ec-info{}
+.ec-name{font-size:var(--fs-sm);font-weight:700;color:#f0d98a;}
+.ec-wks{font-size:var(--fs-xs);opacity:.45;margin-top:1px;}
+.earned-note{font-size:var(--fs-xs);opacity:.4;font-style:italic;line-height:1.4;}
+
+/* ─────────────────── Skills ─────────────────── */
+.skills-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.skill-pill{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:600;background:var(--card);border:1px solid var(--line);padding:5px 12px;border-radius:999px;box-shadow:var(--shadow-sm);}
+.sk-dot{width:6px;height:6px;border-radius:50%;background:var(--p-contrib);flex-shrink:0;}
+.skill-add{font-size:var(--fs-xs);color:var(--muted);background:transparent;border:1.5px dashed var(--line);padding:5px 12px;border-radius:999px;cursor:pointer;font-family:inherit;}
+
+/* ─────────────────── Education ─────────────────── */
+.edu-list{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;}
+.edu-row{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--line);}
+.edu-row:last-child{border-bottom:none;}
+.edu-icon{font-size:16px;flex-shrink:0;}
+.edu-body{flex:1;}
+.edu-name{font-size:var(--fs-sm);font-weight:700;}
+.edu-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;}
+.edu-add{display:flex;align-items:center;gap:8px;padding:11px 16px;color:var(--muted);font-size:var(--fs-sm);cursor:pointer;}
+
+/* ─────────────────── Family ─────────────────── */
+.family-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.fam-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 6px;box-shadow:var(--shadow-sm);}
+.fam-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.fam-name{font-size:var(--fs-xs);font-weight:600;}
+.fam-role{font-size:var(--fs-xs);color:var(--muted);}
+.fam-add{font-size:var(--fs-xs);color:var(--muted);background:transparent;border:1.5px dashed var(--line);padding:6px 12px;border-radius:999px;cursor:pointer;font-family:inherit;}
+
+</style>
+</head>
+<body class="screen-body">
+
+  <!-- ── BECOMING ── -->
+  <div class="sect s-becoming">Becoming</div>
+
+  <div class="bec-card">
+    <div class="bec-bg" style="background:linear-gradient(155deg,#3a3850,#23202b)">
+      <div class="bec-row1">
+        <div class="bec-type">Inner path</div>
+        <div class="bec-streak">🔥 9 days</div>
+      </div>
+      <div class="bec-path">The Stillness Path</div>
+      <div class="bec-statement">"I am becoming someone who rests without guilt and meets silence without fear"</div>
+      <div class="bec-camps">
+        <div class="bec-pip done"></div>
+        <div class="bec-pip active"></div>
+        <div class="bec-pip"></div>
+      </div>
+      <div class="bec-prog-bar"><div class="bec-prog-fill" style="width:64%"></div></div>
+      <div class="bec-prog-label">Camp 2 of 3 · Day 9 of 14</div>
+    </div>
+  </div>
+
+  <div class="bec-card">
+    <div class="bec-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
+      <div class="bec-row1">
+        <div class="bec-type">Material goal</div>
+        <div class="bec-streak">🔥 5 days</div>
+      </div>
+      <div class="bec-path">The Land Path</div>
+      <div class="bec-statement">"I am becoming someone who builds deliberately toward what they love"</div>
+      <div class="bec-camps">
+        <div class="bec-pip active"></div>
+        <div class="bec-pip"></div>
+        <div class="bec-pip"></div>
+      </div>
+      <div class="bec-prog-bar"><div class="bec-prog-fill" style="width:36%"></div></div>
+      <div class="bec-prog-label">Camp 1 of 3 · Day 5 of 14</div>
+    </div>
+  </div>
+
+  <!-- ── VALUES ── -->
+  <div class="sect s-values">Values</div>
+  <div class="values-card">
+    <div class="v-intro">The principles you return to when making choices.</div>
+    <div class="values-wrap">
+      <div class="v-pill"><div class="v-dot" style="background:var(--ink)"></div>Honesty</div>
+      <div class="v-pill"><div class="v-dot" style="background:var(--p-inner)"></div>Presence</div>
+      <div class="v-pill"><div class="v-dot" style="background:var(--p-health)"></div>Security</div>
+      <div class="v-pill"><div class="v-dot" style="background:var(--p-joy)"></div>Freedom</div>
+      <div class="v-pill"><div class="v-dot" style="background:var(--p-admin)"></div>Craft</div>
+      <button class="v-add">＋ manage</button>
+    </div>
+  </div>
+
+  <!-- ── QUALITY · THIS WEEK ── -->
+  <div class="sect s-quality">Quality · this week</div>
+  <div class="qual-week">
+    <div class="qw-bg">
+      <div class="qw-label">Practicing today</div>
+      <div class="qw-name">Stillness</div>
+      <div class="qw-cue">"Notice the moment before you react today — there's always a gap. That gap is yours."</div>
+      <div class="qw-from">From The Stillness Path · Camp 2</div>
+      <div class="qw-foot">
+        <div class="qw-foot-lbl">Tap when you've practised this today</div>
+        <div class="qw-check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':''">✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRACTICES · INNER WORK ── -->
+  <div class="sect s-practices">Practices · inner work</div>
+  <div class="practice-wrap">
+    <div class="practice-row">
+      <div class="pr-icon">🪞</div>
+      <div class="pr-body">
+        <div class="pr-name">Self-parenting</div>
+        <div class="pr-desc">Meeting your own needs with care, not criticism — the adult self nurtures the younger self.</div>
+        <div class="pr-dur">3 weeks active</div>
+      </div>
+      <div class="pr-state active">active</div>
+    </div>
+    <div class="practice-row">
+      <div class="pr-icon">🧸</div>
+      <div class="pr-body">
+        <div class="pr-name">Reparenting inner child</div>
+        <div class="pr-desc">Giving the child-self the safety, attunement, and warmth it didn't always receive.</div>
+        <div class="pr-dur">5 weeks active</div>
+      </div>
+      <div class="pr-state active">active</div>
+    </div>
+    <div class="practice-row paused">
+      <div class="pr-icon">🌿</div>
+      <div class="pr-body">
+        <div class="pr-name">Trauma processing · IFS</div>
+        <div class="pr-desc">Internal Family Systems — working with protective and exiled parts.</div>
+        <div class="pr-dur">Paused 2 weeks ago</div>
+      </div>
+      <div class="pr-state paused">paused</div>
+    </div>
+    <div class="pr-add">＋ Add practice</div>
+  </div>
+
+  <!-- ── EARNED · PERMANENT ── -->
+  <div class="sect s-earned">Earned · permanent</div>
+  <div class="earned-card">
+    <div class="earned-bg">
+      <div class="earned-heading">Completed paths · permanent virtues</div>
+      <div class="earned-shelf">
+        <div class="ec-chip">
+          <div class="ec-medal">🏅</div>
+          <div class="ec-info">
+            <div class="ec-name">Foundation</div>
+            <div class="ec-wks">5 weeks · The Noticing Path</div>
+          </div>
+        </div>
+        <div class="ec-chip">
+          <div class="ec-medal">🌿</div>
+          <div class="ec-info">
+            <div class="ec-name">Noticing</div>
+            <div class="ec-wks">4 weeks · The Awareness Path</div>
+          </div>
+        </div>
+      </div>
+      <div class="earned-note">These are part of you now — no longer need tracking. They show up in Progress.</div>
+    </div>
+  </div>
+
+  <!-- ── SKILLS ── -->
+  <div class="sect s-skills">Skills</div>
+  <div class="skills-wrap">
+    <div class="skill-pill"><div class="sk-dot"></div>UX design</div>
+    <div class="skill-pill"><div class="sk-dot"></div>TypeScript</div>
+    <div class="skill-pill"><div class="sk-dot"></div>Cooking</div>
+    <div class="skill-pill"><div class="sk-dot"></div>Woodworking</div>
+    <div class="skill-pill"><div class="sk-dot"></div>Public speaking</div>
+    <button class="skill-add">＋ add skill</button>
+  </div>
+
+  <!-- ── EDUCATION ── -->
+  <div class="sect s-edu">Education</div>
+  <div class="edu-list">
+    <div class="edu-row">
+      <div class="edu-icon">🎓</div>
+      <div class="edu-body">
+        <div class="edu-name">BSc Computing</div>
+        <div class="edu-meta">University of Bristol · 2018</div>
+      </div>
+    </div>
+    <div class="edu-row">
+      <div class="edu-icon">📜</div>
+      <div class="edu-body">
+        <div class="edu-name">Certified Coach · ICF ACC</div>
+        <div class="edu-meta">CTI Fundamentals · 2024</div>
+      </div>
+    </div>
+    <div class="edu-add">＋ Add qualification</div>
+  </div>
+
+  <!-- ── FAMILY ── -->
+  <div class="sect s-family">Family &amp; close people</div>
+  <div class="family-wrap">
+    <div class="fam-chip">
+      <div class="fam-av" style="background:#937caf">M</div>
+      <div><div class="fam-name">M.</div><div class="fam-role">partner</div></div>
+    </div>
+    <div class="fam-chip">
+      <div class="fam-av" style="background:#b77980">E</div>
+      <div><div class="fam-name">Mum</div><div class="fam-role">mother</div></div>
+    </div>
+    <div class="fam-chip">
+      <div class="fam-av" style="background:#7395ad">D</div>
+      <div><div class="fam-name">Dad</div><div class="fam-role">father</div></div>
+    </div>
+    <div class="fam-chip">
+      <div class="fam-av" style="background:#8d8f63">R</div>
+      <div><div class="fam-name">Rosa</div><div class="fam-role">close friend</div></div>
+    </div>
+    <button class="fam-add">＋ add person</button>
+  </div>
+
+</body>
+</html>
