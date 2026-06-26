@@ -336,6 +336,25 @@ body {
 .insight-p { margin: 0; font-size: var(--fs-md); line-height: 1.6; }
 .insight-p .soft { color: var(--muted); }
 
+/* World seed card */
+.scene {
+  background: linear-gradient(155deg, #3a3850 0%, #23202b 100%);
+  border-radius: var(--r-card);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  color: #f0eefa;
+  box-shadow: var(--shadow);
+}
+.scene-tag {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  opacity: .65;
+  margin-bottom: 8px;
+}
+.scene-body { font-size: var(--fs-md); line-height: 1.55; }
+.scene-cta { font-size: var(--fs-xs); opacity: .65; margin-top: 8px; }
+
 /* Save button */
 .save-btn {
   width: 100%;
@@ -609,6 +628,13 @@ body {
       <!-- TODAY ─────────────────────────────────────────── -->
       <section class="screen active" id="today">
         <div class="date">Wednesday, 24 June 2026 · UTC+1</div>
+
+        <!-- World seed (appears after 3 sleep logs) -->
+        <div class="scene">
+          <div class="scene-tag">A scene has appeared</div>
+          <div class="scene-body">The river ran clearer the morning after rest.</div>
+          <div class="scene-cta">Tap to view →</div>
+        </div>
 
         <!-- Sleep target strip (tap to edit) -->
         <div class="target-strip" id="targetStrip">

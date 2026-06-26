@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Plan · Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+</head>
+<body class="screen-body">    
+    <!-- Mission Map — connects today → week → goals → mission -->
+    <div class="card" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+        <div style="font-size:30px;opacity:.3">◇</div>
+        <div class="card-h" style="margin:0">Mission map</div>
+        <div class="card-body" style="text-align:center">Connects today's tasks → week → goals → mission. Visual canvas — lives here from V3.</div>
+    </div>
+    
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-h">Mission</div>
+      <div class="card-body" style="font-size:16px;line-height:1.5;font-style:italic;color:var(--ink);margin-bottom:6px;">"Build a quiet life rooted in land, craft and family."</div>
+      <div class="card-body" style="font-size:11px;color:var(--muted);">Tap to edit</div>
+    </div>
+    
+  <!-- AI proposals live here — map is where strategy connects to action -->
+  <div class="ai-card">
+    <div class="ai-tag">AI proposal · Buy land goal</div>
+    <div class="ai-body">6-phase plan mapped to your mission. Phase 1 adds 8 cards across This Month and This Week. Suggests: read "The Land Buyer's Guide", develop Patience quality, build £5k buffer first.</div>
+    <div class="ai-btns">
+      <button class="ai-btn ai-accept">Add Phase 1 to Month</button>
+      <button class="ai-btn ai-reject">Edit first</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h">Preview · Phase 1 cards</div>
+    <div class="row"><div class="dot" style="background:var(--p-admin)"></div><div class="label">Research mortgage types</div><div class="tag">This month</div></div>
+    <div class="row"><div class="dot" style="background:var(--p-admin)"></div><div class="label">Find solicitor</div><div class="tag">This month</div></div>
+    <div class="row"><div class="dot" style="background:var(--p-money)"></div><div class="label">Check land budget</div><div class="tag">This week</div></div>
+    <div class="row"><div class="dot" style="background:var(--p-inner)"></div><div class="label">Read "Land Buyer's Guide"</div><div class="tag">This week</div></div>
+  </div>
+</body>
+</html>

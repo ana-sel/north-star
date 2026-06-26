@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#24231F;--muted:#65645F;--card:#FFFEFC;--bg:#F6F5F2;
+  --line:#E2DFD9;--greige:#F0ECE5;--olive:#768471;--btn:#3C3A34;
+  --p-health:#77936f;--p-inner:#937caf;--p-admin:#958572;
+  --p-family:#b77980;--p-joy:#c99554;--p-money:#7395ad;--p-contrib:#8d8f63;
+  --fs-xl:26px;--fs-lg:17px;--fs-md:14px;--fs-sm:12px;--fs-xs:10px;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* ── Step container ── */
+.steps-wrap{flex:1;overflow:hidden;position:relative;}
+.step{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;padding:32px 24px 24px;
+  opacity:0;pointer-events:none;transform:translateX(30px);
+  transition:opacity .28s, transform .28s;
+}
+.step.active{opacity:1;pointer-events:auto;transform:translateX(0);}
+.step.out{opacity:0;transform:translateX(-30px);}
+
+/* ── Progress dots ── */
+.progress{
+  display:flex;justify-content:center;gap:6px;padding:16px 0 0;
+  flex-shrink:0;
+}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:all .2s;}
+.pdot.active{width:18px;border-radius:999px;background:var(--olive);}
+.pdot.done{background:var(--olive);}
+
+/* ── Bottom nav ── */
+.bnav{padding:16px 24px 32px;display:flex;gap:10px;flex-shrink:0;}
+.btn-pri{
+  flex:1;padding:14px;border-radius:999px;border:none;
+  background:var(--btn);color:#fff;font-family:inherit;
+  font-size:var(--fs-md);font-weight:600;cursor:pointer;
+  transition:opacity .15s;
+}
+.btn-pri:active{opacity:.8;}
+.btn-sec{
+  padding:14px 20px;border-radius:999px;border:1.5px solid var(--line);
+  background:transparent;font-family:inherit;font-size:var(--fs-md);
+  font-weight:500;color:var(--muted);cursor:pointer;
+}
+
+/* ── Typography ── */
+.step-super{
+  font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);margin-bottom:8px;
+}
+.step-h{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-bottom:10px;}
+.step-sub{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;margin-bottom:24px;}
+
+/* ── Step 1 — Welcome hero ── */
+.compass-mark{
+  width:72px;height:72px;border-radius:22px;
+  background:linear-gradient(145deg,#4a4860,#2e2c3a);
+  display:grid;place-items:center;font-size:34px;margin-bottom:24px;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+}
+.hero-list{display:flex;flex-direction:column;gap:12px;margin-bottom:32px;}
+.hero-it{display:flex;align-items:flex-start;gap:12px;}
+.hero-dot{
+  width:28px;height:28px;border-radius:50%;background:var(--greige);
+  display:grid;place-items:center;font-size:14px;flex-shrink:0;margin-top:1px;
+}
+.hero-text{font-size:var(--fs-md);line-height:1.5;}
+.hero-text strong{font-weight:700;}
+
+/* ── Step 2 — Name ── */
+.field{
+  background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:14px 16px;font-family:inherit;font-size:var(--fs-lg);
+  font-weight:600;color:var(--ink);width:100%;outline:none;
+  transition:border-color .15s;
+}
+.field:focus{border-color:var(--olive);}
+.field-label{font-size:var(--fs-sm);color:var(--muted);margin-bottom:8px;}
+
+/* ── Step 3 — Timezone ── */
+.tz-select{
+  appearance:none;background:var(--card);border:1.5px solid var(--line);
+  border-radius:var(--r);padding:14px 16px;font-family:inherit;
+  font-size:var(--fs-md);font-weight:600;color:var(--ink);
+  width:100%;outline:none;cursor:pointer;
+}
+.tz-select:focus{border-color:var(--olive);}
+
+/* ── Step 4 — Sleep goal (inline time pickers) ── */
+.sleep-row{
+  display:flex;gap:12px;margin-bottom:16px;
+}
+.time-card{
+  flex:1;background:var(--card);border:1.5px solid var(--line);
+  border-radius:var(--r);padding:14px 16px;cursor:pointer;
+  transition:border-color .15s;text-align:center;
+}
+.time-card:hover{border-color:var(--olive);}
+.time-card.selected{border-color:var(--olive);}
+.time-label{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px;}
+.time-val{font-size:28px;font-weight:800;letter-spacing:-.03em;}
+.time-icon{font-size:16px;display:block;margin-bottom:2px;}
+.sleep-note{
+  font-size:var(--fs-sm);color:var(--muted);text-align:center;
+  background:var(--greige);border-radius:10px;padding:10px 14px;
+}
+
+/* ── Step 5 — Life pillars multi-select ── */
+.pillar-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.pillar-tile{
+  background:var(--card);border:2px solid var(--line);border-radius:var(--r);
+  padding:14px 12px;cursor:pointer;transition:all .15s;
+  display:flex;flex-direction:column;gap:6px;
+}
+.pillar-tile.sel{border-color:var(--olive);background:#f4f7f3;}
+.pillar-icon{font-size:20px;}
+.pillar-name{font-size:var(--fs-sm);font-weight:700;}
+.pillar-desc{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;}
+
+/* ── Step 6 — Privacy & AI ── */
+.privacy-block{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px;margin-bottom:12px;
+}
+.privacy-h{font-size:var(--fs-sm);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.privacy-p{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;}
+.consent-row{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:14px;margin-bottom:10px;cursor:pointer;
+}
+.consent-row.required{border-color:var(--olive);}
+.consent-check{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--line);
+  flex-shrink:0;display:grid;place-items:center;font-size:12px;
+  background:var(--bg);transition:all .15s;margin-top:1px;
+}
+.consent-check.on{background:var(--olive);border-color:var(--olive);color:#fff;}
+.consent-text{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;}
+.consent-text strong{color:var(--ink);}
+.consent-req{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--olive);}
+
+/* ── Ready screen ── */
+.ready-mark{
+  width:80px;height:80px;border-radius:26px;
+  background:linear-gradient(145deg,#4a4860,#2e2c3a);
+  display:grid;place-items:center;font-size:36px;margin:0 auto 20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+.ready-center{text-align:center;}
+.ready-pillars{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px;}
+.ready-pill{
+  font-size:var(--fs-xs);font-weight:600;padding:4px 12px;border-radius:999px;
+  background:var(--greige);color:var(--muted);
+}
+</style>
+</head>
+<body>
+
+<!-- Progress dots -->
+<div class="progress" id="progress"></div>
+
+<!-- Steps wrapper -->
+<div class="steps-wrap">
+
+  <!-- Step 1: Welcome -->
+  <div class="step active" id="step-1">
+    <div class="compass-mark">🧭</div>
+    <div class="step-h">Your private navigation system</div>
+    <div class="step-sub">Compass helps you understand yourself and move steadily toward the life you're building — without noise.</div>
+    <div class="hero-list">
+      <div class="hero-it">
+        <div class="hero-dot">💤</div>
+        <div class="hero-text"><strong>Sleep & energy</strong> — track what restores you</div>
+      </div>
+      <div class="hero-it">
+        <div class="hero-dot">🌿</div>
+        <div class="hero-text"><strong>Habits & inner work</strong> — build and heal at your pace</div>
+      </div>
+      <div class="hero-it">
+        <div class="hero-dot">🗺</div>
+        <div class="hero-text"><strong>Goals & planning</strong> — from year to today</div>
+      </div>
+      <div class="hero-it">
+        <div class="hero-dot">🤖</div>
+        <div class="hero-text"><strong>A private AI coach</strong> — patterns, nudges, no judgement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Name -->
+  <div class="step" id="step-2">
+    <div class="step-super">Step 1 of 5</div>
+    <div class="step-h">What shall Compass call you?</div>
+    <div class="step-sub">Just your first name — this stays on your device.</div>
+    <div class="field-label">Your name</div>
+    <input class="field" id="nameInput" type="text" placeholder="e.g. Ana" autocomplete="given-name"/>
+  </div>
+
+  <!-- Step 3: Timezone -->
+  <div class="step" id="step-3">
+    <div class="step-super">Step 2 of 5</div>
+    <div class="step-h">Where are you based?</div>
+    <div class="step-sub">Compass logs sleep in your local time. This makes patterns meaningful — a 23:00 bedtime should mean the same thing every day.</div>
+    <div class="field-label">Your timezone</div>
+    <select class="tz-select" id="tzSelect">
+      <option value="Europe/London">🇬🇧 London (UTC+1 summer)</option>
+      <option value="Europe/Paris">🇫🇷 Paris / Berlin (UTC+2 summer)</option>
+      <option value="Europe/Bucharest">🇷🇴 Bucharest / Helsinki (UTC+3 summer)</option>
+      <option value="America/New_York">🇺🇸 New York (UTC-4 summer)</option>
+      <option value="America/Los_Angeles">🇺🇸 Los Angeles (UTC-7 summer)</option>
+      <option value="Asia/Dubai">🇦🇪 Dubai (UTC+4)</option>
+      <option value="Asia/Kolkata">🇮🇳 India (UTC+5:30)</option>
+      <option value="Asia/Singapore">🇸🇬 Singapore (UTC+8)</option>
+      <option value="Australia/Sydney">🇦🇺 Sydney (UTC+10 summer)</option>
+    </select>
+  </div>
+
+  <!-- Step 4: Sleep goal -->
+  <div class="step" id="step-4">
+    <div class="step-super">Step 3 of 5</div>
+    <div class="step-h">Set your sleep target</div>
+    <div class="step-sub">This is your goal — not a rule. You can change it anytime. Compass uses it to show how your nights compare to what you're aiming for.</div>
+    <div class="sleep-row">
+      <div class="time-card">
+        <span class="time-icon">🌙</span>
+        <div class="time-label">Bed by</div>
+        <div class="time-val" id="bedVal">23:00</div>
+      </div>
+      <div class="time-card">
+        <span class="time-icon">☀️</span>
+        <div class="time-label">Wake by</div>
+        <div class="time-val" id="wakeVal">07:00</div>
+      </div>
+    </div>
+    <div class="sleep-note" id="sleepNote">That's <strong>8 hours</strong> — a good target for most adults.</div>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;">
+      <button class="btn-sec" onclick="adjustTime('bed',-30)">−30m</button>
+      <button class="btn-sec" style="color:var(--ink)" onclick="adjustTime('bed',30)">bed +30m</button>
+      <button class="btn-sec" onclick="adjustTime('wake',-30)">wake −30m</button>
+      <button class="btn-sec" style="color:var(--ink)" onclick="adjustTime('wake',30)">+30m</button>
+    </div>
+  </div>
+
+  <!-- Step 5: Life pillars -->
+  <div class="step" id="step-5">
+    <div class="step-super">Step 4 of 5</div>
+    <div class="step-h">What matters to you right now?</div>
+    <div class="step-sub">Pick the areas of life you want Compass to help you navigate. You can add or remove these later.</div>
+    <div class="pillar-grid">
+      <div class="pillar-tile" onclick="togglePillar(this,'health')" style="--pc:var(--p-health)">
+        <div class="pillar-icon">🌿</div>
+        <div class="pillar-name">Health</div>
+        <div class="pillar-desc">Sleep, body, energy, habits</div>
+      </div>
+      <div class="pillar-tile" onclick="togglePillar(this,'inner')" style="--pc:var(--p-inner)">
+        <div class="pillar-icon">🔮</div>
+        <div class="pillar-name">Inner work</div>
+        <div class="pillar-desc">Healing, identity, qualities</div>
+      </div>
+      <div class="pillar-tile" onclick="togglePillar(this,'admin')" style="--pc:var(--p-admin)">
+        <div class="pillar-icon">📋</div>
+        <div class="pillar-name">Life admin</div>
+        <div class="pillar-desc">Tasks, planning, order</div>
+      </div>
+      <div class="pillar-tile" onclick="togglePillar(this,'family')" style="--pc:var(--p-family)">
+        <div class="pillar-icon">🫂</div>
+        <div class="pillar-name">Relationships</div>
+        <div class="pillar-desc">Family, friends, connection</div>
+      </div>
+      <div class="pillar-tile" onclick="togglePillar(this,'money')" style="--pc:var(--p-money)">
+        <div class="pillar-icon">💷</div>
+        <div class="pillar-name">Money</div>
+        <div class="pillar-desc">Spending, saving, goals</div>
+      </div>
+      <div class="pillar-tile" onclick="togglePillar(this,'joy')" style="--pc:var(--p-joy)">
+        <div class="pillar-icon">✨</div>
+        <div class="pillar-name">Joy & craft</div>
+        <div class="pillar-desc">Creativity, play, learning</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6: Privacy & AI consent -->
+  <div class="step" id="step-6">
+    <div class="step-super">Step 5 of 5 · important</div>
+    <div class="step-h">Privacy & AI — be clear-eyed</div>
+
+    <div class="privacy-block">
+      <div class="privacy-h">🔒 What stays on your device</div>
+      <div class="privacy-p">Your name, timezone, and raw sleep times are stored locally and in your private Compass account. They are never sold or shared with advertisers.</div>
+    </div>
+
+    <div class="privacy-block">
+      <div class="privacy-h">🤖 What the AI sees</div>
+      <div class="privacy-p">When you ask for coaching or insights, Compass sends anonymised <strong>pattern data</strong> — durations, scores, habit counts — to an AI model (currently OpenAI). <strong>Your name and exact times are never sent.</strong> The AI provider processes this under their own privacy policy. You cannot control what they do with their logs.</div>
+    </div>
+
+    <div class="consent-row required" onclick="toggleConsent(this,'core')">
+      <div class="consent-check on" id="cc-core">✓</div>
+      <div class="consent-text">
+        <div class="consent-req">Required</div>
+        <strong>Basic data storage</strong><br/>
+        Store my sleep, habits and mood data in my private Compass account. Required to use the app.
+      </div>
+    </div>
+
+    <div class="consent-row" onclick="toggleConsent(this,'ai')">
+      <div class="consent-check" id="cc-ai"></div>
+      <div class="consent-text">
+        <div class="consent-req" style="color:var(--muted)">Optional</div>
+        <strong>AI coaching &amp; insights</strong><br/>
+        Allow anonymised pattern data to be sent to an AI model for coaching, trend analysis and scene generation. You can turn this off at any time in Settings.
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7: Ready -->
+  <div class="step" id="step-7">
+    <div class="ready-center">
+      <div class="ready-mark">🧭</div>
+      <div class="step-h" id="readyH">Your compass is ready</div>
+      <div class="step-sub">You've set your bearings. Compass will learn as you go — the more you log, the more useful it becomes.</div>
+      <div class="ready-pillars" id="readyPillars"></div>
+    </div>
+  </div>
+
+</div><!-- /steps-wrap -->
+
+<!-- Bottom nav -->
+<div class="bnav">
+  <button class="btn-sec" id="backBtn" onclick="goBack()" style="display:none">Back</button>
+  <button class="btn-pri" id="nextBtn" onclick="goNext()">Get started →</button>
+</div>
+
+<script>
+const TOTAL = 7;
+let current = 1;
+const pillarsSel = new Set();
+let bedMins = 23*60, wakeMins = 7*60;
+let aiConsent = false;
+
+// ── Build progress dots ──
+const prog = document.getElementById('progress');
+for(let i=1;i<=TOTAL;i++){
+  const d = document.createElement('div');
+  d.className = 'pdot' + (i===1 ? ' active' : '');
+  d.id='pd'+i;
+  prog.appendChild(d);
+}
+
+function updateDots(){
+  for(let i=1;i<=TOTAL;i++){
+    const d=document.getElementById('pd'+i);
+    d.className='pdot'+(i<current?' done':i===current?' active':'');
+  }
+}
+
+function goNext(){
+  if(current===TOTAL){ window.location.href='today.html'; return; }
+  if(current===TOTAL-1){
+    // Populate ready screen
+    const name = document.getElementById('nameInput').value.trim() || 'you';
+    document.getElementById('readyH').textContent = name + ', your compass is ready';
+    const pp = document.getElementById('readyPillars');
+    pp.innerHTML = '';
+    pillarsSel.forEach(p => {
+      const span = document.createElement('span');
+      span.className='ready-pill';
+      span.textContent = p.charAt(0).toUpperCase()+p.slice(1);
+      pp.appendChild(span);
+    });
+  }
+  animateStep(current, current+1);
+}
+
+function goBack(){
+  if(current > 1) animateStep(current, current-1);
+}
+
+function animateStep(from, to){
+  const fromEl = document.getElementById('step-'+from);
+  const toEl   = document.getElementById('step-'+to);
+  const fwd = to > from;
+  fromEl.classList.add('out');
+  fromEl.classList.remove('active');
+  toEl.style.transform = fwd ? 'translateX(30px)' : 'translateX(-30px)';
+  toEl.style.opacity = '0';
+  toEl.classList.add('active');
+  requestAnimationFrame(() => {
+    toEl.style.transition='opacity .28s, transform .28s';
+    toEl.style.transform='translateX(0)';
+    toEl.style.opacity='1';
+  });
+  setTimeout(()=>{ fromEl.classList.remove('out'); fromEl.style.transform=''; fromEl.style.opacity=''; }, 300);
+  current = to;
+  updateDots();
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  backBtn.style.display = current>1 ? '' : 'none';
+  nextBtn.textContent = current===TOTAL ? 'Open Compass →' : current===TOTAL-1 ? 'Finish →' : 'Continue →';
+  if(current===1) nextBtn.textContent='Get started →';
+}
+
+// ── Pillar toggle ──
+function togglePillar(el, id){
+  el.classList.toggle('sel');
+  pillarsSel.has(id) ? pillarsSel.delete(id) : pillarsSel.add(id);
+}
+
+// ── Consent toggle ──
+function toggleConsent(row, id){
+  if(id==='core') return; // required — always on
+  const ck = document.getElementById('cc-'+id);
+  const on = ck.classList.toggle('on');
+  ck.textContent = on ? '✓' : '';
+  if(id==='ai') aiConsent = on;
+}
+
+// ── Sleep time adjust ──
+function fmtTime(mins){
+  const h=String(Math.floor(((mins%1440)+1440)%1440/60)).padStart(2,'0');
+  const m=String(((mins%60)+60)%60).padStart(2,'0');
+  return h+':'+m;
+}
+function adjustTime(which, delta){
+  if(which==='bed') bedMins=(bedMins+delta+1440)%1440;
+  else wakeMins=(wakeMins+delta+1440)%1440;
+  document.getElementById('bedVal').textContent=fmtTime(bedMins);
+  document.getElementById('wakeVal').textContent=fmtTime(wakeMins);
+  // duration
+  let dur=(wakeMins-bedMins+1440)%1440;
+  const h=Math.floor(dur/60), m=dur%60;
+  const label = h===8&&m===0?'a good target for most adults':h>=7?'solid target':h>=6?'a bit short — aim higher when you can':'below recommended — worth adjusting';
+  document.getElementById('sleepNote').innerHTML=`That's <strong>${h}h${m>0?' '+m+'m':''}</strong> — ${label}.`;
+}
+</script>
+</body>
+</html>

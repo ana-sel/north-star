@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Compass — modular shell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared/tokens.css"/>
+<style>
+html,body{margin:0;min-height:100vh;}
+body{
+  font-family:"Inter",-apple-system,sans-serif;color:var(--ink);
+  background:radial-gradient(ellipse 120% 50% at 50% -5%,#FBFAF8,#EFEDE8 60%,#E8E4DC);
+  display:flex;flex-direction:column;align-items:center;padding:28px 16px 60px;
+  -webkit-font-smoothing:antialiased;
+}
+h1{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-.03em;text-align:center;}
+p.sub{margin:0 0 24px;font-size:13px;color:var(--muted);text-align:center;max-width:720px;line-height:1.5;}
+.layout{display:grid;grid-template-columns:340px 310px;gap:24px;align-items:start;width:min(710px,100%);}
+
+/* ── Phone ── */
+.phone{
+  width:340px;height:min(740px,90vh);background:var(--bg);border-radius:28px;
+  overflow:hidden;display:flex;flex-direction:column;position:relative;
+  box-shadow:0 0 0 1px rgba(36,35,31,.05),0 18px 52px rgba(36,35,31,.13),0 40px 90px rgba(36,35,31,.07);
+}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 20px 8px;flex-shrink:0;background:rgba(246,245,242,.96);
+}
+.topbar h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.03em;}
+.cog{
+  width:36px;height:36px;border-radius:11px;background:var(--card);
+  border:1px solid var(--line);display:grid;place-items:center;
+  font-size:15px;color:var(--muted);box-shadow:var(--shadow-sm);cursor:pointer;
+}
+
+/* ── Sub-nav ── */
+.subnav{
+  display:flex;background:var(--greige);border:1px solid var(--line);
+  border-radius:14px;margin:6px 14px;padding:3px;gap:2px;flex-shrink:0;overflow-x:auto;
+}
+.subnav::-webkit-scrollbar{display:none;}
+.sn-btn{
+  background:none;border:none;cursor:pointer;flex:1;
+  padding:6px 8px;border-radius:11px;font-size:var(--fs-xs);font-weight:600;
+  color:var(--muted);white-space:nowrap;font-family:inherit;transition:all .12s;
+}
+.sn-btn.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+
+/* ── Iframe container ── */
+.frame-wrap{flex:1;position:relative;overflow:hidden;}
+#screen{
+  width:100%;height:100%;border:none;background:var(--bg);
+  display:block;
+}
+
+/* ── Tab bar ── */
+.tabs{display:flex;border-top:1px solid var(--line);background:rgba(246,245,242,.97);flex-shrink:0;}
+.tab-btn{
+  flex:1;background:none;border:none;cursor:pointer;padding:6px 0;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  font-size:9px;font-weight:700;color:var(--muted);font-family:inherit;
+}
+.tab-btn .ic{font-size:18px;opacity:.5;line-height:1;transition:opacity .15s;}
+.tab-btn.active{color:var(--ink);}
+.tab-btn.active .ic{opacity:1;}
+
+/* ── Chat pill ── */
+.chat-pill{
+  position:absolute;right:14px;bottom:68px;z-index:60;
+  width:44px;height:44px;border-radius:50%;background:var(--card);
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  display:grid;place-items:center;font-size:18px;cursor:pointer;
+}
+
+/* ── Sidebar (dev panel) ── */
+.sidebar{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm);}
+.sidebar h3{margin:0 0 14px;font-size:14px;font-weight:800;letter-spacing:-.01em;}
+.sidebar .badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:8px;background:#7395ad;color:#fff;margin-bottom:8px;letter-spacing:.05em;}
+.tree{font-size:12px;line-height:1.85;}
+.t-head{font-weight:800;display:flex;align-items:center;gap:6px;margin-top:10px;}
+.t-head:first-child{margin-top:0;}
+.t-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.t-sub{padding-left:14px;color:var(--muted);display:block;cursor:pointer;}
+.t-sub::before{content:"└ ";opacity:.35;}
+.t-sub:hover{color:var(--ink);}
+.note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+.note code{background:var(--greige);padding:1px 5px;border-radius:5px;font-size:10px;}
+</style>
+</head>
+<body>
+<h1>Compass — modular shell</h1>
+<p class="sub">Phone chrome lives here. Each screen is its own file in <code style="background:var(--greige);padding:1px 6px;border-radius:5px;font-size:11px;">screens/</code> — edit a screen file, refresh, see it.</p>
+
+<div class="layout">
+<div class="phone">
+  <div class="topbar"><h2 id="screenTitle">Today</h2><div class="cog" id="cog">⚙</div></div>
+  <div class="subnav" id="subnav" style="display:none"></div>
+  <div class="frame-wrap">
+    <iframe id="screen" src="screens/today.html" title="screen"></iframe>
+  </div>
+  <div class="chat-pill" title="Chat">💬</div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="today"><span class="ic">☾</span>Today</button>
+    <button class="tab-btn" data-tab="log"><span class="ic">◈</span>Log</button>
+    <button class="tab-btn" data-tab="plan"><span class="ic">◇</span>Plan</button>
+    <button class="tab-btn" data-tab="money"><span class="ic">£</span>Money</button>
+    <button class="tab-btn" data-tab="you"><span class="ic">◯</span>You</button>
+  </nav>
+</div>
+
+<div class="sidebar">
+  <span class="badge">MODULAR</span>
+  <h3>Screen files</h3>
+  <div class="tree" id="navTree">
+    <div class="t-head"><div class="t-dot" style="background:var(--p-health)"></div>Today</div>
+    <span class="t-sub" data-screen="today.html">today.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--p-inner)"></div>Log</div>
+    <span class="t-sub" data-screen="log-sleep.html">log-sleep.html</span>
+    <span class="t-sub" data-screen="log-habits.html">log-habits.html</span>
+    <span class="t-sub" data-screen="log-body.html">log-body.html</span>
+    <span class="t-sub" data-screen="log-energy.html">log-energy.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--p-admin)"></div>Plan</div>
+    <span class="t-sub" data-screen="plan-month.html">plan-month.html</span>
+    <span class="t-sub" data-screen="plan-year.html">plan-year.html</span>
+    <span class="t-sub" data-screen="plan-projects.html">plan-projects.html</span>
+    <span class="t-sub" data-screen="plan-map.html">plan-map.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--p-money)"></div>Money</div>
+    <span class="t-sub" data-screen="money-add.html">money-add.html</span>
+    <span class="t-sub" data-screen="money-trans.html">money-trans.html</span>
+    <span class="t-sub" data-screen="money-budget.html">money-budget.html</span>
+    <span class="t-sub" data-screen="money-overview.html">money-overview.html</span>
+    <span class="t-sub" data-screen="money-worth.html">money-worth.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--p-joy)"></div>You</div>
+    <span class="t-sub" data-screen="plan-trails.html">plan-trails.html (Paths)</span>
+    <span class="t-sub" data-screen="you-identity.html">you-identity.html</span>
+    <span class="t-sub" data-screen="you-discover.html">you-discover.html</span>
+    <span class="t-sub" data-screen="you-progress.html">you-progress.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--muted)"></div>⚙ Settings</div>
+    <span class="t-sub" data-screen="settings.html">settings.html</span>
+  </div>
+  <div class="note">
+    Click any screen in the tree to load it. Each <code>screens/*.html</code> also opens standalone — useful for hand-tweaking one screen without scrolling through everything.
+    <br/><br/>Shared styles live in <code>shared/tokens.css</code> + <code>shared/components.css</code>. Edit there to change every screen.
+  </div>
+</div>
+</div>
+
+<script>
+// Screen registry — title shown in topbar + sub-tabs per top tab
+const tabs = {
+  today: {
+    title:'Today',
+    subs:[{label:'Today', src:'today.html'}],
+    def:0
+  },
+  log: {
+    title:'Log',
+    subs:[
+      {label:'Sleep',  src:'log-sleep.html'},
+      {label:'Habits', src:'log-habits.html'},
+      {label:'Body',   src:'log-body.html'},
+      {label:'Energy', src:'log-energy.html'}
+    ],
+    def:0
+  },
+  plan: {
+    title:'Plan',
+    subs:[
+      {label:'Month',    src:'plan-month.html'},
+      {label:'Year',     src:'plan-year.html'},
+      {label:'Projects', src:'plan-projects.html'},
+      {label:'Map',      src:'plan-map.html'}
+    ],
+    def:0
+  },
+  money: {
+    title:'Money',
+    subs:[
+      {label:'Quick Add',    src:'money-add.html'},
+      {label:'Transactions', src:'money-trans.html'},
+      {label:'Budget',       src:'money-budget.html'},
+      {label:'Overview',     src:'money-overview.html'},
+      {label:'Worth',        src:'money-worth.html'}
+    ],
+    def:0
+  },
+  you: {
+    title:'You',
+    subs:[
+      {label:'Paths',    src:'plan-trails.html'},
+      {label:'Identity', src:'you-identity.html'},
+      {label:'Discover', src:'you-discover.html'},
+      {label:'Progress', src:'you-progress.html'}
+    ],
+    def:0
+  }
+};
+
+const frame    = document.getElementById('screen');
+const subnav   = document.getElementById('subnav');
+const titleEl  = document.getElementById('screenTitle');
+const cog      = document.getElementById('cog');
+const tabBtns  = document.querySelectorAll('.tab-btn');
+
+function loadScreen(src){
+  frame.src = 'screens/' + src;
+}
+
+function activateTab(tabKey){
+  const td = tabs[tabKey];
+  if (!td) return;
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabKey));
+  titleEl.textContent = td.title;
+
+  // Sub-nav
+  if (td.subs.length <= 1){
+    subnav.style.display = 'none';
+    loadScreen(td.subs[0].src);
+    return;
+  }
+  subnav.style.display = 'flex';
+  subnav.innerHTML = td.subs.map((s,i) =>
+    `<button class="sn-btn${i===td.def?' active':''}" data-i="${i}">${s.label}</button>`
+  ).join('');
+  loadScreen(td.subs[td.def].src);
+
+  subnav.querySelectorAll('.sn-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      subnav.querySelectorAll('.sn-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadScreen(td.subs[+btn.dataset.i].src);
+    });
+  });
+}
+
+tabBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+
+// Cog → load Settings into iframe (no overlay needed — same surface)
+cog.addEventListener('click', () => {
+  titleEl.textContent = 'Settings';
+  subnav.style.display = 'none';
+  tabBtns.forEach(b => b.classList.remove('active'));
+  loadScreen('settings.html');
+});
+
+// Sidebar tree → click to jump to a screen
+document.querySelectorAll('#navTree .t-sub').forEach(el => {
+  el.addEventListener('click', () => loadScreen(el.dataset.screen));
+});
+</script>
+</body>
+</html>

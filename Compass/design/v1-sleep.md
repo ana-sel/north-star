@@ -293,9 +293,9 @@ See [v4-world.md](v4-world.md) for the full world architecture.
 | Version | What it adds | File |
 |---|---|---|
 | **V1** | Sleep · chart · AI note · world seed | this file |
-| **V2** | Track tab · energy/mood · habits · body · money · 3 regions | [v2-track.md](v2-track.md) |
-| **V3** | Plan tab · 7 pillars · all regions · onboarding story | [v3-plan.md](v3-plan.md) |
-| **V4** | World tab · Cartographer · full pattern library | [v4-world.md](v4-world.md) |
+| **V2** | 4 tabs (Today/Log/Map/You) · mood+energy in Sleep (1–10) · habits · body · money · 7 pillars | [v2-track.md](v2-track.md) |
+| **V3** | Quality practice live · goals & mission · Map/Chat active · Identity in You | [v3-plan.md](v3-plan.md) |
+| **V4** | World in You · Cartographer voice · habit-quality integration · full pattern library | [v4-world.md](v4-world.md) |
 
 Three rules that protect future growth:
 1. **One AI seam** — `lib/ai.ts` is reused by every tracker; never bolt AI on twice
