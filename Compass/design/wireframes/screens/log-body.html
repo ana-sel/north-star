@@ -7,20 +7,313 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<style>
+
+/* ── Header ── */
+.log-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.log-date{font-size:var(--fs-xs);color:var(--muted);font-weight:500;}
+.opt-tag{font-size:var(--fs-xs);font-weight:600;background:var(--greige);padding:3px 10px;border-radius:999px;color:var(--muted);}
+
+/* ── Section label ── */
+.sect{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+.sect::before{content:'';display:block;width:3px;height:13px;border-radius:99px;flex-shrink:0;}
+.s-body::before{background:var(--p-health);}
+.s-food::before{background:var(--p-joy);}
+.s-move::before{background:var(--p-health);}
+
+/* ── Shared card ── */
+.bc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
+
+/* ─────────────── WEIGHT + BMI ─────────────── */
+.weight-hero{padding:18px 18px 14px;}
+.wh-row{display:flex;align-items:flex-end;gap:0;margin-bottom:14px;}
+.wh-num{font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;}
+.wh-unit{font-size:var(--fs-md);font-weight:600;color:var(--muted);margin-bottom:8px;margin-left:4px;}
+.wh-edit{margin-left:auto;align-self:center;font-size:var(--fs-xs);font-weight:600;color:var(--p-health);border:1.5px solid var(--p-health);border-radius:999px;padding:5px 13px;cursor:pointer;background:transparent;font-family:inherit;}
+
+/* BMI row */
+.bmi-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.bmi-val{font-size:var(--fs-lg);font-weight:800;}
+.bmi-label{font-size:var(--fs-xs);font-weight:700;padding:3px 9px;border-radius:999px;}
+.bmi-healthy{background:#e5f2e3;color:#3d6e37;}
+.bmi-over   {background:#fef3e2;color:#a06010;}
+.bmi-under  {background:#fce8e8;color:#a03030;}
+
+/* BMI track */
+.bmi-track-wrap{margin-bottom:4px;}
+.bmi-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#e8c4c4 0%,#e8c4c4 17%,#c5e0bf 17%,#c5e0bf 50%,#f7dfa5 50%,#f7dfa5 75%,#e8c4c4 75%);position:relative;overflow:visible;}
+.bmi-marker{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--p-health);transform:translateX(-50%);transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.bmi-zones{display:flex;font-size:7px;color:var(--muted);font-weight:600;margin-top:5px;padding:0 1px;}
+.bmi-zone{flex:1;text-align:center;}
+.bmi-zone:first-child{text-align:left;}
+.bmi-zone:last-child{text-align:right;}
+
+/* ─────────────── NUTRITION ─────────────── */
+/* Sweets toggle */
+.sweets-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line);}
+.sw-label{font-size:var(--fs-sm);font-weight:600;}
+.sw-label span{font-size:var(--fs-xs);color:var(--muted);font-weight:400;display:block;margin-top:2px;}
+.sw-toggle{display:flex;gap:6px;}
+.sw-btn{font-size:var(--fs-xs);font-weight:700;padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.sw-btn.sel-yes{border-color:#c99554;background:#fef3e2;color:#8a5a1a;}
+.sw-btn.sel-no {border-color:var(--p-health);background:#e5f2e3;color:#3d6e37;}
+
+/* Nutrient rows */
+.nutr-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);}
+.nutr-row:last-child{border-bottom:none;}
+.nutr-icon{font-size:18px;flex-shrink:0;}
+.nutr-col{flex:1;}
+.nutr-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
+.nutr-val{font-size:var(--fs-lg);font-weight:800;line-height:1.1;margin-top:1px;}
+.nutr-val.empty{font-size:var(--fs-sm);font-weight:400;color:var(--muted);}
+/* mini bar */
+.nutr-bar{height:4px;background:var(--greige);border-radius:999px;margin-top:6px;overflow:hidden;}
+.nutr-fill{height:100%;border-radius:999px;}
+.nutr-log{font-size:var(--fs-xs);font-weight:700;color:var(--p-health);border:1.5px solid var(--p-health);border-radius:999px;padding:5px 12px;cursor:pointer;background:transparent;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+
+/* ─────────────── MOVEMENT ─────────────── */
+/* Steps row */
+.steps-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);}
+.steps-num{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.steps-col{flex:1;}
+.steps-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.steps-goal{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.steps-pct{font-size:var(--fs-xs);font-weight:700;color:var(--p-health);}
+.steps-bar{width:60px;height:5px;background:var(--greige);border-radius:999px;overflow:hidden;}
+.steps-fill{height:100%;background:var(--p-health);border-radius:999px;}
+
+/* Activity + feel pill pickers */
+.pill-section{padding:12px 16px;border-bottom:1px solid var(--line);}
+.pill-section:last-child{border-bottom:none;}
+.pill-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;}
+.pill{font-size:var(--fs-xs);font-weight:600;padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.pill.sel{border-color:var(--p-health);background:#e5f2e3;color:#3d6e37;}
+.pill.sel-feel{border-color:var(--p-inner);background:#ede8f6;color:var(--p-inner);}
+
+/* ── Save rows ── */
+.save-row{padding:11px 16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;transition:background .2s;}
+.save-btn{font-size:var(--fs-xs);font-weight:700;padding:7px 20px;border-radius:999px;border:none;background:var(--p-health);color:#fff;cursor:pointer;font-family:inherit;transition:all .2s;}
+.save-confirm{display:none;align-items:center;gap:7px;}
+.save-row.saved .save-btn{display:none;}
+.save-row.saved .save-confirm{display:flex;}
+.save-row.saved{background:#f5fbf4;}
+.save-ok{width:20px;height:20px;border-radius:50%;background:#5d9e56;display:grid;place-items:center;color:#fff;font-size:10px;flex-shrink:0;}
+.save-txt{font-size:var(--fs-xs);font-weight:600;color:#3d6e37;}
+.save-time{font-size:var(--fs-xs);color:var(--muted);margin-left:auto;}
+
+/* ── Optional notice ── */
+.opt-notice{text-align:center;font-size:var(--fs-xs);color:var(--muted);margin-top:14px;line-height:1.6;padding:0 8px;}
+
+</style>
 </head>
 <body class="screen-body">
-  <div class="card">
-    <div class="card-h">Weight · BMI</div>
-    <div class="card-title">72.4 kg · BMI 22.3 · Healthy ✓</div>
+
+  <div class="log-hdr">
+    <div class="log-date">Friday · 27 June</div>
+    <div class="opt-tag">All optional</div>
   </div>
-  <div class="card">
-    <div class="card-h">Nutrition</div>
-    <div class="prog-row"><div class="prog-label">Calories</div><div class="prog-bar"><div class="prog-fill" style="width:70%;background:var(--p-health)"></div></div><div class="prog-pct">1,980</div></div>
-    <div class="prog-row"><div class="prog-label">Protein</div><div class="prog-bar"><div class="prog-fill" style="width:55%;background:var(--p-inner)"></div></div><div class="prog-pct">88g</div></div>
+
+  <!-- ══════════ WEIGHT + BMI ══════════ -->
+  <div class="sect s-body">Weight</div>
+  <div class="bc">
+    <div class="weight-hero">
+
+      <div class="wh-row">
+        <div class="wh-num" id="weightNum">72.4</div>
+        <div class="wh-unit">kg</div>
+        <button class="wh-edit" onclick="editWeight()">Edit</button>
+      </div>
+
+      <div class="bmi-row">
+        <div class="bmi-val" id="bmiVal">23.6</div>
+        <div class="bmi-label bmi-healthy" id="bmiLabel">Healthy ✓</div>
+      </div>
+
+      <!-- BMI track: underweight | healthy | overweight | obese -->
+      <!-- Range shown: 15–35. Zones: <18.5 | 18.5–25 | 25–30 | >30 -->
+      <!-- Healthy zone: 17.5%–50%. Overweight: 50–75%. -->
+      <div class="bmi-track-wrap">
+        <div class="bmi-track">
+          <div class="bmi-marker" id="bmiMarker" style="left:43%"></div>
+        </div>
+        <div class="bmi-zones">
+          <div class="bmi-zone">Under</div>
+          <div class="bmi-zone">Healthy</div>
+          <div class="bmi-zone">Over</div>
+          <div class="bmi-zone">Obese</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="save-row" id="sv-weight">
+      <button class="save-btn" onclick="saveSection('sv-weight')">Save weight</button>
+      <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-weight"></div></div>
+    </div>
   </div>
-  <div class="card">
-    <div class="card-h">Movement · Body feel</div>
-    <div class="card-body">8,420 steps · 25 min outdoor · body feel: easy</div>
+
+  <!-- ══════════ NUTRITION ══════════ -->
+  <div class="sect s-food">Nutrition</div>
+  <div class="bc">
+
+    <!-- Sweets -->
+    <div class="sweets-row">
+      <div class="sw-label">
+        🍬 Sweets today?
+        <span>Sugar, chocolate, pastries…</span>
+      </div>
+      <div class="sw-toggle">
+        <button class="sw-btn" id="sw-yes" onclick="sweetsChoice('yes')">Had some</button>
+        <button class="sw-btn" id="sw-no"  onclick="sweetsChoice('no')">Nope</button>
+      </div>
+    </div>
+
+    <!-- Calories -->
+    <div class="nutr-row">
+      <div class="nutr-icon">🔥</div>
+      <div class="nutr-col">
+        <div class="nutr-label">Calories</div>
+        <div class="nutr-val" id="calVal">1,820</div>
+        <div class="nutr-bar"><div class="nutr-fill" style="width:70%;background:var(--p-joy)"></div></div>
+      </div>
+      <button class="nutr-log" onclick="editNutr('calVal','Calories (kcal)')">Edit</button>
+    </div>
+
+    <!-- Protein -->
+    <div class="nutr-row">
+      <div class="nutr-icon">🥩</div>
+      <div class="nutr-col">
+        <div class="nutr-label">Protein</div>
+        <div class="nutr-val" id="protVal">88 g</div>
+        <div class="nutr-bar"><div class="nutr-fill" style="width:55%;background:var(--p-health)"></div></div>
+      </div>
+      <button class="nutr-log" onclick="editNutr('protVal','Protein (g)')">Edit</button>
+    </div>
+
+    <div class="save-row" id="sv-nutr">
+      <button class="save-btn" onclick="saveSection('sv-nutr')">Save nutrition</button>
+      <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-nutr"></div></div>
+    </div>
   </div>
+
+  <!-- ══════════ MOVEMENT ══════════ -->
+  <div class="sect s-move">Movement</div>
+  <div class="bc">
+
+    <!-- Steps -->
+    <div class="steps-row">
+      <div class="steps-col">
+        <div class="steps-num" id="stepsNum">8,420</div>
+        <div class="steps-sub">steps today · tap to edit</div>
+      </div>
+      <div class="steps-goal">
+        <div class="steps-pct">84%</div>
+        <div class="steps-bar"><div class="steps-fill" style="width:84%"></div></div>
+        <div style="font-size:7px;color:var(--muted);margin-top:2px;">of 10k goal</div>
+      </div>
+    </div>
+
+    <!-- Activity type -->
+    <div class="pill-section">
+      <div class="pill-label">Activity today</div>
+      <div class="pill-row">
+        <button class="pill sel" onclick="togglePill(this,'act')">🚶 Walk</button>
+        <button class="pill" onclick="togglePill(this,'act')">🏃 Run</button>
+        <button class="pill" onclick="togglePill(this,'act')">🏋️ Gym</button>
+        <button class="pill" onclick="togglePill(this,'act')">🧘 Yoga</button>
+        <button class="pill" onclick="togglePill(this,'act')">🚴 Cycle</button>
+        <button class="pill" onclick="togglePill(this,'act')">🛌 Rest day</button>
+      </div>
+    </div>
+
+    <!-- Body feel -->
+    <div class="pill-section">
+      <div class="pill-label">Body feel</div>
+      <div class="pill-row">
+        <button class="pill" onclick="toggleFeel(this)">✨ Light</button>
+        <button class="pill sel-feel" onclick="toggleFeel(this)">😌 Easy</button>
+        <button class="pill" onclick="toggleFeel(this)">😐 Meh</button>
+        <button class="pill" onclick="toggleFeel(this)">😴 Tired</button>
+        <button class="pill" onclick="toggleFeel(this)">🪨 Heavy</button>
+      </div>
+    </div>
+
+  </div>
+
+    <div class="save-row" id="sv-move">
+      <button class="save-btn" onclick="saveSection('sv-move')">Save movement</button>
+      <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-move"></div></div>
+    </div>
+  </div>
+
+  <div class="opt-notice">Nothing is tracked unless you save it.<br/>Trends appear after a few entries.</div>
+
+<script>
+function sweetsChoice(choice){
+  document.getElementById('sw-yes').className = 'sw-btn' + (choice==='yes' ? ' sel-yes' : '');
+  document.getElementById('sw-no').className  = 'sw-btn' + (choice==='no'  ? ' sel-no'  : '');
+}
+
+function editNutr(elId, label){
+  const el = document.getElementById(elId);
+  const cur = el.textContent.replace(/[^\d]/g,'');
+  const val = prompt(label + ':', cur);
+  if(val && !isNaN(val)){
+    el.textContent = label.includes('kcal')
+      ? Number(val).toLocaleString()
+      : val + ' g';
+    // update bar width roughly
+    const bar = el.nextElementSibling;
+    const max = label.includes('kcal') ? 2600 : 160;
+    bar.firstElementChild.style.width = Math.min(100, Math.round(Number(val)/max*100)) + '%';
+  }
+}
+
+function editWeight(){
+  const cur = document.getElementById('weightNum').textContent;
+  const val = prompt('Weight (kg):', cur);
+  if(!val || isNaN(val)) return;
+  const w = parseFloat(val);
+  document.getElementById('weightNum').textContent = w.toFixed(1);
+  // BMI = weight / height^2 (height 1.75m hardcoded for wireframe)
+  const h = 1.75;
+  const bmi = w / (h*h);
+  document.getElementById('bmiVal').textContent = bmi.toFixed(1);
+  const lbl = document.getElementById('bmiLabel');
+  let cls='', text='';
+  if(bmi<18.5){cls='bmi-under';text='Underweight';}
+  else if(bmi<25){cls='bmi-healthy';text='Healthy ✓';}
+  else if(bmi<30){cls='bmi-over';text='Overweight';}
+  else{cls='bmi-under';text='Obese';}
+  lbl.className='bmi-label '+cls;
+  lbl.textContent=text;
+  // marker position: range 15–35 = 20 units wide
+  const pct = Math.max(2, Math.min(96, Math.round((bmi-15)/20*100)));
+  document.getElementById('bmiMarker').style.left = pct+'%';
+}
+
+/* Activity pills — single select */
+function togglePill(btn, group){
+  document.querySelectorAll('.pill-row .pill').forEach(b=>{
+    if(b.closest('.pill-section') === btn.closest('.pill-section'))
+      b.classList.remove('sel');
+  });
+  btn.classList.add('sel');
+}
+
+/* Body feel pills — single select */
+function toggleFeel(btn){
+  btn.closest('.pill-row').querySelectorAll('.pill').forEach(b=>b.className='pill');
+  btn.classList.add('sel-feel');
+}
+
+function saveSection(id){
+  const row = document.getElementById(id);
+  row.classList.add('saved');
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  row.querySelector('.save-time').textContent = t;
+}
+</script>
 </body>
 </html>

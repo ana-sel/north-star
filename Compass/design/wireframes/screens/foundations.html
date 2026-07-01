@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Foundations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<style>
+
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:12px;}
+.back-link .ic{font-size:13px;transform:rotate(180deg);}
+
+.intro-line{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;margin:-6px 0 16px;}
+
+/* ground-up tiers */
+.ground-note{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:12px;padding:11px 13px;line-height:1.55;margin-bottom:4px;}
+.tier-h{display:flex;align-items:flex-start;gap:11px;margin:20px 0 9px;}
+.tier-n{width:24px;height:24px;border-radius:8px;background:var(--btn);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.tier-t{font-size:var(--fs-md);font-weight:800;letter-spacing:-.01em;line-height:1.1;}
+.tier-why{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;line-height:1.45;}
+
+/* Recommended next */
+.rec-card{background:linear-gradient(150deg,#2c2a26,#1b1a17);border-radius:20px;padding:16px 17px;margin-bottom:16px;color:#f1ede6;box-shadow:0 5px 22px rgba(28,27,24,.22);}
+.rec-eyebrow{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:rgba(241,237,230,.4);margin-bottom:10px;}
+.rec-row{display:flex;align-items:center;gap:13px;}
+.rec-ic{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.09);display:grid;place-items:center;font-size:19px;color:#e7d199;flex-shrink:0;}
+.rec-body{flex:1;min-width:0;}
+.rec-name{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;line-height:1;}
+.rec-one{font-size:var(--fs-xs);color:rgba(241,237,230,.6);margin-top:5px;line-height:1.4;}
+.rec-btn{margin-top:14px;width:100%;padding:11px;border-radius:12px;border:none;background:rgba(255,255,255,.12);color:#f1ede6;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
+.rec-btn:hover{background:rgba(255,255,255,.2);}
+
+/* Domain rows (reuse yrow) */
+.cov{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);flex-shrink:0;}
+.cov-dot{width:8px;height:8px;border-radius:50%;background:var(--line);}
+.cov[data-s="exploring"] .cov-dot{background:var(--steel);}
+.cov[data-s="practising"] .cov-dot{background:var(--accent);}
+.cov[data-s="steady"] .cov-dot{background:var(--gold);}
+.yrow.gated{opacity:.62;}
+.yrow.gated .yrow-ic{position:relative;}
+.gate-badge{font-size:12px;color:var(--muted);}
+
+/* ── Detail sheet ── */
+.backdrop{position:fixed;inset:0;background:rgba(28,27,24,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;}
+.backdrop.open{opacity:1;pointer-events:auto;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);
+  border-radius:22px 22px 0 0;box-shadow:0 -8px 40px rgba(28,27,24,.28);
+  transform:translateY(100%);transition:transform .26s cubic-bezier(.22,1,.36,1);
+  max-height:92%;overflow-y:auto;padding:8px 16px 22px;}
+.sheet.open{transform:translateY(0);}
+.sheet-grip{width:38px;height:4px;border-radius:99px;background:var(--line);margin:6px auto 12px;}
+.sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.sheet-ic{width:44px;height:44px;border-radius:13px;background:var(--greige);display:grid;place-items:center;font-size:20px;color:var(--muted);flex-shrink:0;}
+.sheet-title{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.05;}
+.sheet-one{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
+
+.sh-sect{margin-top:16px;}
+.sh-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:7px;}
+.sh-text{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;}
+.sh-why{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;font-style:italic;}
+
+/* gate banner */
+.gate-banner{display:flex;gap:11px;align-items:flex-start;background:#f4eee0;border:1px solid #e6dcc4;border-radius:14px;padding:13px 14px;margin-top:4px;}
+.gate-banner .ic{font-size:17px;color:var(--gold);flex-shrink:0;margin-top:1px;}
+.gate-txt{font-size:var(--fs-xs);color:#6f5a2e;line-height:1.5;}
+.gate-txt b{font-weight:700;}
+.gate-go{margin-top:8px;font-size:var(--fs-xs);font-weight:700;color:var(--gold);background:none;border:none;font-family:inherit;cursor:pointer;padding:0;}
+
+/* journey camps */
+.camps{display:flex;flex-direction:column;gap:0;}
+.camp{display:flex;gap:12px;position:relative;padding-bottom:14px;}
+.camp:last-child{padding-bottom:0;}
+.camp-num{width:24px;height:24px;border-radius:50%;background:var(--card);border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0;z-index:1;}
+.camp:not(:last-child)::before{content:'';position:absolute;left:11.5px;top:24px;bottom:0;width:1.5px;background:var(--line);}
+.camp-txt{font-size:var(--fs-sm);color:var(--ink);line-height:1.4;padding-top:3px;}
+
+/* signs */
+.signs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sign-col-h{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.sign-col-h.pres{color:#4f6b48;}
+.sign-col-h.miss{color:#8a5a61;}
+.sign-t{font-size:var(--fs-xs);color:var(--muted);line-height:1.45;}
+
+/* coverage self-claim */
+.cov-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.cov-pill{font-size:var(--fs-xs);font-weight:600;padding:7px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;}
+.cov-pill.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+
+/* CTA */
+.sh-cta{margin-top:18px;width:100%;padding:13px;border-radius:13px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
+.sh-done{display:none;margin-top:14px;background:#eef3ec;border:1px solid #cfe0c9;border-radius:13px;padding:12px 14px;font-size:var(--fs-sm);color:#3d6e37;line-height:1.5;}
+.sh-done.show{display:block;}
+.sh-done b{font-weight:700;}
+
+</style>
+</head>
+<body class="screen-body">
+
+  <a class="back-link" href="plan-trails.html"><i class="ic ic-chev"></i>Paths</a>
+
+  <!-- ── HEADER ── -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-layers"></i></div>
+    <div>
+      <div class="ylens-title">Foundations</div>
+      <div class="ylens-sub">The ground to stand on</div>
+    </div>
+  </div>
+
+  <div class="intro-line">Almost no one was taught these. They're the basic tools for being a person — start anywhere, start small.</div>
+
+  <!-- ── RECOMMENDED NEXT ── -->
+  <div class="rec-card">
+    <div class="rec-eyebrow">Gently suggested next</div>
+    <div class="rec-row">
+      <div class="rec-ic"><i class="ic ic-wind"></i></div>
+      <div class="rec-body">
+        <div class="rec-name">Regulate</div>
+        <div class="rec-one">Settle your own nervous system — the ground everything else stands on.</div>
+      </div>
+    </div>
+    <button class="rec-btn" onclick="openDomain('regulate')">Open Regulate</button>
+  </div>
+
+  <!-- ── DOMAINS (built ground-up in 5 layers) ── -->
+  <div class="ground-note">Built from the ground up — each layer holds the one above it. You're not behind; foundations are <i>meant</i> to be built, one on another.</div>
+  <div id="domainList"><!-- tiers injected --></div>
+
+  <!-- ── DETAIL SHEET ── -->
+  <div class="backdrop" id="backdrop" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <div class="sheet-ic"><i class="ic" id="shIc"></i></div>
+      <div>
+        <div class="sheet-title" id="shTitle"></div>
+        <div class="sheet-one" id="shOne"></div>
+      </div>
+    </div>
+
+    <div id="shGate" style="display:none">
+      <div class="gate-banner">
+        <i class="ic ic-lock"></i>
+        <div class="gate-txt">
+          Let's build a little <b>steadiness</b> first. This one asks you to be with hard feelings — it's kinder to have a way to settle yourself before you go there.
+          <br/><button class="gate-go" onclick="openDomain('regulate')">Start with Regulate →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="shContent">
+      <div class="sh-sect"><div class="sh-label">What it is</div><div class="sh-text" id="shWhat"></div></div>
+      <div class="sh-sect"><div class="sh-label">Why it matters</div><div class="sh-why" id="shWhy"></div></div>
+
+      <div class="sh-sect">
+        <div class="sh-label">The journey · 3 camps</div>
+        <div class="camps" id="shCamps"></div>
+      </div>
+
+      <div class="sh-sect"><div class="sh-label">Tools you'll use</div><div class="ychips" id="shTools"></div></div>
+
+      <div class="sh-sect">
+        <div class="signs">
+          <div><div class="sign-col-h pres">When it's here</div><div class="sign-t" id="shPresent"></div></div>
+          <div><div class="sign-col-h miss">When it's missing</div><div class="sign-t" id="shMissing"></div></div>
+        </div>
+      </div>
+
+      <div class="sh-sect">
+        <div class="sh-label">Where you are with this</div>
+        <div class="cov-pills" id="shCov"></div>
+      </div>
+
+      <button class="sh-cta" id="shCta" onclick="startFoundation()">Start this foundation</button>
+      <div class="sh-done" id="shDone"></div>
+    </div>
+  </div>
+
+<script>
+// ── Foundation data (mirrors spec-foundations.md §4) ──
+const DOMAINS = {
+  regulate:{ ic:'ic-wind', name:'Regulate', one:'Settle your own nervous system on purpose.',
+    what:'The ability to bring yourself back toward calm — and to know your window of tolerance.',
+    why:'Unregulated, you react from survival and everything else floods you. This is the gateway to the rest.',
+    tools:['Physiological sigh','Box breathing','5-4-3-2-1 grounding','Orienting','Cold water'],
+    camps:['Notice your state — activated, shutdown, or settled','Find one reliable off-ramp — your go-to tool','Catch it earlier — regulate before the flood'],
+    present:'You can calm yourself down on purpose.', missing:'0-to-100 reactions, long recovery, shutdowns.' },
+  feel:{ ic:'ic-heart', name:'Feel & name', one:'Identify and articulate what you feel.',
+    what:'Naming emotions precisely, and hearing the need underneath them.',
+    why:'Unnamed feelings run you. Naming a feeling literally calms the brain — "name it to tame it".',
+    tools:['Emotion wheel','Body-scan','"What am I feeling / needing?"'],
+    camps:['Notice a feeling is here','Find its true name','Ask what it needs'],
+    present:'"I feel X because Y, and I need Z."', missing:'Numb, or only "fine / stressed / angry".' },
+  self:{ ic:'ic-user', name:'Self-relationship', one:'How you treat and speak to yourself.',
+    what:'A kinder inner voice, self-parenting, and meeting your own needs.',
+    why:'Your inner voice becomes your baseline mood. A cruel one is chronic, quiet suffering.',
+    tools:['Self-compassion break','Inner-child check-in','Reparenting phrases','Catch-the-critic'],
+    camps:['Hear how you speak to yourself','Offer one kinder line','Parent the younger self'],
+    present:'You talk to yourself like a friend.', missing:'Harsh self-talk, self-neglect, perfectionism.' },
+  communicate:{ ic:'ic-msg', name:'Communicate', one:'Say needs and boundaries cleanly.',
+    what:'Direct asks, clean boundaries, and repair after rupture.',
+    why:'Most conflict is poor communication, not bad people. Unspoken needs turn into resentment.',
+    tools:['NVC (observe·feel·need·request)','The clean "no"','The repair sentence','"I" statements'],
+    camps:['Name the need','Ask without blame','Say a clean no'],
+    present:'You ask directly and set boundaries without guilt.', missing:'Hinting, exploding, silence, people-pleasing.' },
+  relate:{ ic:'ic-users', name:'Relate', one:'Navigate closeness, conflict, trust.',
+    what:'Staying close and staying yourself; conflict without catastrophe.',
+    why:'Humans are wired for connection, and secure relating is learnable — earned security is real.',
+    tools:['Attachment awareness','Turning toward bids','Conflict repair','Consent basics'],
+    camps:['Notice your attachment pattern','Stay in conflict without fleeing or attacking','Repair after a rupture'],
+    present:'You can be close and separate.', missing:'Cling or avoid; conflict feels like the end.' },
+  know:{ ic:'ic-target', name:'Know yourself', one:'Values, needs, triggers — yours vs inherited.',
+    what:'Knowing what you value and need, and telling your own voice from borrowed shoulds.',
+    why:'Without self-knowledge you quietly live someone else\u2019s life.',
+    tools:['Values sort','Needs inventory','Trigger mapping','"Whose voice is this?"'],
+    camps:['Name your values','Name your needs','Separate yours from inherited'],
+    present:'You can say who you are and what you want.', missing:'Chameleon; chronic "I don\u2019t know what I want".' },
+  body:{ ic:'ic-leaf', name:'Tend the body', one:'Sleep, movement, food, rest — the substrate.',
+    what:'Basic bodily self-maintenance treated as non-negotiable.',
+    why:'The body sets the floor for mood and mind. You can\u2019t out-think an empty tank.',
+    tools:['Sleep anchor','Daily movement minimum','Eating basics','Real rest'],
+    camps:['Set a sleep anchor','Move daily','Take real rest — a true break, not a scroll'],
+    present:'Your body is resourced.', missing:'Running on empty, ignoring signals.' },
+  hard:{ ic:'ic-shield', name:'Handle hard things', one:'Grief, failure, uncertainty, endings.', gated:true,
+    what:'Being with difficulty — without collapsing or numbing — and coming through.',
+    why:'Pain is unavoidable. The skill is being with it, not avoiding it.',
+    tools:['Allow-the-wave','Grief basics','Self-compassion in failure','Tolerating uncertainty'],
+    camps:['Let it be here — allow, don\u2019t fix','Comfort yourself through it','Find the meaning after'],
+    present:'You can sit with pain.', missing:'Numb, avoid, or spiral.' },
+  practical:{ ic:'ic-sliders', name:'Live practically', one:'Money, decisions, admin, planning.',
+    what:'Keeping real life running — money basics, decisions, systems.',
+    why:'Logistics overwhelm bleeds into everything; avoidance here becomes background dread.',
+    tools:['Budget basics','Decision frames (70% rule)','A simple admin system','Planning'],
+    camps:['Get money basics in place','Make a decision you\u2019ve avoided','Build one simple system that holds'],
+    present:'Life is handled, not chaos.', missing:'Avoidance, chaos, background dread.' },
+  meaning:{ ic:'ic-spark', name:'Make meaning', one:'Purpose, service, beauty, awe.',
+    what:'Connecting to a felt sense of direction and the sacred in ordinary life.',
+    why:'Humans need a why. Comfort alone leaves an emptiness.',
+    tools:['The "why"','Acts of service','A beauty / awe practice','Values-as-direction'],
+    camps:['Name what actually matters to you','Do one act of service','Take a daily hit of beauty or awe'],
+    present:'Life has direction.', missing:'Emptiness despite comfort; going through motions.' },
+};
+
+const ORDER = ['regulate','feel','self','communicate','relate','know','body','hard','practical','meaning'];
+// Built ground-up: body → inner world → others → life → meaning (Maslow-echo, framed as building not ranking)
+const TIERS = [
+  {n:1,title:'The ground',       why:'Your body and nervous system. You can’t think your way out of an exhausted, flooded body.', ids:['body','regulate']},
+  {n:2,title:'Your inner world', why:'How you meet your own feelings, needs, and self.',                                    ids:['feel','self','know']},
+  {n:3,title:'Other people',     why:'We’re built for connection — and secure relating is learnable.',                    ids:['communicate','relate']},
+  {n:4,title:'Meeting life',     why:'What adulthood actually asks of us.',                                                ids:['hard','practical']},
+  {n:5,title:'Meaning',          why:'What makes the whole thing worth it.',                                               ids:['meaning']},
+];
+const COV_STATES = [['notyet','Not yet'],['exploring','Exploring'],['practising','Practising'],['steady','Steady']];
+
+// coverage state per domain (demo defaults)
+const coverage = { regulate:'exploring', feel:'exploring', self:'practising', communicate:'notyet',
+  relate:'notyet', know:'practising', body:'practising', hard:'notyet', practical:'exploring', meaning:'notyet' };
+
+let currentId = null;
+
+function covLabel(s){ return (COV_STATES.find(c=>c[0]===s)||COV_STATES[0])[1]; }
+function isGatedLocked(id){ return DOMAINS[id].gated && coverage.regulate !== 'steady'; }
+
+function renderList(){
+  const rowHTML = (id)=>{
+    const d = DOMAINS[id]; const s = coverage[id]; const gated = isGatedLocked(id);
+    return `<div class="yrow${gated?' gated':''}" onclick="openDomain('${id}')">
+      <div class="yrow-ic"><i class="ic ${d.ic}"></i></div>
+      <div class="yrow-main">
+        <div class="yrow-t">${d.name}</div>
+        <div class="yrow-s">${d.one}</div>
+      </div>
+      ${gated
+        ? '<span class="gate-badge"><i class="ic ic-lock"></i></span>'
+        : `<span class="cov" data-s="${s}"><span class="cov-dot"></span>${covLabel(s)}</span>`}
+    </div>`;
+  };
+  document.getElementById('domainList').innerHTML = TIERS.map(t=>
+    `<div class="tier-h"><div class="tier-n">${t.n}</div><div><div class="tier-t">${t.title}</div><div class="tier-why">${t.why}</div></div></div>
+     <div class="ycard">${t.ids.map(rowHTML).join('')}</div>`
+  ).join('');
+}
+
+function openDomain(id){
+  currentId = id;
+  const d = DOMAINS[id];
+  document.getElementById('shIc').className = 'ic ' + d.ic;
+  document.getElementById('shTitle').textContent = d.name;
+  document.getElementById('shOne').textContent = d.one;
+  document.getElementById('shWhat').textContent = d.what;
+  document.getElementById('shWhy').textContent = d.why;
+  document.getElementById('shCamps').innerHTML = d.camps.map((c,i)=>
+    `<div class="camp"><div class="camp-num">${i+1}</div><div class="camp-txt">${c}</div></div>`).join('');
+  document.getElementById('shTools').innerHTML = d.tools.map(t=>`<span class="ychip">${t}</span>`).join('');
+  document.getElementById('shPresent').textContent = d.present;
+  document.getElementById('shMissing').textContent = d.missing;
+  document.getElementById('shCov').innerHTML = COV_STATES.map(([v,l])=>
+    `<button class="cov-pill${coverage[id]===v?' on':''}" onclick="setCoverage('${v}')">${l}</button>`).join('');
+  document.getElementById('shDone').classList.remove('show');
+
+  const locked = isGatedLocked(id);
+  document.getElementById('shGate').style.display = locked ? 'block' : 'none';
+  document.getElementById('shContent').style.display = locked ? 'none' : 'block';
+
+  document.getElementById('sheet').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+  document.getElementById('sheet').scrollTop = 0;
+}
+
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('open');
+}
+
+function setCoverage(v){
+  coverage[currentId] = v;
+  document.querySelectorAll('#shCov .cov-pill').forEach(b=>b.classList.remove('on'));
+  event.target.classList.add('on');
+  renderList(); // reflects on card + may unlock the gated one when Regulate → Steady
+}
+
+function startFoundation(){
+  const d = DOMAINS[currentId];
+  const done = document.getElementById('shDone');
+  done.innerHTML = `<b>Added to your Paths.</b> First camp: \u201c${d.camps[0]}\u201d. It'll show up on Today when you're ready \u2014 no rush.`;
+  done.classList.add('show');
+  if(coverage[currentId]==='notyet'){ coverage[currentId]='exploring'; renderList(); }
+}
+
+renderList();
+</script>
+</body>
+</html>

@@ -7,160 +7,145 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
 <style>
 
-/* ─────────────────── Section headers ─────────────────── */
-.sect{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
-.sect:first-of-type{margin-top:0;}
-.sect::before{content:'';display:block;width:3px;height:14px;border-radius:99px;background:var(--line);flex-shrink:0;}
-.sect.s-checkin::before{background:var(--p-inner);}
-.sect.s-pattern::before{background:var(--olive);}
-.sect.s-deep::before{background:var(--p-admin);}
-.sect.s-energy::before{background:var(--p-health);}
-.sect.s-history::before{background:var(--steel);}
-
-/* ─────────────────── Weekly check-in ─────────────────── */
-.checkin{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:0 3px 16px rgba(0,0,0,.2);}
-
-/* State 0 — invite (dark card) */
+/* ── Weekly check-in ── */
+.checkin{border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 6px 24px rgba(28,27,24,.2);}
+/* State 0 — invite */
 .ci-invite{display:block;}
-.ci-inv-bg{padding:20px 20px 18px;background:linear-gradient(155deg,#253020,#18201a);color:#F2EDE3;}
-.ci-inv-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.ci-inv-icon{font-size:22px;}
-.ci-inv-badge{font-size:var(--fs-xs);font-weight:700;background:rgba(255,255,255,.12);padding:3px 10px;border-radius:999px;color:rgba(255,255,255,.7);}
-.ci-inv-badge.due{background:rgba(201,149,84,.25);color:#e0b27a;}
-.ci-inv-h{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;}
-.ci-inv-sub{font-size:var(--fs-sm);opacity:.6;line-height:1.55;margin-bottom:4px;}
-.ci-inv-meta{font-size:var(--fs-xs);opacity:.35;margin-bottom:16px;}
-.ci-inv-btn{
-  width:100%;padding:13px;border-radius:999px;border:1.5px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.1);color:#F2EDE3;font-family:inherit;
-  font-size:var(--fs-sm);font-weight:700;cursor:pointer;transition:all .15s;
-}
-.ci-inv-btn:hover{background:rgba(255,255,255,.18);}
-
-/* State 1 — question flow */
+.ci-inv-bg{padding:20px;background:linear-gradient(152deg,#2c2a26,#1b1a17);color:#f1ede6;}
+.ci-inv-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;}
+.ci-inv-icon{font-size:19px;color:rgba(241,237,230,.5);}
+.ci-inv-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:rgba(255,255,255,.1);padding:4px 11px;border-radius:999px;color:rgba(255,255,255,.65);}
+.ci-inv-badge.due{background:rgba(168,132,63,.25);color:#dcb878;}
+.ci-inv-h{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:7px;}
+.ci-inv-sub{font-size:var(--fs-sm);opacity:.6;line-height:1.55;margin-bottom:5px;}
+.ci-inv-meta{font-size:var(--fs-xs);opacity:.35;margin-bottom:17px;}
+.ci-inv-btn{width:100%;padding:13px;border-radius:13px;border:none;background:rgba(255,255,255,.12);color:#f1ede6;
+  font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;transition:all .15s;}
+.ci-inv-btn:hover{background:rgba(255,255,255,.2);}
+/* State 1 — flow */
 .ci-flow{display:none;background:var(--card);}
 .ci-prog-wrap{height:3px;background:var(--greige);}
-.ci-prog-fill{height:100%;background:var(--p-inner);border-radius:0 999px 999px 0;transition:width .3s;}
-.ci-q-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:var(--greige);}
-.ci-q-step{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
-.ci-q-skip{font-size:var(--fs-xs);color:var(--muted);cursor:pointer;text-decoration:underline;}
-.ci-q-body{padding:18px 18px 20px;}
-.ci-q-text{font-size:var(--fs-md);font-weight:800;line-height:1.4;margin-bottom:14px;color:var(--ink);}
-.ci-textarea{
-  width:100%;min-height:80px;border:1.5px solid var(--line);
-  border-radius:12px;padding:12px;font-family:inherit;
-  font-size:var(--fs-sm);background:var(--bg);color:var(--ink);
-  resize:none;outline:none;transition:border-color .15s;box-sizing:border-box;
-}
-.ci-textarea:focus{border-color:var(--p-inner);}
-.ci-next{
-  margin-top:10px;width:100%;padding:12px;border-radius:999px;border:none;
-  background:var(--btn);color:#fff;font-family:inherit;
-  font-size:var(--fs-sm);font-weight:700;cursor:pointer;
-}
-
+.ci-prog-fill{height:100%;background:var(--accent);border-radius:0 999px 999px 0;transition:width .3s;}
+.ci-q-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--bg);}
+.ci-q-step{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.ci-q-skip{font-size:var(--fs-xs);color:var(--muted);cursor:pointer;}
+.ci-q-body{padding:18px;}
+.ci-q-text{font-size:var(--fs-lg);font-weight:800;line-height:1.35;margin-bottom:14px;color:var(--ink);letter-spacing:-.01em;}
+.ci-textarea{width:100%;min-height:84px;border:1.5px solid var(--line);border-radius:13px;padding:13px;
+  font-family:inherit;font-size:var(--fs-sm);background:var(--bg);color:var(--ink);resize:none;outline:none;transition:border-color .15s;box-sizing:border-box;}
+.ci-textarea:focus{border-color:var(--accent);}
+.ci-next{margin-top:10px;width:100%;padding:13px;border-radius:13px;border:none;background:var(--btn);color:#fff;
+  font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
 /* State 2 — done */
 .ci-done{display:none;background:var(--card);}
-.ci-done-hd{background:linear-gradient(155deg,#253020,#18201a);padding:14px 18px;display:flex;align-items:center;gap:8px;color:#F2EDE3;}
-.ci-done-icon{font-size:16px;}
+.ci-done-hd{background:linear-gradient(152deg,#2c2a26,#1b1a17);padding:14px 18px;display:flex;align-items:center;gap:9px;color:#f1ede6;}
+.ci-done-icon{font-size:15px;color:#9db58f;}
 .ci-done-title{font-size:var(--fs-sm);font-weight:700;}
 .ci-done-date{font-size:var(--fs-xs);opacity:.45;margin-left:auto;}
-.ci-done-body{padding:14px 18px 18px;}
-.ci-summary-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
+.ci-done-body{padding:6px 18px 16px;}
+.ci-summary-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);}
 .ci-summary-row:last-child{border-bottom:none;}
-.ci-q-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);width:72px;flex-shrink:0;padding-top:2px;}
+.ci-q-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);width:68px;flex-shrink:0;padding-top:3px;}
 .ci-answer{flex:1;font-size:var(--fs-sm);color:var(--ink);line-height:1.5;}
 
-/* ─────────────────── AI pattern insight ─────────────────── */
-.insight{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--olive);border-radius:var(--r-card);padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:12px;}
-.insight-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--olive);margin-bottom:8px;}
-.insight-text{font-size:var(--fs-sm);line-height:1.6;color:var(--ink);margin-bottom:8px;}
-/* Mini mood dot row for Sunday vs rest-of-week visualization */
-.insight-vis{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.iv-label{font-size:var(--fs-xs);color:var(--muted);flex-shrink:0;width:60px;}
-.iv-dots{display:flex;gap:4px;}
-.iv-dot{width:10px;height:10px;border-radius:50%;}
-.iv-dot.hi{background:var(--olive);}
-.iv-dot.mid{background:#a3b89e;}
-.iv-dot.lo{background:#c4918a;}
-.insight-source{font-size:var(--fs-xs);color:var(--muted);font-style:italic;margin-bottom:12px;}
+/* ── AI pattern insight ── */
+.insight{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:18px;padding:16px;box-shadow:var(--shadow-sm);margin-bottom:10px;}
+.insight-text{font-size:var(--fs-sm);line-height:1.6;color:var(--ink);margin-bottom:12px;}
+.insight-vis{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.iv-label{font-size:var(--fs-xs);color:var(--muted);flex-shrink:0;width:64px;}
+.iv-dots{display:flex;gap:5px;}
+.iv-dot{width:9px;height:9px;border-radius:50%;}
+.iv-dot.hi{background:var(--accent);}
+.iv-dot.mid{background:#c7cabf;}
+.iv-dot.lo{background:#c49aa0;}
+.insight-source{font-size:var(--fs-xs);color:var(--muted);margin:12px 0;}
 .insight-btns{display:flex;gap:8px;}
-.insight-btn{
-  flex:1;padding:9px;border-radius:999px;font-family:inherit;
-  font-size:var(--fs-xs);font-weight:600;cursor:pointer;
-  border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;
-}
-.insight-btn.yes{border-color:var(--olive);color:var(--olive);}
-.insight-btn.selected-yes{background:var(--olive);color:#fff;border-color:var(--olive);}
+.insight-btn{flex:1;padding:10px;border-radius:11px;font-family:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;
+  border:1.5px solid var(--line);background:transparent;color:var(--muted);transition:all .15s;}
+.insight-btn.yes{border-color:var(--accent);color:var(--accent);}
+.insight-btn.selected-yes{background:var(--accent);color:#fff;border-color:var(--accent);}
 .insight-btn.selected-no{border-color:var(--line);color:var(--muted);opacity:.5;}
 
-/* ─────────────────── Deep question — dark contemplative card ─────────────────── */
-.deep-card{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.18);}
-.deep-bg{padding:18px 18px 0;background:linear-gradient(145deg,#2a2c3a,#1c1f2c);color:#F2EDE3;}
-.deep-meta{font-size:var(--fs-xs);opacity:.35;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
-.deep-q-text{font-size:15px;font-style:italic;line-height:1.6;opacity:.88;margin-bottom:16px;}
+/* ── Deep question ── */
+.deep-card{border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 6px 24px rgba(28,27,24,.18);}
+.deep-bg{padding:19px 18px 18px;background:linear-gradient(150deg,#26283a,#1a1c2a);color:#eceaf2;}
+.deep-meta{font-size:9px;opacity:.4;text-transform:uppercase;letter-spacing:.12em;margin-bottom:11px;}
+.deep-q-text{font-size:var(--fs-lg);font-style:italic;line-height:1.55;opacity:.92;margin-bottom:17px;letter-spacing:-.01em;}
 .deep-textarea{
-  width:100%;min-height:80px;border:none;border-top:1px solid rgba(255,255,255,.1);
-  padding:14px 18px;font-family:inherit;font-size:var(--fs-sm);
-  background:rgba(255,255,255,.05);color:#F2EDE3;
-  resize:none;outline:none;box-sizing:border-box;
+  width:100%;min-height:72px;border:1.5px solid rgba(255,255,255,.22);border-radius:13px;
+  padding:12px 14px;font-family:inherit;font-size:var(--fs-sm);
+  background:rgba(255,255,255,.09);color:#eceaf2;
+  resize:none;outline:none;box-sizing:border-box;transition:border-color .15s;margin-top:4px;
 }
-.deep-textarea::placeholder{color:rgba(255,255,255,.25);}
-.deep-foot{padding:10px 18px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:space-between;}
-.deep-hint{font-size:var(--fs-xs);opacity:.3;line-height:1.4;}
-.deep-save{font-size:var(--fs-xs);font-weight:700;color:rgba(255,255,255,.45);background:none;border:none;font-family:inherit;cursor:pointer;padding:0;}
+.deep-textarea:focus{border-color:rgba(255,255,255,.5);}
+.deep-textarea::placeholder{color:rgba(255,255,255,.3);}
+.deep-foot{padding:12px 0 2px;background:transparent;display:flex;align-items:center;justify-content:space-between;}
+.deep-hint{font-size:var(--fs-xs);opacity:.32;line-height:1.4;}
+.deep-save{font-size:var(--fs-xs);font-weight:700;color:rgba(255,255,255,.5);background:none;border:none;font-family:inherit;cursor:pointer;padding:0;}
 
-/* ─────────────────── Energy & Drain diary ─────────────────── */
-.energy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;}
-.energy-col{border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);}
-.eg-head{padding:10px 13px 9px;display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;}
-.eg-head.energy{background:#eef4ec;color:#3d6e37;}
-.eg-head.drain{background:#f7eded;color:#8e4848;}
-.eg-body{background:var(--card);border:1px solid var(--line);border-top:none;padding:10px 12px 8px;}
-.eg-chips{display:flex;flex-direction:column;gap:5px;margin-bottom:7px;}
-.eg-chip{font-size:var(--fs-xs);font-weight:500;padding:4px 9px;border-radius:999px;display:inline-flex;align-self:flex-start;}
-.eg-chip.energy{background:#eef4ec;color:#3d6e37;}
-.eg-chip.drain{background:#f7eded;color:#8e4848;}
-.eg-add{font-size:var(--fs-xs);color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:3px;}
-.energy-note{font-size:var(--fs-xs);color:var(--muted);font-style:italic;margin-bottom:12px;}
+/* ── Energy self-knowledge ── */
+.xlink-note{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:12px;padding:11px 13px;margin-bottom:10px;line-height:1.55;}
+.xlink-note b{color:var(--ink);font-weight:700;}
+.xlink-note a{color:var(--accent);font-weight:700;text-decoration:none;}
+.energy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.energy-col{border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-sm);background:var(--card);}
+.eg-head{padding:11px 13px 10px;display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);}
+.eg-head .ic{font-size:13px;}
+.eg-head.energy{color:#5d7a55;}
+.eg-head.drain{color:#a06a72;}
+.eg-body{padding:11px 12px 9px;}
+.eg-chips{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.eg-chip{font-size:var(--fs-sm);font-weight:600;padding:5px 11px;border-radius:9px;display:inline-flex;align-self:flex-start;}
+.eg-chip.energy{background:#eef3ec;color:#4f6b48;}
+.eg-chip.drain{background:#f6ecee;color:#8a5a61;}
+.eg-add{font-size:var(--fs-xs);color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:600;}
+.eg-add .ic{font-size:11px;}
 
-/* ─────────────────── Past check-ins ─────────────────── */
-.reflection-row{
-  background:var(--card);border:1px solid var(--line);
-  border-radius:var(--r-card);padding:13px 16px;
-  margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;
-}
-.rr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+/* ── Past check-ins ── */
+.reflection-row{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;}
+.rr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .rr-date{font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
-.rr-mood{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);padding:2px 9px;border-radius:999px;}
+.rr-mood{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);padding:3px 10px;border-radius:999px;font-weight:600;}
 .rr-preview{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;}
-.rr-preview strong{color:var(--ink);}
+.rr-preview strong{color:var(--ink);font-weight:600;}
 
 </style>
 </head>
 <body class="screen-body">
 
-  <!-- ── WEEKLY CHECK-IN ── -->
-  <div class="sect s-checkin">Weekly check-in</div>
-  <div class="checkin" id="checkin">
+  <!-- ── LENS HEADER ── -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-compass"></i></div>
+    <div>
+      <div class="ylens-title">Discover</div>
+      <div class="ylens-sub">What you're learning about yourself</div>
+    </div>
+  </div>
 
-    <!-- State 0: invite -->
+  <!-- ── WEEKLY CHECK-IN ── -->
+  <div class="yhead">
+    <i class="ic ic-spark yhead-ic"></i>
+    <div class="yhead-t">Weekly check-in</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="checkin" id="checkin">
+    <!-- State 0 -->
     <div class="ci-invite" id="ciInvite">
       <div class="ci-inv-bg">
         <div class="ci-inv-row1">
           <div class="ci-inv-badge due">Due today</div>
-          <div class="ci-inv-icon">🪞</div>
+          <i class="ic ic-spark ci-inv-icon"></i>
         </div>
-        <div class="ci-inv-h">Weekly check-in</div>
-        <div class="ci-inv-sub">Three questions about your week — not about performance, about what you noticed.</div>
+        <div class="ci-inv-h">This week, in your own words</div>
+        <div class="ci-inv-sub">Three questions — not about performance, about what you noticed.</div>
         <div class="ci-inv-meta">3 questions · ~2 minutes · stays private</div>
         <button class="ci-inv-btn" onclick="startCheckin()">Begin this week's check-in →</button>
       </div>
     </div>
-
-    <!-- State 1: question flow -->
+    <!-- State 1 -->
     <div class="ci-flow" id="ciFlow">
       <div class="ci-prog-wrap"><div class="ci-prog-fill" id="ciProgFill" style="width:33%"></div></div>
       <div class="ci-q-header">
@@ -173,65 +158,44 @@
         <button class="ci-next" id="ciNextBtn" onclick="nextQuestion()">Next →</button>
       </div>
     </div>
-
-    <!-- State 2: done -->
+    <!-- State 2 -->
     <div class="ci-done" id="ciDone">
       <div class="ci-done-hd">
-        <div class="ci-done-icon">✓</div>
+        <i class="ic ic-spark ci-done-icon"></i>
         <div class="ci-done-title">This week's check-in</div>
         <div class="ci-done-date">Jun 26, 2026</div>
       </div>
       <div class="ci-done-body">
-        <div class="ci-summary-row">
-          <div class="ci-q-label">Energy</div>
-          <div class="ci-answer" id="ciSumEnergy">—</div>
-        </div>
-        <div class="ci-summary-row">
-          <div class="ci-q-label">Drain</div>
-          <div class="ci-answer" id="ciSumDrain">—</div>
-        </div>
-        <div class="ci-summary-row">
-          <div class="ci-q-label">Surprised</div>
-          <div class="ci-answer" id="ciSumSurprise">—</div>
-        </div>
+        <div class="ci-summary-row"><div class="ci-q-label">Energy</div><div class="ci-answer" id="ciSumEnergy">—</div></div>
+        <div class="ci-summary-row"><div class="ci-q-label">Drain</div><div class="ci-answer" id="ciSumDrain">—</div></div>
+        <div class="ci-summary-row"><div class="ci-q-label">Surprised</div><div class="ci-answer" id="ciSumSurprise">—</div></div>
       </div>
     </div>
-
   </div>
 
-  <!-- ── AI PATTERN INSIGHT ── -->
-  <div class="sect s-pattern">Pattern · from your data</div>
+  <!-- ── AI PATTERN ── -->
+  <div class="yhead">
+    <i class="ic ic-activity yhead-ic"></i>
+    <div class="yhead-t">What Compass is noticing</div>
+    <div class="yhead-rule"></div>
+  </div>
   <div class="insight">
-    <div class="insight-label">What Compass is noticing</div>
     <div class="insight-text">You log low mood on Sundays consistently — this has happened 6 of the last 8 weeks. Your sleep on Saturday nights is also shorter than any other night (avg 5h 50m).</div>
-    <!-- Mini dot visualization: Sunday mood vs rest of week -->
     <div class="insight-vis">
       <div class="iv-label">Sundays</div>
       <div class="iv-dots">
-        <div class="iv-dot lo"></div>
-        <div class="iv-dot mid"></div>
-        <div class="iv-dot lo"></div>
-        <div class="iv-dot lo"></div>
-        <div class="iv-dot mid"></div>
-        <div class="iv-dot lo"></div>
-        <div class="iv-dot lo"></div>
-        <div class="iv-dot lo"></div>
+        <div class="iv-dot lo"></div><div class="iv-dot mid"></div><div class="iv-dot lo"></div><div class="iv-dot lo"></div>
+        <div class="iv-dot mid"></div><div class="iv-dot lo"></div><div class="iv-dot lo"></div><div class="iv-dot lo"></div>
       </div>
     </div>
     <div class="insight-vis">
       <div class="iv-label">Other days</div>
       <div class="iv-dots">
-        <div class="iv-dot hi"></div>
-        <div class="iv-dot hi"></div>
-        <div class="iv-dot mid"></div>
-        <div class="iv-dot hi"></div>
-        <div class="iv-dot mid"></div>
-        <div class="iv-dot hi"></div>
-        <div class="iv-dot hi"></div>
-        <div class="iv-dot mid"></div>
+        <div class="iv-dot hi"></div><div class="iv-dot hi"></div><div class="iv-dot mid"></div><div class="iv-dot hi"></div>
+        <div class="iv-dot mid"></div><div class="iv-dot hi"></div><div class="iv-dot hi"></div><div class="iv-dot mid"></div>
       </div>
     </div>
-    <div class="insight-source">Based on: mood log + sleep log · last 2 months</div>
+    <div class="insight-source">Based on mood log + sleep log · last 2 months</div>
     <div class="insight-btns">
       <button class="insight-btn yes" id="insYes" onclick="insightReact('yes')">This resonates</button>
       <button class="insight-btn" id="insNo" onclick="insightReact('no')">Doesn't seem right</button>
@@ -239,72 +203,69 @@
   </div>
 
   <!-- ── DEEP QUESTION ── -->
-  <div class="sect s-deep">This month's question</div>
+  <div class="yhead">
+    <i class="ic ic-book yhead-ic"></i>
+    <div class="yhead-t">This month's question</div>
+    <div class="yhead-rule"></div>
+  </div>
   <div class="deep-card">
     <div class="deep-bg">
       <div class="deep-meta">June 2026</div>
       <div class="deep-q-text">"Name something you keep avoiding that matters — and what you think the avoidance is protecting you from."</div>
-    </div>
-    <textarea class="deep-textarea" placeholder="Write freely — stays on your device only"></textarea>
-    <div class="deep-foot">
-      <div class="deep-hint">One question per month · answers build your self-portrait over time</div>
-      <button class="deep-save">Save</button>
+      <textarea class="deep-textarea" placeholder="Write your answer here…"></textarea>
+      <div class="deep-foot">
+        <div class="deep-hint">One question per month · stays on your device</div>
+        <button class="deep-save">Save</button>
+      </div>
     </div>
   </div>
 
-  <!-- ── ENERGY & DRAIN ── -->
-  <div class="sect s-energy">Energy &amp; drain · running list</div>
+  <!-- ── ENERGY SELF-KNOWLEDGE ── -->
+  <div class="yhead">
+    <i class="ic ic-zap yhead-ic"></i>
+    <div class="yhead-t">What you know about your energy</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="xlink-note">Your <b>standing self-knowledge</b> — things you've learned hold true over time. For this week's logged energy data, see <a>Progress →</a></div>
   <div class="energy-grid">
     <div class="energy-col">
-      <div class="eg-head energy">⚡ Gives energy</div>
+      <div class="eg-head energy"><i class="ic ic-zap"></i>Gives energy</div>
       <div class="eg-body">
         <div class="eg-chips">
           <span class="eg-chip energy">Morning walks</span>
           <span class="eg-chip energy">Deep work blocks</span>
           <span class="eg-chip energy">Good sleep</span>
         </div>
-        <div class="eg-add">＋ add</div>
+        <div class="eg-add"><i class="ic ic-plus"></i>add</div>
       </div>
     </div>
     <div class="energy-col">
-      <div class="eg-head drain">🌀 Drains energy</div>
+      <div class="eg-head drain"><i class="ic ic-wind"></i>Drains energy</div>
       <div class="eg-body">
         <div class="eg-chips">
           <span class="eg-chip drain">Rushed mornings</span>
           <span class="eg-chip drain">Open-ended days</span>
           <span class="eg-chip drain">Too many decisions</span>
         </div>
-        <div class="eg-add">＋ add</div>
+        <div class="eg-add"><i class="ic ic-plus"></i>add</div>
       </div>
     </div>
   </div>
-  <div class="energy-note">You add to this as you notice. Over time, Compass finds patterns.</div>
+  <div class="yintro" style="margin-bottom:6px">You add to this as you notice. Compass uses it to read your weekly data with context.</div>
 
   <!-- ── PAST CHECK-INS ── -->
-  <div class="sect s-history">Past check-ins</div>
-
-  <div class="reflection-row">
-    <div class="rr-header">
-      <div class="rr-date">19 Jun 2026</div>
-      <div class="rr-mood">😌 calm</div>
-    </div>
-    <div class="rr-preview">
-      <strong>Energy:</strong> "The morning routine when it worked" ·
-      <strong>Drain:</strong> "Trying to do too many things at once" ·
-      <strong>Surprised:</strong> "How much better I feel after even a short walk"
-    </div>
+  <div class="yhead">
+    <i class="ic ic-msg yhead-ic"></i>
+    <div class="yhead-t">Past check-ins</div>
+    <div class="yhead-rule"></div>
   </div>
-
   <div class="reflection-row">
-    <div class="rr-header">
-      <div class="rr-date">12 Jun 2026</div>
-      <div class="rr-mood">💭 reflective</div>
-    </div>
-    <div class="rr-preview">
-      <strong>Energy:</strong> "Quiet evenings, reading" ·
-      <strong>Drain:</strong> "Social media before bed" ·
-      <strong>Surprised:</strong> "I didn't miss screens when I wasn't near one"
-    </div>
+    <div class="rr-header"><div class="rr-date">19 Jun 2026</div><div class="rr-mood">calm</div></div>
+    <div class="rr-preview"><strong>Energy:</strong> "The morning routine when it worked" · <strong>Drain:</strong> "Trying to do too many things at once" · <strong>Surprised:</strong> "How much better I feel after even a short walk"</div>
+  </div>
+  <div class="reflection-row">
+    <div class="rr-header"><div class="rr-date">12 Jun 2026</div><div class="rr-mood">reflective</div></div>
+    <div class="rr-preview"><strong>Energy:</strong> "Quiet evenings, reading" · <strong>Drain:</strong> "Social media before bed" · <strong>Surprised:</strong> "I didn't miss screens when I wasn't near one"</div>
   </div>
 
 <script>
@@ -321,21 +282,17 @@ function startCheckin(){
   document.getElementById('ciFlow').style.display = 'block';
   showQuestion(0);
 }
-
 function showQuestion(i){
-  const pct = Math.round(((i) / QUESTIONS.length) * 100);
+  const pct = Math.round((i / QUESTIONS.length) * 100);
   document.getElementById('ciProgFill').style.width = Math.max(pct, 8) + '%';
   document.getElementById('ciStep').textContent = `Question ${i+1} of ${QUESTIONS.length}`;
   document.getElementById('ciQuestion').textContent = QUESTIONS[i];
   document.getElementById('ciAnswer').value = '';
-  const isLast = i === QUESTIONS.length - 1;
-  document.getElementById('ciNextBtn').textContent = isLast ? 'Finish →' : 'Next →';
+  document.getElementById('ciNextBtn').textContent = i === QUESTIONS.length - 1 ? 'Finish →' : 'Next →';
   document.getElementById('ciAnswer').focus();
 }
-
 function nextQuestion(){
-  const ans = document.getElementById('ciAnswer').value.trim() || '—';
-  answers[qIndex] = ans;
+  answers[qIndex] = document.getElementById('ciAnswer').value.trim() || '—';
   qIndex++;
   if(qIndex < QUESTIONS.length){
     showQuestion(qIndex);
@@ -350,7 +307,6 @@ function nextQuestion(){
     }, 300);
   }
 }
-
 function insightReact(choice){
   const yes = document.getElementById('insYes');
   const no  = document.getElementById('insNo');
@@ -358,9 +314,8 @@ function insightReact(choice){
     yes.className = 'insight-btn selected-yes';
     no.className  = 'insight-btn selected-no';
   } else {
-    no.style.fontWeight = '700';
-    no.style.color = 'var(--muted)';
     yes.className = 'insight-btn selected-no';
+    no.className  = 'insight-btn';
   }
 }
 </script>

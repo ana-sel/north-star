@@ -7,291 +7,309 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
 <style>
 
-/* ─────────────────── Section headers ─────────────────── */
-.sect{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
-.sect:first-of-type{margin-top:0;}
-.sect::before{content:'';display:block;width:3px;height:14px;border-radius:99px;background:var(--line);flex-shrink:0;}
-.sect.s-becoming::before{background:var(--p-inner);}
-.sect.s-values::before{background:var(--olive);}
-.sect.s-quality::before{background:#898095;}
-.sect.s-practices::before{background:var(--p-family);}
-.sect.s-earned::before{background:#c9a253;}
-.sect.s-skills::before{background:var(--p-contrib);}
-.sect.s-edu::before{background:var(--p-admin);}
-.sect.s-family::before{background:var(--p-family);}
+/* ── Portrait masthead ── */
+.portrait{border-radius:20px;overflow:hidden;margin-bottom:6px;box-shadow:0 6px 26px rgba(28,27,24,.26);}
+.portrait-bg{padding:19px 18px;background:linear-gradient(152deg,#2c2a26,#1b1a17);color:#f1ede6;}
+.pt-top{display:flex;align-items:center;gap:14px;}
+.pt-av{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:800;
+  color:#f1ede6;background:#3a382f;flex-shrink:0;box-shadow:0 0 0 1.5px rgba(168,132,63,.55),0 0 0 5px rgba(168,132,63,.1);}
+.pt-id{flex:1;min-width:0;}
+.pt-name{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.pt-line{font-size:var(--fs-sm);color:rgba(241,237,230,.6);margin-top:6px;line-height:1.4;}
+.pt-since{font-size:9px;color:rgba(241,237,230,.34);text-transform:uppercase;letter-spacing:.12em;margin-top:7px;}
 
-/* ─────────────────── Becoming — dark gradient cards ─────────────────── */
-.bec-card{border-radius:var(--r-card);overflow:hidden;margin-bottom:10px;box-shadow:0 3px 16px rgba(0,0,0,.22);}
-.bec-bg{padding:18px 18px 0;color:#F2EDE3;}
-.bec-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.bec-type{font-size:var(--fs-xs);opacity:.38;text-transform:uppercase;letter-spacing:.08em;}
-.bec-streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);padding:4px 11px;border-radius:999px;font-size:var(--fs-sm);font-weight:700;}
-.bec-path{font-size:var(--fs-xs);font-weight:600;opacity:.45;margin-bottom:8px;letter-spacing:.02em;}
-.bec-statement{font-size:15px;font-style:italic;line-height:1.55;margin-bottom:14px;opacity:.92;}
-/* Camp pips */
-.bec-camps{display:flex;gap:5px;margin-bottom:7px;}
-.bec-pip{flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,.15);}
-.bec-pip.done{background:rgba(255,255,255,.6);}
-.bec-pip.active{background:rgba(255,255,255,.38);}
-/* Progress bar */
-.bec-prog-bar{height:3px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-bottom:5px;}
-.bec-prog-fill{height:100%;border-radius:999px;background:rgba(255,255,255,.52);}
-.bec-prog-label{font-size:var(--fs-xs);opacity:.38;margin-bottom:16px;}
+/* ── Emotional maturity overview ── */
+.em-intro{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;padding:16px 16px 14px;}
+.em-stats{display:flex;border-top:1px solid var(--line);}
+.em-stat{flex:1;text-align:center;padding:12px 6px;border-right:1px solid var(--line);}
+.em-stat:last-child{border-right:none;}
+.em-num{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink);}
+.em-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
 
-/* ─────────────────── Values ─────────────────── */
-.values-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:12px;}
-.v-intro{font-size:var(--fs-xs);color:var(--muted);margin-bottom:11px;font-style:italic;}
-.values-wrap{display:flex;flex-wrap:wrap;gap:7px;}
-.v-pill{display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:600;background:var(--bg);border:1.5px solid var(--line);padding:6px 14px;border-radius:999px;box-shadow:var(--shadow-sm);}
-.v-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.v-add{font-size:var(--fs-sm);color:var(--muted);background:transparent;border:1.5px dashed var(--line);padding:6px 14px;border-radius:999px;cursor:pointer;font-family:inherit;}
+/* tool rows */
+.tool-top{display:flex;align-items:center;gap:8px;margin-bottom:1px;}
+.tool-top .yrow-t{flex:1;}
 
-/* ─────────────────── Quality of the week — dark card ─────────────────── */
-.qual-week{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.2);}
-.qw-bg{padding:16px 18px;background:linear-gradient(145deg,#38324a,#27223b);color:#F2EDE3;}
-.qw-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:10px;}
-.qw-name{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px;}
-.qw-cue{font-size:var(--fs-sm);font-style:italic;opacity:.7;line-height:1.55;margin-bottom:8px;}
-.qw-from{font-size:var(--fs-xs);opacity:.35;margin-bottom:14px;}
-.qw-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.08);padding-top:12px;}
-.qw-foot-lbl{font-size:var(--fs-xs);opacity:.45;}
-.qw-check{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;display:grid;place-items:center;font-size:14px;color:transparent;cursor:pointer;transition:all .18s;}
-.qw-check.done{background:#768471;border-color:#768471;color:#fff;}
-
-/* ─────────────────── Practices — richer rows ─────────────────── */
-.practice-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;}
-.practice-row{display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-bottom:1px solid var(--line);}
-.practice-row:last-child{border-bottom:none;}
-.practice-row.paused{opacity:.55;}
-.pr-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
-.pr-body{flex:1;}
-.pr-name{font-size:var(--fs-md);font-weight:700;margin-bottom:2px;}
-.pr-desc{font-size:var(--fs-xs);color:var(--muted);line-height:1.45;margin-bottom:4px;}
-.pr-dur{font-size:var(--fs-xs);color:var(--muted);}
-.pr-state{font-size:var(--fs-xs);font-weight:700;padding:3px 10px;border-radius:999px;flex-shrink:0;margin-top:1px;}
-.pr-state.active{background:#eaf2e8;color:#3d6e37;}
-.pr-state.paused{background:var(--greige);color:var(--muted);}
-.pr-add{display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--muted);font-size:var(--fs-sm);cursor:pointer;}
-
-/* ─────────────────── Earned — gold dark card ─────────────────── */
-.earned-card{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.2);}
-.earned-bg{padding:16px 18px;background:linear-gradient(135deg,#3a2e14,#2c2310);color:#f2e8c8;}
-.earned-heading{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.5;margin-bottom:12px;}
-.earned-shelf{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
-.ec-chip{display:flex;align-items:center;gap:7px;background:rgba(201,162,83,.18);border:1px solid rgba(201,162,83,.3);border-radius:12px;padding:8px 12px;}
-.ec-medal{font-size:16px;}
-.ec-info{}
-.ec-name{font-size:var(--fs-sm);font-weight:700;color:#f0d98a;}
-.ec-wks{font-size:var(--fs-xs);opacity:.45;margin-top:1px;}
-.earned-note{font-size:var(--fs-xs);opacity:.4;font-style:italic;line-height:1.4;}
-
-/* ─────────────────── Skills ─────────────────── */
-.skills-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
-.skill-pill{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:600;background:var(--card);border:1px solid var(--line);padding:5px 12px;border-radius:999px;box-shadow:var(--shadow-sm);}
-.sk-dot{width:6px;height:6px;border-radius:50%;background:var(--p-contrib);flex-shrink:0;}
-.skill-add{font-size:var(--fs-xs);color:var(--muted);background:transparent;border:1.5px dashed var(--line);padding:5px 12px;border-radius:999px;cursor:pointer;font-family:inherit;}
-
-/* ─────────────────── Education ─────────────────── */
-.edu-list{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;}
-.edu-row{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--line);}
-.edu-row:last-child{border-bottom:none;}
-.edu-icon{font-size:16px;flex-shrink:0;}
-.edu-body{flex:1;}
-.edu-name{font-size:var(--fs-sm);font-weight:700;}
-.edu-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;}
-.edu-add{display:flex;align-items:center;gap:8px;padding:11px 16px;color:var(--muted);font-size:var(--fs-sm);cursor:pointer;}
-
-/* ─────────────────── Family ─────────────────── */
-.family-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
-.fam-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 6px;box-shadow:var(--shadow-sm);}
-.fam-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
-.fam-name{font-size:var(--fs-xs);font-weight:600;}
-.fam-role{font-size:var(--fs-xs);color:var(--muted);}
-.fam-add{font-size:var(--fs-xs);color:var(--muted);background:transparent;border:1.5px dashed var(--line);padding:6px 12px;border-radius:999px;cursor:pointer;font-family:inherit;}
+/* emotions reference */
+.emo-ref{padding:14px 16px;}
+.emo-fam{display:flex;flex-wrap:wrap;gap:6px;}
+.emo-chip{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-sm);font-weight:600;
+  background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 11px;}
+.emo-chip b{font-weight:700;}
+.emo-chip .ct{font-size:var(--fs-xs);color:var(--muted);font-weight:600;}
+.emo-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;
+  padding-top:12px;border-top:1px solid var(--line);}
+.emo-foot-t{font-size:var(--fs-xs);color:var(--muted);line-height:1.45;flex:1;}
+.emo-explore{font-size:var(--fs-xs);font-weight:700;color:var(--accent);display:inline-flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;}
+.emo-explore .ic{font-size:12px;}
 
 </style>
 </head>
 <body class="screen-body">
 
-  <!-- ── BECOMING ── -->
-  <div class="sect s-becoming">Becoming</div>
-
-  <div class="bec-card">
-    <div class="bec-bg" style="background:linear-gradient(155deg,#3a3850,#23202b)">
-      <div class="bec-row1">
-        <div class="bec-type">Inner path</div>
-        <div class="bec-streak">🔥 9 days</div>
-      </div>
-      <div class="bec-path">The Stillness Path</div>
-      <div class="bec-statement">"I am becoming someone who rests without guilt and meets silence without fear"</div>
-      <div class="bec-camps">
-        <div class="bec-pip done"></div>
-        <div class="bec-pip active"></div>
-        <div class="bec-pip"></div>
-      </div>
-      <div class="bec-prog-bar"><div class="bec-prog-fill" style="width:64%"></div></div>
-      <div class="bec-prog-label">Camp 2 of 3 · Day 9 of 14</div>
+  <!-- ── LENS HEADER ── -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-user"></i></div>
+    <div>
+      <div class="ylens-title">Identity</div>
+      <div class="ylens-sub">Who you are — a portrait that changes slowly</div>
     </div>
   </div>
 
-  <div class="bec-card">
-    <div class="bec-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
-      <div class="bec-row1">
-        <div class="bec-type">Material goal</div>
-        <div class="bec-streak">🔥 5 days</div>
+  <!-- ── PORTRAIT MASTHEAD ── -->
+  <div class="portrait">
+    <div class="portrait-bg">
+      <div class="pt-top">
+        <div class="pt-av">A</div>
+        <div class="pt-id">
+          <div class="pt-name">Ana</div>
+          <div class="pt-line">Honest · present · building deliberately</div>
+          <div class="pt-since">Walking with Compass · 9 weeks</div>
+        </div>
       </div>
-      <div class="bec-path">The Land Path</div>
-      <div class="bec-statement">"I am becoming someone who builds deliberately toward what they love"</div>
-      <div class="bec-camps">
-        <div class="bec-pip active"></div>
-        <div class="bec-pip"></div>
-        <div class="bec-pip"></div>
-      </div>
-      <div class="bec-prog-bar"><div class="bec-prog-fill" style="width:36%"></div></div>
-      <div class="bec-prog-label">Camp 1 of 3 · Day 5 of 14</div>
     </div>
   </div>
 
   <!-- ── VALUES ── -->
-  <div class="sect s-values">Values</div>
-  <div class="values-card">
-    <div class="v-intro">The principles you return to when making choices.</div>
-    <div class="values-wrap">
-      <div class="v-pill"><div class="v-dot" style="background:var(--ink)"></div>Honesty</div>
-      <div class="v-pill"><div class="v-dot" style="background:var(--p-inner)"></div>Presence</div>
-      <div class="v-pill"><div class="v-dot" style="background:var(--p-health)"></div>Security</div>
-      <div class="v-pill"><div class="v-dot" style="background:var(--p-joy)"></div>Freedom</div>
-      <div class="v-pill"><div class="v-dot" style="background:var(--p-admin)"></div>Craft</div>
-      <button class="v-add">＋ manage</button>
+  <div class="yhead">
+    <i class="ic ic-target yhead-ic"></i>
+    <div class="yhead-t">Values</div>
+    <div class="yhead-rule"></div>
+    <div class="yhead-act">Manage</div>
+  </div>
+  <div class="ycard ypad">
+    <div class="yintro" style="margin-bottom:12px">The principles you return to when making choices.</div>
+    <div class="ychips">
+      <div class="ychip">Honesty</div>
+      <div class="ychip">Presence</div>
+      <div class="ychip">Security</div>
+      <div class="ychip">Freedom</div>
+      <div class="ychip">Craft</div>
+      <div class="ychip add"><i class="ic ic-plus"></i>add</div>
     </div>
   </div>
 
-  <!-- ── QUALITY · THIS WEEK ── -->
-  <div class="sect s-quality">Quality · this week</div>
-  <div class="qual-week">
-    <div class="qw-bg">
-      <div class="qw-label">Practicing today</div>
-      <div class="qw-name">Stillness</div>
-      <div class="qw-cue">"Notice the moment before you react today — there's always a gap. That gap is yours."</div>
-      <div class="qw-from">From The Stillness Path · Camp 2</div>
-      <div class="qw-foot">
-        <div class="qw-foot-lbl">Tap when you've practised this today</div>
-        <div class="qw-check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':''">✓</div>
-      </div>
-    </div>
+  <!-- ── VIRTUES ── -->
+  <div class="yhead">
+    <i class="ic ic-award yhead-ic"></i>
+    <div class="yhead-t">Qualities</div>
+    <div class="yhead-rule"></div>
   </div>
-
-  <!-- ── PRACTICES · INNER WORK ── -->
-  <div class="sect s-practices">Practices · inner work</div>
-  <div class="practice-wrap">
-    <div class="practice-row">
-      <div class="pr-icon">🪞</div>
-      <div class="pr-body">
-        <div class="pr-name">Self-parenting</div>
-        <div class="pr-desc">Meeting your own needs with care, not criticism — the adult self nurtures the younger self.</div>
-        <div class="pr-dur">3 weeks active</div>
+  <div class="ycard">
+    <div class="yrow">
+      <div class="yrow-ic" style="color:var(--gold)"><i class="ic ic-award"></i></div>
+      <div class="yrow-main">
+        <div class="yrow-t">Constancy</div>
+        <div class="yrow-s">"The first discipline is showing up" · 5 weeks</div>
       </div>
-      <div class="pr-state active">active</div>
+      <div class="ybadge gold">Earned</div>
     </div>
-    <div class="practice-row">
-      <div class="pr-icon">🧸</div>
-      <div class="pr-body">
-        <div class="pr-name">Reparenting inner child</div>
-        <div class="pr-desc">Giving the child-self the safety, attunement, and warmth it didn't always receive.</div>
-        <div class="pr-dur">5 weeks active</div>
+    <div class="yrow">
+      <div class="yrow-ic" style="color:var(--gold)"><i class="ic ic-leaf"></i></div>
+      <div class="yrow-main">
+        <div class="yrow-t">Noticing</div>
+        <div class="yrow-s">"Awareness before judgement" · 4 weeks</div>
       </div>
-      <div class="pr-state active">active</div>
+      <div class="ybadge gold">Earned</div>
     </div>
-    <div class="practice-row paused">
-      <div class="pr-icon">🌿</div>
-      <div class="pr-body">
-        <div class="pr-name">Trauma processing · IFS</div>
-        <div class="pr-desc">Internal Family Systems — working with protective and exiled parts.</div>
-        <div class="pr-dur">Paused 2 weeks ago</div>
+    <div class="yrow" style="background:var(--bg)">
+      <div class="yrow-main">
+        <div class="yrow-s" style="margin:0 0 11px;font-weight:700;color:var(--muted)">Qualities forming now</div>
       </div>
-      <div class="pr-state paused">paused</div>
     </div>
-    <div class="pr-add">＋ Add practice</div>
-  </div>
-
-  <!-- ── EARNED · PERMANENT ── -->
-  <div class="sect s-earned">Earned · permanent</div>
-  <div class="earned-card">
-    <div class="earned-bg">
-      <div class="earned-heading">Completed paths · permanent virtues</div>
-      <div class="earned-shelf">
-        <div class="ec-chip">
-          <div class="ec-medal">🏅</div>
-          <div class="ec-info">
-            <div class="ec-name">Foundation</div>
-            <div class="ec-wks">5 weeks · The Noticing Path</div>
-          </div>
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-moon"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Stillness</div>
+          <div class="ybadge live">Practising</div>
         </div>
-        <div class="ec-chip">
-          <div class="ec-medal">🌿</div>
-          <div class="ec-info">
-            <div class="ec-name">Noticing</div>
-            <div class="ec-wks">4 weeks · The Awareness Path</div>
-          </div>
-        </div>
+        <div class="yrow-s">"Pausing before reacting" — notice the gap between stimulus and response. That gap is yours.</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:64%"></div></div>
+        <div class="yrow-s" style="margin-top:5px;font-style:italic">via Stillness Path · Camp 2 of 3</div>
       </div>
-      <div class="earned-note">These are part of you now — no longer need tracking. They show up in Progress.</div>
+    </div>
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-leaf"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Patience</div>
+          <div class="ybadge live">Practising</div>
+        </div>
+        <div class="yrow-s">"Trust in the pace of things" — build deliberately without rushing toward the finish.</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:36%"></div></div>
+        <div class="yrow-s" style="margin-top:5px;font-style:italic">via Land Path · Camp 1 of 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMOTIONAL MATURITY ── -->
+  <div class="yhead">
+    <i class="ic ic-heart yhead-ic"></i>
+    <div class="yhead-t">Emotional maturity</div>
+    <div class="yhead-rule"></div>
+  </div>
+
+  <div class="ycard">
+    <div class="em-intro">The inner tools of an emotionally grounded adult. Practise each until it becomes how you naturally respond — not a technique you reach for, but who you are.</div>
+    <div class="em-stats">
+      <div class="em-stat"><div class="em-num">6</div><div class="em-lbl">Tools</div></div>
+      <div class="em-stat"><div class="em-num">2</div><div class="em-lbl">Integrated</div></div>
+      <div class="em-stat"><div class="em-num">3</div><div class="em-lbl">In progress</div></div>
+    </div>
+  </div>
+
+  <div class="ycard">
+    <!-- Emotion vocabulary -->
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-heart"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Emotion vocabulary</div>
+          <div class="ybadge live">Integrating</div>
+        </div>
+        <div class="yrow-s">Name what you feel with precision — 34 of ~80 emotions recognised</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:42%"></div></div>
+      </div>
+    </div>
+    <!-- Self-parenting -->
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-shield"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Self-parenting</div>
+          <div class="ybadge gold">Integrated</div>
+        </div>
+        <div class="yrow-s">Meet your own needs with care, not criticism — the adult self holds the younger self</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:88%;background:var(--gold)"></div></div>
+      </div>
+    </div>
+    <!-- Nervous-system regulation -->
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-wind"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Nervous-system regulation</div>
+          <div class="ybadge live">Integrating</div>
+        </div>
+        <div class="yrow-s">Soothing techniques — box breathing, grounding, orienting, cold water</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:60%"></div></div>
+      </div>
+    </div>
+    <!-- NVC -->
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-msg"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Nonviolent communication</div>
+          <div class="ybadge live">Integrating</div>
+        </div>
+        <div class="yrow-s">Observation · feeling · need · request — speak without blame or defence</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:35%"></div></div>
+      </div>
+    </div>
+    <!-- Boundaries -->
+    <div class="yrow">
+      <div class="yrow-ic" style="color:var(--gold)"><i class="ic ic-shield"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Boundaries</div>
+          <div class="ybadge gold">Integrated</div>
+        </div>
+        <div class="yrow-s">A clear yes and a clean no — protect your energy without guilt</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:82%;background:var(--gold)"></div></div>
+      </div>
+    </div>
+    <!-- Trauma processing -->
+    <div class="yrow" style="opacity:.6">
+      <div class="yrow-ic"><i class="ic ic-leaf"></i></div>
+      <div class="yrow-main">
+        <div class="tool-top">
+          <div class="yrow-t">Trauma processing · IFS</div>
+          <div class="ybadge">Paused</div>
+        </div>
+        <div class="yrow-s">Internal Family Systems — work with protective and exiled parts</div>
+        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:48%;background:var(--muted)"></div></div>
+      </div>
+    </div>
+    <div class="yrow-add"><i class="ic ic-plus"></i>Add a tool to practise</div>
+  </div>
+
+  <!-- Emotions reference -->
+  <div class="ycard">
+    <div class="emo-ref">
+      <div class="yrow-s" style="margin:0 0 11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:9px">Emotion families</div>
+      <div class="emo-fam">
+        <div class="emo-chip"><b>Joy</b> <span class="ct">11</span></div>
+        <div class="emo-chip"><b>Sadness</b> <span class="ct">9</span></div>
+        <div class="emo-chip"><b>Anger</b> <span class="ct">8</span></div>
+        <div class="emo-chip"><b>Fear</b> <span class="ct">10</span></div>
+        <div class="emo-chip"><b>Love</b> <span class="ct">7</span></div>
+        <div class="emo-chip"><b>Shame</b> <span class="ct">6</span></div>
+        <div class="emo-chip"><b>Surprise</b> <span class="ct">5</span></div>
+        <div class="emo-chip"><b>Disgust</b> <span class="ct">4</span></div>
+      </div>
+      <div class="emo-foot">
+        <div class="emo-foot-t">Build the vocabulary to feel precisely. The finer the name, the better you can meet it.</div>
+        <div class="emo-explore">Explore wheel <i class="ic ic-chev"></i></div>
+      </div>
     </div>
   </div>
 
   <!-- ── SKILLS ── -->
-  <div class="sect s-skills">Skills</div>
-  <div class="skills-wrap">
-    <div class="skill-pill"><div class="sk-dot"></div>UX design</div>
-    <div class="skill-pill"><div class="sk-dot"></div>TypeScript</div>
-    <div class="skill-pill"><div class="sk-dot"></div>Cooking</div>
-    <div class="skill-pill"><div class="sk-dot"></div>Woodworking</div>
-    <div class="skill-pill"><div class="sk-dot"></div>Public speaking</div>
-    <button class="skill-add">＋ add skill</button>
+  <div class="yhead">
+    <i class="ic ic-sliders yhead-ic"></i>
+    <div class="yhead-t">Skills</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="ychips" style="margin-bottom:4px">
+    <div class="ychip">UX design</div>
+    <div class="ychip">TypeScript</div>
+    <div class="ychip">Cooking</div>
+    <div class="ychip">Woodworking</div>
+    <div class="ychip">Public speaking</div>
+    <div class="ychip add"><i class="ic ic-plus"></i>add</div>
   </div>
 
   <!-- ── EDUCATION ── -->
-  <div class="sect s-edu">Education</div>
-  <div class="edu-list">
-    <div class="edu-row">
-      <div class="edu-icon">🎓</div>
-      <div class="edu-body">
-        <div class="edu-name">BSc Computing</div>
-        <div class="edu-meta">University of Bristol · 2018</div>
+  <div class="yhead">
+    <i class="ic ic-cap yhead-ic"></i>
+    <div class="yhead-t">Education</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="ycard">
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-cap"></i></div>
+      <div class="yrow-main">
+        <div class="yrow-t">BSc Computing</div>
+        <div class="yrow-s">University of Bristol · 2018</div>
       </div>
     </div>
-    <div class="edu-row">
-      <div class="edu-icon">📜</div>
-      <div class="edu-body">
-        <div class="edu-name">Certified Coach · ICF ACC</div>
-        <div class="edu-meta">CTI Fundamentals · 2024</div>
+    <div class="yrow">
+      <div class="yrow-ic"><i class="ic ic-book"></i></div>
+      <div class="yrow-main">
+        <div class="yrow-t">Certified Coach · ICF ACC</div>
+        <div class="yrow-s">CTI Fundamentals · 2024</div>
       </div>
     </div>
-    <div class="edu-add">＋ Add qualification</div>
+    <div class="yrow-add"><i class="ic ic-plus"></i>Add qualification</div>
   </div>
 
-  <!-- ── FAMILY ── -->
-  <div class="sect s-family">Family &amp; close people</div>
-  <div class="family-wrap">
-    <div class="fam-chip">
-      <div class="fam-av" style="background:#937caf">M</div>
-      <div><div class="fam-name">M.</div><div class="fam-role">partner</div></div>
-    </div>
-    <div class="fam-chip">
-      <div class="fam-av" style="background:#b77980">E</div>
-      <div><div class="fam-name">Mum</div><div class="fam-role">mother</div></div>
-    </div>
-    <div class="fam-chip">
-      <div class="fam-av" style="background:#7395ad">D</div>
-      <div><div class="fam-name">Dad</div><div class="fam-role">father</div></div>
-    </div>
-    <div class="fam-chip">
-      <div class="fam-av" style="background:#8d8f63">R</div>
-      <div><div class="fam-name">Rosa</div><div class="fam-role">close friend</div></div>
-    </div>
-    <button class="fam-add">＋ add person</button>
+  <!-- ── PEOPLE ── -->
+  <div class="yhead">
+    <i class="ic ic-users yhead-ic"></i>
+    <div class="yhead-t">Family &amp; close people</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="ychips" style="margin-bottom:4px">
+    <div class="ychip" style="padding-left:5px"><span class="av" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:#80749b">M</span>M. <span class="ct" style="color:var(--muted);font-weight:500">partner</span></div>
+    <div class="ychip" style="padding-left:5px"><span class="av" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:#b07f86">E</span>Mum <span class="ct" style="color:var(--muted);font-weight:500">mother</span></div>
+    <div class="ychip" style="padding-left:5px"><span class="av" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:#7e8e9f">D</span>Dad <span class="ct" style="color:var(--muted);font-weight:500">father</span></div>
+    <div class="ychip" style="padding-left:5px"><span class="av" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:#6f8a66">R</span>Rosa <span class="ct" style="color:var(--muted);font-weight:500">close friend</span></div>
+    <div class="ychip add"><i class="ic ic-plus"></i>add</div>
   </div>
 
 </body>
