@@ -6,8 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
-<link rel="stylesheet" href="../shared/components.css"/>
-<style>
+<link rel="stylesheet" href="../shared/components.css"/><link rel="stylesheet" href="../shared/you.css"/><style>
 /* ── Target strip (V1 style — big times, tap to edit) ── */
 .target-strip{
   display:flex;flex-direction:column;align-items:center;gap:8px;
@@ -21,7 +20,7 @@
 }
 .t-range{display:flex;align-items:center;gap:32px;}
 .t-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
-.t-icon{font-size:16px;}
+.t-icon{font-size:16px;color:var(--muted);}
 .t-time{font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1;}
 .t-dur{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;}
 
@@ -55,7 +54,8 @@
   background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
   padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);
 }
-.score-label{font-size:var(--fs-md);font-weight:700;margin-bottom:8px;}
+.score-label{font-size:var(--fs-md);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.score-label .ic{color:var(--accent);font-size:15px;}
 .score-row{display:flex;gap:4px;margin-bottom:4px;}
 .score-btn{
   flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;
@@ -109,17 +109,24 @@
 </head>
 <body class="screen-body">
 
+  <!-- Lens header -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-moon"></i></div>
+    <div>
+      <div class="ylens-title">Sleep</div>
+      <div class="ylens-sub">How did you rest last night?</div>
+    </div>
+  </div>
+
   <!-- Target strip (tap to edit goal) -->
   <div class="target-strip" id="targetStrip">
     <div class="t-header">target</div>
     <div class="t-range">
-      <div class="t-col"><span class="t-icon">🌙</span><span class="t-time" id="tBed">23:00</span></div>
-      <div class="t-col"><span class="t-icon">☀️</span><span class="t-time" id="tWake">07:00</span></div>
+      <div class="t-col"><span class="t-icon"><i class="ic ic-moon"></i></span><span class="t-time" id="tBed">23:00</span></div>
+      <div class="t-col"><span class="t-icon"><i class="ic ic-sun"></i></span><span class="t-time" id="tWake">07:00</span></div>
     </div>
     <div class="t-dur" id="tDur">8 hours</div>
   </div>
-
-  <div class="lede">How did you sleep?</div>
 
   <!-- 24h sleep dial -->
   <div class="dial-card">
@@ -138,7 +145,7 @@
 
   <!-- Mood + energy -->
   <div class="b-sect">
-    <div class="score-label">☺ Mood · today</div>
+    <div class="score-label"><i class="ic ic-heart"></i> Mood · today</div>
     <div class="score-row" data-name="mood">
       <button class="score-btn">1</button><button class="score-btn">2</button>
       <button class="score-btn">3</button><button class="score-btn">4</button>
@@ -148,7 +155,7 @@
     </div>
     <div class="score-scale"><span>low</span><span>okay</span><span>great</span></div>
 
-    <div class="score-label">⚡ Energy · today</div>
+    <div class="score-label"><i class="ic ic-zap"></i> Energy · today</div>
     <div class="score-row" data-name="energy">
       <button class="score-btn">1</button><button class="score-btn">2</button>
       <button class="score-btn">3</button><button class="score-btn">4</button>
