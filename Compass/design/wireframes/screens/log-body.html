@@ -18,9 +18,9 @@
 /* ── Section label ── */
 .sect{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
 .sect::before{content:'';display:block;width:3px;height:13px;border-radius:99px;flex-shrink:0;}
-.s-body::before{background:var(--p-health);}
-.s-food::before{background:var(--p-joy);}
-.s-move::before{background:var(--p-health);}
+.s-body::before{background:var(--accent);}
+.s-food::before{background:var(--accent);}
+.s-move::before{background:var(--accent);}
 
 /* ── Shared card ── */
 .bc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
@@ -30,7 +30,7 @@
 .wh-row{display:flex;align-items:flex-end;gap:0;margin-bottom:14px;}
 .wh-num{font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;}
 .wh-unit{font-size:var(--fs-md);font-weight:600;color:var(--muted);margin-bottom:8px;margin-left:4px;}
-.wh-edit{margin-left:auto;align-self:center;font-size:var(--fs-xs);font-weight:600;color:var(--p-health);border:1.5px solid var(--p-health);border-radius:999px;padding:5px 13px;cursor:pointer;background:transparent;font-family:inherit;}
+.wh-edit{margin-left:auto;align-self:center;font-size:var(--fs-xs);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:999px;padding:5px 13px;cursor:pointer;background:transparent;font-family:inherit;}
 
 /* BMI row */
 .bmi-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
@@ -57,12 +57,12 @@
 .sw-toggle{display:flex;gap:6px;}
 .sw-btn{font-size:var(--fs-xs);font-weight:700;padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
 .sw-btn.sel-yes{border-color:#c99554;background:#fef3e2;color:#8a5a1a;}
-.sw-btn.sel-no {border-color:var(--p-health);background:#e5f2e3;color:#3d6e37;}
+.sw-btn.sel-no {border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 
 /* Nutrient rows */
 .nutr-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);}
 .nutr-row:last-child{border-bottom:none;}
-.nutr-icon{font-size:18px;flex-shrink:0;}
+.nutr-icon{font-size:16px;color:var(--accent);flex-shrink:0;}
 .nutr-col{flex:1;}
 .nutr-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
 .nutr-val{font-size:var(--fs-lg);font-weight:800;line-height:1.1;margin-top:1px;}
@@ -70,7 +70,7 @@
 /* mini bar */
 .nutr-bar{height:4px;background:var(--greige);border-radius:999px;margin-top:6px;overflow:hidden;}
 .nutr-fill{height:100%;border-radius:999px;}
-.nutr-log{font-size:var(--fs-xs);font-weight:700;color:var(--p-health);border:1.5px solid var(--p-health);border-radius:999px;padding:5px 12px;cursor:pointer;background:transparent;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+.nutr-log{font-size:var(--fs-xs);font-weight:700;color:var(--accent);border:1.5px solid var(--accent);border-radius:999px;padding:5px 12px;cursor:pointer;background:transparent;font-family:inherit;white-space:nowrap;flex-shrink:0;}
 
 /* ─────────────── MOVEMENT ─────────────── */
 /* Steps row */
@@ -79,9 +79,9 @@
 .steps-col{flex:1;}
 .steps-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
 .steps-goal{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
-.steps-pct{font-size:var(--fs-xs);font-weight:700;color:var(--p-health);}
+.steps-pct{font-size:var(--fs-xs);font-weight:700;color:var(--accent);}
 .steps-bar{width:60px;height:5px;background:var(--greige);border-radius:999px;overflow:hidden;}
-.steps-fill{height:100%;background:var(--p-health);border-radius:999px;}
+.steps-fill{height:100%;background:var(--accent);border-radius:999px;}
 
 /* Activity + feel pill pickers */
 .pill-section{padding:12px 16px;border-bottom:1px solid var(--line);}
@@ -89,18 +89,18 @@
 .pill-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;}
 .pill-row{display:flex;flex-wrap:wrap;gap:6px;}
 .pill{font-size:var(--fs-xs);font-weight:600;padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
-.pill.sel{border-color:var(--p-health);background:#e5f2e3;color:#3d6e37;}
-.pill.sel-feel{border-color:var(--p-inner);background:#ede8f6;color:var(--p-inner);}
+.pill.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+.pill.sel-feel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 
 /* ── Save rows ── */
 .save-row{padding:11px 16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;transition:background .2s;}
-.save-btn{font-size:var(--fs-xs);font-weight:700;padding:7px 20px;border-radius:999px;border:none;background:var(--p-health);color:#fff;cursor:pointer;font-family:inherit;transition:all .2s;}
+.save-btn{font-size:var(--fs-xs);font-weight:700;padding:7px 20px;border-radius:999px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:inherit;transition:all .2s;}
 .save-confirm{display:none;align-items:center;gap:7px;}
 .save-row.saved .save-btn{display:none;}
 .save-row.saved .save-confirm{display:flex;}
-.save-row.saved{background:#f5fbf4;}
-.save-ok{width:20px;height:20px;border-radius:50%;background:#5d9e56;display:grid;place-items:center;color:#fff;font-size:10px;flex-shrink:0;}
-.save-txt{font-size:var(--fs-xs);font-weight:600;color:#3d6e37;}
+.save-row.saved{background:var(--accent-soft);}
+.save-ok{width:20px;height:20px;border-radius:50%;background:var(--accent);display:grid;place-items:center;color:#fff;font-size:10px;flex-shrink:0;}
+.save-txt{font-size:var(--fs-xs);font-weight:600;color:var(--accent);}
 .save-time{font-size:var(--fs-xs);color:var(--muted);margin-left:auto;}
 
 /* ── Optional notice ── */
@@ -163,7 +163,7 @@
     <!-- Sweets -->
     <div class="sweets-row">
       <div class="sw-label">
-        🍬 Sweets today?
+        Sweets today?
         <span>Sugar, chocolate, pastries…</span>
       </div>
       <div class="sw-toggle">
@@ -174,7 +174,7 @@
 
     <!-- Calories -->
     <div class="nutr-row">
-      <div class="nutr-icon">🔥</div>
+      <div class="nutr-icon"><i class="ic ic-flame"></i></div>
       <div class="nutr-col">
         <div class="nutr-label">Calories</div>
         <div class="nutr-val" id="calVal">1,820</div>
@@ -185,7 +185,7 @@
 
     <!-- Protein -->
     <div class="nutr-row">
-      <div class="nutr-icon">🥩</div>
+      <div class="nutr-icon"><i class="ic ic-sprout"></i></div>
       <div class="nutr-col">
         <div class="nutr-label">Protein</div>
         <div class="nutr-val" id="protVal">88 g</div>
@@ -221,12 +221,12 @@
     <div class="pill-section">
       <div class="pill-label">Activity today</div>
       <div class="pill-row">
-        <button class="pill sel" onclick="togglePill(this,'act')">🚶 Walk</button>
-        <button class="pill" onclick="togglePill(this,'act')">🏃 Run</button>
-        <button class="pill" onclick="togglePill(this,'act')">🏋️ Gym</button>
-        <button class="pill" onclick="togglePill(this,'act')">🧘 Yoga</button>
-        <button class="pill" onclick="togglePill(this,'act')">🚴 Cycle</button>
-        <button class="pill" onclick="togglePill(this,'act')">🛌 Rest day</button>
+        <button class="pill sel" onclick="togglePill(this,'act')">Walk</button>
+        <button class="pill" onclick="togglePill(this,'act')">Run</button>
+        <button class="pill" onclick="togglePill(this,'act')">Gym</button>
+        <button class="pill" onclick="togglePill(this,'act')">Yoga</button>
+        <button class="pill" onclick="togglePill(this,'act')">Cycle</button>
+        <button class="pill" onclick="togglePill(this,'act')">Rest day</button>
       </div>
     </div>
 
@@ -234,11 +234,11 @@
     <div class="pill-section">
       <div class="pill-label">Body feel</div>
       <div class="pill-row">
-        <button class="pill" onclick="toggleFeel(this)">✨ Light</button>
-        <button class="pill sel-feel" onclick="toggleFeel(this)">😌 Easy</button>
-        <button class="pill" onclick="toggleFeel(this)">😐 Meh</button>
-        <button class="pill" onclick="toggleFeel(this)">😴 Tired</button>
-        <button class="pill" onclick="toggleFeel(this)">🪨 Heavy</button>
+        <button class="pill" onclick="toggleFeel(this)">Light</button>
+        <button class="pill sel-feel" onclick="toggleFeel(this)">Easy</button>
+        <button class="pill" onclick="toggleFeel(this)">Meh</button>
+        <button class="pill" onclick="toggleFeel(this)">Tired</button>
+        <button class="pill" onclick="toggleFeel(this)">Heavy</button>
       </div>
     </div>
 
