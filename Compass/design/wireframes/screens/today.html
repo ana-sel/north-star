@@ -7,338 +7,594 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
 <style>
-.dt{font-size:var(--fs-sm);color:var(--muted);margin:4px 0 14px;font-weight:500;}
 
-/* ── Scene ── */
-.scene{
-  background:linear-gradient(155deg,#3a3850,#23202b);
-  color:#F2EDE3;border-radius:var(--r-card);padding:16px 18px;
-  margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;
-}
-.scene-tag{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:6px;}
-.scene-body{font-size:var(--fs-md);line-height:1.55;}
-.scene-cta{font-size:var(--fs-xs);opacity:.5;margin-top:8px;}
+/* ══════════ BAND 1 · ARRIVAL ══════════ */
+.today-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.dt{font-size:var(--fs-sm);color:var(--muted);font-weight:500;}
+.done-chip{font-size:var(--fs-xs);font-weight:700;background:var(--greige);padding:4px 12px;border-radius:999px;color:var(--muted);transition:all .2s;}
+.done-chip.all{background:#eef4ec;color:#3d6e37;}
 
-/* ── Path anchors (Fabulous-style routine rows) ── */
-.anchors{
-  border-radius:var(--r-card);overflow:hidden;
-  margin-bottom:12px;box-shadow:var(--shadow);
-}
-.anchors-hd{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:11px 16px;
-  background:var(--btn);color:#F2EDE3;
-}
-.anchors-title{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
-.anchors-count{font-size:var(--fs-xs);opacity:.55;}
-.anchor-row{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 16px;border-bottom:1px solid var(--line);
-  background:var(--card);cursor:pointer;
-}
-.anchor-row:last-child{border-bottom:none;}
-.anchor-ck{
-  width:26px;height:26px;border-radius:50%;
-  border:2px solid var(--line);background:var(--bg);
-  display:grid;place-items:center;font-size:13px;
-  color:transparent;flex-shrink:0;transition:all .15s;
-}
-.anchor-ck.done{background:var(--olive);border-color:var(--olive);color:#fff;}
-.anchor-col{flex:1;}
-.anchor-path{font-size:var(--fs-xs);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
-.anchor-habit{font-size:var(--fs-md);}
-.anchor-streak{font-size:var(--fs-xs);color:var(--muted);display:flex;align-items:center;gap:3px;flex-shrink:0;}
-.anchor-row.done .anchor-habit{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.sleep-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;cursor:pointer;}
+.sleep-prompt{display:flex;align-items:center;gap:14px;padding:16px;}
+.sp-icon{font-size:24px;flex-shrink:0;color:var(--muted);}
+.sp-col{flex:1;}
+.sp-q{font-size:var(--fs-md);font-weight:700;}
+.sp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+.sp-arrow{font-size:14px;color:var(--muted);}
+.sleep-logged{display:none;grid-template-columns:1fr 1fr;}
+.sl-item{padding:14px 16px;}
+.sl-item:first-child{border-right:1px solid var(--line);}
+.sl-icon{font-size:16px;margin-bottom:6px;color:var(--muted);}
+.sl-val{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;line-height:1;}
+.sl-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
+.sl-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);margin-bottom:6px;}
+.me-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.me-row:last-child{margin-bottom:0;}
+.me-weather{font-size:20px;line-height:1;}
+.me-desc{font-size:var(--fs-xs);color:var(--muted);}
+.battery-wrap{display:flex;align-items:center;gap:7px;}
+.battery{width:36px;height:15px;border:2px solid #b0bfab;border-radius:3px;position:relative;flex-shrink:0;}
+.battery::after{content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:4px;height:7px;border-radius:0 2px 2px 0;background:#b0bfab;}
+.battery-fill{position:absolute;left:1px;top:1px;bottom:1px;border-radius:2px;transition:width .3s;}
+.bat-hi .battery{border-color:#5d9e56;} .bat-hi .battery::after{background:#5d9e56;} .bat-hi .battery-fill{background:#5d9e56;}
+.bat-mid .battery{border-color:#c99554;} .bat-mid .battery::after{background:#c99554;} .bat-mid .battery-fill{background:#c99554;}
+.bat-lo .battery{border-color:#b77980;} .bat-lo .battery::after{background:#b77980;} .bat-lo .battery-fill{background:#b77980;}
+.bat-label{font-size:var(--fs-xs);color:var(--muted);}
 
-/* ── Shared check rows ── */
-.check-row{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer;
-}
-.check-row:last-child{border-bottom:none;}
-.ck{
-  width:22px;height:22px;border-radius:50%;
-  border:1.5px solid var(--line);background:var(--card);
-  display:grid;place-items:center;font-size:11px;
-  color:transparent;flex-shrink:0;transition:all .15s;
-}
-.ck.done{background:var(--olive);border-color:var(--olive);color:#fff;}
-.check-row .nb{flex:1;font-size:var(--fs-md);}
-.check-row .roi{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);padding:2px 8px;border-radius:999px;}
-.check-row.done .nb{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+/* ── Today's pace ── */
+.pace{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.pace-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);flex-shrink:0;}
+.pace-seg{display:flex;flex:1;background:var(--greige);border-radius:12px;padding:3px;gap:2px;}
+.pace-btn{flex:1;padding:8px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;}
+.pace-btn.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+.pace-btn.on[data-mode="rest"]{color:var(--p-inner);}
+.pace-note{display:none;font-size:var(--fs-sm);color:var(--olive);background:#eef3ec;border:1px solid #cfe0c9;border-radius:12px;padding:11px 13px;margin-bottom:12px;line-height:1.55;}
+.pace-note.show{display:block;}
 
-/* ── Practice rows ── */
-.practice-row{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer;
-}
-.practice-row:last-child{border-bottom:none;}
-.practice-row .pr-col{flex:1;}
-.practice-row .pr-name{font-size:var(--fs-md);}
-.practice-row .pr-cue{font-size:var(--fs-sm);color:var(--muted);font-style:italic;margin-top:2px;}
-.practice-row.done .pr-name{color:var(--muted);}
+/* ══════════ BAND 2 · TODAY'S FOCUS ══════════ */
+.focus-note{font-size:var(--fs-xs);color:var(--muted);margin:-2px 0 10px;line-height:1.5;}
+/* Lighter rests the growth theme but keeps the tiny daily rituals */
+.mode-lighter .theme-group{display:none;}
+.primary{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
+.pr-top{display:flex;align-items:center;gap:8px;padding:13px 16px 0;}
+.pr-src{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);}
+.pr-badge{margin-left:auto;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);padding:3px 9px;border-radius:999px;}
+.pr-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;padding:7px 16px 2px;}
+.pr-trigger{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;padding:5px 16px 0;}
+.pr-steps{padding:9px 16px 14px;display:flex;flex-direction:column;gap:8px;}
+.pr-step{display:flex;gap:8px;font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
+.pr-step-arr{color:var(--accent);font-weight:700;flex-shrink:0;}
+.pr-step em{color:var(--ink);font-style:italic;}
+.pr-do{display:flex;align-items:center;gap:11px;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer;}
+.do-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s;}
+.primary.done .do-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pr-do-txt{font-size:var(--fs-sm);font-weight:600;color:var(--ink);}
+.primary.done .pr-do-txt{color:var(--muted);}
+/* done / not-today actions */
+.pr-actions{display:flex;border-top:1px solid var(--line);}
+.pr-actions .pr-do{flex:1;border-top:none;}
+.pr-skip{border:none;border-left:1px solid var(--line);background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:600;color:var(--muted);padding:0 15px;cursor:pointer;white-space:nowrap;}
+.pr-skip:active{color:var(--ink);}
+.primary.rested{display:none;}
+.theme-rested{display:none;background:#f3f1ec;border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-bottom:10px;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;}
+.theme-rested.show{display:block;}
+.theme-rested strong{color:var(--ink);font-weight:700;}
+/* daily rituals strip (the habit engine — tiny, repeats every day) */
+.ritual-note{font-size:var(--fs-xs);color:var(--muted);margin:-2px 0 10px;line-height:1.5;}
+.cue{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;}
+.cue-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
+.cue.done .cue-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cue-ic{width:31px;height:31px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
+.cue-main{flex:1;min-width:0;}
+.cue-name{font-size:var(--fs-md);font-weight:600;}
+.cue.done .cue-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.cue-src{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;display:inline-block;}
 
-/* ── Quality card ── */
-.qcard{
-  background:var(--card);border:1px solid var(--line);
-  border-left:3px solid #898095;border-radius:var(--r-card);
-  padding:14px 18px;margin-bottom:12px;box-shadow:var(--shadow-sm);
-  display:flex;align-items:flex-start;gap:12px;
-}
-.qcol{flex:1;}
-.qtag{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#898095;margin-bottom:4px;}
-.q-name{font-size:var(--fs-md);font-weight:800;}
-.q-cue{font-size:var(--fs-sm);color:var(--muted);font-style:italic;margin-top:4px;line-height:1.5;}
-.q-check{
-  width:30px;height:30px;border-radius:50%;border:2px solid #898095;
-  background:var(--bg);cursor:pointer;flex-shrink:0;
-  display:grid;place-items:center;font-size:14px;
-  color:transparent;transition:all .15s;
-}
-.q-check.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+/* ══════════ BAND 3 · YOUR DAY ══════════ */
+.mode-lighter .day-band .tasks-card{opacity:.5;}
+.tasks-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:8px;}
+.tc-prog{height:3px;background:var(--greige);}
+.tc-prog-fill{height:100%;background:var(--olive);border-radius:0 999px 999px 0;transition:width .3s;}
+.tc-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;border-bottom:1px solid var(--line);}
+.tc-title{font-size:var(--fs-sm);font-weight:700;}
+.tc-count{font-size:var(--fs-xs);color:var(--muted);}
+.task-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;}
+.task-row:last-child{border-bottom:none;}
+.t-ck{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
+.t-ck.done{background:var(--olive);border-color:var(--olive);color:#fff;}
+.t-name{flex:1;font-size:var(--fs-md);}
+.task-row.done .t-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.t-tag{font-size:var(--fs-xs);font-weight:700;padding:2px 8px;border-radius:999px;flex-shrink:0;}
+.tag-inner{background:#ede8f6;color:var(--p-inner);}
+.tag-money{background:#e6eef5;color:var(--p-money);}
+.tc-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:10px;font-size:var(--fs-xs);font-weight:600;color:var(--accent);cursor:pointer;border-top:1px solid var(--line);text-decoration:none;}
+.tc-more .ic{font-size:12px;}
+.evening-pointer{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 16px;box-shadow:var(--shadow-sm);margin-bottom:8px;cursor:pointer;text-decoration:none;color:inherit;}
+.ev-ic{width:31px;height:31px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
+.ev-col{flex:1;}
+.ev-title{font-size:var(--fs-sm);font-weight:600;}
+.ev-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
 
-/* ── Kanban "Do today" ── */
-.kanban-today{
-  background:var(--card);border:1px solid var(--line);
-  border-radius:var(--r-card);overflow:hidden;
-  box-shadow:var(--shadow-sm);margin-bottom:12px;
-}
-.kt-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px 10px 16px;border-bottom:1px solid var(--line);
-}
-.kt-title{font-size:var(--fs-sm);font-weight:700;}
-.kt-meta{font-size:var(--fs-xs);color:var(--muted);}
-.kt-add{
-  font-size:18px;color:var(--muted);background:none;border:none;
-  cursor:pointer;line-height:1;padding:0 0 0 8px;
-}
-.kt-row{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;
-}
-.kt-row:last-of-type{border-bottom:none;}
-.kt-ck{
-  width:22px;height:22px;border-radius:6px;
-  border:1.5px solid var(--line);background:var(--bg);
-  display:grid;place-items:center;font-size:11px;
-  color:transparent;flex-shrink:0;transition:all .15s;
-}
-.kt-ck.done{background:var(--olive);border-color:var(--olive);color:#fff;border-radius:6px;}
-.kt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.kt-name{flex:1;font-size:var(--fs-md);}
-.kt-row.done .kt-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
-.kt-add-row{
-  display:flex;align-items:center;gap:8px;
-  padding:9px 14px;color:var(--muted);font-size:var(--fs-sm);cursor:pointer;
-  border-top:1px solid var(--line);
-}
-
-/* ── Check-in prompt (shows Thursday–Friday) ── */
-.checkin-prompt{
-  background:var(--card);border:1px solid var(--line);
-  border-left:3px solid var(--p-inner);border-radius:var(--r-card);
-  padding:12px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);
-  display:flex;align-items:center;gap:12px;cursor:pointer;
-}
-.cp-icon{font-size:20px;flex-shrink:0;}
+/* ══════════ BAND 4 · SIGNALS ══════════ */
+.mode-lighter .signals-band{display:none;}
+.checkin-prompt{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--p-inner);border-radius:var(--r-card);padding:13px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;color:inherit;}
+.cp-icon{font-size:17px;flex-shrink:0;color:var(--p-inner);}
 .cp-text{flex:1;}
 .cp-h{font-size:var(--fs-sm);font-weight:700;}
 .cp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
-.cp-arrow{font-size:16px;color:var(--muted);}
+.cp-arrow{font-size:14px;color:var(--muted);}
+.ai-card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--olive);border-radius:var(--r-card);padding:13px 16px;box-shadow:var(--shadow-sm);}
+.ai-tag{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--olive);margin-bottom:6px;}
+.ai-body{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;margin-bottom:12px;}
+.ai-btns{display:flex;gap:8px;}
+.ai-btn{flex:1;padding:9px;border-radius:999px;font-family:inherit;font-size:var(--fs-xs);font-weight:600;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);}
+.ai-accept{border-color:var(--olive);color:var(--olive);}
+
+/* ══════════ REST STATE ══════════ */
+.mode-rest .focus-band,.mode-rest .day-band,.mode-rest .signals-band{display:none;}
+.rest-state{display:none;text-align:center;padding:22px 20px 8px;}
+.mode-rest .rest-state{display:block;}
+.rest-em{font-size:38px;}
+.rest-h{font-size:var(--fs-lg);font-weight:800;margin:10px 0 8px;}
+.rest-body{font-size:var(--fs-sm);color:var(--muted);line-height:1.65;max-width:280px;margin:0 auto;}
+.rest-hold{margin-top:16px;display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;color:var(--olive);background:#eef3ec;border:1px solid #cfe0c9;border-radius:999px;padding:8px 15px;}
+.rest-hold .ic{font-size:13px;}
+/* gentle rhythm — minimal nervous-system anchors kept on rest days */
+.rhythm{max-width:300px;margin:22px auto 0;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-sm);}
+.rhythm-h{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px;}
+.rhythm-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin-bottom:11px;}
+.rhythm-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit;cursor:pointer;}
+.rhythm-item:first-of-type{border-top:none;}
+.rhythm-ic{width:30px;height:30px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
+.rhythm-t{font-size:var(--fs-sm);font-weight:600;}
+.rhythm-s{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;}
+.rhythm-chev{margin-left:auto;color:var(--line);font-size:13px;flex-shrink:0;}
+
+/* all-done */
+.alldone{display:none;text-align:center;color:var(--muted);font-size:var(--fs-sm);padding:18px 0 4px;line-height:1.6;}
+
+/* ══════════ SLEEP SHEET ══════════ */
+.sheet-back{position:fixed;inset:0;background:rgba(28,27,24,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;}
+.sheet-back.open{opacity:1;pointer-events:auto;}
+.sleep-sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:22px 22px 0 0;box-shadow:0 -8px 40px rgba(28,27,24,.28);transform:translateY(100%);transition:transform .26s cubic-bezier(.22,1,.36,1);padding:8px 18px 22px;max-height:92%;overflow-y:auto;}
+.sleep-sheet.open{transform:translateY(0);}
+.ss-grip{width:38px;height:4px;border-radius:99px;background:var(--line);margin:6px auto 14px;}
+.ss-title{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:16px;}
+.ss-times{display:flex;gap:10px;margin-bottom:10px;}
+.ss-time{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px;}
+.ss-time-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;}
+.ss-time input{border:none;background:none;font-family:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);width:100%;outline:none;padding:0;}
+.ss-dur{text-align:center;font-size:var(--fs-sm);color:var(--muted);margin-bottom:18px;}
+.ss-dur strong{color:var(--ink);font-weight:800;}
+.ss-sect{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px;}
+.ss-scale{display:flex;gap:6px;margin-bottom:18px;}
+.ss-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 3px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-family:inherit;transition:all .12s;}
+.ss-opt.sel{border-color:var(--accent);background:var(--accent-soft);}
+.ss-opt-em{font-size:19px;line-height:1;}
+.ss-opt-lbl{font-size:8px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.02em;}
+.ss-save{width:100%;padding:14px;border-radius:14px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;}
+
 </style>
 </head>
-<body class="screen-body">
+<body class="screen-body mode-full">
 
-  <div class="dt">Wednesday, 25 June · UTC+1</div>
-
-  <!-- 1. Scene -->
-  <div class="scene">
-    <div class="scene-tag">A scene has appeared</div>
-    <div class="scene-body">The river ran clearer the morning after rest.</div>
-    <div class="scene-cta">Tap to view →</div>
+  <!-- ══════════ BAND 1 · ARRIVAL ══════════ -->
+  <div class="today-hdr">
+    <div class="dt">Friday · 27 June · UTC+1</div>
+    <div class="done-chip" id="doneChip">focus · 1 of 3</div>
   </div>
 
-  <!-- 2. Path anchors — Fabulous-style routine rows from active Paths -->
-  <div class="anchors">
-    <div class="anchors-hd">
-      <div class="anchors-title">Active paths · today's actions</div>
-      <div class="anchors-count">1 of 2 done</div>
-    </div>
-    <div class="anchor-row done" onclick="toggleAnchor(this)">
-      <div class="anchor-ck done">✓</div>
-      <div class="anchor-col">
-        <div class="anchor-path">The Stillness Path · Camp 2</div>
-        <div class="anchor-habit">5-min silent sit before first screen</div>
+  <div class="sleep-card" id="sleepCard" onclick="openSleepSheet()">
+    <div class="sleep-prompt" id="sleepPrompt">
+      <i class="ic ic-moon sp-icon"></i>
+      <div class="sp-col">
+        <div class="sp-q">How did you sleep?</div>
+        <div class="sp-sub">Tap to log sleep &amp; mood</div>
       </div>
-      <div class="anchor-streak">🔥 9</div>
+      <div class="sp-arrow">→</div>
     </div>
-    <div class="anchor-row" onclick="toggleAnchor(this)">
-      <div class="anchor-ck"></div>
-      <div class="anchor-col">
-        <div class="anchor-path">The Land Path · Camp 1</div>
-        <div class="anchor-habit">Save £50 to the land fund this week</div>
+    <div class="sleep-logged" id="sleepLogged">
+      <div class="sl-item">
+        <i class="ic ic-moon sl-icon"></i>
+        <div class="sl-label">Sleep</div>
+        <div class="sl-val" id="slVal">—</div>
+        <div class="sl-sub" id="slSub"></div>
       </div>
-      <div class="anchor-streak">🔥 5</div>
-    </div>
-  </div>
-
-  <!-- 3. What needs you today — logging checklist -->
-  <div class="card">
-    <div class="card-h">What needs you today · 1 of 4</div>
-    <div class="check-row done" onclick="toggleRow(this)">
-      <span class="ck done">✓</span>
-      <span class="nb">Log sleep</span><span class="roi">5h 40m</span>
-    </div>
-    <div class="check-row" onclick="toggleRow(this)">
-      <span class="ck"></span>
-      <span class="nb">Log mood &amp; energy</span><span class="roi">in Sleep</span>
-    </div>
-    <div class="check-row" onclick="toggleRow(this)">
-      <span class="ck"></span>
-      <span class="nb">Tick today's habits</span><span class="roi">3 left</span>
-    </div>
-    <div class="check-row" onclick="toggleRow(this)">
-      <span class="ck"></span>
-      <span class="nb">Log expenses</span><span class="roi">optional</span>
-    </div>
-  </div>
-
-  <!-- 4. Today's quality -->
-  <div class="qcard">
-    <div class="qcol">
-      <div class="qtag">Today's quality · from Stillness Path</div>
-      <div class="q-name">Stillness</div>
-      <div class="q-cue">"Notice the moment before you react today, and pause there."</div>
-    </div>
-    <button class="q-check" id="qCheck">✓</button>
-  </div>
-
-  <!-- 5. Practices · inner work -->
-  <div class="card">
-    <div class="card-h">Practices · inner work</div>
-    <div class="practice-row" onclick="togglePractice(this)">
-      <span class="ck" style="margin-top:1px;border-radius:6px"></span>
-      <div class="pr-col">
-        <div class="pr-name">Self-parenting</div>
-        <div class="pr-cue">One moment of self-compassion today — catch a harsh thought</div>
-      </div>
-    </div>
-    <div class="practice-row" onclick="togglePractice(this)">
-      <span class="ck" style="margin-top:1px;border-radius:6px"></span>
-      <div class="pr-col">
-        <div class="pr-name">Setting boundaries</div>
-        <div class="pr-cue">Notice one moment where you can say no</div>
+      <div class="sl-item">
+        <div class="sl-label">Mood · Energy</div>
+        <div class="me-row">
+          <div class="me-weather" id="moodIcon">🌤️</div>
+          <div class="me-desc" id="moodDesc"></div>
+        </div>
+        <div class="me-row">
+          <div class="battery-wrap bat-mid" id="batWrap">
+            <div class="battery"><div class="battery-fill" id="batFill" style="width:60%"></div></div>
+            <div class="bat-label" id="batLabel">6 / 10</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 6. Do today — Kanban Today column -->
-  <div class="kanban-today">
-    <div class="kt-head">
-      <div class="kt-title">Do today</div>
-      <div style="display:flex;align-items:center;gap:4px">
-        <div class="kt-meta">1 done · 3 left</div>
-        <button class="kt-add" title="Add task">＋</button>
+  <!-- Today's pace -->
+  <div class="pace">
+    <div class="pace-label">Today's pace</div>
+    <div class="pace-seg">
+      <button class="pace-btn on" data-mode="full" onclick="setMode('full')">Full</button>
+      <button class="pace-btn" data-mode="lighter" onclick="setMode('lighter')">Lighter</button>
+      <button class="pace-btn" data-mode="rest" onclick="setMode('rest')">Rest</button>
+    </div>
+  </div>
+  <div class="pace-note" id="paceNote"></div>
+
+  <!-- ══════════ BAND 2 · TODAY'S FOCUS ══════════ -->
+  <div class="focus-band">
+
+  <!-- ── The one theme quality (growth engine) ── -->
+  <div class="theme-group">
+  <div class="yhead">
+    <i class="ic ic-target yhead-ic"></i>
+    <div class="yhead-t">Today's theme</div>
+    <div class="yhead-rule"></div>
+    <div class="yhead-act">one quality</div>
+  </div>
+  <div class="focus-note">One thing to grow today — rotated from your pool, so it never turns into a grind.</div>
+
+  <!-- Theme practice -->
+  <div class="primary" id="primary">
+    <a class="pr-top" href="plan-trails.html" style="text-decoration:none;color:inherit">
+      <div class="pr-src">Stillness Path · Camp 2 ›</div>
+      <div class="pr-badge">Theme</div>
+    </a>
+    <div class="pr-title">Stillness</div>
+    <div class="pr-trigger">When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —</div>
+    <div class="pr-steps">
+      <div class="pr-step"><span class="pr-step-arr">→</span> Pause for one breath before responding</div>
+      <div class="pr-step"><span class="pr-step-arr">→</span> Ask yourself: <em>“What am I actually feeling right now?”</em></div>
+      <div class="pr-step"><span class="pr-step-arr">→</span> If it helps, say: <em>“I have time. I can choose how I respond.”</em></div>
+    </div>
+    <div class="pr-actions">
+      <div class="pr-do" onclick="togglePrimary()">
+        <div class="do-ck">✓</div>
+        <div class="pr-do-txt">Mark today's practice done</div>
+      </div>
+      <button class="pr-skip" onclick="notToday()">Not today</button>
+    </div>
+  </div>
+
+  <!-- not-today rested state -->
+  <div class="theme-rested" id="themeRested">
+    <strong>Resting Stillness today.</strong> No streak lost — it simply rotates on, and another quality comes round tomorrow.
+  </div>
+  </div><!-- /theme-group -->
+
+  <!-- ── Daily rituals (habit engine — Fabulous-style morning & evening) ── -->
+  <div class="rituals-group">
+  <div class="yhead">
+    <i class="ic ic-sun yhead-ic"></i>
+    <div class="yhead-t">Daily rituals</div>
+    <div class="yhead-rule"></div>
+    <a class="yhead-act" href="log-habits.html" style="text-decoration:none">edit ›</a>
+  </div>
+  <div class="ritual-note">Your tiny baseline — tap a circle to tick it, or open the ritual to run it in order.</div>
+
+  <!-- Morning ritual card -->
+  <div class="yritual" id="ritual-morning">
+    <div class="yritual-top" onclick="location.href='log-habits.html'">
+      <div class="yritual-badge am"><i class="ic ic-sun"></i></div>
+      <div class="yritual-head">
+        <div class="yritual-name">Morning ritual</div>
+        <div class="yritual-meta">Right after waking · 2 of 4 done</div>
+      </div>
+      <i class="ic ic-chev yritual-chev"></i>
+    </div>
+    <div class="yritual-track">
+      <button class="rnode done" onclick="toggleNode(this,'morning')" title="Drink water on waking"><i class="ic ic-drop"></i></button>
+      <span class="rlink done"></span>
+      <button class="rnode done" onclick="toggleNode(this,'morning')" title="Three grounding breaths"><i class="ic ic-wind"></i></button>
+      <span class="rlink opt-lighter"></span>
+      <button class="rnode now opt-lighter" onclick="toggleNode(this,'morning')" title="Morning walk"><i class="ic ic-activity"></i></button>
+      <span class="rlink opt-full"></span>
+      <button class="rnode opt-full" onclick="toggleNode(this,'morning')" title="5-min silent sit"><i class="ic ic-leaf"></i></button>
+    </div>
+  </div>
+
+  <!-- Evening ritual card -->
+  <div class="yritual" id="ritual-evening">
+    <div class="yritual-top" onclick="location.href='log-habits.html'">
+      <div class="yritual-badge pm"><i class="ic ic-moon"></i></div>
+      <div class="yritual-head">
+        <div class="yritual-name">Evening ritual</div>
+        <div class="yritual-meta">After dinner · 22:00 · 0 of 4 done</div>
+      </div>
+      <i class="ic ic-chev yritual-chev"></i>
+    </div>
+    <div class="yritual-track">
+      <button class="rnode" onclick="toggleNode(this,'evening')" title="Herbal tea, lights dim"><i class="ic ic-leaf"></i></button>
+      <span class="rlink opt-lighter"></span>
+      <button class="rnode now opt-lighter" onclick="toggleNode(this,'evening')" title="No screens after 22:00"><i class="ic ic-moon"></i></button>
+      <span class="rlink opt-full"></span>
+      <button class="rnode opt-full" onclick="toggleNode(this,'evening')" title="Journal · one line"><i class="ic ic-pen"></i></button>
+      <span class="rlink opt-full"></span>
+      <button class="rnode opt-full" onclick="toggleNode(this,'evening')" title="Save £50 to land fund"><i class="ic ic-sprout"></i></button>
+    </div>
+  </div>
+  </div><!-- /rituals-group -->
+
+  </div><!-- /focus-band -->
+
+  <!-- ══════════ BAND 3 · YOUR DAY ══════════ -->
+  <div class="day-band">
+  <div class="yhead">
+    <i class="ic ic-list yhead-ic"></i>
+    <div class="yhead-t">Your day</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="tasks-card">
+    <div class="tc-prog"><div class="tc-prog-fill" id="tProg" style="width:33%"></div></div>
+    <div class="tc-hd">
+      <div class="tc-title">From the plan</div>
+      <div class="tc-count" id="tCount">1 of 3 done</div>
+    </div>
+    <div class="task-row done" onclick="toggleTask(this)">
+      <div class="t-ck done">✓</div>
+      <div class="t-name">Research mortgages</div>
+      <div class="t-tag tag-money">money</div>
+    </div>
+    <div class="task-row" onclick="toggleTask(this)">
+      <div class="t-ck"></div>
+      <div class="t-name">Read chapter 3</div>
+      <div class="t-tag tag-inner">inner</div>
+    </div>
+    <div class="task-row" onclick="toggleTask(this)">
+      <div class="t-ck"></div>
+      <div class="t-name">Set aside £200 land fund</div>
+      <div class="t-tag tag-money">money</div>
+    </div>
+    <a class="tc-more" href="plan-month.html">2 more in Plan <i class="ic ic-chev"></i></a>
+  </div>
+  </div><!-- /day-band -->
+
+  <!-- ══════════ BAND 4 · SIGNALS ══════════ -->
+  <div class="signals-band">
+    <div class="yhead">
+      <i class="ic ic-spark yhead-ic"></i>
+      <div class="yhead-t">Signals</div>
+      <div class="yhead-rule"></div>
+    </div>
+    <a class="checkin-prompt" href="you-discover.html">
+      <i class="ic ic-spark cp-icon"></i>
+      <div class="cp-text">
+        <div class="cp-h">Weekly check-in is ready</div>
+        <div class="cp-sub">3 questions · 2 min · due today</div>
+      </div>
+      <div class="cp-arrow">→</div>
+    </a>
+    <div class="ai-card">
+      <div class="ai-tag">Coach · Buy land goal</div>
+      <div class="ai-body">Compare loan types before your next session. Set aside £200 to the land fund this month.</div>
+      <div class="ai-btns">
+        <button class="ai-btn ai-accept" onclick="this.textContent='Added ✓';this.style.background='var(--olive)';this.style.color='#fff'">Add to plan</button>
+        <button class="ai-btn" onclick="this.closest('.ai-card').style.opacity='.35'">Not now</button>
       </div>
     </div>
-    <div class="kt-row done" onclick="toggleKt(this)">
-      <div class="kt-ck done">✓</div>
-      <div class="kt-dot" style="background:var(--p-admin)"></div>
-      <div class="kt-name">Book dentist</div>
-    </div>
-    <div class="kt-row" onclick="toggleKt(this)">
-      <div class="kt-ck"></div>
-      <div class="kt-dot" style="background:var(--p-admin)"></div>
-      <div class="kt-name">Research mortgages</div>
-    </div>
-    <div class="kt-row" onclick="toggleKt(this)">
-      <div class="kt-ck"></div>
-      <div class="kt-dot" style="background:var(--p-inner)"></div>
-      <div class="kt-name">Read chapter 3</div>
-    </div>
-    <div class="kt-row" onclick="toggleKt(this)">
-      <div class="kt-ck"></div>
-      <div class="kt-dot" style="background:var(--p-health)"></div>
-      <div class="kt-name">Morning walk</div>
-    </div>
-    <div class="kt-add-row">＋ Add task for today</div>
   </div>
 
-  <!-- 7. Weekly check-in prompt — shows Thu/Fri when reflection is due -->
-  <div class="checkin-prompt">
-    <div class="cp-icon">🪞</div>
-    <div class="cp-text">
-      <div class="cp-h">Weekly check-in is ready</div>
-      <div class="cp-sub">3 questions · 2 min · due today</div>
+  <!-- ══════════ REST STATE ══════════ -->
+  <div class="rest-state">
+    <div class="rest-em">🌙</div>
+    <div class="rest-h">Today is for rest</div>
+    <div class="rest-body">Nothing is lost. Your streaks are held and your paths wait for you — rest is <em>part</em> of the practice, not a break from it.</div>
+    <div class="rest-hold"><i class="ic ic-flame"></i> Streaks protected today</div>
+
+    <!-- minimal regulating floor — the user's OWN routine, softened -->
+    <div class="rhythm">
+      <div class="rhythm-h">A gentle rhythm</div>
+      <div class="rhythm-note">Just your own routine, softened — keeping it steady is what your nervous system leans on. Do the bits that feel kind, skip the rest.</div>
+      <a class="rhythm-item" href="log-sleep.html">
+        <div class="rhythm-ic"><i class="ic ic-moon"></i></div>
+        <div><div class="rhythm-t">Keep your sleep rhythm</div><div class="rhythm-s">Your target · wind down ~22:30, wake ~06:30</div></div>
+        <i class="ic ic-chev rhythm-chev"></i>
+      </a>
+      <a class="rhythm-item" href="log-habits.html">
+        <div class="rhythm-ic"><i class="ic ic-sun"></i></div>
+        <div><div class="rhythm-t">Morning ritual · gentle</div><div class="rhythm-s">The lightest version, whenever you rise</div></div>
+        <i class="ic ic-chev rhythm-chev"></i>
+      </a>
+      <a class="rhythm-item" href="log-habits.html">
+        <div class="rhythm-ic"><i class="ic ic-moon"></i></div>
+        <div><div class="rhythm-t">Evening ritual · gentle</div><div class="rhythm-s">Unwind when you're ready — no checklist tonight</div></div>
+        <i class="ic ic-chev rhythm-chev"></i>
+      </a>
     </div>
-    <div class="cp-arrow">→</div>
   </div>
 
-  <!-- 8. Coach -->
-  <div class="ai-card">
-    <div class="ai-tag">Coach · Buy land goal</div>
-    <div class="ai-body">Read 1 article on mortgage pre-approval today. Add "Compare loan types" to This Week. Set aside £200 to the land fund this month.</div>
-    <div class="ai-btns">
-      <button class="ai-btn ai-accept">Add to plan</button>
-      <button class="ai-btn ai-reject">Not now</button>
+  <div class="alldone" id="allDone">🌙 You've done enough today.<br/>Rest well.</div>
+
+  <!-- ══════════ SLEEP SHEET ══════════ -->
+  <div class="sheet-back" id="sheetBack" onclick="closeSleepSheet()"></div>
+  <div class="sleep-sheet" id="sleepSheet">
+    <div class="ss-grip"></div>
+    <div class="ss-title">How did you sleep?</div>
+
+    <div class="ss-times">
+      <div class="ss-time">
+        <div class="ss-time-lbl">To bed</div>
+        <input type="time" id="ssBed" value="00:10" onchange="recalcDur()"/>
+      </div>
+      <div class="ss-time">
+        <div class="ss-time-lbl">Woke</div>
+        <input type="time" id="ssWake" value="05:50" onchange="recalcDur()"/>
+      </div>
     </div>
+    <div class="ss-dur">Slept <strong id="ssDur">5h 40m</strong></div>
+
+    <div class="ss-sect">Mood</div>
+    <div class="ss-scale" id="ssMood">
+      <button class="ss-opt" data-v="2" onclick="pick('mood',this)"><span class="ss-opt-em">😔</span><span class="ss-opt-lbl">Low</span></button>
+      <button class="ss-opt" data-v="4" onclick="pick('mood',this)"><span class="ss-opt-em">😐</span><span class="ss-opt-lbl">Meh</span></button>
+      <button class="ss-opt sel" data-v="6" onclick="pick('mood',this)"><span class="ss-opt-em">🙂</span><span class="ss-opt-lbl">Okay</span></button>
+      <button class="ss-opt" data-v="8" onclick="pick('mood',this)"><span class="ss-opt-em">😊</span><span class="ss-opt-lbl">Good</span></button>
+      <button class="ss-opt" data-v="10" onclick="pick('mood',this)"><span class="ss-opt-em">😄</span><span class="ss-opt-lbl">Great</span></button>
+    </div>
+
+    <div class="ss-sect">Energy</div>
+    <div class="ss-scale" id="ssEnergy">
+      <button class="ss-opt" data-v="2" onclick="pick('energy',this)"><span class="ss-opt-em">🪫</span><span class="ss-opt-lbl">Drained</span></button>
+      <button class="ss-opt" data-v="4" onclick="pick('energy',this)"><span class="ss-opt-em">😮‍💨</span><span class="ss-opt-lbl">Low</span></button>
+      <button class="ss-opt sel" data-v="6" onclick="pick('energy',this)"><span class="ss-opt-em">🔋</span><span class="ss-opt-lbl">Okay</span></button>
+      <button class="ss-opt" data-v="8" onclick="pick('energy',this)"><span class="ss-opt-em">💪</span><span class="ss-opt-lbl">Good</span></button>
+      <button class="ss-opt" data-v="10" onclick="pick('energy',this)"><span class="ss-opt-em">⚡</span><span class="ss-opt-lbl">Charged</span></button>
+    </div>
+
+    <button class="ss-save" onclick="saveSleep()">Save</button>
   </div>
 
 <script>
-function toggleAnchor(row){
-  row.classList.toggle('done');
-  const ck = row.querySelector('.anchor-ck');
-  ck.classList.toggle('done');
-  ck.textContent = ck.classList.contains('done') ? '✓' : '';
-  updateAnchorCount();
+/* ── Sleep sheet ── */
+let pickMood = 6, pickEnergy = 6;
+function openSleepSheet(){
+  if(document.getElementById('sleepPrompt').style.display === 'none') return; // already logged
+  recalcDur();
+  document.getElementById('sleepSheet').classList.add('open');
+  document.getElementById('sheetBack').classList.add('open');
 }
-function updateAnchorCount(){
-  const rows = document.querySelectorAll('.anchor-row');
-  const done = document.querySelectorAll('.anchor-row.done').length;
-  document.querySelector('.anchors-count').textContent = done + ' of ' + rows.length + ' done';
+function closeSleepSheet(){
+  document.getElementById('sleepSheet').classList.remove('open');
+  document.getElementById('sheetBack').classList.remove('open');
+}
+function pick(kind, btn){
+  const wrap = document.getElementById(kind==='mood'?'ssMood':'ssEnergy');
+  wrap.querySelectorAll('.ss-opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  if(kind==='mood') pickMood = +btn.dataset.v; else pickEnergy = +btn.dataset.v;
+}
+function durParts(){
+  const bed = document.getElementById('ssBed').value.split(':').map(Number);
+  const wake = document.getElementById('ssWake').value.split(':').map(Number);
+  let mins = (wake[0]*60+wake[1]) - (bed[0]*60+bed[1]);
+  if(mins < 0) mins += 24*60;
+  return {h:Math.floor(mins/60), m:mins%60, bed:document.getElementById('ssBed').value, wake:document.getElementById('ssWake').value};
+}
+function recalcDur(){
+  const d = durParts();
+  document.getElementById('ssDur').textContent = d.h + 'h ' + String(d.m).padStart(2,'0') + 'm';
+}
+function moodToWeather(m){
+  if(m>=9) return {icon:'☀️', desc:'Excellent'};
+  if(m>=7) return {icon:'🌤️', desc:'Good'};
+  if(m>=5) return {icon:'⛅', desc:'Okay'};
+  if(m>=3) return {icon:'🌧️', desc:'Low'};
+  return    {icon:'⛈️', desc:'Rough'};
+}
+function energyClass(e){ return e>=7 ? 'bat-hi' : e>=4 ? 'bat-mid' : 'bat-lo'; }
+function saveSleep(){
+  const d = durParts();
+  const w = moodToWeather(pickMood);
+  document.getElementById('slVal').textContent = d.h + 'h ' + String(d.m).padStart(2,'0') + 'm';
+  document.getElementById('slSub').textContent = 'to bed ' + d.bed + ' · woke ' + d.wake;
+  document.getElementById('moodIcon').textContent = w.icon;
+  document.getElementById('moodDesc').textContent = w.desc;
+  document.getElementById('batFill').style.width = Math.round(pickEnergy/10*100) + '%';
+  document.getElementById('batLabel').textContent = pickEnergy + ' / 10';
+  document.getElementById('batWrap').className = 'battery-wrap ' + energyClass(pickEnergy);
+  document.getElementById('sleepPrompt').style.display = 'none';
+  document.getElementById('sleepLogged').style.display = 'grid';
+  document.getElementById('sleepCard').style.cursor = 'default';
+  closeSleepSheet();
+  // Compass suggests a lighter day when energy is low — you still choose
+  if(pickEnergy <= 4){
+    setMode('lighter');
+    const n = document.getElementById('paceNote');
+    n.textContent = 'Your energy is low — Compass suggests a lighter day. You choose.';
+    n.classList.add('show');
+  }
 }
 
-function toggleRow(row){
-  row.classList.toggle('done');
-  const ck = row.querySelector('.ck');
-  ck.classList.toggle('done');
-  ck.textContent = ck.classList.contains('done') ? '✓' : '';
-  updateNeedsCount();
-}
-function updateNeedsCount(){
-  const rows = document.querySelectorAll('.check-row');
-  const done = document.querySelectorAll('.check-row.done').length;
-  document.querySelector('.card-h').textContent =
-    'What needs you today · ' + done + ' of ' + rows.length;
-}
-
-function togglePractice(row){
-  row.classList.toggle('done');
-  const ck = row.querySelector('.ck');
-  ck.classList.toggle('done');
-  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+/* ── Today's pace ── */
+function setMode(mode){
+  document.body.classList.remove('mode-full','mode-lighter','mode-rest');
+  document.body.classList.add('mode-'+mode);
+  document.querySelectorAll('.pace-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+  const n = document.getElementById('paceNote');
+  if(mode==='lighter'){ n.textContent='A lighter day — a shorter ritual, and the growth theme rests.'; n.classList.add('show'); }
+  else if(mode==='rest'){ n.textContent='Rest — just the bare-minimum ritual to get through today. Nothing is lost.'; n.classList.add('show'); }
+  else { n.classList.remove('show'); }
+  recomputeCard('morning'); recomputeCard('evening');   // visible nodes changed with pace
+  updateFocus();
 }
 
-function toggleKt(row){
-  row.classList.toggle('done');
-  const ck = row.querySelector('.kt-ck');
-  ck.classList.toggle('done');
-  ck.textContent = ck.classList.contains('done') ? '✓' : '';
-  updateKtCount();
+/* ── Focus tracking ── */
+function updateFocus(){
+  const mode = document.body.classList.contains('mode-rest') ? 'rest'
+             : document.body.classList.contains('mode-lighter') ? 'lighter' : 'full';
+  const primary = document.getElementById('primary');
+  const rested = primary.classList.contains('rested');
+  const primaryDone = primary.classList.contains('done');
+  const nodes = [...document.querySelectorAll('.rnode')].filter(n=>getComputedStyle(n).display!=='none'); // ritual habits
+  const nodesDone = nodes.filter(n=>n.classList.contains('done')).length;
+  const themeCounts = (mode==='full' && !rested);        // theme rests on Lighter/Rest
+  const total = nodes.length + (themeCounts?1:0);
+  const done  = nodesDone + (themeCounts && primaryDone ? 1 : 0);
+  const chip = document.getElementById('doneChip');
+  if(mode==='rest'){ chip.textContent = 'resting · ' + done + ' of ' + total; chip.className='done-chip' + (total>0 && done===total?' all':''); }
+  else { chip.textContent = done + ' of ' + total + ' done'; chip.className = 'done-chip' + (total>0 && done===total?' all':''); }
+  document.getElementById('allDone').style.display = (mode!=='rest' && total>0 && done===total) ? 'block' : 'none';
 }
-function updateKtCount(){
-  const rows = document.querySelectorAll('.kt-row');
-  const done = document.querySelectorAll('.kt-row.done').length;
-  document.querySelector('.kt-meta').textContent =
-    done + ' done · ' + (rows.length - done) + ' left';
+function togglePrimary(){
+  const p = document.getElementById('primary');
+  if(p.classList.contains('rested')) return;
+  p.classList.toggle('done'); updateFocus();
+}
+function notToday(){
+  document.getElementById('primary').classList.add('rested');
+  document.getElementById('themeRested').classList.add('show');
+  updateFocus();
 }
 
-document.getElementById('qCheck').addEventListener('click', function(){
-  this.classList.toggle('done');
-  this.textContent = '✓';
-});
+/* ── Ritual cards (Fabulous-style circles) ── */
+function recomputeCard(id){
+  const card = document.getElementById('ritual-'+id);
+  const kids = [...card.querySelector('.yritual-track').children];
+  kids.forEach((el,i)=>{
+    if(el.classList.contains('rlink')){
+      const prev = kids[i-1];
+      el.classList.toggle('done', !!(prev && prev.classList.contains('done')));
+    }
+  });
+  const nodes = kids.filter(el=>el.classList.contains('rnode') && getComputedStyle(el).display!=='none');
+  const done = nodes.filter(n=>n.classList.contains('done')).length;
+  const anchor = id==='morning' ? 'Right after waking' : 'After dinner · 22:00';
+  card.querySelector('.yritual-meta').textContent = anchor + ' · ' + done + ' of ' + nodes.length + ' done';
+  card.querySelector('.yritual-chev').classList.toggle('done', nodes.length>0 && done===nodes.length);
+}
+function toggleNode(node,id){
+  node.classList.toggle('done');
+  node.classList.remove('now');
+  recomputeCard(id);
+  updateFocus();
+}
+function toggleCue(el){
+  el.classList.toggle('done');
+  el.querySelector('.cue-ck').textContent = el.classList.contains('done') ? '✓' : '';
+  updateFocus();
+}
+let tDone = 1, tTotal = 3;
+function toggleTask(row){
+  const was = row.classList.contains('done');
+  row.classList.toggle('done');
+  const ck = row.querySelector('.t-ck');
+  ck.classList.toggle('done');
+  ck.textContent = ck.classList.contains('done') ? '✓' : '';
+  tDone += was ? -1 : 1;
+  document.getElementById('tProg').style.width = Math.round(tDone/tTotal*100) + '%';
+  document.getElementById('tCount').textContent = tDone + ' of ' + tTotal + ' done';
+}
+
+recomputeCard('morning'); recomputeCard('evening');
+updateFocus();
 </script>
 </body>
 </html>
