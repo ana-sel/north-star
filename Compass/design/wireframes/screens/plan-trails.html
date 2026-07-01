@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
 <style>
 .sect{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
 
@@ -69,6 +70,13 @@
 .vdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .vnote{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
 
+/* ── Growth paths — domain grouping ── */
+.dom-label{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;letter-spacing:.02em;color:var(--muted);margin:15px 0 8px;}
+.dom-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.pc-grows{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.62);position:relative;z-index:1;margin-bottom:3px;}
+.moved-note{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:10px;padding:9px 12px;line-height:1.55;margin:2px 0 6px;}
+.moved-note b{color:var(--ink);font-weight:700;}
+
 /* ── Camp celebration overlay ── */
 .celebrate{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.65);opacity:0;pointer-events:none;transition:opacity .3s;}
 .celebrate.open{opacity:1;pointer-events:auto;}
@@ -106,6 +114,9 @@
 .d-stack-row:last-child{border-bottom:none;}
 .d-sk-lbl{width:70px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);flex-shrink:0;padding-top:2px;}
 .d-sk-val{flex:1;font-size:var(--fs-sm);line-height:1.55;color:var(--ink);}
+/* Bundle note — how a path splits across the two engines */
+.d-bundle-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;background:var(--greige);border-radius:10px;padding:10px 12px;margin:2px 0 12px;}
+.d-bundle-note b{color:var(--ink);font-weight:700;}
 /* Camp timeline */
 .d-camp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
 .d-camp:last-child{border-bottom:none;}
@@ -132,7 +143,21 @@
 </head>
 <body class="screen-body">
 
-  <div class="sect">Active paths · 2 of 2</div>
+  <!-- ── LENS HEADER ── -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-route"></i></div>
+    <div>
+      <div class="ylens-title">Paths</div>
+      <div class="ylens-sub">The journeys you're walking right now</div>
+    </div>
+  </div>
+
+  <div class="yhead">
+    <i class="ic ic-route yhead-ic"></i>
+    <div class="yhead-t">Active paths</div>
+    <div class="yhead-rule"></div>
+    <div class="yhead-act">2 of 3</div>
+  </div>
 
   <!-- Active: Stillness -->
   <div class="ap" onclick="openDetail('stillness')">
@@ -175,40 +200,89 @@
   </div>
 
   <!-- Retired -->
-  <div class="sect">Earned</div>
+  <div class="yhead">
+    <i class="ic ic-award yhead-ic"></i>
+    <div class="yhead-t">Earned</div>
+    <div class="yhead-rule"></div>
+  </div>
   <div class="vshelf">
-    <div class="vchip"><div class="vdot" style="background:#768471"></div>Foundation · 5 wks</div>
+    <div class="vchip"><div class="vdot" style="background:#768471"></div>Constancy · 5 wks</div>
     <div class="vchip"><div class="vdot" style="background:#937caf"></div>Noticing · 4 wks</div>
   </div>
   <div class="vnote">Completed paths become permanent virtues in You → Identity</div>
 
-  <!-- Browse -->
-  <div class="sect">Available paths</div>
+  <!-- Foundations entry — the floor beneath the aspirational paths -->
+  <a href="foundations.html" style="text-decoration:none;color:inherit;display:block;margin:14px 0 4px;">
+    <div style="display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-sm);">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--greige);display:grid;place-items:center;color:var(--muted);flex-shrink:0;"><i class="ic ic-layers" style="font-size:18px;"></i></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:var(--fs-md);font-weight:700;">Start with the Foundations</div>
+        <div style="font-size:var(--fs-xs);color:var(--muted);margin-top:2px;line-height:1.4;">The ground beneath the mountain — the basic tools for being a person.</div>
+      </div>
+      <i class="ic ic-chev" style="font-size:15px;color:var(--line);"></i>
+    </div>
+  </a>
 
-  <div class="path-card" onclick="openDetail('boundaries')">
-    <div class="pc-bg" style="background:linear-gradient(145deg,#4a3040,#2e1c2c)">
-      <div class="pc-badge">Healing</div>
-      <div class="pc-name">The Boundaries Path</div>
-      <div class="pc-line">Become someone who honours their limits · 6 wks</div>
+  <!-- Growth paths — grouped by domain, each grows a quality -->
+  <div class="yhead">
+    <i class="ic ic-route yhead-ic"></i>
+    <div class="yhead-t">Growth paths</div>
+    <div class="yhead-rule"></div>
+    <div class="yhead-act">Browse all</div>
+  </div>
+  <div class="yintro" style="margin:-4px 0 10px">Beyond the floor — each journey is a small bundle: it adds a tiny ritual or two to your daily baseline, and grows <b>one quality</b> (your rotating theme, practised a few times a week — never a daily grind).</div>
+  <div class="moved-note">Boundaries, grief and self-regulation now live in <b>Foundations</b> — they're the floor, not aspirational climbs.</div>
+
+  <!-- Inner -->
+  <div class="dom-label"><span class="dom-dot" style="background:#80749b"></span>Inner</div>
+  <div class="path-card" onclick="openDetail('presence')">
+    <div class="pc-bg" style="background:linear-gradient(155deg,#33384a,#20242f)">
+      <div class="pc-grows">Grows Presence</div>
+      <div class="pc-name">The Presence Path</div>
+      <div class="pc-line">Fully here, not half-elsewhere · 5 wks</div>
+    </div>
+  </div>
+  <div class="path-card" onclick="openDetail('authority')">
+    <div class="pc-bg" style="background:linear-gradient(155deg,#2f3340,#1c1f28)">
+      <div class="pc-grows">Grows Quiet authority</div>
+      <div class="pc-name">The Quiet Authority Path</div>
+      <div class="pc-line">Calm, clear, hard to shake · 6 wks</div>
     </div>
   </div>
 
-  <div class="path-card" onclick="openDetail('restoration')">
-    <div class="pc-bg" style="background:linear-gradient(145deg,#3a3020,#251e14)">
-      <div class="pc-badge">Healing</div>
-      <div class="pc-name">The Restoration Path</div>
-      <div class="pc-line">Return to yourself after a hard period · 8 wks</div>
+  <!-- Relational -->
+  <div class="dom-label"><span class="dom-dot" style="background:#b07f86"></span>Relational</div>
+  <div class="path-card" onclick="openDetail('warmth')">
+    <div class="pc-bg" style="background:linear-gradient(145deg,#4a3630,#2c1f1c)">
+      <div class="pc-grows">Grows Warmth</div>
+      <div class="pc-name">The Warmth Path</div>
+      <div class="pc-line">Others feel safe and seen around you · 5 wks</div>
     </div>
   </div>
 
-  <div class="path-card" style="opacity:.5;pointer-events:none">
-    <div class="pc-bg" style="background:linear-gradient(145deg,#3a2828,#251818)">
-      <div class="pc-lock">🔒 Unlocks after Boundaries</div>
-      <div class="pc-badge">Healing</div>
-      <div class="pc-name">The Grief Path</div>
-      <div class="pc-line">Process loss — a person, a dream, a version of yourself</div>
+  <!-- Craft & Mastery -->
+  <div class="dom-label"><span class="dom-dot" style="background:#a98b5e"></span>Craft &amp; mastery</div>
+  <div class="path-card" onclick="openDetail('craft')">
+    <div class="pc-bg" style="background:linear-gradient(145deg,#3a3420,#241f12)">
+      <div class="pc-grows">Grows Craftsmanship</div>
+      <div class="pc-name">The Craft Path</div>
+      <div class="pc-line">Do things well, with care · 8 wks</div>
     </div>
   </div>
+
+  <!-- Spirit -->
+  <div class="dom-label"><span class="dom-dot" style="background:#6f8a66"></span>Spirit</div>
+  <div class="path-card" onclick="openDetail('discovery')">
+    <div class="pc-bg" style="background:linear-gradient(145deg,#2e3a44,#1a242c)">
+      <div class="pc-grows">Grows Spirit of discovery</div>
+      <div class="pc-name">The Discovery Path</div>
+      <div class="pc-line">Move toward the unknown with wonder · 6 wks</div>
+    </div>
+  </div>
+
+  <!-- Material -->
+  <div class="dom-label"><span class="dom-dot" style="background:#7395ad"></span>Material</div>
+  <div class="moved-note" style="margin-top:0">Material paths grow toward a concrete goal — <b>The Land Path</b> is active above.</div>
 
   <!-- Camp celebration (demo button) -->
   <div style="margin-top:10px;text-align:center">
@@ -238,7 +312,8 @@
     </div>
     <div class="d-body">
       <div class="d-effort" id="dEffort"></div>
-      <div class="sect" style="margin-top:4px">What this path works on</div>
+      <div class="sect" style="margin-top:4px">What this path adds to your days</div>
+      <div class="d-bundle-note">A path is a <b>bundle</b>. Its <b>habits</b> join your daily rituals in <b>Log · Habits</b> (small, done every day). Its <b>one quality</b> joins your practice pool as a <b>theme</b> — rotated onto <b>Today</b> a few times a week, never two days running.</div>
       <div id="dStack"></div>
       <div class="sect">How it unfolds</div>
       <div id="dCamps"></div>
@@ -297,51 +372,110 @@ const DATA = {
     ],
     cta:'View today\'s anchor',
   },
-  boundaries:{
-    type:'Healing path',name:'The Boundaries Path',
-    virtue:'"I am becoming someone who knows their limits and honours them without apology"',
-    bg:'linear-gradient(145deg,#4a3040,#2e1c2c)',
-    values:['Self-respect','Dignity'],active:false,
-    effort:[{v:'1–2',l:'actions/day'},{v:'8 min',l:'daily effort'},{v:'6 wks',l:'total'}],
+  presence:{
+    type:'Inner path',name:'The Presence Path',grows:'Presence',
+    virtue:'"I am becoming someone who is fully here"',
+    bg:'linear-gradient(155deg,#33384a,#20242f)',
+    values:['Presence'],active:false,
+    effort:[{v:'1',l:'action/day'},{v:'3 min',l:'daily'},{v:'5 wks',l:'total'}],
     stack:[
-      {l:'Value',v:'Self-respect · Dignity — your needs are not negotiable'},
-      {l:'Virtue',v:'Someone who can say no and hold space for themselves'},
-      {l:'Quality',v:'Noticing (Camp 1) — "Where did I shrink today?"'},
-      {l:'Habit',v:'One sentence before sleep: a boundary moment observed'},
-      {l:'Inner work',v:'What happened early that made "no" feel dangerous?'},
+      {l:'Grows',v:'Presence — fully here, not half-elsewhere'},
+      {l:'Habit',v:'3 conscious breaths before entering a room'},
+      {l:'Inner work',v:'Where do I leave the moment — and why?'},
     ],
     camps:[
-      {name:'Noticing',dur:'10 days',state:'locked',effort:'1 action · 2 min/day',
-        layers:[{s:'Rule:',r:' No action needed yet — just observe'},{s:'Habit:',r:' One sentence journal before sleep'}]},
-      {name:'Practising',dur:'21 days',state:'locked',effort:'2 actions · 7 min/day',
-        layers:[{s:'Practice:',r:' Hold one small no per week — a moment, not a confrontation'},{s:'Inner work:',r:' The fear underneath the yes you didn\'t mean'}]},
-      {name:'Embodied',dur:'21 days',state:'locked',effort:'2 actions · 8 min/day',
-        layers:[{s:'Virtue test:',r:' Holding a boundary under real pressure'}]},
+      {name:'Noticing',dur:'7 days',state:'locked',effort:'1 min/day',
+        layers:[{s:'Notice:',r:' the moments you go half-absent'}]},
+      {name:'Returning',dur:'14 days',state:'locked',effort:'3 min/day',
+        layers:[{s:'Practice:',r:' single-task one block a day'}]},
+      {name:'Embodied',dur:'14 days',state:'locked',effort:'3 min/day',
+        layers:[{s:'Test:',r:' stay fully present in a hard conversation'}]},
     ],
-    cta:'Start this path',sec:'Add as second path (2 max)',
+    cta:'Start this path',sec:'Add as another path (3 max)',
   },
-  restoration:{
-    type:'Healing path',name:'The Restoration Path',
-    virtue:'"I am becoming someone who can return to themselves — slowly, without force"',
-    bg:'linear-gradient(145deg,#3a3020,#251e14)',
-    values:['Wholeness'],active:false,
-    effort:[{v:'1–2',l:'actions/day'},{v:'5 min',l:'daily effort'},{v:'8 wks',l:'total'}],
+  authority:{
+    type:'Inner path',name:'The Quiet Authority Path',grows:'Quiet authority',
+    virtue:'"I am becoming someone who is calm, clear, and hard to shake"',
+    bg:'linear-gradient(155deg,#2f3340,#1c1f28)',
+    values:['Self-respect','Composure'],active:false,
+    effort:[{v:'1–2',l:'actions/day'},{v:'6 min',l:'daily'},{v:'6 wks',l:'total'}],
     stack:[
-      {l:'Value',v:'Wholeness — all parts of you belong, including the ones that broke'},
-      {l:'Virtue',v:'Tender with yourself after loss or exhaustion'},
-      {l:'Quality',v:'Tenderness (Camp 1) — "What does this part of me need?"'},
-      {l:'Habit',v:'Name one thing that was okay today — however small'},
-      {l:'Inner work',v:'Grief work, allowing rather than fixing'},
+      {l:'Grows',v:'Quiet authority — respect without raising your voice'},
+      {l:'Habit',v:"Slow your speech; state, don't justify"},
+      {l:'Inner work',v:'Where do I over-explain to be liked?'},
     ],
     camps:[
-      {name:'Permission',dur:'10 days',state:'locked',effort:'1 action · 1 min/day',
-        layers:[{s:'No goals:',r:' Just permission to not be okay'},{s:'Habit:',r:' Name one thing that was okay today (30 sec)'}]},
-      {name:'Returning',dur:'21 days',state:'locked',effort:'2 actions · 7 min/day',
-        layers:[{s:'Practice:',r:' One intentional rest per day. One small pleasure.'},{s:'Inner work:',r:' What am I actually grieving?'}]},
-      {name:'Rebuilding',dur:'21 days',state:'locked',effort:'2 actions · 8 min/day',
-        layers:[{s:'Gently:',r:' One new habit of your choice (only one)'},{s:'Practice:',r:' Write — who am I now, after this?'}]},
+      {name:'Grounding',dur:'10 days',state:'locked',effort:'2 min/day',
+        layers:[{s:'Notice:',r:' when you rush or over-justify'}]},
+      {name:'Practising',dur:'21 days',state:'locked',effort:'6 min/day',
+        layers:[{s:'Practice:',r:' one calm, unhurried statement a day'}]},
+      {name:'Embodied',dur:'14 days',state:'locked',effort:'6 min/day',
+        layers:[{s:'Test:',r:' stay steady in a moment of conflict'}]},
     ],
-    cta:'Start this path',sec:'Add as second path (2 max)',
+    cta:'Start this path',sec:'Add as another path (3 max)',
+  },
+  warmth:{
+    type:'Relational path',name:'The Warmth Path',grows:'Warmth',
+    virtue:'"I am becoming someone others feel safe and seen around"',
+    bg:'linear-gradient(145deg,#4a3630,#2c1f1c)',
+    values:['Kindness','Connection'],active:false,
+    effort:[{v:'1',l:'action/day'},{v:'4 min',l:'daily'},{v:'5 wks',l:'total'}],
+    stack:[
+      {l:'Grows',v:'Warmth — makes others feel safe and seen'},
+      {l:'Habit',v:'One genuine, specific kindness a day'},
+      {l:'Inner work',v:'What makes me withhold warmth?'},
+    ],
+    camps:[
+      {name:'Noticing',dur:'7 days',state:'locked',effort:'1 min/day',
+        layers:[{s:'Notice:',r:" moments you could soften and don't"}]},
+      {name:'Offering',dur:'14 days',state:'locked',effort:'4 min/day',
+        layers:[{s:'Practice:',r:' remember one small detail about someone'}]},
+      {name:'Embodied',dur:'14 days',state:'locked',effort:'4 min/day',
+        layers:[{s:'Test:',r:' stay warm with someone difficult'}]},
+    ],
+    cta:'Start this path',sec:'Add as another path (3 max)',
+  },
+  craft:{
+    type:'Craft & mastery path',name:'The Craft Path',grows:'Craftsmanship',
+    virtue:'"I am becoming someone who does things well, with care"',
+    bg:'linear-gradient(145deg,#3a3420,#241f12)',
+    values:['Excellence','Discipline'],active:false,
+    effort:[{v:'1',l:'action/day'},{v:'15 min',l:'daily'},{v:'8 wks',l:'total'}],
+    stack:[
+      {l:'Grows',v:'Craftsmanship — care to the last detail'},
+      {l:'Habit',v:'Finish one thing properly each day'},
+      {l:'Inner work',v:'Where do I settle for half-done?'},
+    ],
+    camps:[
+      {name:'Attention',dur:'14 days',state:'locked',effort:'15 min/day',
+        layers:[{s:'Practice:',r:' one small thing done with full care'}]},
+      {name:'Consistency',dur:'21 days',state:'locked',effort:'15 min/day',
+        layers:[{s:'Practice:',r:' show up for the craft daily'}]},
+      {name:'Mastery',dur:'21 days',state:'locked',effort:'20 min/day',
+        layers:[{s:'Test:',r:" finish something you're proud of"}]},
+    ],
+    cta:'Start this path',sec:'Add as another path (3 max)',
+  },
+  discovery:{
+    type:'Spirit path',name:'The Discovery Path',grows:'Spirit of discovery',
+    virtue:'"I am becoming someone who moves toward the unknown with wonder"',
+    bg:'linear-gradient(145deg,#2e3a44,#1a242c)',
+    values:['Curiosity','Adventure'],active:false,
+    effort:[{v:'1',l:'action/week'},{v:'20 min',l:'weekly'},{v:'6 wks',l:'total'}],
+    stack:[
+      {l:'Grows',v:'Spirit of discovery — go toward the new'},
+      {l:'Habit',v:'One new thing, route, or idea each week'},
+      {l:'Inner work',v:'What keeps me small and safe?'},
+    ],
+    camps:[
+      {name:'Curiosity',dur:'14 days',state:'locked',effort:'20 min/wk',
+        layers:[{s:'Practice:',r:' follow one curiosity a week'}]},
+      {name:'Venturing',dur:'21 days',state:'locked',effort:'20 min/wk',
+        layers:[{s:'Practice:',r:' do something slightly outside your edge'}]},
+      {name:'Wonder',dur:'14 days',state:'locked',effort:'20 min/wk',
+        layers:[{s:'Test:',r:' let yourself be genuinely amazed'}]},
+    ],
+    cta:'Start this path',sec:'Add as another path (3 max)',
   },
 };
 

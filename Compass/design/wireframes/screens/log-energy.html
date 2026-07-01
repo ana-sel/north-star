@@ -7,18 +7,535 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<style>
+
+/* ── Header ── */
+.log-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.log-date{font-size:var(--fs-xs);color:var(--muted);font-weight:500;}
+.progress-link{font-size:var(--fs-xs);font-weight:600;color:var(--p-inner);text-decoration:none;background:#ede8f6;padding:3px 10px;border-radius:999px;}
+
+/* ── 2×2 battery overview ── */
+.overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.ov-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .15s;}
+.ov-card.active{border-color:var(--btn);background:var(--btn);}
+.ov-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.ov-icon{font-size:16px;}
+.ov-name{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+.ov-card.active .ov-name{color:#fff;}
+/* mini battery */
+.mini-bat{height:8px;background:var(--greige);border-radius:999px;overflow:hidden;position:relative;}
+.ov-card.active .mini-bat{background:rgba(255,255,255,.2);}
+.mini-fill{height:100%;border-radius:999px;transition:width .3s;}
+.ov-level{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;font-weight:500;}
+.ov-card.active .ov-level{color:rgba(255,255,255,.6);}
+
+/* ── Category panel ── */
+.cat-panel{display:none;}
+.cat-panel.active{display:block;}
+.cat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
+
+/* Level selector */
+.level-wrap{padding:14px 14px 10px;}
+.level-hint{font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;}
+.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.lv-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer;font-family:inherit;transition:all .15s;}
+.lv-emoji{font-size:20px;line-height:1;}
+.lv-word{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+/* active states per category */
+.cat-panel[data-cat="physical"] .lv-btn.sel{border-color:var(--p-health);background:#e5f2e3;}
+.cat-panel[data-cat="physical"] .lv-btn.sel .lv-word{color:#2d6b27;}
+.cat-panel[data-cat="mental"]   .lv-btn.sel{border-color:var(--p-admin);background:#f3efea;}
+.cat-panel[data-cat="mental"]   .lv-btn.sel .lv-word{color:#6b5a3e;}
+.cat-panel[data-cat="emotional"].lv-btn.sel{border-color:var(--p-family);background:#f9edee;}
+.cat-panel[data-cat="emotional"].lv-btn.sel .lv-word{color:#8a3040;}
+.cat-panel[data-cat="spiritual"].lv-btn.sel{border-color:var(--p-inner);background:#ede8f6;}
+.cat-panel[data-cat="spiritual"].lv-btn.sel .lv-word{color:var(--p-inner);}
+
+/* Bubbles */
+.sect-hd{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 14px 6px;border-top:1px solid var(--line);}
+.bubble-pad{padding:4px 14px 13px;}
+.bubble-row{display:flex;flex-wrap:wrap;gap:6px;}
+.bub{font-size:var(--fs-xs);font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;user-select:none;}
+.bub.bs{border-color:var(--p-health);background:#e5f2e3;color:#2d6b27;}
+.bub.bd{border-color:var(--p-family);background:#f9edee;color:#8a3040;}
+.bub-add{border-style:dashed;}
+
+/* Save row */
+.save-row{padding:11px 16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.save-btn{font-size:var(--fs-xs);font-weight:700;padding:7px 18px;border-radius:999px;border:none;background:var(--olive);color:#fff;cursor:pointer;font-family:inherit;}
+.save-confirm{display:none;align-items:center;gap:7px;}
+.save-row.saved .save-btn{display:none;}
+.save-row.saved .save-confirm{display:flex;}
+.save-row.saved{background:#f5fbf4;}
+.save-ok{width:18px;height:18px;border-radius:50%;background:#5d9e56;display:grid;place-items:center;color:#fff;font-size:9px;}
+.save-txt{font-size:var(--fs-xs);font-weight:600;color:#3d6e37;}
+.save-time{font-size:var(--fs-xs);color:var(--muted);margin-left:auto;}
+
+/* ── Section label ── */
+.sect-label{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+.sect-label::before{content:'';display:block;width:3px;height:13px;border-radius:99px;background:var(--p-inner);flex-shrink:0;}
+
+/* ── Today signal card ── */
+.signal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:13px 14px 11px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
+.sig-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;}
+.sig-row{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.sig-item{flex:1;text-align:center;}
+.sig-val{font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--ink);}
+.sig-name{font-size:var(--fs-xs);color:var(--muted);font-weight:500;margin-top:1px;}
+.sig-divider{width:1px;height:36px;background:var(--line);flex-shrink:0;}
+.sig-update{font-size:var(--fs-xs);font-weight:700;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;flex-shrink:0;}
+.sig-note{font-size:9px;color:var(--muted);line-height:1.5;}
+.sig-panel{display:none;border-top:1px solid var(--line);margin-top:10px;padding-top:11px;}
+.sig-panel.open{display:block;}
+.sig-ph{font-size:var(--fs-xs);font-weight:600;color:var(--muted);margin-bottom:6px;}
+.sig-levels{display:flex;gap:5px;margin-bottom:11px;}
+.sig-lv{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 3px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer;font-family:inherit;transition:all .15s;}
+.sig-lv-e{font-size:18px;line-height:1;}
+.sig-lv-w{font-size:7px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.03em;}
+.sig-lv.sel{border-color:var(--p-inner);background:#ede8f6;}
+.sig-lv.sel .sig-lv-w{color:var(--p-inner);}
+.sig-save{width:100%;padding:9px;border-radius:999px;border:none;background:var(--olive);color:#fff;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:inherit;}
+
+/* ── Experiments ── */
+.exp-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);}
+.exp-intro{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;padding:12px 16px;border-bottom:1px solid var(--line);}
+.exp-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);}
+.exp-row:last-child{border-bottom:none;}
+.exp-left{flex:1;}
+.exp-name{font-size:var(--fs-sm);font-weight:600;}
+.exp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.exp-cat-tag{display:inline-block;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:999px;margin-top:4px;}
+.tag-phys{background:#e5f2e3;color:#2d6b27;}
+.tag-ment{background:#f3efea;color:#6b5a3e;}
+.tag-emot{background:#f9edee;color:#8a3040;}
+.tag-spir{background:#ede8f6;color:var(--p-inner);}
+.exp-rate{display:flex;gap:5px;flex-shrink:0;}
+.exp-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:transparent;display:grid;place-items:center;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;color:var(--muted);}
+.exp-btn.boost{border-color:var(--p-health);background:#e5f2e3;}
+.exp-btn.drain{border-color:var(--p-family);background:#f9edee;}
+.exp-btn.neut {border-color:var(--muted);background:var(--greige);color:var(--ink);}
+
+/* Patterns footer */
+.patterns-link{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--p-inner);border-radius:var(--r-card);padding:13px 16px;margin-top:12px;cursor:pointer;box-shadow:var(--shadow-sm);}
+.pl-col{flex:1;}
+.pl-h{font-size:var(--fs-sm);font-weight:700;}
+.pl-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.pl-arrow{font-size:14px;color:var(--muted);}
+
+</style>
 </head>
 <body class="screen-body">
-  <div class="card">
-    <div class="card-h">4 energy sources</div>
-    <div class="prog-row"><div class="prog-label">Physical</div><div class="prog-bar"><div class="prog-fill" style="width:40%;background:var(--p-health)"></div></div><div class="prog-pct">4/10</div></div>
-    <div class="prog-row"><div class="prog-label">Mental</div><div class="prog-bar"><div class="prog-fill" style="width:60%;background:var(--p-inner)"></div></div><div class="prog-pct">6/10</div></div>
-    <div class="prog-row"><div class="prog-label">Emotional</div><div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--p-family)"></div></div><div class="prog-pct">5/10</div></div>
-    <div class="prog-row"><div class="prog-label">Purpose</div><div class="prog-bar"><div class="prog-fill" style="width:70%;background:var(--p-contrib)"></div></div><div class="prog-pct">7/10</div></div>
+
+  <div class="log-hdr">
+    <div class="log-date">Friday · 27 June</div>
+    <a class="progress-link">Patterns → You</a>
   </div>
-  <div class="card">
-    <div class="card-h">What drained energy today?</div>
-    <div class="pill-row"><div class="pill on">Decision fatigue</div><div class="pill">Difficult convo</div><div class="pill">Poor sleep</div><div class="pill">Skipped lunch</div><div class="pill">Noise</div></div>
+
+  <!-- Today's signal -->
+  <div class="signal-card">
+    <div class="sig-label">Today's overall signal</div>
+    <div class="sig-row">
+      <div class="sig-item">
+        <div class="sig-val">😶 6</div>
+        <div class="sig-name">Mood</div>
+      </div>
+      <div class="sig-divider"></div>
+      <div class="sig-item">
+        <div class="sig-val">⚡ 5</div>
+        <div class="sig-name">Energy</div>
+      </div>
+      <button class="sig-update" onclick="toggleSigPanel()">Update</button>
+    </div>
+    <div class="sig-note">Set at sleep log · logging the categories below adds context for why</div>
+    <div class="sig-panel" id="sigPanel">
+      <div class="sig-ph">How do you feel right now?</div>
+      <div class="sig-levels" id="moodLevels">
+        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-e">😔</div><div class="sig-lv-w">Low</div></button>
+        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-e">😐</div><div class="sig-lv-w">Meh</div></button>
+        <button class="sig-lv sel" onclick="pickSig('mood',this)"><div class="sig-lv-e">😶</div><div class="sig-lv-w">Okay</div></button>
+        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-e">🙂</div><div class="sig-lv-w">Good</div></button>
+        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-e">😄</div><div class="sig-lv-w">Great</div></button>
+      </div>
+      <div class="sig-ph">How's your overall energy?</div>
+      <div class="sig-levels" id="energyLevels">
+        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-e">🪨</div><div class="sig-lv-w">Drained</div></button>
+        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-e">😮‍💨</div><div class="sig-lv-w">Low</div></button>
+        <button class="sig-lv sel" onclick="pickSig('energy',this)"><div class="sig-lv-e">⚡</div><div class="sig-lv-w">Okay</div></button>
+        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-e">💪</div><div class="sig-lv-w">Good</div></button>
+        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-e">🔥</div><div class="sig-lv-w">Charged</div></button>
+      </div>
+      <button class="sig-save" onclick="saveSig()">Save signal</button>
+    </div>
   </div>
+
+  <!-- ══════════ 2×2 OVERVIEW ══════════ -->
+  <div class="overview">
+    <div class="ov-card active" id="ov-physical" onclick="switchCat('physical')">
+      <div class="ov-top"><div class="ov-icon">💪</div><div class="ov-name">Physical</div></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-physical" style="width:70%;background:var(--p-health)"></div></div>
+      <div class="ov-level" id="ol-physical">Good · 7/10</div>
+    </div>
+    <div class="ov-card" id="ov-mental" onclick="switchCat('mental')">
+      <div class="ov-top"><div class="ov-icon">🧠</div><div class="ov-name">Mental</div></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-mental" style="width:50%;background:var(--p-admin)"></div></div>
+      <div class="ov-level" id="ol-mental">Okay · 5/10</div>
+    </div>
+    <div class="ov-card" id="ov-emotional" onclick="switchCat('emotional')">
+      <div class="ov-top"><div class="ov-icon">💛</div><div class="ov-name">Emotional</div></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-emotional" style="width:40%;background:var(--p-family)"></div></div>
+      <div class="ov-level" id="ol-emotional">Low · 4/10</div>
+    </div>
+    <div class="ov-card" id="ov-spiritual" onclick="switchCat('spiritual')">
+      <div class="ov-top"><div class="ov-icon">✨</div><div class="ov-name">Spiritual</div></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-spiritual" style="width:65%;background:var(--p-inner)"></div></div>
+      <div class="ov-level" id="ol-spiritual">Good · 6/10</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PHYSICAL ══════════ -->
+  <div class="cat-panel active" id="panel-physical" data-cat="physical">
+    <div class="cat-card">
+      <div class="level-wrap">
+        <div class="level-hint">How is your physical body feeling today?</div>
+        <div class="level-grid">
+          <button class="lv-btn" onclick="setLevel(this,'physical',1)"><div class="lv-emoji">🪨</div><div class="lv-word">Empty</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'physical',3)"><div class="lv-emoji">😮‍💨</div><div class="lv-word">Low</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'physical',5)"><div class="lv-emoji">😐</div><div class="lv-word">Okay</div></button>
+          <button class="lv-btn sel" onclick="setLevel(this,'physical',7)"><div class="lv-emoji">💪</div><div class="lv-word">Good</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'physical',9)"><div class="lv-emoji">🔥</div><div class="lv-word">Charged</div></button>
+        </div>
+      </div>
+      <div class="sect-hd">What gave physical energy</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub bs" onclick="tb(this,'bs')">😴 Good sleep</button>
+        <button class="bub bs" onclick="tb(this,'bs')">💧 Hydrated</button>
+        <button class="bub" onclick="tb(this,'bs')">🏃 Exercise</button>
+        <button class="bub" onclick="tb(this,'bs')">☀️ Sunlight</button>
+        <button class="bub" onclick="tb(this,'bs')">🥗 Ate well</button>
+        <button class="bub" onclick="tb(this,'bs')">🍳 Protein</button>
+        <button class="bub" onclick="tb(this,'bs')">🛌 Rest day</button>
+        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
+      </div></div>
+      <div class="sect-hd">What drained physical energy</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub" onclick="tb(this,'bd')">🍕 Junk food</button>
+        <button class="bub" onclick="tb(this,'bd')">🍺 Alcohol</button>
+        <button class="bub bd" onclick="tb(this,'bd')">🛋️ Sedentary</button>
+        <button class="bub" onclick="tb(this,'bd')">😴 Under-slept</button>
+        <button class="bub" onclick="tb(this,'bd')">🍬 Sugar</button>
+        <button class="bub" onclick="tb(this,'bd')">🤒 Unwell</button>
+        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
+      </div></div>
+      <div class="save-row" id="sv-physical">
+        <button class="save-btn" onclick="saveSection('sv-physical')">Save physical</button>
+        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-physical"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MENTAL ══════════ -->
+  <div class="cat-panel" id="panel-mental" data-cat="mental">
+    <div class="cat-card">
+      <div class="level-wrap">
+        <div class="level-hint">How sharp and focused does your mind feel?</div>
+        <div class="level-grid">
+          <button class="lv-btn" onclick="setLevel(this,'mental',1)"><div class="lv-emoji">🌫️</div><div class="lv-word">Foggy</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'mental',3)"><div class="lv-emoji">☁️</div><div class="lv-word">Slow</div></button>
+          <button class="lv-btn sel" onclick="setLevel(this,'mental',5)"><div class="lv-emoji">💭</div><div class="lv-word">Okay</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'mental',7)"><div class="lv-emoji">💡</div><div class="lv-word">Sharp</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'mental',9)"><div class="lv-emoji">⚡</div><div class="lv-word">Flow</div></button>
+        </div>
+      </div>
+      <div class="sect-hd">What replenished mental energy</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub" onclick="tb(this,'bs')">🎯 Deep work</button>
+        <button class="bub" onclick="tb(this,'bs')">📚 Learning</button>
+        <button class="bub" onclick="tb(this,'bs')">🌿 Nature walk</button>
+        <button class="bub" onclick="tb(this,'bs')">🎵 Music</button>
+        <button class="bub" onclick="tb(this,'bs')">💤 Nap</button>
+        <button class="bub bs" onclick="tb(this,'bs')">☕ Coffee</button>
+        <button class="bub" onclick="tb(this,'bs')">✏️ Creative flow</button>
+        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
+      </div></div>
+      <div class="sect-hd">What drained mental energy</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub bd" onclick="tb(this,'bd')">💼 Long meetings</button>
+        <button class="bub bd" onclick="tb(this,'bd')">🔄 Context switching</button>
+        <button class="bub" onclick="tb(this,'bd')">📱 Social media</button>
+        <button class="bub" onclick="tb(this,'bd')">📧 Email overload</button>
+        <button class="bub" onclick="tb(this,'bd')">🔊 Interruptions</button>
+        <button class="bub" onclick="tb(this,'bd')">🤹 Multitasking</button>
+        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
+      </div></div>
+      <div class="save-row" id="sv-mental">
+        <button class="save-btn" onclick="saveSection('sv-mental')">Save mental</button>
+        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-mental"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EMOTIONAL ══════════ -->
+  <div class="cat-panel" id="panel-emotional" data-cat="emotional">
+    <div class="cat-card">
+      <div class="level-wrap">
+        <div class="level-hint">How connected, motivated, and emotionally alive do you feel?</div>
+        <div class="level-grid">
+          <button class="lv-btn" onclick="setLevel(this,'emotional',1)"><div class="lv-emoji">🫥</div><div class="lv-word">Numb</div></button>
+          <button class="lv-btn sel" onclick="setLevel(this,'emotional',3)"><div class="lv-emoji">😔</div><div class="lv-word">Low</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'emotional',5)"><div class="lv-emoji">😐</div><div class="lv-word">Neutral</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'emotional',7)"><div class="lv-emoji">🙂</div><div class="lv-word">Warm</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'emotional',9)"><div class="lv-emoji">💛</div><div class="lv-word">Full</div></button>
+        </div>
+      </div>
+      <div class="sect-hd">What filled emotional energy</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub" onclick="tb(this,'bs')">🤝 Real connection</button>
+        <button class="bub" onclick="tb(this,'bs')">😂 Laughter</button>
+        <button class="bub" onclick="tb(this,'bs')">🪞 Inner work</button>
+        <button class="bub" onclick="tb(this,'bs')">🎨 Creative expression</button>
+        <button class="bub" onclick="tb(this,'bs')">💌 Act of kindness</button>
+        <button class="bub" onclick="tb(this,'bs')">🌸 Felt understood</button>
+        <button class="bub" onclick="tb(this,'bs')">🎉 Celebration</button>
+        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
+      </div></div>
+      <div class="sect-hd">What drained emotional energy</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub bd" onclick="tb(this,'bd')">😤 Conflict</button>
+        <button class="bub" onclick="tb(this,'bd')">👥 People-pleasing</button>
+        <button class="bub bd" onclick="tb(this,'bd')">💭 Rumination</button>
+        <button class="bub" onclick="tb(this,'bd')">📊 Comparison</button>
+        <button class="bub" onclick="tb(this,'bd')">😶 Feeling unseen</button>
+        <button class="bub" onclick="tb(this,'bd')">🔇 Suppressed feelings</button>
+        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
+      </div></div>
+      <div class="save-row" id="sv-emotional">
+        <button class="save-btn" onclick="saveSection('sv-emotional')">Save emotional</button>
+        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-emotional"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SPIRITUAL ══════════ -->
+  <div class="cat-panel" id="panel-spiritual" data-cat="spiritual">
+    <div class="cat-card">
+      <div class="level-wrap">
+        <div class="level-hint">How aligned with purpose and meaning do you feel today?</div>
+        <div class="level-grid">
+          <button class="lv-btn" onclick="setLevel(this,'spiritual',1)"><div class="lv-emoji">🌑</div><div class="lv-word">Lost</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'spiritual',3)"><div class="lv-emoji">🌥️</div><div class="lv-word">Drifting</div></button>
+          <button class="lv-btn sel" onclick="setLevel(this,'spiritual',6)"><div class="lv-emoji">🌤️</div><div class="lv-word">Present</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'spiritual',7)"><div class="lv-emoji">🌟</div><div class="lv-word">Aligned</div></button>
+          <button class="lv-btn" onclick="setLevel(this,'spiritual',9)"><div class="lv-emoji">✨</div><div class="lv-word">Purpose</div></button>
+        </div>
+      </div>
+      <div class="sect-hd">What fed the spirit today</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub bs" onclick="tb(this,'bs')">🙏 Stillness</button>
+        <button class="bub" onclick="tb(this,'bs')">🎯 Meaningful work</button>
+        <button class="bub" onclick="tb(this,'bs')">🌍 Helped someone</button>
+        <button class="bub" onclick="tb(this,'bs')">🌅 Morning ritual</button>
+        <button class="bub" onclick="tb(this,'bs')">📖 Deep reading</button>
+        <button class="bub" onclick="tb(this,'bs')">🌿 In nature</button>
+        <button class="bub" onclick="tb(this,'bs')">🔮 Path practice</button>
+        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
+      </div></div>
+      <div class="sect-hd">What disconnected you today</div>
+      <div class="bubble-pad"><div class="bubble-row">
+        <button class="bub" onclick="tb(this,'bd')">⚙️ Meaningless tasks</button>
+        <button class="bub bd" onclick="tb(this,'bd')">😶 Going through motions</button>
+        <button class="bub" onclick="tb(this,'bd')">🔄 Routine without why</button>
+        <button class="bub" onclick="tb(this,'bd')">📵 No quiet time</button>
+        <button class="bub" onclick="tb(this,'bd')">💼 Values mismatch</button>
+        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
+      </div></div>
+      <div class="save-row" id="sv-spiritual">
+        <button class="save-btn" onclick="saveSection('sv-spiritual')">Save spiritual</button>
+        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-spiritual"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EXPERIMENTS ══════════ -->
+  <div class="sect-label">Energy experiments</div>
+  <div class="exp-card">
+    <div class="exp-intro">Test what actually works for your body and mind. Rate each as you try it — patterns surface over time in You → Progress.</div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">🚿 Cold shower</div>
+        <div class="exp-sub">Morning · 2 min · observe energy after</div>
+        <div class="exp-cat-tag tag-phys">physical</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn boost" onclick="rateExp(this,'boost')" title="Gives energy">⚡</button>
+        <button class="exp-btn"       onclick="rateExp(this,'neut')"  title="Neutral">—</button>
+        <button class="exp-btn"       onclick="rateExp(this,'drain')" title="Drains">↓</button>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">☕ No coffee before 10am</div>
+        <div class="exp-sub">Try 3 days · watch afternoon crash</div>
+        <div class="exp-cat-tag tag-phys">physical</div>
+        <div class="exp-cat-tag tag-ment">mental</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn" onclick="rateExp(this,'boost')">⚡</button>
+        <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
+        <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">🚶 Walk after lunch</div>
+        <div class="exp-sub">10 min · combats afternoon slump</div>
+        <div class="exp-cat-tag tag-phys">physical</div>
+        <div class="exp-cat-tag tag-ment">mental</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn boost" onclick="rateExp(this,'boost')">⚡</button>
+        <button class="exp-btn"       onclick="rateExp(this,'neut')">—</button>
+        <button class="exp-btn"       onclick="rateExp(this,'drain')">↓</button>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">📵 No screens 1hr before bed</div>
+        <div class="exp-sub">Try a week · log morning energy next day</div>
+        <div class="exp-cat-tag tag-phys">physical</div>
+        <div class="exp-cat-tag tag-ment">mental</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn"       onclick="rateExp(this,'boost')">⚡</button>
+        <button class="exp-btn"       onclick="rateExp(this,'neut')">—</button>
+        <button class="exp-btn drain" onclick="rateExp(this,'drain')">↓</button>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">🤝 Reach out to someone</div>
+        <div class="exp-sub">Real connection · not just chat</div>
+        <div class="exp-cat-tag tag-emot">emotional</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn" onclick="rateExp(this,'boost')">⚡</button>
+        <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
+        <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">🧘 5-min breathwork</div>
+        <div class="exp-sub">Before a big task · box breathing</div>
+        <div class="exp-cat-tag tag-ment">mental</div>
+        <div class="exp-cat-tag tag-spir">spiritual</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn" onclick="rateExp(this,'boost')">⚡</button>
+        <button class="exp-btn neut" onclick="rateExp(this,'neut')">—</button>
+        <button class="exp-btn"      onclick="rateExp(this,'drain')">↓</button>
+      </div>
+    </div>
+
+    <div class="exp-row">
+      <div class="exp-left">
+        <div class="exp-name">🙏 Gratitude · 3 things</div>
+        <div class="exp-sub">Evening · handwritten or spoken aloud</div>
+        <div class="exp-cat-tag tag-emot">emotional</div>
+        <div class="exp-cat-tag tag-spir">spiritual</div>
+      </div>
+      <div class="exp-rate">
+        <button class="exp-btn" onclick="rateExp(this,'boost')">⚡</button>
+        <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
+        <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Patterns nudge -->
+  <div class="patterns-link" onclick="">
+    <div class="pl-col">
+      <div class="pl-h">See your energy patterns</div>
+      <div class="pl-sub">Trends and correlations · You → Progress</div>
+    </div>
+    <div class="pl-arrow">→</div>
+  </div>
+
+<script>
+const CATS = {
+  physical: {color:'var(--p-health)', levels:['Empty','Low','Okay','Good','Good','Good','Good','Charged','Charged','Charged']},
+  mental:   {color:'var(--p-admin)',  levels:['Foggy','Slow','Slow','Okay','Okay','Okay','Sharp','Sharp','Flow','Flow']},
+  emotional:{color:'var(--p-family)', levels:['Numb','Numb','Low','Low','Neutral','Neutral','Warm','Warm','Full','Full']},
+  spiritual:{color:'var(--p-inner)',  levels:['Lost','Lost','Drifting','Drifting','Present','Present','Aligned','Aligned','Purpose','Purpose']},
+};
+
+function switchCat(cat){
+  document.querySelectorAll('.ov-card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.cat-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ov-'+cat).classList.add('active');
+  document.getElementById('panel-'+cat).classList.add('active');
+}
+
+function setLevel(btn, cat, score){
+  const panel = document.getElementById('panel-'+cat);
+  panel.querySelectorAll('.lv-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const pct = Math.round(score/10*100);
+  document.getElementById('mf-'+cat).style.width = pct+'%';
+  const desc = CATS[cat].levels[score-1] + ' · ' + score + '/10';
+  document.getElementById('ol-'+cat).textContent = desc;
+}
+
+function tb(btn, cls){
+  const other = cls === 'bs' ? 'bd' : 'bs';
+  if(btn.classList.contains(cls)){
+    btn.className='bub' + (btn.classList.contains('bub-add')?' bub-add':'');
+  } else {
+    btn.classList.remove(other);
+    btn.classList.add(cls);
+  }
+}
+
+function addBub(addBtn, cls){
+  const label = prompt('Add tag:');
+  if(!label || !label.trim()) return;
+  const newBub = document.createElement('button');
+  newBub.className = 'bub ' + cls;
+  newBub.textContent = label.trim();
+  newBub.onclick = function(){ tb(this, cls); };
+  addBtn.parentElement.insertBefore(newBub, addBtn);
+}
+
+function rateExp(btn, type){
+  const group = btn.closest('.exp-rate');
+  group.querySelectorAll('.exp-btn').forEach(b=>b.className='exp-btn');
+  btn.classList.add(type);
+}
+
+function saveSection(id){
+  const row = document.getElementById(id);
+  row.classList.add('saved');
+  const now = new Date();
+  row.querySelector('.save-time').textContent =
+    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+function toggleSigPanel(){
+  document.getElementById('sigPanel').classList.toggle('open');
+}
+function pickSig(type, btn){
+  const container = document.getElementById(type==='mood' ? 'moodLevels' : 'energyLevels');
+  container.querySelectorAll('.sig-lv').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function saveSig(){
+  document.getElementById('sigPanel').classList.remove('open');
+}
+</script>
 </body>
 </html>
