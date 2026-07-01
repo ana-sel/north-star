@@ -27,46 +27,8 @@
 /* ── Lede ── */
 .lede{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.015em;margin:12px 0;}
 
-/* ── Dial card ── */
-.dial-card{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
-  padding:16px 18px 14px;margin-bottom:14px;box-shadow:var(--shadow);
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  user-select:none;-webkit-user-select:none;
-}
-.dial-hint{font-size:var(--fs-xs);color:var(--muted);font-weight:500;text-align:center;}
+/* Dial card · gentle note · 1–10 scores now live in components.css (shared with Today) */
 #dialSvg{width:216px;height:216px;display:block;touch-action:none;}
-.dial-foot{text-align:center;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;}
-.dial-foot strong{color:var(--ink);font-weight:800;font-size:var(--fs-md);letter-spacing:-.01em;}
-
-/* ── Insight ── */
-.insight{
-  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--steel);
-  border-radius:var(--r-card);padding:14px 18px 14px 16px;margin-bottom:14px;
-  box-shadow:var(--shadow-sm);
-}
-.insight-tag{display:block;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--steel);margin-bottom:7px;}
-.insight-p{margin:0;font-size:var(--fs-md);line-height:1.6;}
-.insight-p .soft{color:var(--muted);}
-
-/* ── Mood / Energy scale (1–10) ── */
-.b-sect{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
-  padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);
-}
-.score-label{font-size:var(--fs-md);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
-.score-label .ic{color:var(--accent);font-size:15px;}
-.score-row{display:flex;gap:4px;margin-bottom:4px;}
-.score-btn{
-  flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;
-  padding:8px 0;font:700 var(--fs-sm) inherit;color:var(--muted);cursor:pointer;
-  transition:all .12s;
-}
-.score-btn:hover{background:var(--greige);color:var(--ink);}
-.score-btn.sel{background:var(--btn);color:#FBFAF8;border-color:var(--btn);}
-.score-scale{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin:2px 2px 14px;}
-.score-scale span:nth-child(2){flex:1;text-align:center;}
-.score-scale span:last-child{text-align:right;}
 
 .b-label{font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;font-weight:500;}
 .b-note{

@@ -15,20 +15,172 @@
     <div class="ylens-badge"><i class="ic ic-target"></i></div>
     <div>
       <div class="ylens-title">Year</div>
-      <div class="ylens-sub">Your year and its milestones</div>
+      <div class="ylens-sub">Your goals for the year — sorted by when</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-h">Year goals</div>
-    <div class="goal-grid">
-      <div class="goal-tile"><div class="g-pillar" style="background:var(--p-money)"></div><div class="g-title">Buy land</div><div class="g-pct">35% · Money</div><div class="g-bar"><div class="g-fill" style="width:35%;background:var(--p-money)"></div></div></div>
-      <div class="goal-tile"><div class="g-pillar" style="background:var(--p-health)"></div><div class="g-title">Sleep 8h avg</div><div class="g-pct">60% · Health</div><div class="g-bar"><div class="g-fill" style="width:60%;background:var(--p-health)"></div></div></div>
-      <div class="goal-tile"><div class="g-pillar" style="background:var(--p-inner)"></div><div class="g-title">Read 24 books</div><div class="g-pct">50% · Inner</div><div class="g-bar"><div class="g-fill" style="width:50%;background:var(--p-inner)"></div></div></div>
-      <div class="goal-tile"><div class="g-pillar" style="background:var(--p-family)"></div><div class="g-title">Weekly family time</div><div class="g-pct">80% · Family</div><div class="g-bar"><div class="g-fill" style="width:80%;background:var(--p-family)"></div></div></div>
-      <div class="goal-tile"><div class="g-pillar" style="background:var(--p-contrib)"></div><div class="g-title">Volunteer 2×/mo</div><div class="g-pct">20% · Contrib</div><div class="g-bar"><div class="g-fill" style="width:20%;background:var(--p-contrib)"></div></div></div>
-      <div class="goal-tile" style="border-style:dashed;opacity:.5;display:flex;align-items:center;justify-content:center;"><div style="font-size:20px;color:var(--muted)">+</div></div>
+  <div class="yr-switch">
+    <button class="yr-btn" onclick="switchYear(this)">2024</button>
+    <button class="yr-btn" onclick="switchYear(this)">2025</button>
+    <button class="yr-btn on" onclick="switchYear(this)">2026</button>
+    <button class="yr-btn" onclick="switchYear(this)">2027</button>
+    <button class="yr-btn" onclick="switchYear(this)">2028</button>
+    <button class="yr-btn" onclick="switchYear(this)">2029</button>
+    <button class="yr-btn" onclick="switchYear(this)">2030</button>
+  </div>
+
+  <p class="hint">Backlog is a dateless pool. Give a goal a date and it moves to <b>Planned</b>. When its month arrives, send it to the current month to break into tasks. Send anything to a later year to plan ahead.</p>
+
+  <div class="pboard-wrap">
+    <div class="pboard">
+
+      <!-- ── BACKLOG (dateless pool) ── -->
+      <div class="pcol">
+        <div class="pcol-head">Backlog <span class="pcol-count">3</span></div>
+
+        <div class="pcard" style="--pill:var(--p-contrib)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Volunteer 2×/month</div>
+          <div class="pcard-meta"><span class="chip pillar">Contrib</span></div>
+        </div>
+
+        <div class="pcard haveto" style="--pill:var(--p-admin)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Renew passport</div>
+          <div class="pcard-sub">Have-to · admin load</div>
+          <div class="pcard-meta"><span class="chip pillar">Admin</span></div>
+        </div>
+
+        <div class="pcard" style="--pill:var(--p-joy)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Learn Spanish basics</div>
+          <div class="pcard-meta"><span class="chip pillar">Joy</span></div>
+        </div>
+
+        <div class="pcard pcard-add" onclick="openAdd()">+ Add goal</div>
+      </div>
+
+      <!-- ── PLANNED (has a date) ── -->
+      <div class="pcol">
+        <div class="pcol-head">Planned <span class="pcol-count">3</span></div>
+
+        <!-- planned for THIS month → move affordance -->
+        <div class="pcard" style="--pill:var(--p-money)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Buy land</div>
+          <div class="pcard-meta"><span class="chip pillar">Money</span><span class="chip">Jul</span></div>
+          <div class="pcard-prog"><i style="width:35%"></i></div>
+          <div class="pcard-move" onclick="moveToMonth(event)"><i class="ic ic-chev"></i> Move to this month</div>
+        </div>
+
+        <div class="pcard" style="--pill:var(--p-inner)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Read 24 books</div>
+          <div class="pcard-meta"><span class="chip pillar">Inner</span><span class="chip">ongoing</span></div>
+          <div class="pcard-prog"><i style="width:50%"></i></div>
+        </div>
+
+        <div class="pcard" style="--pill:var(--p-health)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Sleep 8h average</div>
+          <div class="pcard-meta"><span class="chip pillar">Health</span><span class="chip">Sep</span></div>
+          <div class="pcard-prog"><i style="width:60%"></i></div>
+        </div>
+      </div>
+
+      <!-- ── DONE ── -->
+      <div class="pcol">
+        <div class="pcol-head">Done <span class="pcol-count">2</span></div>
+
+        <div class="pcard done" style="--pill:var(--p-family)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Weekly family time</div>
+          <div class="pcard-meta"><span class="chip pillar">Family</span><span class="chip">May</span></div>
+        </div>
+
+        <div class="pcard done" style="--pill:var(--p-admin)" onclick="location.href='plan-goal.html'">
+          <div class="pcard-title">Update will</div>
+          <div class="pcard-meta"><span class="chip pillar">Admin</span><span class="chip">Mar</span></div>
+        </div>
+      </div>
+
     </div>
   </div>
+
+  <button class="fab" onclick="openAdd()"><i class="ic ic-plus"></i> Add goal</button>
+
+  <!-- ══════════ ADD-GOAL FLOW (4 steps) ══════════ -->
+  <div class="sheet" id="addSheet">
+    <div class="sheet-inner">
+      <div class="sheet-handle"></div>
+      <div class="steps">
+        <span class="step on" data-s="1"></span><span class="step" data-s="2"></span>
+        <span class="step" data-s="3"></span>
+      </div>
+
+      <!-- Step 1 — title + pillar (dateless; add a date later to plan it) -->
+      <div class="add-step" data-step="1">
+        <div class="sheet-title">New goal</div>
+        <div class="sheet-sub">One clear outcome. It lands in Backlog with no date — add a date later to move it to Planned.</div>
+        <div class="sheet-label">Title</div>
+        <input class="sheet-field" placeholder="e.g. Buy land for the house"/>
+        <div class="sheet-label">Pillar</div>
+        <div class="pill-pick">
+          <span class="pp" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-health)"></span>Health</span>
+          <span class="pp" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-inner)"></span>Inner</span>
+          <span class="pp" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-admin)"></span>Admin</span>
+          <span class="pp" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-family)"></span>Family</span>
+          <span class="pp" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-joy)"></span>Joy</span>
+          <span class="pp sel" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-money)"></span>Money</span>
+          <span class="pp" onclick="pickPill(this)"><span class="ppd" style="background:var(--p-contrib)"></span>Contrib</span>
+        </div>
+        <div class="sheet-btns">
+          <button class="sheet-btn ghost" onclick="closeAdd()">Cancel</button>
+          <button class="sheet-btn" onclick="goStep(2)">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 2 — motivation gate -->
+      <div class="add-step" data-step="2" style="display:none">
+        <div class="sheet-title">Why this goal?</div>
+        <div class="sheet-sub">Logged so you can see your load over time — never blocking.</div>
+        <div class="opt sel" onclick="pickOpt(this)">
+          <div class="opt-t">I want this</div>
+          <div class="opt-d">Internal pull — curiosity, joy, growth.</div>
+        </div>
+        <div class="opt" onclick="pickOpt(this)">
+          <div class="opt-t">I have to do this</div>
+          <div class="opt-d">External pressure or obligation. Shown muted so you can see the weight you carry.</div>
+        </div>
+        <div class="sheet-btns">
+          <button class="sheet-btn ghost" onclick="goStep(1)">Back</button>
+          <button class="sheet-btn" onclick="goStep(3)">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 3 — mission fit (criteria derived from the mission statement) -->
+      <div class="add-step" data-step="3" style="display:none">
+        <div class="sheet-title">Does this fit your mission?</div>
+        <div class="sheet-sub">These criteria come from your mission statement. None set yet — so the default is <i>make me happy</i>.</div>
+        <div class="chk-row on" onclick="tickRow(this)"><span class="tick">✓</span><span class="chk-t">make me happy</span></div>
+        <div class="chk-row" onclick="tickRow(this)"><span class="tick">✓</span><span class="chk-t">help others</span></div>
+        <div class="chk-row" onclick="tickRow(this)"><span class="tick">✓</span><span class="chk-t">improve my environment</span></div>
+        <div class="sheet-btns">
+          <button class="sheet-btn ghost" onclick="goStep(2)">Back</button>
+          <button class="sheet-btn" onclick="closeAdd()">Add goal</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+function switchYear(b){document.querySelectorAll('.yr-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
+function moveToMonth(e){e.stopPropagation();location.href='plan-month.html';}
+
+const sheet=document.getElementById('addSheet');
+function openAdd(){goStep(1);sheet.classList.add('open');}
+function closeAdd(){sheet.classList.remove('open');}
+function goStep(n){
+  document.querySelectorAll('.add-step').forEach(s=>s.style.display=s.dataset.step==n?'block':'none');
+  document.querySelectorAll('.step').forEach(d=>d.classList.toggle('on',d.dataset.s<=n));
+}
+function pickPill(el){el.parentElement.querySelectorAll('.pp').forEach(p=>p.classList.remove('sel'));el.classList.add('sel');}
+function pickOpt(el){el.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function tickRow(el){el.classList.toggle('on');}
+</script>
 </body>
 </html>

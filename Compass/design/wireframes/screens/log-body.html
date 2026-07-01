@@ -28,8 +28,8 @@
 /* ─────────────── WEIGHT + BMI ─────────────── */
 .weight-hero{padding:18px 18px 14px;}
 .wh-row{display:flex;align-items:flex-end;gap:0;margin-bottom:14px;}
-.wh-num{font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;}
-.wh-unit{font-size:var(--fs-md);font-weight:600;color:var(--muted);margin-bottom:8px;margin-left:4px;}
+.wh-num{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;}
+.wh-unit{font-size:var(--fs-sm);font-weight:600;color:var(--muted);margin-bottom:3px;margin-left:4px;}
 .wh-edit{margin-left:auto;align-self:center;font-size:var(--fs-xs);font-weight:600;color:var(--accent);border:1.5px solid var(--accent);border-radius:999px;padding:5px 13px;cursor:pointer;background:transparent;font-family:inherit;}
 
 /* BMI row */
@@ -44,7 +44,7 @@
 .bmi-track-wrap{margin-bottom:4px;}
 .bmi-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#e8c4c4 0%,#e8c4c4 17%,#c5e0bf 17%,#c5e0bf 50%,#f7dfa5 50%,#f7dfa5 75%,#e8c4c4 75%);position:relative;overflow:visible;}
 .bmi-marker{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--p-health);transform:translateX(-50%);transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
-.bmi-zones{display:flex;font-size:7px;color:var(--muted);font-weight:600;margin-top:5px;padding:0 1px;}
+.bmi-zones{display:flex;font-size:8px;color:var(--muted);font-weight:600;margin-top:5px;padding:0 1px;}
 .bmi-zone{flex:1;text-align:center;}
 .bmi-zone:first-child{text-align:left;}
 .bmi-zone:last-child{text-align:right;}
@@ -75,7 +75,7 @@
 /* ─────────────── MOVEMENT ─────────────── */
 /* Steps row */
 .steps-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);}
-.steps-num{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.steps-num{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1;}
 .steps-col{flex:1;}
 .steps-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
 .steps-goal{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
@@ -213,7 +213,7 @@
       <div class="steps-goal">
         <div class="steps-pct">84%</div>
         <div class="steps-bar"><div class="steps-fill" style="width:84%"></div></div>
-        <div style="font-size:7px;color:var(--muted);margin-top:2px;">of 10k goal</div>
+        <div style="font-size:8px;color:var(--muted);margin-top:2px;">of 10k goal</div>
       </div>
     </div>
 
@@ -241,8 +241,6 @@
         <button class="pill" onclick="toggleFeel(this)">Heavy</button>
       </div>
     </div>
-
-  </div>
 
     <div class="save-row" id="sv-move">
       <button class="save-btn" onclick="saveSection('sv-move')">Save movement</button>
