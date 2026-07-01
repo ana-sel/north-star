@@ -58,11 +58,12 @@
 /* Lighter rests the growth theme but keeps the tiny daily rituals */
 .mode-lighter .theme-group{display:none;}
 .primary{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
-.pr-top{display:flex;align-items:center;gap:8px;padding:13px 16px 0;}
-.pr-src{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);}
-.pr-badge{margin-left:auto;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);padding:3px 9px;border-radius:999px;}
-.pr-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;padding:7px 16px 2px;}
-.pr-trigger{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;padding:5px 16px 0;}
+.pr-top{display:flex;align-items:center;gap:13px;padding:14px 16px 10px;}
+.pr-head{flex:1;min-width:0;text-decoration:none;color:inherit;}
+.pr-src{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:2px;}
+.pr-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);padding:3px 9px;border-radius:999px;flex-shrink:0;}
+.pr-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
+.pr-trigger{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;padding:2px 16px 0;}
 .pr-steps{padding:9px 16px 14px;display:flex;flex-direction:column;gap:8px;}
 .pr-step{display:flex;gap:8px;font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
 .pr-step-arr{color:var(--accent);font-weight:700;flex-shrink:0;}
@@ -94,14 +95,10 @@
 
 /* ══════════ BAND 3 · YOUR DAY ══════════ */
 .mode-lighter .day-band .tasks-card{opacity:.5;}
-.tasks-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:8px;}
-.tc-prog{height:3px;background:var(--greige);}
-.tc-prog-fill{height:100%;background:var(--olive);border-radius:0 999px 999px 0;transition:width .3s;}
-.tc-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;border-bottom:1px solid var(--line);}
-.tc-title{font-size:var(--fs-sm);font-weight:700;}
-.tc-count{font-size:var(--fs-xs);color:var(--muted);}
+.tasks-card{margin-bottom:10px;}
+.tasks-card .yritual-top{padding-bottom:12px;border-bottom:1px solid var(--line);}
 .task-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;}
-.task-row:last-child{border-bottom:none;}
+.task-row:last-of-type{border-bottom:none;}
 .t-ck{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
 .t-ck.done{background:var(--olive);border-color:var(--olive);color:#fff;}
 .t-name{flex:1;font-size:var(--fs-md);}
@@ -109,48 +106,28 @@
 .t-tag{font-size:var(--fs-xs);font-weight:700;padding:2px 8px;border-radius:999px;flex-shrink:0;}
 .tag-inner{background:#ede8f6;color:var(--p-inner);}
 .tag-money{background:#e6eef5;color:var(--p-money);}
-.tc-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:10px;font-size:var(--fs-xs);font-weight:600;color:var(--accent);cursor:pointer;border-top:1px solid var(--line);text-decoration:none;}
+.tc-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:11px;font-size:var(--fs-xs);font-weight:600;color:var(--accent);cursor:pointer;border-top:1px solid var(--line);text-decoration:none;}
 .tc-more .ic{font-size:12px;}
-.evening-pointer{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 16px;box-shadow:var(--shadow-sm);margin-bottom:8px;cursor:pointer;text-decoration:none;color:inherit;}
-.ev-ic{width:31px;height:31px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
-.ev-col{flex:1;}
-.ev-title{font-size:var(--fs-sm);font-weight:600;}
-.ev-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
 
 /* ══════════ BAND 4 · SIGNALS ══════════ */
 .mode-lighter .signals-band{display:none;}
-.checkin-prompt{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--p-inner);border-radius:var(--r-card);padding:13px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;color:inherit;}
-.cp-icon{font-size:17px;flex-shrink:0;color:var(--p-inner);}
-.cp-text{flex:1;}
-.cp-h{font-size:var(--fs-sm);font-weight:700;}
-.cp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
-.cp-arrow{font-size:14px;color:var(--muted);}
-.ai-card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--olive);border-radius:var(--r-card);padding:13px 16px;box-shadow:var(--shadow-sm);}
-.ai-tag{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--olive);margin-bottom:6px;}
-.ai-body{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;margin-bottom:12px;}
-.ai-btns{display:flex;gap:8px;}
-.ai-btn{flex:1;padding:9px;border-radius:999px;font-family:inherit;font-size:var(--fs-xs);font-weight:600;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);}
-.ai-accept{border-color:var(--olive);color:var(--olive);}
+.signal-card{display:block;text-decoration:none;color:inherit;}
+.signal-card .yritual-top{padding-bottom:14px;}
+.coach-card .yritual-top{padding-bottom:6px;}
+.coach-body{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;padding:0 16px 12px;}
+.coach-btns{display:flex;gap:8px;padding:0 16px 15px;}
+.coach-btn{flex:1;padding:9px;border-radius:999px;font-family:inherit;font-size:var(--fs-xs);font-weight:600;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);}
+.coach-accept{border-color:var(--olive);color:var(--olive);}
 
 /* ══════════ REST STATE ══════════ */
-.mode-rest .focus-band,.mode-rest .day-band,.mode-rest .signals-band{display:none;}
-.rest-state{display:none;text-align:center;padding:22px 20px 8px;}
-.mode-rest .rest-state{display:block;}
-.rest-em{font-size:38px;}
-.rest-h{font-size:var(--fs-lg);font-weight:800;margin:10px 0 8px;}
-.rest-body{font-size:var(--fs-sm);color:var(--muted);line-height:1.65;max-width:280px;margin:0 auto;}
-.rest-hold{margin-top:16px;display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;color:var(--olive);background:#eef3ec;border:1px solid #cfe0c9;border-radius:999px;padding:8px 15px;}
-.rest-hold .ic{font-size:13px;}
-/* gentle rhythm — minimal nervous-system anchors kept on rest days */
-.rhythm{max-width:300px;margin:22px auto 0;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-sm);}
-.rhythm-h{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px;}
-.rhythm-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin-bottom:11px;}
-.rhythm-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line);text-decoration:none;color:inherit;cursor:pointer;}
-.rhythm-item:first-of-type{border-top:none;}
-.rhythm-ic{width:30px;height:30px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
-.rhythm-t{font-size:var(--fs-sm);font-weight:600;}
-.rhythm-s{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;}
-.rhythm-chev{margin-left:auto;color:var(--line);font-size:13px;flex-shrink:0;}
+/* Rest keeps the same full-width ritual cards as Lighter — just fewer circles.
+   Only the theme, day and signals bands fold away; a compact banner reassures. */
+.mode-rest .theme-group,.mode-rest .day-band,.mode-rest .signals-band{display:none;}
+.rest-banner{display:none;align-items:center;gap:12px;background:#f3f4ef;border:1px solid #dfe3d8;border-radius:16px;padding:13px 15px;margin-bottom:14px;}
+.mode-rest .rest-banner{display:flex;}
+.rest-banner-em{font-size:22px;line-height:1;flex-shrink:0;}
+.rest-banner-txt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
+.rest-banner-txt strong{color:var(--ink);font-weight:700;}
 
 /* all-done */
 .alldone{display:none;text-align:center;color:var(--muted);font-size:var(--fs-sm);padding:18px 0 4px;line-height:1.6;}
@@ -232,6 +209,12 @@
   <!-- ══════════ BAND 2 · TODAY'S FOCUS ══════════ -->
   <div class="focus-band">
 
+  <!-- compact rest reassurance (shows only on Rest pace) -->
+  <div class="rest-banner">
+    <span class="rest-banner-em">🌙</span>
+    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Streaks are held — nothing is lost.</div>
+  </div>
+
   <!-- ── The one theme quality (growth engine) ── -->
   <div class="theme-group">
   <div class="yhead">
@@ -244,11 +227,14 @@
 
   <!-- Theme practice -->
   <div class="primary" id="primary">
-    <a class="pr-top" href="plan-trails.html" style="text-decoration:none;color:inherit">
-      <div class="pr-src">Stillness Path · Camp 2 ›</div>
+    <div class="pr-top">
+      <div class="yritual-badge theme"><i class="ic ic-leaf"></i></div>
+      <a class="pr-head" href="plan-trails.html">
+        <div class="pr-title">Stillness</div>
+        <div class="pr-src">Stillness Path · Camp 2 ›</div>
+      </a>
       <div class="pr-badge">Theme</div>
-    </a>
-    <div class="pr-title">Stillness</div>
+    </div>
     <div class="pr-trigger">When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —</div>
     <div class="pr-steps">
       <div class="pr-step"><span class="pr-step-arr">→</span> Pause for one breath before responding</div>
@@ -332,11 +318,14 @@
     <div class="yhead-t">Your day</div>
     <div class="yhead-rule"></div>
   </div>
-  <div class="tasks-card">
-    <div class="tc-prog"><div class="tc-prog-fill" id="tProg" style="width:33%"></div></div>
-    <div class="tc-hd">
-      <div class="tc-title">From the plan</div>
-      <div class="tc-count" id="tCount">1 of 3 done</div>
+  <div class="yritual tasks-card">
+    <div class="yritual-top" onclick="location.href='plan-month.html'">
+      <div class="yritual-badge task"><i class="ic ic-list"></i></div>
+      <div class="yritual-head">
+        <div class="yritual-name">From the plan</div>
+        <div class="yritual-meta" id="tCount">1 of 3 done</div>
+      </div>
+      <i class="ic ic-chev yritual-chev"></i>
     </div>
     <div class="task-row done" onclick="toggleTask(this)">
       <div class="t-ck done">✓</div>
@@ -364,50 +353,29 @@
       <div class="yhead-t">Signals</div>
       <div class="yhead-rule"></div>
     </div>
-    <a class="checkin-prompt" href="you-discover.html">
-      <i class="ic ic-spark cp-icon"></i>
-      <div class="cp-text">
-        <div class="cp-h">Weekly check-in is ready</div>
-        <div class="cp-sub">3 questions · 2 min · due today</div>
+    <a class="yritual signal-card" href="you-discover.html">
+      <div class="yritual-top">
+        <div class="yritual-badge signal"><i class="ic ic-spark"></i></div>
+        <div class="yritual-head">
+          <div class="yritual-name">Weekly check-in is ready</div>
+          <div class="yritual-meta">3 questions · 2 min · due today</div>
+        </div>
+        <i class="ic ic-chev yritual-chev"></i>
       </div>
-      <div class="cp-arrow">→</div>
     </a>
-    <div class="ai-card">
-      <div class="ai-tag">Coach · Buy land goal</div>
-      <div class="ai-body">Compare loan types before your next session. Set aside £200 to the land fund this month.</div>
-      <div class="ai-btns">
-        <button class="ai-btn ai-accept" onclick="this.textContent='Added ✓';this.style.background='var(--olive)';this.style.color='#fff'">Add to plan</button>
-        <button class="ai-btn" onclick="this.closest('.ai-card').style.opacity='.35'">Not now</button>
+    <div class="yritual coach-card">
+      <div class="yritual-top">
+        <div class="yritual-badge coach"><i class="ic ic-compass"></i></div>
+        <div class="yritual-head">
+          <div class="yritual-name">Coach · Buy land goal</div>
+          <div class="yritual-meta">A nudge toward your next step</div>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ══════════ REST STATE ══════════ -->
-  <div class="rest-state">
-    <div class="rest-em">🌙</div>
-    <div class="rest-h">Today is for rest</div>
-    <div class="rest-body">Nothing is lost. Your streaks are held and your paths wait for you — rest is <em>part</em> of the practice, not a break from it.</div>
-    <div class="rest-hold"><i class="ic ic-flame"></i> Streaks protected today</div>
-
-    <!-- minimal regulating floor — the user's OWN routine, softened -->
-    <div class="rhythm">
-      <div class="rhythm-h">A gentle rhythm</div>
-      <div class="rhythm-note">Just your own routine, softened — keeping it steady is what your nervous system leans on. Do the bits that feel kind, skip the rest.</div>
-      <a class="rhythm-item" href="log-sleep.html">
-        <div class="rhythm-ic"><i class="ic ic-moon"></i></div>
-        <div><div class="rhythm-t">Keep your sleep rhythm</div><div class="rhythm-s">Your target · wind down ~22:30, wake ~06:30</div></div>
-        <i class="ic ic-chev rhythm-chev"></i>
-      </a>
-      <a class="rhythm-item" href="log-habits.html">
-        <div class="rhythm-ic"><i class="ic ic-sun"></i></div>
-        <div><div class="rhythm-t">Morning ritual · gentle</div><div class="rhythm-s">The lightest version, whenever you rise</div></div>
-        <i class="ic ic-chev rhythm-chev"></i>
-      </a>
-      <a class="rhythm-item" href="log-habits.html">
-        <div class="rhythm-ic"><i class="ic ic-moon"></i></div>
-        <div><div class="rhythm-t">Evening ritual · gentle</div><div class="rhythm-s">Unwind when you're ready — no checklist tonight</div></div>
-        <i class="ic ic-chev rhythm-chev"></i>
-      </a>
+      <div class="coach-body">Compare loan types before your next session. Set aside £200 to the land fund this month.</div>
+      <div class="coach-btns">
+        <button class="coach-btn coach-accept" onclick="this.textContent='Added ✓';this.style.background='var(--olive)';this.style.color='#fff';this.style.borderColor='var(--olive)'">Add to plan</button>
+        <button class="coach-btn" onclick="this.closest('.coach-card').style.opacity='.35'">Not now</button>
+      </div>
     </div>
   </div>
 
@@ -533,7 +501,8 @@ function updateFocus(){
   const primary = document.getElementById('primary');
   const rested = primary.classList.contains('rested');
   const primaryDone = primary.classList.contains('done');
-  const nodes = [...document.querySelectorAll('.rnode')].filter(n=>getComputedStyle(n).display!=='none'); // ritual habits
+  // Rest & Lighter use the same focus-band ritual cards (fewer circles show via CSS)
+  const nodes = [...document.querySelectorAll('.focus-band .rnode')].filter(n=>getComputedStyle(n).display!=='none');
   const nodesDone = nodes.filter(n=>n.classList.contains('done')).length;
   const themeCounts = (mode==='full' && !rested);        // theme rests on Lighter/Rest
   const total = nodes.length + (themeCounts?1:0);
@@ -589,7 +558,6 @@ function toggleTask(row){
   ck.classList.toggle('done');
   ck.textContent = ck.classList.contains('done') ? '✓' : '';
   tDone += was ? -1 : 1;
-  document.getElementById('tProg').style.width = Math.round(tDone/tTotal*100) + '%';
   document.getElementById('tCount').textContent = tDone + ' of ' + tTotal + ' done';
 }
 
