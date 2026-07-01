@@ -49,6 +49,10 @@
 .yritual-badge{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;color:#fff;font-size:19px;}
 .yritual-badge.am{background:linear-gradient(150deg,#caa76a,#a8843f);}
 .yritual-badge.pm{background:linear-gradient(150deg,#7d8bab,#4a5674);}
+.yritual-badge.theme{background:linear-gradient(150deg,#7f8c78,#566150);}
+.yritual-badge.task{background:linear-gradient(150deg,#8aa3bd,#5c7794);}
+.yritual-badge.signal{background:linear-gradient(150deg,#a893c4,#7d63a0);}
+.yritual-badge.coach{background:linear-gradient(150deg,#8f9770,#6c7450);}
 .yritual-head{flex:1;min-width:0;}
 .yritual-name{font-size:var(--fs-md);font-weight:800;letter-spacing:-.01em;}
 .yritual-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
