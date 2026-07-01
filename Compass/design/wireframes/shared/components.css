@@ -62,8 +62,8 @@
 .k-col{width:120px;flex-shrink:0;}
 .k-head{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line);}
 .k-head.tc{color:var(--olive);border-color:var(--olive);}
-.k-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:7px;font-size:var(--fs-xs);line-height:1.45;box-shadow:var(--shadow-sm);}
-.k-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+.k-card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 13px;margin-bottom:7px;font-size:var(--fs-xs);line-height:1.45;box-shadow:var(--shadow-sm);overflow:hidden;}
+.k-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
 .k-card.done{opacity:.4;text-decoration:line-through;}
 
 /* ── Goal tiles ── */
@@ -121,3 +121,153 @@
 .mission-card{background:var(--card);border:1px dashed var(--line);border-radius:var(--r-card);padding:16px;margin-bottom:10px;}
 .mission-text{font-size:15px;font-style:italic;line-height:1.55;margin-bottom:8px;}
 .mission-hint{font-size:var(--fs-xs);color:var(--muted);}
+
+/* ═══════════ Plan boards — Year · Goal · Projects ═══════════ */
+/* Horizontally-scrolling column board */
+.pboard-wrap{overflow-x:auto;padding-bottom:8px;margin:0 -2px;}
+.pboard-wrap::-webkit-scrollbar{height:4px;}
+.pboard-wrap::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
+.pboard{display:flex;gap:10px;min-width:max-content;}
+.pcol{width:160px;flex-shrink:0;}
+.pcol-head{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+.pcol-head.is-now{color:var(--accent);border-color:var(--accent);}
+.pcol-count{font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:1px 7px;font-size:9px;}
+.pcol-head.is-now .pcol-count{background:var(--accent-soft);color:var(--accent);}
+
+/* Rich task / goal card — pillar rail, title, meta chips */
+.pcard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 13px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
+.pcard:active{transform:scale(.98);}
+.pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
+.pcard-title{font-size:var(--fs-sm);font-weight:700;line-height:1.35;color:var(--ink);}
+.pcard-sub{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.pcard-meta{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:7px;}
+.chip{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:2px 7px;letter-spacing:.02em;}
+.chip .ic{font-size:10px;}
+/* Pillar chip — coloured dot + name; carries pillar identity on every card */
+.chip.pillar{color:var(--pill,var(--muted));background:var(--greige);font-weight:800;}
+.chip.pillar::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--pill,var(--line));flex-shrink:0;}
+/* mini progress */
+.pcard-prog{height:3px;background:var(--greige);border-radius:999px;margin-top:8px;overflow:hidden;}
+.pcard-prog i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));}
+/* have-to (external obligation) — muted, dashed */
+.pcard.haveto{border-style:dashed;opacity:.72;}
+/* done */
+.pcard.done{opacity:.5;}
+.pcard.done .pcard-title{text-decoration:line-through;}
+/* move-to-this-month affordance on planned cards */
+.pcard-move{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:5px 8px;}
+.pcard-move .ic{font-size:11px;}
+/* dashed add-card slot */
+.pcard-add{border:1px dashed var(--line);background:transparent;box-shadow:none;color:var(--muted);text-align:center;font-size:var(--fs-xs);font-weight:700;padding:10px;}
+.pcard-add::before{display:none;}
+
+/* ── Goal-board detail header ── */
+.goalhead{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:15px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);overflow:hidden;}
+.goalhead::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--pill,var(--accent));}
+.gh-back{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-decoration:none;margin-bottom:10px;}
+.gh-back .ic{font-size:12px;transform:rotate(180deg);}
+.gh-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.02em;line-height:1.2;}
+.gh-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.gh-prog{height:6px;background:var(--greige);border-radius:999px;margin-top:12px;overflow:hidden;}
+.gh-prog i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));}
+.gh-prog-lbl{font-size:var(--fs-xs);color:var(--muted);margin-top:6px;}
+/* energy summary strip */
+.esum{display:flex;background:var(--greige);border-radius:14px;overflow:hidden;margin-top:12px;}
+.esum-col{flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--line);}
+.esum-col:last-child{border-right:none;}
+.esum-val{font-size:var(--fs-md);font-weight:800;}
+.esum-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+
+/* ── Floating add button ── */
+.fab{position:fixed;right:18px;bottom:20px;z-index:40;display:inline-flex;align-items:center;gap:7px;background:var(--btn);color:#fff;border:none;font-family:inherit;font-size:var(--fs-sm);font-weight:800;padding:12px 18px;border-radius:999px;box-shadow:var(--shadow);cursor:pointer;}
+.fab .ic{font-size:15px;background:#fff;}
+
+/* ── Bottom sheet (generic overlay) ── */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;flex-direction:column;justify-content:flex-end;}
+.sheet.open{opacity:1;pointer-events:auto;}
+.sheet-inner{background:var(--bg);border-radius:22px 22px 0 0;max-height:90vh;overflow-y:auto;transform:translateY(28px);transition:transform .25s;padding:16px 20px 28px;}
+.sheet.open .sheet-inner{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--line);border-radius:999px;margin:0 auto 14px;}
+.sheet-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;margin-bottom:4px;}
+.sheet-sub{font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.sheet-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:16px 0 8px;}
+.sheet-field{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:var(--fs-sm);font-family:inherit;color:var(--ink);}
+.sheet-btn{flex:1;padding:14px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;margin-top:16px;}
+.sheet-btn.ghost{background:var(--greige);color:var(--ink);}
+.sheet-btns{display:flex;gap:8px;}
+
+/* step dots for multi-step add-goal flow */
+.steps{display:flex;gap:6px;justify-content:center;margin-bottom:14px;}
+.step{width:7px;height:7px;border-radius:50%;background:var(--line);}
+.step.on{background:var(--accent);}
+/* selectable option blocks (motivation gate) */
+.opt{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s;background:var(--card);}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft);}
+.opt-t{font-size:var(--fs-sm);font-weight:700;}
+.opt-d{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;line-height:1.45;}
+/* checklist rows (mission filter) — uses shared .tick */
+.chk-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;}
+.chk-row:last-child{border-bottom:none;}
+.chk-t{font-size:var(--fs-sm);font-weight:600;}
+/* pillar chip picker */
+.pill-pick{display:flex;flex-wrap:wrap;gap:6px;}
+.pp{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;background:var(--card);}
+.pp .ppd{width:9px;height:9px;border-radius:50%;}
+.pp.sel{border-color:var(--ink);color:var(--ink);}
+/* segmented picker (energy estimate + post-task rating) */
+.seg{display:flex;gap:6px;}
+.seg-b{flex:1;border:1.5px solid var(--line);border-radius:11px;padding:10px 4px;text-align:center;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;background:var(--card);font-family:inherit;transition:all .15s;}
+.seg-b.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+/* ═══════════ Plan — shared page bits (single source of truth) ═══════════ */
+.hint{font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin:2px 2px 12px;}
+
+/* Canonical circular tick — matches Today; reuse everywhere a checkbox is needed */
+.tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s;}
+.tick.on,.tick.done,.chk-row.on .tick{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* Year switch — horizontal scroll strip, no fixed year count */
+.yr-switch{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
+.yr-switch::-webkit-scrollbar{height:0;}
+.yr-btn{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);font-family:inherit;cursor:pointer;flex-shrink:0;}
+.yr-btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+
+/* Projects list rows */
+.proj{position:relative;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px 13px 16px;margin-bottom:9px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
+.proj:active{transform:scale(.99);}
+.proj::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--pill,var(--line));}
+.proj-main{flex:1;min-width:0;}
+.proj-title{font-size:var(--fs-md);font-weight:700;line-height:1.25;}
+.proj-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.proj-prog{height:4px;background:var(--greige);border-radius:999px;margin-top:9px;overflow:hidden;}
+.proj-prog i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));}
+.proj-pct{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.02em;flex-shrink:0;}
+.proj.haveto{border-style:dashed;opacity:.72;}
+.proj-add{border:1px dashed var(--line);background:transparent;box-shadow:none;color:var(--muted);justify-content:center;font-weight:700;font-size:var(--fs-sm);}
+.proj-add::before{display:none;}
+
+/* Post-task rating reveal (goal board task sheet) */
+.rate-block{display:none;border-top:1px solid var(--line);margin-top:16px;padding-top:6px;}
+.rate-block.show{display:block;}
+
+/* ═══════════ Sleep log — 24h dial · gentle note · 1–10 scores (shared) ═══════════ */
+.dial-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:16px 18px 14px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:12px;user-select:none;-webkit-user-select:none;}
+.dial-card svg{width:216px;height:216px;display:block;touch-action:none;}
+.dial-hint{font-size:var(--fs-xs);color:var(--muted);font-weight:500;text-align:center;}
+.dial-foot{text-align:center;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;}
+.dial-foot strong{color:var(--ink);font-weight:800;font-size:var(--fs-md);letter-spacing:-.01em;}
+
+.insight{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--steel);border-radius:var(--r-card);padding:14px 18px 14px 16px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
+.insight-tag{display:block;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--steel);margin-bottom:7px;}
+.insight-p{margin:0;font-size:var(--fs-md);line-height:1.6;}
+.insight-p .soft{color:var(--muted);}
+
+.b-sect{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+.score-label{font-size:var(--fs-md);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.score-label .ic{color:var(--accent);font-size:15px;}
+.score-row{display:flex;gap:4px;margin-bottom:4px;}
+.score-btn{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 0;font:700 var(--fs-sm) inherit;color:var(--muted);cursor:pointer;transition:all .12s;}
+.score-btn:hover{background:var(--greige);color:var(--ink);}
+.score-btn.sel{background:var(--btn);color:#FBFAF8;border-color:var(--btn);}
+.score-scale{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin:2px 2px 14px;}
+.score-scale span:nth-child(2){flex:1;text-align:center;}
+.score-scale span:last-child{text-align:right;}

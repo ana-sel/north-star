@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Compass · Plan · Goal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+</head>
+<body class="screen-body">
+
+  <!-- ── Goal header ── -->
+  <div class="goalhead" style="--pill:var(--p-money)">
+    <a class="gh-back" href="plan-year.html"><i class="ic ic-chev"></i> Year</a>
+    <div class="gh-title">Buy land</div>
+    <div class="gh-tags">
+      <span class="chip">Money</span>
+      <span class="chip">Target · Oct 2026</span>
+      <span class="chip">I want this</span>
+    </div>
+    <div class="gh-prog"><i style="width:35%"></i></div>
+    <div class="gh-prog-lbl">35% · 4 of 11 cards done</div>
+    <div class="esum">
+      <div class="esum-col"><div class="esum-val">11</div><div class="esum-lbl">Cards</div></div>
+      <div class="esum-col"><div class="esum-val">Med</div><div class="esum-lbl">Avg energy</div></div>
+      <div class="esum-col"><div class="esum-val">3×</div><div class="esum-lbl">Postponed</div></div>
+    </div>
+  </div>
+
+  <p class="hint">Every card is one task with a pillar, a date and an energy estimate. Tap a card to open it — mark it done and rate how it went so your coach learns your pace.</p>
+
+  <!-- ── Task board ── -->
+  <div class="pboard-wrap">
+    <div class="pboard">
+
+      <!-- Backlog -->
+      <div class="pcol">
+        <div class="pcol-head">Backlog <span class="pcol-count">3</span></div>
+        <div class="pcard" style="--pill:var(--p-money)" onclick="openTask(this)" data-t="Budget audit Q3" data-e="2">
+          <div class="pcard-title">Budget audit Q3</div>
+          <div class="pcard-meta"><span class="chip pillar">Money</span></div>
+        </div>
+        <div class="pcard" style="--pill:var(--p-admin)" onclick="openTask(this)" data-t="Shortlist solicitors" data-e="1">
+          <div class="pcard-title">Shortlist solicitors</div>
+          <div class="pcard-meta"><span class="chip pillar">Admin</span></div>
+        </div>
+        <div class="pcard" style="--pill:var(--p-money)" onclick="openTask(this)" data-t="Compare loan types" data-e="3">
+          <div class="pcard-title">Compare loan types</div>
+          <div class="pcard-meta"><span class="chip pillar">Money</span></div>
+        </div>
+        <div class="pcard pcard-add" onclick="openTask(null)">+ Add card</div>
+      </div>
+
+      <!-- This month -->
+      <div class="pcol">
+        <div class="pcol-head is-now">This month <span class="pcol-count">2</span></div>
+        <div class="pcard" style="--pill:var(--p-money)" onclick="openTask(this)" data-t="Mortgage comparison" data-e="3">
+          <div class="pcard-title">Mortgage comparison</div>
+          <div class="pcard-meta"><span class="chip pillar">Money</span><span class="chip">12 Jul</span></div>
+        </div>
+        <div class="pcard" style="--pill:var(--p-admin)" onclick="openTask(this)" data-t="View 3 plots" data-e="2">
+          <div class="pcard-title">View 3 plots</div>
+          <div class="pcard-meta"><span class="chip pillar">Admin</span><span class="chip">20 Jul</span></div>
+        </div>
+      </div>
+
+      <!-- Doing -->
+      <div class="pcol">
+        <div class="pcol-head">Doing <span class="pcol-count">1</span></div>
+        <div class="pcard" style="--pill:var(--p-admin)" onclick="openTask(this)" data-t="Research mortgages" data-e="2">
+          <div class="pcard-title">Research mortgages</div>
+          <div class="pcard-meta"><span class="chip pillar">Admin</span><span class="chip">Today</span></div>
+        </div>
+      </div>
+
+      <!-- Done -->
+      <div class="pcol">
+        <div class="pcol-head">Done <span class="pcol-count">4</span></div>
+        <div class="pcard done" style="--pill:var(--p-money)"><div class="pcard-title">Open savings pot</div><div class="pcard-meta"><span class="chip">Easy · 15m</span></div></div>
+        <div class="pcard done" style="--pill:var(--p-money)"><div class="pcard-title">Set £200/mo transfer</div><div class="pcard-meta"><span class="chip">OK · 30m</span></div></div>
+        <div class="pcard done" style="--pill:var(--p-admin)"><div class="pcard-title">List must-haves</div><div class="pcard-meta"><span class="chip">Easy · 15m</span></div></div>
+        <div class="pcard done" style="--pill:var(--p-money)"><div class="pcard-title">Check credit score</div><div class="pcard-meta"><span class="chip">Hard · 1h+</span></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ TASK DETAIL + RATING SHEET ══════════ -->
+  <div class="sheet" id="taskSheet">
+    <div class="sheet-inner">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="tsTitle">Mortgage comparison</div>
+      <div class="sheet-sub">Buy land · due 12 Jul</div>
+
+      <!-- read-only facts: pillar + the coach's energy estimate (not yours to set) -->
+      <div class="pcard-meta" style="margin:12px 0 4px">
+        <span class="chip pillar" id="tsPillar" style="--pill:var(--p-money)">Money</span>
+        <span class="chip"><i class="ic ic-zap"></i> Est. <span id="tsEnergy">High</span></span>
+      </div>
+
+      <p class="hint" style="margin-top:12px">Feels too big? <b onclick="alert('Break into smaller cards')" style="color:var(--accent);cursor:pointer">Break into smaller cards ›</b></p>
+
+      <button class="sheet-btn" style="width:100%" id="markBtn" onclick="showRating()">Mark done</button>
+
+      <!-- Post-task rating — shown once, a single Done confirms -->
+      <div class="rate-block" id="rateBlock">
+        <div class="sheet-label">How did it go?</div>
+        <div class="seg"><button class="seg-b" onclick="pickSeg(this)">Easy</button><button class="seg-b sel" onclick="pickSeg(this)">OK</button><button class="seg-b" onclick="pickSeg(this)">Hard</button></div>
+
+        <div class="sheet-label">How long did it take?</div>
+        <div class="seg"><button class="seg-b sel" onclick="pickSeg(this)">&lt;15m</button><button class="seg-b" onclick="pickSeg(this)">~30m</button><button class="seg-b" onclick="pickSeg(this)">1h+</button></div>
+
+        <div class="sheet-label">Energy afterwards</div>
+        <div class="seg"><button class="seg-b" onclick="pickSeg(this)">Gave energy</button><button class="seg-b sel" onclick="pickSeg(this)">Neutral</button><button class="seg-b" onclick="pickSeg(this)">Drained</button></div>
+
+        <p class="hint" style="margin-top:14px">This feeds your coach — how many cards to suggest per day (5·3·1).</p>
+        <button class="sheet-btn" style="width:100%" onclick="closeTask()">Done</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const ts=document.getElementById('taskSheet'),rb=document.getElementById('rateBlock'),markBtn=document.getElementById('markBtn');
+const ELV={1:'Low',2:'Medium',3:'High'};
+function openTask(card){
+  if(card){
+    document.getElementById('tsTitle').textContent=card.dataset.t;
+    document.getElementById('tsEnergy').textContent=ELV[card.dataset.e]||'Medium';
+    const pc=card.querySelector('.chip.pillar'),tp=document.getElementById('tsPillar');
+    if(pc){tp.textContent=pc.textContent;tp.style.setProperty('--pill',card.style.getPropertyValue('--pill'));}
+  }
+  rb.classList.remove('show');
+  markBtn.style.display='block';
+  ts.classList.add('open');
+}
+function closeTask(){ts.classList.remove('open');}
+function showRating(){markBtn.style.display='none';rb.classList.add('show');rb.scrollIntoView({behavior:'smooth'});}
+function pickSeg(b){b.parentElement.querySelectorAll('.seg-b').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');}
+</script>
+</body>
+</html>

@@ -15,16 +15,49 @@
     <div class="ylens-badge"><i class="ic ic-layers"></i></div>
     <div>
       <div class="ylens-title">Projects</div>
-      <div class="ylens-sub">Active work and what's next</div>
+      <div class="ylens-sub">Each goal as its own board — focus and finish</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-h">Projects</div>
-    <div class="row"><div class="dot" style="background:var(--p-money)"></div><div class="label">Buy land</div><div class="tag">35%</div></div>
-    <div class="row"><div class="dot" style="background:var(--p-admin)"></div><div class="label">Home renovation</div><div class="tag">10%</div></div>
-    <div class="row"><div class="dot" style="background:var(--p-inner)"></div><div class="label">Learn Spanish</div><div class="tag">60%</div></div>
-    <div class="row" style="opacity:.5"><div class="dot" style="background:var(--line)"></div><div class="label">+ Add project</div></div>
+  <p class="hint">A project is a goal, viewed on its own so a big thing feels doable. Open one to see every card — done and still to do — and break the heavy ones down.</p>
+
+  <div class="proj" style="--pill:var(--p-money)" onclick="location.href='plan-goal.html'">
+    <div class="proj-main">
+      <div class="proj-title">Buy land</div>
+      <div class="proj-meta"><span class="chip pillar">Money</span><span class="chip">4 / 11 cards</span><span class="chip">Oct 2026</span></div>
+      <div class="proj-prog"><i style="width:35%"></i></div>
+    </div>
+    <div class="proj-pct">35%</div>
   </div>
+
+  <div class="proj" style="--pill:var(--p-admin)" onclick="location.href='plan-goal.html'">
+    <div class="proj-main">
+      <div class="proj-title">Home renovation</div>
+      <div class="proj-meta"><span class="chip pillar">Admin</span><span class="chip">2 / 18 cards</span><span class="chip">2027</span></div>
+      <div class="proj-prog"><i style="width:10%"></i></div>
+    </div>
+    <div class="proj-pct">10%</div>
+  </div>
+
+  <div class="proj" style="--pill:var(--p-joy)" onclick="location.href='plan-goal.html'">
+    <div class="proj-main">
+      <div class="proj-title">Learn Spanish</div>
+      <div class="proj-meta"><span class="chip pillar">Joy</span><span class="chip">9 / 15 cards</span><span class="chip">ongoing</span></div>
+      <div class="proj-prog"><i style="width:60%"></i></div>
+    </div>
+    <div class="proj-pct">60%</div>
+  </div>
+
+  <div class="proj haveto" style="--pill:var(--p-admin)" onclick="location.href='plan-goal.html'">
+    <div class="proj-main">
+      <div class="proj-title">Renew passport</div>
+      <div class="proj-meta"><span class="chip pillar">Admin</span><span class="chip">Have-to</span><span class="chip">1 / 3 cards</span></div>
+      <div class="proj-prog"><i style="width:33%"></i></div>
+    </div>
+    <div class="proj-pct">33%</div>
+  </div>
+
+  <div class="proj proj-add" onclick="location.href='plan-year.html'">+ Add project from a goal</div>
+
 </body>
 </html>
