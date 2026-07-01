@@ -7,227 +7,337 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
 <style>
-/* ── Routine tabs ── */
-.rtabs{display:flex;gap:4px;margin-bottom:14px;}
-.rtab{
-  flex:1;padding:7px 0;border-radius:999px;border:none;
-  font-family:inherit;font-size:var(--fs-sm);font-weight:600;
-  cursor:pointer;transition:all .15s;
-  background:var(--greige);color:var(--muted);
-}
-.rtab.active{background:var(--btn);color:#fff;}
 
-/* ── Routine block ── */
-.routine{display:none;}
-.routine.active{display:block;}
+/* ── Header ── */
+.hhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.hdt{font-size:var(--fs-sm);color:var(--muted);font-weight:500;}
+.hstreak{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:700;background:var(--card);border:1px solid var(--line);padding:4px 11px;border-radius:999px;box-shadow:var(--shadow-sm);color:var(--ink);}
+.hstreak .ic{color:#c9803f;font-size:12px;}
 
-/* ── Routine header ── */
-.rh{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
-  padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);
-}
-.rh-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.rh-icon{font-size:22px;line-height:1;}
-.rh-col{flex:1;}
-.rh-name{font-size:var(--fs-md);font-weight:700;line-height:1.2;}
-.rh-time{font-size:var(--fs-xs);color:var(--muted);}
-.rh-count{
-  font-size:var(--fs-xs);font-weight:600;color:var(--olive);
-  background:#f0f3ef;padding:3px 10px;border-radius:999px;
-}
-/* Progress arc bar */
-.rh-prog{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;}
-.rh-prog-fill{height:100%;border-radius:999px;background:var(--olive);transition:width .3s;}
+/* ── Baseline framing ── */
+.baseline-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;background:var(--greige);border-radius:12px;padding:11px 13px;margin-bottom:14px;}
+.baseline-note strong{color:var(--ink);font-weight:700;}
+.baseline-note a{color:var(--olive);font-weight:700;text-decoration:none;}
+.baseline-note em{font-style:italic;}
 
-/* ── Habit rows ── */
-.habit-list{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
-  overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;
-}
-.habit-row{
-  display:flex;align-items:center;gap:10px;
-  padding:11px 14px;border-bottom:1px solid var(--line);
-  cursor:pointer;user-select:none;
-}
-.habit-row:last-child{border-bottom:none;}
-.habit-check{
-  width:24px;height:24px;border-radius:50%;
-  border:2px solid var(--line);background:var(--bg);
-  display:grid;place-items:center;font-size:13px;
-  color:transparent;flex-shrink:0;transition:all .15s;
-}
-.habit-check.done{background:var(--olive);border-color:var(--olive);color:#fff;}
-.habit-emoji{font-size:17px;flex-shrink:0;}
-.habit-info{flex:1;}
-.habit-name{font-size:var(--fs-md);}
-.habit-dur{font-size:var(--fs-xs);color:var(--muted);}
-.habit-row.done .habit-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
-.habit-streak{
-  font-size:var(--fs-xs);font-weight:600;color:var(--p-joy);
-  display:flex;align-items:center;gap:2px;
-}
+/* ── Pace selector (shared concept with Today) ── */
+.pace{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.pace-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);flex-shrink:0;}
+.pace-seg{display:flex;flex:1;background:var(--greige);border-radius:12px;padding:3px;gap:2px;}
+.pace-btn{flex:1;padding:8px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;}
+.pace-btn.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+.pace-btn.on[data-mode="rest"]{color:var(--p-inner);}
+.pace-cap{font-size:var(--fs-xs);color:var(--muted);margin:0 2px 16px;line-height:1.5;}
+.pace-cap b{color:var(--ink);font-weight:700;}
 
-/* ── Add habit row ── */
-.add-habit{
-  display:flex;align-items:center;gap:8px;padding:11px 14px;
-  color:var(--muted);font-size:var(--fs-sm);cursor:pointer;
-  background:var(--card);border:1px dashed var(--line);border-radius:var(--r-card);
-}
-.add-habit span{font-size:16px;}
+/* ── Expanded ritual card (uses shared .yritual from you.css) ── */
+.yritual-streak{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);flex-shrink:0;}
+.yritual-streak .ic{color:#c9803f;font-size:11px;}
+.yritual-track{border-bottom:1px solid var(--line);padding-bottom:15px;}
 
-/* ── Streak callout ── */
-.streak-bar{
-  display:flex;align-items:center;gap:10px;
-  background:linear-gradient(120deg,#f7f3ec,#fff);
-  border:1px solid var(--line);border-radius:var(--r-card);
-  padding:12px 14px;margin-bottom:12px;box-shadow:var(--shadow-sm);
-}
-.streak-emoji{font-size:24px;}
-.streak-text{font-size:var(--fs-sm);color:var(--muted);}
-.streak-text strong{color:var(--ink);}
+/* Habit rows */
+.hrow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer;user-select:none;}
+.hrow:first-of-type{border-top:none;}
+.hrow-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s;}
+.hrow.done .hrow-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
+.hrow-ic{width:34px;height:34px;border-radius:10px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:16px;flex-shrink:0;}
+.hrow-main{flex:1;min-width:0;}
+.hrow-name{font-size:var(--fs-md);font-weight:600;line-height:1.2;}
+.hrow.done .hrow-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.hrow-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.hpill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;margin-top:5px;line-height:1;}
+.hpill.stillness{background:#ede8f6;color:#7a679c;}
+.hpill.land{background:#e4efe6;color:#4e7d5a;}
+.hrow-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.hdots{display:flex;gap:3px;}
+.hd{width:6px;height:6px;border-radius:50%;background:var(--line);}
+.hd.on{background:var(--accent);}
+.hd.miss{background:#dcc6c9;}
+.hd.today{background:transparent;border:1.5px solid var(--accent);}
+.hfreq{font-size:8px;font-weight:800;letter-spacing:.05em;color:var(--muted);text-align:right;}
+.hfreq.l2{color:var(--olive);}
+.hfreq.l3{color:#4a8a42;}
+
+/* Frequency upgrade nudge (gradual escalation) */
+.hnudge{display:flex;align-items:center;gap:10px;padding:11px 16px;background:#f7efe1;border-top:1px solid var(--line);}
+.hnudge .ic{color:#a8843f;font-size:14px;flex-shrink:0;}
+.hnudge-t{flex:1;font-size:var(--fs-xs);color:#8a6d33;line-height:1.4;}
+.hnudge-t strong{color:#6f571f;font-weight:700;}
+.hnudge-b{font-size:var(--fs-xs);font-weight:700;color:#8a6d33;background:#efe1c4;border:1px solid #e2cfa0;border-radius:999px;padding:5px 12px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+
+/* Add habit */
+.hadd{display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:var(--fs-sm);cursor:pointer;}
+.hadd .ic{font-size:14px;}
+
+/* Legend */
+.hlegend{display:flex;gap:14px;margin:8px 2px 20px;flex-wrap:wrap;}
+.hleg{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--muted);}
+.hleg-b{font-size:8px;font-weight:800;background:var(--greige);padding:2px 7px;border-radius:999px;color:var(--muted);}
+
+/* Pace visibility — the ritual scales to the day (spec-foundations §1b) */
+.mode-rest .hrow.opt-lighter,.mode-rest .hrow.opt-full,.mode-lighter .hrow.opt-full{display:none;}
+.mode-rest .hnudge.opt-lighter,.mode-rest .hnudge.opt-full,.mode-lighter .hnudge.opt-full{display:none;}
+
+/* Rest hint */
+.rest-hint{display:none;font-size:var(--fs-sm);color:var(--olive);background:#eef3ec;border:1px solid #cfe0c9;border-radius:12px;padding:11px 13px;margin-bottom:12px;line-height:1.55;}
+.mode-rest .rest-hint{display:block;}
+
 </style>
 </head>
-<body class="screen-body">
+<body class="screen-body mode-full">
 
-  <!-- Streak callout -->
-  <div class="streak-bar">
-    <div class="streak-emoji">🔥</div>
-    <div class="streak-text"><strong>3-day streak</strong> — morning routine · keep it going</div>
+  <!-- ── Header ── -->
+  <div class="hhdr">
+    <div class="hdt">Friday · 27 June · morning</div>
+    <div class="hstreak"><i class="ic ic-flame"></i> 3-day streak</div>
   </div>
 
-  <!-- Routine tabs -->
-  <div class="rtabs">
-    <button class="rtab active" onclick="switchRoutine('morning', this)">🌅 Morning</button>
-    <button class="rtab" onclick="switchRoutine('evening', this)">🌙 Evening</button>
+  <!-- ── The habit engine framing ── -->
+  <div class="baseline-note">
+    <strong>Your daily baseline.</strong> The tiny rituals you keep every day — this is
+    the habit engine. Growing a quality (one <em>theme</em> a day) happens over in
+    <a href="plan-trails.html">Paths</a>. Build slowly: add one habit at a time, start
+    it at its smallest dose, let it grow.
   </div>
 
-  <!-- Morning routine -->
-  <div class="routine active" id="routine-morning">
-    <div class="rh" id="rh-morning">
-      <div class="rh-top">
-        <div class="rh-icon">🌅</div>
-        <div class="rh-col">
-          <div class="rh-name">Morning Routine</div>
-          <div class="rh-time">Starts 07:00 · ~35 min total</div>
-        </div>
-        <div class="rh-count" id="rc-morning">1 of 4</div>
+  <!-- ── Pace selector (shared with Today) ── -->
+  <div class="pace">
+    <div class="pace-label">Today's pace</div>
+    <div class="pace-seg">
+      <button class="pace-btn on" data-mode="full" onclick="setPace('full')">Full</button>
+      <button class="pace-btn" data-mode="lighter" onclick="setPace('lighter')">Lighter</button>
+      <button class="pace-btn" data-mode="rest" onclick="setPace('rest')">Rest</button>
+    </div>
+  </div>
+  <div class="pace-cap">Same setting as <b>Today</b>. A gentler day shows a <b>shorter ritual</b> — the bare minimum on Rest, a little more on Lighter, everything on Full.</div>
+
+  <div class="rest-hint">Just the bare minimum to get through today — wake, water, a few breaths, bed on time. Nothing is lost; the rest waits for you.</div>
+
+  <!-- ══════════════ MORNING RITUAL ══════════════ -->
+  <div class="yritual" id="rit-morning">
+    <div class="yritual-top" style="cursor:default">
+      <div class="yritual-badge am"><i class="ic ic-sun"></i></div>
+      <div class="yritual-head">
+        <div class="yritual-name">Morning ritual</div>
+        <div class="yritual-meta">Right after waking · 07:00 · 2 of 4 done</div>
       </div>
-      <div class="rh-prog"><div class="rh-prog-fill" id="rp-morning" style="width:25%"></div></div>
+      <div class="yritual-streak"><i class="ic ic-flame"></i> 5</div>
     </div>
 
-    <div class="habit-list" id="hl-morning">
-      <div class="habit-row done" onclick="toggleHabit(this,'morning')">
-        <div class="habit-check done">✓</div>
-        <div class="habit-emoji">💧</div>
-        <div class="habit-info">
-          <div class="habit-name">Drink a glass of water</div>
-          <div class="habit-dur">2 min · right on waking</div>
-        </div>
-        <div class="habit-streak">🔥3</div>
+    <!-- circle summary -->
+    <div class="yritual-track">
+      <button class="rnode done" onclick="tapNode('morning',0)"><i class="ic ic-drop"></i></button>
+      <span class="rlink done"></span>
+      <button class="rnode done" onclick="tapNode('morning',1)"><i class="ic ic-wind"></i></button>
+      <span class="rlink opt-lighter"></span>
+      <button class="rnode now opt-lighter" onclick="tapNode('morning',2)"><i class="ic ic-activity"></i></button>
+      <span class="rlink opt-full"></span>
+      <button class="rnode opt-full" onclick="tapNode('morning',3)"><i class="ic ic-leaf"></i></button>
+    </div>
+
+    <!-- detailed rows -->
+    <div class="hrow done" onclick="toggleHabit(this,'morning')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-drop"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">Drink water on waking</div>
+        <div class="hrow-meta">2 min · the first tiny habit</div>
       </div>
-      <div class="habit-row" onclick="toggleHabit(this,'morning')">
-        <div class="habit-check"></div>
-        <div class="habit-emoji">🚶</div>
-        <div class="habit-info">
-          <div class="habit-name">Morning walk</div>
-          <div class="habit-dur">20 min</div>
-        </div>
-        <div class="habit-streak">🔥3</div>
-      </div>
-      <div class="habit-row" onclick="toggleHabit(this,'morning')">
-        <div class="habit-check"></div>
-        <div class="habit-emoji">📖</div>
-        <div class="habit-info">
-          <div class="habit-name">Read 10 pages</div>
-          <div class="habit-dur">15 min</div>
-        </div>
-        <div class="habit-streak">🔥1</div>
-      </div>
-      <div class="habit-row" onclick="toggleHabit(this,'morning')">
-        <div class="habit-check"></div>
-        <div class="habit-emoji">🧘</div>
-        <div class="habit-info">
-          <div class="habit-name">5-min stillness sit</div>
-          <div class="habit-dur">5 min</div>
-        </div>
-        <div class="habit-streak"></div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span></div>
+        <div class="hfreq l3">Daily</div>
       </div>
     </div>
-    <div class="add-habit"><span>＋</span> Add morning habit</div>
+
+    <div class="hrow done" onclick="toggleHabit(this,'morning')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-wind"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">Three grounding breaths</div>
+        <div class="hrow-meta">30 sec · settle the nervous system</div>
+      </div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span></div>
+        <div class="hfreq l3">Daily</div>
+      </div>
+    </div>
+
+    <div class="hrow opt-lighter" onclick="toggleHabit(this,'morning')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-activity"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">Morning walk</div>
+        <div class="hrow-meta">20 min · fresh air &amp; light</div>
+      </div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq">3×/wk</div>
+      </div>
+    </div>
+    <div class="hnudge opt-lighter">
+      <i class="ic ic-sprout"></i>
+      <div class="hnudge-t">Hit <strong>3×/week</strong> for 2 weeks · ready to try 5×?</div>
+      <button class="hnudge-b" onclick="event.stopPropagation();upgradeFreq(this)">Try 5×</button>
+    </div>
+
+    <div class="hrow opt-full" onclick="toggleHabit(this,'morning')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-leaf"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">5-min silent sit</div>
+        <div class="hrow-meta">Before first screen</div>
+        <div class="hpill stillness"><i class="ic ic-route"></i> Stillness Path</div>
+      </div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd miss"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq">3×/wk</div>
+      </div>
+    </div>
+
+    <div class="hadd opt-full"><i class="ic ic-plus"></i> Add morning habit</div>
   </div>
 
-  <!-- Evening routine -->
-  <div class="routine" id="routine-evening">
-    <div class="rh" id="rh-evening">
-      <div class="rh-top">
-        <div class="rh-icon">🌙</div>
-        <div class="rh-col">
-          <div class="rh-name">Evening Routine</div>
-          <div class="rh-time">Starts 22:00 · ~20 min total</div>
-        </div>
-        <div class="rh-count" id="rc-evening">0 of 3</div>
+  <!-- ══════════════ EVENING RITUAL ══════════════ -->
+  <div class="yritual" id="rit-evening">
+    <div class="yritual-top" style="cursor:default">
+      <div class="yritual-badge pm"><i class="ic ic-moon"></i></div>
+      <div class="yritual-head">
+        <div class="yritual-name">Evening ritual</div>
+        <div class="yritual-meta">After dinner · 22:00 · 0 of 4 done</div>
       </div>
-      <div class="rh-prog"><div class="rh-prog-fill" id="rp-evening" style="width:0%"></div></div>
+      <div class="yritual-streak"><i class="ic ic-flame"></i> 3</div>
     </div>
 
-    <div class="habit-list" id="hl-evening">
-      <div class="habit-row" onclick="toggleHabit(this,'evening')">
-        <div class="habit-check"></div>
-        <div class="habit-emoji">📵</div>
-        <div class="habit-info">
-          <div class="habit-name">No screens after 22:00</div>
-          <div class="habit-dur">Starts 22:00</div>
-        </div>
-        <div class="habit-streak">🔥2</div>
+    <div class="yritual-track">
+      <button class="rnode" onclick="tapNode('evening',0)"><i class="ic ic-leaf"></i></button>
+      <span class="rlink opt-lighter"></span>
+      <button class="rnode now opt-lighter" onclick="tapNode('evening',1)"><i class="ic ic-moon"></i></button>
+      <span class="rlink opt-full"></span>
+      <button class="rnode opt-full" onclick="tapNode('evening',2)"><i class="ic ic-pen"></i></button>
+      <span class="rlink opt-full"></span>
+      <button class="rnode opt-full" onclick="tapNode('evening',3)"><i class="ic ic-sprout"></i></button>
+    </div>
+
+    <div class="hrow opt-lighter" onclick="toggleHabit(this,'evening')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-leaf"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">Herbal tea, lights dim</div>
+        <div class="hrow-meta">10 min · wind-down</div>
       </div>
-      <div class="habit-row" onclick="toggleHabit(this,'evening')">
-        <div class="habit-check"></div>
-        <div class="habit-emoji">📓</div>
-        <div class="habit-info">
-          <div class="habit-name">Journal · one line</div>
-          <div class="habit-dur">5 min</div>
-        </div>
-        <div class="habit-streak"></div>
-      </div>
-      <div class="habit-row" onclick="toggleHabit(this,'evening')">
-        <div class="habit-check"></div>
-        <div class="habit-emoji">🌿</div>
-        <div class="habit-info">
-          <div class="habit-name">Herbal tea, lights dim</div>
-          <div class="habit-dur">10 min · wind-down</div>
-        </div>
-        <div class="habit-streak">🔥2</div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq l3">Daily</div>
       </div>
     </div>
-    <div class="add-habit"><span>＋</span> Add evening habit</div>
+
+    <div class="hrow opt-lighter" onclick="toggleHabit(this,'evening')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-moon"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">No screens after 22:00</div>
+        <div class="hrow-meta">Grows 15 → 30 → 45 → 60 min</div>
+        <div class="hpill stillness"><i class="ic ic-route"></i> Stillness Path</div>
+      </div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq l2">5×/wk</div>
+      </div>
+    </div>
+
+    <div class="hrow opt-full" onclick="toggleHabit(this,'evening')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-pen"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">Journal · one line</div>
+        <div class="hrow-meta">5 min · one true sentence</div>
+        <div class="hpill stillness"><i class="ic ic-route"></i> Stillness Path</div>
+      </div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd miss"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq">3×/wk</div>
+      </div>
+    </div>
+
+    <div class="hrow opt-full" onclick="toggleHabit(this,'evening')">
+      <div class="hrow-ck">✓</div>
+      <div class="hrow-ic"><i class="ic ic-sprout"></i></div>
+      <div class="hrow-main">
+        <div class="hrow-name">Save £50 to land fund</div>
+        <div class="hrow-meta">Any time · weekly</div>
+        <div class="hpill land"><i class="ic ic-route"></i> Land Path</div>
+      </div>
+      <div class="hrow-right">
+        <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq l3">Weekly</div>
+      </div>
+    </div>
+
+    <div class="hadd opt-full"><i class="ic ic-plus"></i> Add evening habit</div>
+  </div>
+
+  <!-- Legend -->
+  <div class="hlegend">
+    <div class="hleg"><span class="hleg-b">3×/wk</span>Starting out</div>
+    <div class="hleg"><span class="hleg-b" style="color:var(--olive)">5×/wk</span>Building</div>
+    <div class="hleg"><span class="hleg-b" style="color:#4a8a42">Daily</span>Locked in</div>
   </div>
 
 <script>
-function switchRoutine(id, btn){
-  document.querySelectorAll('.routine').forEach(r => r.classList.remove('active'));
-  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
-  document.getElementById('routine-' + id).classList.add('active');
-  btn.classList.add('active');
+const ANCHORS = { morning:'Right after waking · 07:00', evening:'After dinner · 22:00' };
+
+function setPace(mode){
+  document.body.classList.remove('mode-full','mode-lighter','mode-rest');
+  document.body.classList.add('mode-'+mode);
+  document.querySelectorAll('.pace-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+  recompute('morning'); recompute('evening');
 }
 
-function toggleHabit(row, routineId){
+// keep the circle track + progress meta in sync with the detailed rows
+function recompute(id){
+  const card = document.getElementById('rit-'+id);
+  const rows = [...card.querySelectorAll('.hrow')].filter(r=>getComputedStyle(r).display!=='none');
+  const track = card.querySelector('.yritual-track');
+  const kids = [...track.children];
+  const nodes = kids.filter(el=>el.classList.contains('rnode') && getComputedStyle(el).display!=='none');
+  rows.forEach((row,i)=>{ if(nodes[i]) nodes[i].classList.toggle('done', row.classList.contains('done')); });
+  nodes.forEach(n=>n.classList.remove('now'));
+  const firstUndone = nodes.find(n=>!n.classList.contains('done'));
+  if(firstUndone) firstUndone.classList.add('now');
+  kids.forEach((el,i)=>{
+    if(el.classList.contains('rlink')){
+      const prev = kids[i-1];
+      el.classList.toggle('done', !!(prev && prev.classList.contains('done') && getComputedStyle(prev).display!=='none'));
+    }
+  });
+  const done = rows.filter(r=>r.classList.contains('done')).length;
+  card.querySelector('.yritual-meta').textContent = ANCHORS[id] + ' · ' + done + ' of ' + rows.length + ' done';
+}
+
+function toggleHabit(row, id){
   row.classList.toggle('done');
-  const ck = row.querySelector('.habit-check');
-  ck.classList.toggle('done');
-  ck.textContent = ck.classList.contains('done') ? '✓' : '';
-  updateProgress(routineId);
+  row.querySelector('.hrow-ck').textContent = row.classList.contains('done') ? '✓' : '';
+  recompute(id);
 }
 
-function updateProgress(routineId){
-  const list = document.getElementById('hl-' + routineId);
-  const rows = list.querySelectorAll('.habit-row');
-  const done = list.querySelectorAll('.habit-row.done').length;
-  const total = rows.length;
-  const pct = Math.round(done / total * 100);
-  document.getElementById('rp-' + routineId).style.width = pct + '%';
-  document.getElementById('rc-' + routineId).textContent = done + ' of ' + total;
+// tapping a circle toggles the matching visible row
+function tapNode(id, i){
+  const card = document.getElementById('rit-'+id);
+  const rows = [...card.querySelectorAll('.hrow')].filter(r=>getComputedStyle(r).display!=='none');
+  if(rows[i]) toggleHabit(rows[i], id);
 }
+
+function upgradeFreq(btn){
+  const nudge = btn.closest('.hnudge');
+  const hab = nudge.previousElementSibling;
+  const f = hab.querySelector('.hfreq');
+  f.textContent = '5×/wk'; f.className = 'hfreq l2';
+  nudge.innerHTML = '<i class="ic ic-spark"></i><div class="hnudge-t">Upgraded to <strong>5×/week</strong> — nicely built.</div>';
+}
+
+recompute('morning'); recompute('evening');
 </script>
 </body>
 </html>
