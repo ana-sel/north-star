@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Compass · Concept Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Space Grotesk",sans-serif;background:#0a0b0d;color:#eef1f0;padding:48px 24px 80px;}
+h1{font-family:"Instrument Serif",serif;font-style:italic;font-size:38px;text-align:center;margin-bottom:6px;}
+.sub{text-align:center;color:#8891a0;font-size:14px;max-width:600px;margin:0 auto 44px;line-height:1.6;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:1080px;margin:0 auto;}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:22px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .2s, border-color .2s;}
+.card:hover{transform:translateY(-4px);border-color:rgba(127,227,196,.4);}
+.frame{height:300px;overflow:hidden;position:relative;border-bottom:1px solid rgba(255,255,255,.08);}
+.frame iframe{width:200%;height:200%;border:none;transform:scale(.5);transform-origin:top left;pointer-events:none;}
+.meta{padding:18px 20px 22px;}
+.meta .n{font-family:"Instrument Serif",serif;font-style:italic;font-size:22px;margin-bottom:6px;}
+.meta .d{font-size:12.5px;color:#8891a0;line-height:1.55;}
+.meta .tags{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;}
+.meta .tags span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7fe3c4;border:1px solid rgba(127,227,196,.3);padding:3px 8px;border-radius:999px;}
+.open{display:inline-block;margin-top:14px;font-size:12px;color:#a9b6ff;}
+</style>
+</head>
+<body>
+<h1>Three futures for Today</h1>
+<p class="sub">Same soul — a calm mirror that asks for one quality and holds your rhythm — imagined in three design languages for the years ahead. Open each full-screen.</p>
+<div class="grid">
+  <a class="card" href="concept-a-aurora.html" target="_blank">
+    <div class="frame"><iframe src="concept-a-aurora.html" scrolling="no"></iframe></div>
+    <div class="meta">
+      <div class="n">A · Aurora Spatial</div>
+      <div class="d">Spatial-computing glass. A living light that shifts with your day, a breathing state-orb, and an AI that whispers one suggestion. Warm, ambient, alive.</div>
+      <div class="tags"><span>Glassmorphism</span><span>Ambient</span><span>visionOS-era</span></div>
+      <span class="open">Open full →</span>
+    </div>
+  </a>
+  <a class="card" href="concept-b-editorial.html" target="_blank">
+    <div class="frame"><iframe src="concept-b-editorial.html" scrolling="no"></iframe></div>
+    <div class="meta">
+      <div class="n">B · Editorial Zen</div>
+      <div class="d">A fine printed page each day. Serif display type, ink on paper, radical calm. The deliberate anti-noise direction — timeless, unhurried, nothing to chase.</div>
+      <div class="tags"><span>Editorial</span><span>Monochrome</span><span>Anti-dopamine</span></div>
+      <span class="open">Open full →</span>
+    </div>
+  </a>
+  <a class="card" href="concept-c-living.html" target="_blank">
+    <div class="frame"><iframe src="concept-c-living.html" scrolling="no"></iframe></div>
+    <div class="meta">
+      <div class="n">C · Living Compass</div>
+      <div class="d">An AI companion renders your day as a generative constellation. Dark, bioluminescent bento grid where data becomes art and a warm presence navigates beside you.</div>
+      <div class="tags"><span>Generative</span><span>Bento</span><span>AI-native</span></div>
+      <span class="open">Open full →</span>
+    </div>
+  </a>
+</div>
+</body>
+</html>
