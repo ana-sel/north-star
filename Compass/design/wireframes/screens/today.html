@@ -63,21 +63,20 @@
 .pr-src{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:2px;}
 .pr-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);padding:3px 9px;border-radius:999px;flex-shrink:0;}
 .pr-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
-.pr-trigger{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;padding:2px 16px 0;}
-.pr-steps{padding:9px 16px 14px;display:flex;flex-direction:column;gap:8px;}
+.pr-trigger-row{display:flex;align-items:flex-start;gap:12px;padding:10px 16px 4px;}
+.pr-trigger{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;flex:1;}
+.pr-steps{padding:6px 16px 10px;display:flex;flex-direction:column;gap:8px;}
 .pr-step{display:flex;gap:8px;font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
 .pr-step-arr{color:var(--accent);font-weight:700;flex-shrink:0;}
 .pr-step em{color:var(--ink);font-style:italic;}
-.pr-do{display:flex;align-items:center;gap:11px;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer;}
-.do-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s;}
-.primary.done .do-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
-.pr-do-txt{font-size:var(--fs-sm);font-weight:600;color:var(--ink);}
-.primary.done .pr-do-txt{color:var(--muted);}
-/* done / not-today actions */
-.pr-actions{display:flex;border-top:1px solid var(--line);}
-.pr-actions .pr-do{flex:1;border-top:none;}
-.pr-skip{border:none;border-left:1px solid var(--line);background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:600;color:var(--muted);padding:0 15px;cursor:pointer;white-space:nowrap;}
-.pr-skip:active{color:var(--ink);}
+.pr-dots-bar{display:flex;justify-content:center;padding:10px 16px 14px;}
+.pr-tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:12px;color:var(--line);cursor:pointer;transition:all .2s;flex-shrink:0;margin-top:2px;}
+.pr-tick:active{transform:scale(.92);}
+.primary.done .pr-tick{background:var(--accent);border-color:var(--accent);color:#fff;}
+.primary.rested .pr-tick{opacity:.35;pointer-events:none;}
+.pr-dots{display:flex;gap:6px;align-items:center;}
+.pr-dot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .2s;}
+.pr-dot.sel{background:var(--accent);}
 .primary.rested{display:none;}
 .theme-rested{display:none;background:#f3f1ec;border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-bottom:10px;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;}
 .theme-rested.show{display:block;}
@@ -85,7 +84,7 @@
 /* daily rituals strip (the habit engine — tiny, repeats every day) */
 .ritual-note{font-size:var(--fs-xs);color:var(--muted);margin:-2px 0 10px;line-height:1.5;}
 .cue{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;}
-.cue-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
+.cue-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--line);flex-shrink:0;transition:all .15s;}
 .cue.done .cue-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
 .cue-ic{width:31px;height:31px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
 .cue-main{flex:1;min-width:0;}
@@ -99,7 +98,7 @@
 .tasks-card .yritual-top{padding-bottom:12px;border-bottom:1px solid var(--line);}
 .task-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;}
 .task-row:last-of-type{border-bottom:none;}
-.t-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s;}
+.t-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:12px;color:var(--line);flex-shrink:0;transition:all .15s;}
 .t-ck.done{background:var(--accent);border-color:var(--accent);color:#fff;}
 .t-name{flex:1;font-size:var(--fs-md);}
 .task-row.done .t-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
@@ -123,11 +122,14 @@
 /* Rest keeps the same full-width ritual cards as Lighter — just fewer circles.
    Only the theme, day and signals bands fold away; a compact banner reassures. */
 .mode-rest .theme-group,.mode-rest .day-band,.mode-rest .signals-band{display:none;}
-.rest-banner{display:none;align-items:center;gap:12px;background:#f3f4ef;border:1px solid #dfe3d8;border-radius:16px;padding:13px 15px;margin-bottom:14px;}
+.rest-banner,.lighter-banner{display:none;align-items:center;gap:12px;border-radius:16px;padding:13px 15px;margin-bottom:14px;}
+.rest-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
+.lighter-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
 .mode-rest .rest-banner{display:flex;}
-.rest-banner-em{font-size:22px;line-height:1;flex-shrink:0;}
-.rest-banner-txt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
-.rest-banner-txt strong{color:var(--ink);font-weight:700;}
+.mode-lighter .lighter-banner{display:flex;}
+.rest-banner-em,.lighter-banner-em{color:var(--steel);font-size:20px;line-height:1;flex-shrink:0;}
+.rest-banner-txt,.lighter-banner-txt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
+.rest-banner-txt strong,.lighter-banner-txt strong{color:var(--ink);font-weight:700;}
 
 /* all-done */
 .alldone{display:none;text-align:center;color:var(--muted);font-size:var(--fs-sm);padding:18px 0 4px;line-height:1.6;}
@@ -139,7 +141,21 @@
 .sleep-sheet.open{transform:translateY(0);}
 .ss-grip{width:38px;height:4px;border-radius:99px;background:var(--line);margin:6px auto 14px;}
 .ss-title{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:16px;}
+.ss-sub{font-size:var(--fs-sm);color:var(--muted);margin:-10px 0 16px;line-height:1.5;}
 .ss-save{width:100%;padding:14px;border-radius:14px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;}
+
+/* quality swap options */
+.q-list{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+.q-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 15px;font-family:inherit;cursor:pointer;transition:all .12s;}
+.q-opt.sel{border-color:var(--accent);background:var(--accent-soft);}
+.q-opt-main{flex:1;min-width:0;}
+.q-opt-name{font-size:var(--fs-md);font-weight:700;color:var(--ink);}
+.q-opt-desc{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.q-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--greige);padding:3px 8px;border-radius:999px;flex-shrink:0;}
+.q-opt-ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
+.q-opt.sel .q-opt-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
+.q-rest{width:100%;margin-top:14px;border:none;background:none;font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--muted);padding:12px;cursor:pointer;}
+.q-rest:active{color:var(--ink);}
 
 </style>
 </head>
@@ -147,8 +163,8 @@
 
   <!-- ══════════ BAND 1 · ARRIVAL ══════════ -->
   <div class="today-hdr">
-    <div class="dt">Friday · 27 June · UTC+1</div>
-    <div class="done-chip" id="doneChip">focus · 1 of 3</div>
+    <div class="dt">Friday · 27 June</div>
+    <div class="done-chip" id="doneChip">2 of 9 done</div>
   </div>
 
   <div class="sleep-card" id="sleepCard" onclick="openSleepSheet()">
@@ -158,7 +174,6 @@
         <div class="sp-q">How did you sleep?</div>
         <div class="sp-sub">Tap to log sleep &amp; mood</div>
       </div>
-      <div class="sp-arrow">→</div>
     </div>
     <div class="sleep-logged" id="sleepLogged">
       <div class="sl-item">
@@ -199,19 +214,25 @@
 
   <!-- compact rest reassurance (shows only on Rest pace) -->
   <div class="rest-banner">
-    <span class="rest-banner-em">🌙</span>
-    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Streaks are held — nothing is lost.</div>
+    <span class="rest-banner-em"><i class="ic ic-shield"></i></span>
+    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Just the bare-minimum ritual to get through — streaks are held, nothing is lost.</div>
+  </div>
+
+  <!-- lighter-day reassurance (shows only on Lighter pace) -->
+  <div class="lighter-banner">
+    <span class="lighter-banner-em"><i class="ic ic-wind"></i></span>
+    <div class="lighter-banner-txt"><strong>A lighter day.</strong> A shorter ritual, and the growth theme rests — streaks are held, nothing is lost.</div>
   </div>
 
   <!-- ── The one theme quality (growth engine) ── -->
+  <!-- No permanent helper text here: rotation/gesture hints are first-run only.
+       See design/spec-onboarding.md (§1 daily bands get self-evident design + coach marks). -->
   <div class="theme-group">
   <div class="yhead">
-    <i class="ic ic-target yhead-ic"></i>
+    <i class="ic ic-flame yhead-ic"></i>
     <div class="yhead-t">Today's theme</div>
     <div class="yhead-rule"></div>
-    <div class="yhead-act">one quality</div>
   </div>
-  <div class="focus-note">One thing to grow today — rotated from your pool, so it never turns into a grind.</div>
 
   <!-- Theme practice -->
   <div class="primary" id="primary">
@@ -219,23 +240,21 @@
       <div class="yritual-badge theme"><i class="ic ic-leaf"></i></div>
       <a class="pr-head" href="plan-trails.html">
         <div class="pr-title">Stillness</div>
-        <div class="pr-src">Stillness Path · Camp 2 ›</div>
+        <div class="pr-src">Stillness Path · Camp 2</div>
       </a>
       <div class="pr-badge">Theme</div>
+      <i class="ic ic-chev yritual-chev"></i>
     </div>
-    <div class="pr-trigger">When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —</div>
+    <div class="pr-trigger-row">
+      <button class="pr-tick" onclick="togglePrimary()" title="Mark done">✓</button>
+      <div class="pr-trigger">When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —</div>
+    </div>
     <div class="pr-steps">
       <div class="pr-step"><span class="pr-step-arr">→</span> Pause for one breath before responding</div>
       <div class="pr-step"><span class="pr-step-arr">→</span> Ask yourself: <em>“What am I actually feeling right now?”</em></div>
       <div class="pr-step"><span class="pr-step-arr">→</span> If it helps, say: <em>“I have time. I can choose how I respond.”</em></div>
     </div>
-    <div class="pr-actions">
-      <div class="pr-do" onclick="togglePrimary()">
-        <div class="do-ck">✓</div>
-        <div class="pr-do-txt">Mark today's practice done</div>
-      </div>
-      <button class="pr-skip" onclick="notToday()">Not today</button>
-    </div>
+    <div class="pr-dots-bar"><div class="pr-dots" id="prDots"></div></div>
   </div>
 
   <!-- not-today rested state -->
@@ -244,15 +263,13 @@
   </div>
   </div><!-- /theme-group -->
 
-  <!-- ── Daily rituals (habit engine — Fabulous-style morning & evening) ── -->
+  <!-- ── Daily rituals (habit engine — morning & evening) ── -->
   <div class="rituals-group">
   <div class="yhead">
     <i class="ic ic-sun yhead-ic"></i>
     <div class="yhead-t">Daily rituals</div>
     <div class="yhead-rule"></div>
-    <a class="yhead-act" href="log-habits.html" style="text-decoration:none">edit ›</a>
   </div>
-  <div class="ritual-note">Your tiny baseline — tap a circle to tick it, or open the ritual to run it in order.</div>
 
   <!-- Morning ritual card -->
   <div class="yritual" id="ritual-morning">
@@ -271,7 +288,7 @@
       <span class="rlink opt-lighter"></span>
       <button class="rnode now opt-lighter" onclick="toggleNode(this,'morning')" title="Morning walk"><i class="ic ic-activity"></i></button>
       <span class="rlink opt-full"></span>
-      <button class="rnode opt-full" onclick="toggleNode(this,'morning')" title="5-min silent sit"><i class="ic ic-leaf"></i></button>
+      <button class="rnode opt-full" onclick="toggleNode(this,'morning')" title="5-min silent sit"><i class="ic ic-brain"></i></button>
     </div>
   </div>
 
@@ -302,16 +319,16 @@
   <!-- ══════════ BAND 3 · YOUR DAY ══════════ -->
   <div class="day-band">
   <div class="yhead">
-    <i class="ic ic-list yhead-ic"></i>
+    <i class="ic ic-route yhead-ic"></i>
     <div class="yhead-t">Your day</div>
     <div class="yhead-rule"></div>
   </div>
   <div class="yritual tasks-card">
     <div class="yritual-top" onclick="location.href='plan-month.html'">
-      <div class="yritual-badge task"><i class="ic ic-list"></i></div>
+      <div class="yritual-badge task"><i class="ic ic-route"></i></div>
       <div class="yritual-head">
         <div class="yritual-name">From the plan</div>
-        <div class="yritual-meta" id="tCount">1 of 3 done</div>
+        <div class="yritual-meta" id="tCount">1 of 5 done</div>
       </div>
       <i class="ic ic-chev yritual-chev"></i>
     </div>
@@ -321,12 +338,12 @@
       <div class="t-tag tag-money">money</div>
     </div>
     <div class="task-row" onclick="toggleTask(this)">
-      <div class="t-ck"></div>
+      <div class="t-ck">✓</div>
       <div class="t-name">Read chapter 3</div>
       <div class="t-tag tag-inner">inner</div>
     </div>
     <div class="task-row" onclick="toggleTask(this)">
-      <div class="t-ck"></div>
+      <div class="t-ck">✓</div>
       <div class="t-name">Set aside £200 land fund</div>
       <div class="t-tag tag-money">money</div>
     </div>
@@ -359,7 +376,7 @@
           <div class="yritual-meta">A nudge toward your next step</div>
         </div>
       </div>
-      <div class="coach-body">Compare loan types before your next session. Set aside £200 to the land fund this month.</div>
+      <div class="coach-body">Compare loan types before your next session — even a small rate difference adds up over a mortgage.</div>
       <div class="coach-btns">
         <button class="coach-btn coach-accept" onclick="this.textContent='Added ✓';this.style.background='var(--olive)';this.style.color='#fff';this.style.borderColor='var(--olive)'">Add to plan</button>
         <button class="coach-btn" onclick="this.closest('.coach-card').style.opacity='.35'">Not now</button>
@@ -409,6 +426,30 @@
     </div>
 
     <button class="ss-save" onclick="saveSleep()">Save</button>
+  </div>
+
+  <!-- ══════════ QUALITY SWAP SHEET ══════════ -->
+  <div class="sheet-back" id="qualityBack" onclick="closeQualitySheet()"></div>
+  <div class="sleep-sheet" id="qualitySheet">
+    <div class="ss-grip"></div>
+    <div class="ss-title">Today's quality</div>
+    <div class="ss-sub">One to grow today — pick any from your pool. Yesterday's rotates on, so it never turns into a grind.</div>
+    <div class="q-list" id="qList">
+      <button class="q-opt" data-q="stillness" onclick="pickQuality('stillness')">
+        <div class="q-opt-main"><div class="q-opt-name">Stillness</div><div class="q-opt-desc">Pause before reacting</div></div>
+        <div class="q-opt-ck">✓</div>
+      </button>
+      <button class="q-opt" data-q="presence" onclick="pickQuality('presence')">
+        <div class="q-opt-main"><div class="q-opt-name">Presence</div><div class="q-opt-desc">Be where you are</div></div>
+        <div class="q-opt-ck">✓</div>
+      </button>
+      <button class="q-opt" data-q="patience" onclick="pickQuality('patience')">
+        <div class="q-opt-main"><div class="q-opt-name">Patience</div><div class="q-opt-desc">Let things take their time</div></div>
+        <span class="q-tag">yesterday</span>
+        <div class="q-opt-ck">✓</div>
+      </button>
+    </div>
+    <button class="q-rest" onclick="notToday();closeQualitySheet()">Rest today — no streak lost</button>
   </div>
 
 <script>
@@ -525,9 +566,7 @@ function setMode(mode){
   document.body.classList.add('mode-'+mode);
   document.querySelectorAll('.pace-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
   const n = document.getElementById('paceNote');
-  if(mode==='lighter'){ n.textContent='A lighter day — a shorter ritual, and the growth theme rests.'; n.classList.add('show'); }
-  else if(mode==='rest'){ n.textContent='Rest — just the bare-minimum ritual to get through today. Nothing is lost.'; n.classList.add('show'); }
-  else { n.classList.remove('show'); }
+  n.classList.remove('show');   // Both lighter & rest use their own banner cards now
   recomputeCard('morning'); recomputeCard('evening');   // visible nodes changed with pace
   updateFocus();
 }
@@ -550,18 +589,96 @@ function updateFocus(){
   else { chip.textContent = done + ' of ' + total + ' done'; chip.className = 'done-chip' + (total>0 && done===total?' all':''); }
   document.getElementById('allDone').style.display = (mode!=='rest' && total>0 && done===total) ? 'block' : 'none';
 }
+/* ── Quality dots ── */
+const Q_KEYS = ['stillness','presence','patience'];
+function renderDots(){
+  const dots = document.getElementById('prDots');
+  dots.innerHTML = Q_KEYS.map(k =>
+    '<div class="pr-dot' + (k===currentQuality?' sel':'') + '"></div>'
+  ).join('');
+}
+function swipeQuality(dir){
+  const idx = Q_KEYS.indexOf(currentQuality);
+  const next = Q_KEYS[(idx + dir + Q_KEYS.length) % Q_KEYS.length];
+  renderQuality(next);
+  renderDots();
+}
+/* touch swipe on theme card */
+(function(){
+  let sx=0,sy=0;
+  const card = document.getElementById('primary');
+  card.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+  card.addEventListener('touchend', e=>{
+    const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)*1.5) swipeQuality(dx<0?1:-1);
+  },{passive:true});
+})();
 function togglePrimary(){
   const p = document.getElementById('primary');
   if(p.classList.contains('rested')) return;
   p.classList.toggle('done'); updateFocus();
 }
 function notToday(){
+  document.getElementById('themeRested').querySelector('strong').textContent = 'Resting ' + QUALITIES[currentQuality].name + ' today.';
   document.getElementById('primary').classList.add('rested');
   document.getElementById('themeRested').classList.add('show');
   updateFocus();
 }
 
-/* ── Ritual cards (Fabulous-style circles) ── */
+/* ── Today's quality (swap from pool; swipe card left/right to cycle) ── */
+const QUALITIES = {
+  stillness:{ name:'Stillness', src:'Stillness Path · Camp 2',
+    trigger:'When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —',
+    steps:[ 'Pause for one breath before responding',
+      ['Ask yourself:','“What am I actually feeling right now?”'],
+      ['If it helps, say:','“I have time. I can choose how I respond.”'] ] },
+  presence:{ name:'Presence', src:'Stillness Path · Camp 2',
+    trigger:'When you notice your mind racing ahead to the next thing while doing this one —',
+    steps:[ 'Name one thing you can see, hear, and feel right now',
+      ['Come back with:','“This is where I am.”'],
+      'Let the next thing wait its turn' ] },
+  patience:{ name:'Patience', src:'Stillness Path · Camp 2',
+    trigger:'When something takes longer than you hoped it would —',
+    steps:[ 'Soften your shoulders and unclench your jaw',
+      ['Remind yourself:','“Rushing rarely makes it better.”'],
+      'Give it one more calm attempt' ] }
+};
+let currentQuality = 'stillness';
+function renderQuality(key){
+  const q = QUALITIES[key]; if(!q) return;
+  const p = document.getElementById('primary');
+  p.querySelector('.pr-title').textContent = q.name;
+  p.querySelector('.pr-src').textContent = q.src;
+  p.querySelector('.pr-trigger').textContent = q.trigger;
+  p.querySelector('.pr-steps').innerHTML = q.steps.map(s =>
+    Array.isArray(s)
+      ? '<div class="pr-step"><span class="pr-step-arr">→</span> ' + s[0] + ' <em>' + s[1] + '</em></div>'
+      : '<div class="pr-step"><span class="pr-step-arr">→</span> ' + s + '</div>'
+  ).join('');
+  p.classList.remove('done','rested');                 // a fresh quality starts un-done
+  document.getElementById('themeRested').classList.remove('show');
+  currentQuality = key;
+  renderDots();
+  updateFocus();
+}
+function markQualitySel(){
+  document.querySelectorAll('.q-opt').forEach(o => o.classList.toggle('sel', o.dataset.q===currentQuality));
+}
+function openQualitySheet(){
+  markQualitySel();
+  document.getElementById('qualitySheet').classList.add('open');
+  document.getElementById('qualityBack').classList.add('open');
+}
+function closeQualitySheet(){
+  document.getElementById('qualitySheet').classList.remove('open');
+  document.getElementById('qualityBack').classList.remove('open');
+}
+function pickQuality(key){
+  if(key!==currentQuality) renderQuality(key);
+  closeQualitySheet();
+}
+
+/* ── Ritual cards (progress circles) ── */
 function recomputeCard(id){
   const card = document.getElementById('ritual-'+id);
   const kids = [...card.querySelector('.yritual-track').children];
@@ -585,21 +702,20 @@ function toggleNode(node,id){
 }
 function toggleCue(el){
   el.classList.toggle('done');
-  el.querySelector('.cue-ck').textContent = el.classList.contains('done') ? '✓' : '';
   updateFocus();
 }
-let tDone = 1, tTotal = 3;
+let tDone = 1, tTotal = 5;
 function toggleTask(row){
   const was = row.classList.contains('done');
   row.classList.toggle('done');
   const ck = row.querySelector('.t-ck');
   ck.classList.toggle('done');
-  ck.textContent = ck.classList.contains('done') ? '✓' : '';
   tDone += was ? -1 : 1;
   document.getElementById('tCount').textContent = tDone + ' of ' + tTotal + ' done';
 }
 
 recomputeCard('morning'); recomputeCard('evening');
+renderDots();
 updateFocus();
 </script>
 </body>
