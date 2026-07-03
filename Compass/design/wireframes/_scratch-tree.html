@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Compass · Metaphor prototype · Tree</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared/tokens.css"/>
+<style>
+  *{box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:28px 20px 60px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px;}
+  .lede{font-size:var(--fs-md);color:var(--muted);line-height:1.55;margin:0 0 26px;max-width:60ch;}
+  h2{font-size:var(--fs-sm);font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:34px 0 12px;display:flex;align-items:center;gap:10px;}
+  h2::after{content:'';flex:1;height:1px;background:var(--line);}
+  .cap{font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin:0 0 16px;max-width:62ch;}
+
+  .strip{display:flex;gap:10px;flex-wrap:wrap;}
+  .stage{flex:1;min-width:118px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 10px 12px;text-align:center;box-shadow:var(--shadow-sm);}
+  .stage svg{display:block;margin:0 auto 10px;}
+  .stage-name{font-size:var(--fs-sm);font-weight:700;color:var(--ink);}
+  .stage-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;line-height:1.4;}
+
+  .lab{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow-sm);display:flex;gap:26px;align-items:center;flex-wrap:wrap;}
+  .lab-preview{display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0;}
+  .lab-icon{width:132px;height:132px;background:var(--greige);border-radius:20px;display:grid;place-items:center;}
+  .lab-state{font-size:var(--fs-sm);font-weight:700;color:var(--ink);text-align:center;}
+  .lab-state small{display:block;font-weight:500;color:var(--muted);font-size:var(--fs-xs);margin-top:2px;}
+  .lab-ctrls{flex:1;min-width:230px;display:flex;flex-direction:column;gap:20px;}
+  .ctrl label{display:flex;justify-content:space-between;font-size:var(--fs-sm);font-weight:600;color:var(--ink);margin-bottom:8px;}
+  .ctrl label b{color:var(--olive);font-weight:800;}
+  input[type=range]{width:100%;accent-color:var(--olive);height:22px;}
+
+  .chips{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;}
+  .hstreak{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-sm);font-weight:700;background:var(--card);border:1px solid var(--line);padding:6px 13px;border-radius:999px;box-shadow:var(--shadow-sm);color:var(--ink);}
+  .hstreak small{font-weight:500;color:var(--muted);}
+
+  .note{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;background:var(--greige);border-radius:14px;padding:14px 16px;margin-top:22px;}
+  .note b{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tree — a metaphor for integration</h1>
+  <p class="lede">You plant something small and, with each repetition, it grows — sprout to sapling to a rooted tree. The roots go down into you: that's the part that becomes <em>you</em>. Go away for a while and it turns bare, resting through its winter — but it never dies. The trunk and roots hold, and it leafs again the moment you come back.</p>
+
+  <!-- ── GROWING ── -->
+  <h2>Growing · with practice</h2>
+  <p class="cap">Driven by total reps, not an unbroken chain — so a missed day never uproots it.</p>
+  <div class="strip" id="growStrip"></div>
+
+  <!-- ── DORMANCY ── -->
+  <h2>Resting · time away from a rooted tree</h2>
+  <p class="cap">Leaves fall gradually, like autumn into winter. What stays is the <em>trunk and roots</em> — <em>"bare, not gone; still rooted, ready to leaf again."</em></p>
+  <div class="strip" id="restStrip"></div>
+
+  <!-- ── INTERACTIVE ── -->
+  <h2>Play with it</h2>
+  <div class="lab">
+    <div class="lab-preview">
+      <div class="lab-icon" id="labIcon"></div>
+      <div class="lab-state" id="labState"></div>
+    </div>
+    <div class="lab-ctrls">
+      <div class="ctrl">
+        <label>Times practised <b id="repVal">0</b></label>
+        <input type="range" id="reps" min="0" max="120" value="0"/>
+      </div>
+      <div class="ctrl">
+        <label>Days away <b id="awayVal">0</b></label>
+        <input type="range" id="away" min="0" max="60" value="0"/>
+      </div>
+      <div class="chips" id="chipRow"></div>
+    </div>
+  </div>
+
+  <!-- ── COMPARISON ── -->
+  <h2>Side by side · the worn path, for comparison</h2>
+  <p class="cap">The other finalist — treads a trail deeper, overgrows when dormant, keeps a permanent trace.</p>
+  <div class="strip" id="pathStrip"></div>
+
+  <div class="note"><b>Why this fits Compass:</b> a tree can't be “extinguished” either — a gap is just its winter, roots intact, matching the no-shame, integration-not-loss principle. Its edge over the path is <b>legibility</b>: it reads instantly even at streak-chip size. Tell me which you prefer and I'll wire it into the habits streak chip.</div>
+</div>
+
+<script>
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const TRUNK='#8a744f', TRUNK_LT='#a68a63', LEAF='#7d9064', LEAF_LT='#9bad84', BLOSSOM='#c7b48a';
+
+// deterministic pseudo-random so a given tree always looks the same
+function rng(seed){ let s=seed; return ()=> (s=Math.sin(s*127.1+31.7)*43758.5)-Math.floor(s); }
+
+// TREE icon. level 0..1 growth, away 0..1 bareness
+function treeIcon(level, away, size){
+  const s=size||44, L=clamp(level,0,1), D=clamp(away,0,1);
+  const cx=24, ground=45;
+  let g=`<line x1="14" y1="${ground}" x2="34" y2="${ground}" stroke="#d8d2c6" stroke-width="1.2" stroke-linecap="round"/>`;
+
+  // seed / mound when nothing grown yet
+  if(L<0.06){
+    g+=`<path d="M20 ${ground} Q24 ${ground-3} 28 ${ground}" fill="none" stroke="#c9ba9c" stroke-width="2" stroke-linecap="round"/>`;
+    g+=`<circle cx="24" cy="${ground-1.5}" r="1.8" fill="${TRUNK}"/>`;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">${g}</svg>`;
+  }
+
+  const trunkH = lerp(7, 21, L);
+  const topY = ground - trunkH;
+  const trunkW = lerp(1.8, 3.6, L).toFixed(1);
+
+  // roots — grow in number + spread with integration; persist fully when dormant
+  const rootN = Math.round(lerp(1,3,L));
+  const r1=rng(7);
+  for(let i=0;i<rootN;i++){
+    const dir = i===0 ? 0 : (i%2? 1 : -1);
+    const spread = lerp(3,7,L)*(0.6+r1()*0.6);
+    g+=`<path d="M${cx} ${ground-1} Q ${cx+dir*spread*0.5} ${ground+1} ${cx+dir*spread} ${ground+3+r1()*1.5}" fill="none" stroke="${TRUNK}" stroke-width="1.3" stroke-linecap="round" opacity="0.65"/>`;
+  }
+
+  // trunk (slight taper via two segments)
+  g+=`<path d="M${cx} ${ground} L${cx} ${topY}" stroke="${TRUNK}" stroke-width="${trunkW}" stroke-linecap="round"/>`;
+
+  // branches — appear as it matures; stay as bare twigs when dormant
+  const branchN = L>0.4 ? Math.round(lerp(0,4,(L-0.4)/0.6)) : 0;
+  const r2=rng(19), branchTips=[];
+  for(let i=0;i<branchN;i++){
+    const along = 0.45 + (i/Math.max(1,branchN))*0.5;      // up the trunk
+    const by = lerp(ground, topY, along);
+    const dir = i%2? 1 : -1;
+    const blen = lerp(4,9,L)*(0.7+r2()*0.5);
+    const tx = cx+dir*blen, ty = by-blen*0.5;
+    g+=`<path d="M${cx} ${by.toFixed(1)} L${tx.toFixed(1)} ${ty.toFixed(1)}" stroke="${TRUNK_LT}" stroke-width="1.4" stroke-linecap="round"/>`;
+    branchTips.push([tx,ty]);
+  }
+  branchTips.push([cx,topY]);   // crown tip
+
+  // canopy — full leaves when fresh; thins to a few clinging leaves + buds when dormant
+  const canopyR = lerp(4, 13, L);
+  const cyTop = topY - canopyR*0.35;
+  const leafAlpha = clamp(0.92 - D*0.8, 0, 1);
+  if(leafAlpha>0.04){
+    // soft canopy mass = three overlapping blobs
+    [[cx,cyTop,canopyR],[cx-canopyR*0.6,cyTop+canopyR*0.35,canopyR*0.75],[cx+canopyR*0.6,cyTop+canopyR*0.35,canopyR*0.75]].forEach(([bx,by,br],i)=>{
+      g+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${br.toFixed(1)}" fill="${i?LEAF:LEAF_LT}" opacity="${(leafAlpha*(i?0.75:0.9)).toFixed(2)}"/>`;
+    });
+  }
+  // buds — a few dots that persist through winter on the branch tips (the memory in the wood)
+  if(L>0.25){
+    const budA = clamp(0.35 + D*0.5, 0, 0.9);
+    const r3=rng(41);
+    branchTips.forEach(([bx,by])=>{
+      g+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="1.5" fill="${D>0.5?TRUNK_LT:LEAF}" opacity="${budA.toFixed(2)}"/>`;
+    });
+    // a couple of falling leaves mid-dormancy (autumn feeling)
+    if(D>0.2 && D<0.85){
+      const r4=rng(63);
+      for(let i=0;i<2;i++){ const fx=cx+(r4()*2-1)*10, fy=lerp(cyTop+canopyR,ground-3,r4()); g+=`<circle cx="${fx.toFixed(1)}" cy="${fy.toFixed(1)}" r="1.3" fill="${BLOSSOM}" opacity="${((1-D)*0.7).toFixed(2)}"/>`; }
+    }
+  }
+  return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">${g}</svg>`;
+}
+
+// worn-path icon (from the path prototype) — for the comparison strip
+const SPINE=[[24,46],[19,40],[22,33],[28,27],[27,20],[22,14],[24,8],[24,3]];
+function smooth(p){let d=`M ${p[0][0]} ${p[0][1]}`;for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;d+=` C ${p1[0]+(p2[0]-p0[0])/6} ${p1[1]+(p2[1]-p0[1])/6}, ${p2[0]-(p3[0]-p1[0])/6} ${p2[1]-(p3[1]-p1[1])/6}, ${p2[0]} ${p2[1]}`;}return d;}
+const SPINE_D=smooth(SPINE);
+const EL=[0xc9,0xba,0x9c],ED=[0x82,0x6d,0x49],plerp=(a,b,t)=>Math.round(a+(b-a)*t);
+const pearth=t=>`rgb(${plerp(EL[0],ED[0],t)},${plerp(EL[1],ED[1],t)},${plerp(EL[2],ED[2],t)})`;
+function pathIcon(level, away, size){
+  const s=size||44, worn=clamp(level,0,1), dorm=clamp(away,0,1);
+  const trailW=(2.4+worn*7).toFixed(1);
+  const trailOp=clamp(0.20+worn*0.68-dorm*0.55,0.05,1).toFixed(2);
+  let g='';
+  if(worn>0.05) g+=`<path d="${SPINE_D}" fill="none" stroke="#b0a184" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="1.4 2.6" opacity="${(0.32+worn*0.2).toFixed(2)}"/>`;
+  if(worn>0.02) g+=`<path d="${SPINE_D}" fill="none" stroke="${pearth(worn)}" stroke-width="${trailW}" stroke-linecap="round" stroke-linejoin="round" opacity="${trailOp}"/>`;
+  const halfW=+trailW/2;
+  SPINE.forEach((pt,i)=>{ if(i===0||i===SPINE.length-1)return; const[x,y]=pt; const edgeLen=3+dorm*3, lean=dorm*(+trailW*0.5);
+    [[-1],[1]].forEach(([dir])=>{const bx=x+dir*(halfW+2.2),tx=bx-dir*lean+Math.sin(i*2.1)*0.6; g+=`<line x1="${bx.toFixed(1)}" y1="${(y+1).toFixed(1)}" x2="${tx.toFixed(1)}" y2="${(y-edgeLen).toFixed(1)}" stroke="${i%2?'#7d9064':'#9bad84'}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>`;});
+    if(dorm>0.12){const cl=(dorm*6).toFixed(1),op=(dorm*0.85).toFixed(2),jx=(x+(i%2?1.4:-1.4)).toFixed(1); g+=`<line x1="${jx}" y1="${(y+1).toFixed(1)}" x2="${(+jx+(i%2?-1:1)).toFixed(1)}" y2="${(y-cl).toFixed(1)}" stroke="#7d9064" stroke-width="1.3" stroke-linecap="round" opacity="${op}"/>`;}
+  });
+  return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">${g}</svg>`;
+}
+
+// ── strips ──
+const GROW=[
+  [0.0,0,'Seed','not started'],
+  [0.3,0,'Sprout','a few times'],
+  [0.55,0,'Sapling','building'],
+  [0.8,0,'Young tree','becoming you'],
+  [1.0,0,'Rooted','integrated'],
+];
+const REST=[
+  [1.0,0.0,'In leaf','tended today'],
+  [1.0,0.4,'Turning','a week away'],
+  [1.0,0.72,'Nearly bare','weeks away'],
+  [1.0,1.0,'Winter','bare, still rooted'],
+];
+const PATH=[
+  [0.0,0,'Untouched','not started'],
+  [0.5,0,'Forming','building'],
+  [1.0,0,'Well-worn','integrated'],
+  [1.0,0.7,'Overgrown','dormant, trace remains'],
+];
+function fill(id, rows, fn){
+  document.getElementById(id).innerHTML = rows.map(([a,b,c,d])=>
+    `<div class="stage">${fn(a,b,54)}<div class="stage-name">${c}</div><div class="stage-sub">${d}</div></div>`).join('');
+}
+fill('growStrip', GROW, treeIcon);
+fill('restStrip', REST, treeIcon);
+fill('pathStrip', PATH, pathIcon);
+
+// ── interactive ──
+const reps=document.getElementById('reps'), away=document.getElementById('away');
+function stateWord(level, dorm){
+  if(level<0.06) return ['Seed','plant it — practise once'];
+  if(dorm>0.8) return ['Winter','bare, but still rooted'];
+  if(dorm>0.4) return ['Turning','leaves falling — come back when ready'];
+  if(level>0.85) return ['Rooted','fully integrated'];
+  if(level>0.55) return ['Young tree','becoming part of you'];
+  if(level>0.28) return ['Sapling','growing'];
+  return ['Sprout','early days'];
+}
+function render(){
+  const r=+reps.value, aw=+away.value;
+  const level=clamp(r/90,0,1);
+  const dorm=level>0? clamp(aw/40,0,1):0;
+  document.getElementById('repVal').textContent=r;
+  document.getElementById('awayVal').textContent=aw;
+  document.getElementById('labIcon').innerHTML=treeIcon(level,dorm,96);
+  const [w,sub]=stateWord(level,dorm);
+  document.getElementById('labState').innerHTML=`${w}<small>${sub}</small>`;
+  document.getElementById('chipRow').innerHTML=
+    `<span class="hstreak">${treeIcon(level,dorm,20)} ${w} <small>· ${r} times</small></span>`+
+    `<span class="hstreak">${treeIcon(level,dorm,20)} <small>habit</small></span>`;
+}
+reps.addEventListener('input',render);
+away.addEventListener('input',render);
+render();
+</script>
+</body>
+</html>

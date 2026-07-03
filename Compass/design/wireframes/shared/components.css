@@ -278,3 +278,38 @@
 .mp-thumb{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--card);border:2px solid var(--accent);box-shadow:0 2px 6px rgba(36,35,31,.16);transform:translate(-50%,-50%);transition:left .18s cubic-bezier(.22,1,.36,1);z-index:2;}
 .mp-thumb:active{transform:translate(-50%,-50%) scale(1.08);}
 .mp-ends{display:flex;justify-content:space-between;margin-top:8px;font-size:var(--fs-xs);color:var(--muted);}
+
+/* ═══════════ Primary CTA button (Log·Sleep, Log·Body, any form save) ═══════════ */
+.btn-prim{
+  display:block;width:100%;border:none;border-radius:14px;background:var(--btn);color:#FBFAF8;
+  font:700 var(--fs-md) inherit;padding:14px;cursor:pointer;text-align:center;
+  box-shadow:0 6px 18px rgba(60,58,52,.2);margin-top:4px;
+  transition:opacity .15s,transform .12s;
+}
+.btn-prim:active{opacity:.88;transform:scale(.984);}
+.btn-prim:disabled{background:var(--olive);opacity:.8;cursor:default;transform:none;}
+
+/* ── Form inputs ── */
+.b-label{font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;font-weight:500;}
+.b-note{
+  width:100%;min-height:60px;background:var(--greige);border:1.5px solid var(--line);
+  border-radius:12px;padding:9px 11px;font-family:'Inter',sans-serif;font-size:var(--fs-md);font-weight:500;color:var(--ink);
+  resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.b-note::placeholder{color:var(--muted);opacity:1;}
+.b-note:focus{border-color:var(--accent,#768471);box-shadow:0 0 0 3px rgba(118,132,113,.12);}
+
+/* ── Bottom sheet overlay + slide-up panel (shared: Today + Log·Sleep) ── */
+.sheet-back{position:fixed;inset:0;background:rgba(28,27,24,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;}
+.sheet-back.open{opacity:1;pointer-events:auto;}
+.sleep-sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:22px 22px 0 0;box-shadow:0 -8px 40px rgba(28,27,24,.28);transform:translateY(100%);transition:transform .26s cubic-bezier(.22,1,.36,1);padding:8px 18px 22px;max-height:92%;overflow-y:auto;}
+.sleep-sheet.open{transform:translateY(0);}
+.ss-grip{width:38px;height:4px;border-radius:99px;background:var(--line);margin:6px auto 14px;}
+.ss-title{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:16px;}
+.ss-sub{font-size:var(--fs-sm);color:var(--muted);margin:-10px 0 16px;line-height:1.5;}
+
+/* ── Metric / data display (primary number + label, mirrors Today's sleep logged card) ── */
+/* --fs-xl (26px) for primary values, --fs-xs for labels — same rhythm as .sl-val / .sl-label */
+.metric-num{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;line-height:1;}
+.metric-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);margin-bottom:4px;}
+.metric-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Compass · Log · Energy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -18,16 +19,19 @@
 /* ── 2×2 battery overview ── */
 .overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
 .ov-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .15s;}
-.ov-card.active{border-color:var(--accent);background:var(--accent-soft);}
-.ov-card.active .ov-icon{background:#fff;color:var(--accent);}
+.ov-card.active{border-color:var(--cat);background:color-mix(in srgb, var(--cat) 12%, transparent);}
+.ov-card.active .ov-icon{background:#fff;}
 .ov-top{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
-.ov-icon{width:26px;height:26px;border-radius:8px;background:var(--greige);display:grid;place-items:center;color:var(--accent);font-size:14px;flex-shrink:0;}
-.ov-name{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
-.ov-card.active .ov-name{color:var(--accent);}
+.ov-icon{width:30px;height:30px;border-radius:9px;background:color-mix(in srgb, currentColor 15%, transparent);display:grid;place-items:center;flex-shrink:0;}
+.ov-icon .ic{width:15px;height:15px;}
+.ov-name{font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
+.ov-card.active .ov-name{color:var(--cat);}
+.ov-chev{font-size:11px;color:var(--line);flex-shrink:0;margin-left:auto;transition:color .15s;}
+.ov-card.active .ov-chev{color:var(--cat);}
 /* mini battery */
 .mini-bat{height:8px;background:var(--greige);border-radius:999px;overflow:hidden;position:relative;}
 .ov-card.active .mini-bat{background:rgba(0,0,0,.06);}
-.mini-fill{height:100%;border-radius:999px;transition:width .3s;}
+.mini-fill{height:100%;border-radius:999px;transition:width .3s;background:var(--accent);}
 .ov-level{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;font-weight:500;}
 .ov-card.active .ov-level{color:var(--muted);}
 
@@ -36,30 +40,23 @@
 .cat-panel.active{display:block;}
 .cat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
 
-/* Level selector */
+/* Level selector — reuse Today's slider (mood-pick) */
 .level-wrap{padding:14px 14px 10px;}
-.level-hint{font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;}
-.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
-.lv-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-family:inherit;transition:all .15s;}
-.lv-emoji{font-size:19px;line-height:1;}
-.lv-word{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--muted);}
-/* active state — single olive accent, matches Today's picker */
-.lv-btn.sel{border-color:var(--accent);background:var(--accent-soft);}
-.lv-btn.sel .lv-word{color:var(--accent);}
+.level-hint{font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;}
 
-/* Bubbles */
-.sect-hd{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 14px 6px;border-top:1px solid var(--line);}
-.bubble-pad{padding:4px 14px 13px;}
-.bubble-row{display:flex;flex-wrap:wrap;gap:6px;}
-.bub{font-size:var(--fs-xs);font-weight:600;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;user-select:none;}
-.bub.bs{border-color:var(--p-health);background:#e5f2e3;color:#2d6b27;}
-.bub.bd{border-color:var(--p-family);background:#f9edee;color:#8a3040;}
+/* Bubbles — single accent for selected, no colour coding */
+.sect-hd{font-size:var(--fs-sm);font-weight:700;color:var(--muted);padding:12px 14px 6px;border-top:1px solid var(--line);}
+.bubble-pad{padding:6px 14px 13px;}
+.bubble-row{display:flex;flex-wrap:wrap;gap:7px;}
+.bub{font-size:var(--fs-sm);font-weight:600;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;user-select:none;}
+.bub.bs,.bub.bd{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 .bub-add{border-style:dashed;}
 
 /* Save row */
-.save-row{padding:11px 16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
-.save-btn{font-size:var(--fs-xs);font-weight:700;padding:7px 18px;border-radius:999px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:inherit;}
-.save-confirm{display:none;align-items:center;gap:7px;}
+.save-row{padding:12px 16px 16px;border-top:1px solid var(--line);}
+.save-btn{display:block;width:100%;border:none;border-radius:14px;background:var(--btn);color:#FBFAF8;font:700 var(--fs-md) inherit;padding:14px;cursor:pointer;text-align:center;box-shadow:0 6px 18px rgba(60,58,52,.2);transition:opacity .15s,transform .12s;}
+.save-btn:active{opacity:.88;transform:scale(.984);}
+.save-confirm{display:none;align-items:center;justify-content:center;gap:7px;padding:8px;}
 .save-row.saved .save-btn{display:none;}
 .save-row.saved .save-confirm{display:flex;}
 .save-row.saved{background:#f5fbf4;}
@@ -68,7 +65,7 @@
 .save-time{font-size:var(--fs-xs);color:var(--muted);margin-left:auto;}
 
 /* ── Section label ── */
-.sect-label{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+.sect-label{display:flex;align-items:center;gap:7px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);margin:16px 0 8px;}
 .sect-label::before{content:'';display:block;width:3px;height:13px;border-radius:99px;background:var(--accent);flex-shrink:0;}
 
 /* ── Today signal card ── */
@@ -83,33 +80,23 @@
 .sig-note{font-size:9px;color:var(--muted);line-height:1.5;}
 .sig-panel{display:none;border-top:1px solid var(--line);margin-top:10px;padding-top:11px;}
 .sig-panel.open{display:block;}
-.sig-ph{font-size:var(--fs-xs);font-weight:600;color:var(--muted);margin-bottom:6px;}
-.sig-levels{display:flex;gap:5px;margin-bottom:11px;}
-.sig-lv{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:11px 3px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-family:inherit;transition:all .15s;}
-.sig-lv-e{font-size:19px;line-height:1;}
-.sig-lv-w{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.02em;}
-.sig-lv.sel{border-color:var(--accent);background:var(--accent-soft);}
-.sig-lv.sel .sig-lv-w{color:var(--accent);}
-.sig-save{width:100%;padding:9px;border-radius:999px;border:none;background:var(--accent);color:#fff;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:inherit;}
+.sig-panel .mood-pick + .mood-pick{margin-top:16px;}
+.sig-save{width:100%;padding:11px;border-radius:999px;border:none;background:var(--accent);color:#fff;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;}
 
 /* ── Experiments ── */
 .exp-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);}
-.exp-intro{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;padding:12px 16px;border-bottom:1px solid var(--line);}
-.exp-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);}
+.exp-intro{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;padding:12px 16px;border-bottom:1px solid var(--line);}
+.exp-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);}
 .exp-row:last-child{border-bottom:none;}
 .exp-left{flex:1;}
-.exp-name{font-size:var(--fs-sm);font-weight:600;}
+.exp-name{font-size:var(--fs-md);font-weight:600;}
 .exp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
-.exp-cat-tag{display:inline-block;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:999px;margin-top:4px;}
-.tag-phys{background:#e5f2e3;color:#2d6b27;}
-.tag-ment{background:#f3efea;color:#6b5a3e;}
-.tag-emot{background:#f9edee;color:#8a3040;}
-.tag-spir{background:#ede8f6;color:var(--p-inner);}
+.exp-cat-tag{display:inline-block;font-size:var(--fs-xs);font-weight:700;padding:2px 8px;border-radius:999px;margin-top:4px;background:var(--greige);color:var(--muted);}
 .exp-rate{display:flex;gap:5px;flex-shrink:0;}
-.exp-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:transparent;display:grid;place-items:center;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;color:var(--muted);}
-.exp-btn.boost{border-color:var(--p-health);background:#e5f2e3;}
-.exp-btn.drain{border-color:var(--p-family);background:#f9edee;}
-.exp-btn.neut {border-color:var(--muted);background:var(--greige);color:var(--ink);}
+.exp-btn{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:transparent;display:grid;place-items:center;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;color:var(--muted);}
+.exp-btn.boost{border-color:#6dab5e;background:color-mix(in srgb,#6dab5e 16%,transparent);color:#4f8f43;}
+.exp-btn.neut{border-color:#c3bdb2;background:var(--greige);color:var(--ink);}
+.exp-btn.drain{border-color:#c67b6b;background:color-mix(in srgb,#c67b6b 16%,transparent);color:#b0574a;}
 
 /* Patterns footer */
 .patterns-link{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-card);padding:13px 16px;margin-top:12px;cursor:pointer;box-shadow:var(--shadow-sm);}
@@ -126,7 +113,7 @@
     <div class="ylens-badge"><i class="ic ic-zap"></i></div>
     <div>
       <div class="ylens-title">Energy</div>
-      <div class="ylens-sub">Friday · 27 June · how are you charged?</div>
+      <div class="ylens-sub">How you feel right now</div>
     </div>
   </div>
 
@@ -147,21 +134,27 @@
     </div>
     <div class="sig-note">Set at sleep log · logging the categories below adds context for why</div>
     <div class="sig-panel" id="sigPanel">
-      <div class="sig-ph">How do you feel right now?</div>
-      <div class="sig-levels" id="moodLevels">
-        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-w">Low</div></button>
-        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-w">Meh</div></button>
-        <button class="sig-lv sel" onclick="pickSig('mood',this)"><div class="sig-lv-w">Okay</div></button>
-        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-w">Good</div></button>
-        <button class="sig-lv" onclick="pickSig('mood',this)"><div class="sig-lv-w">Great</div></button>
+      <div class="mood-pick" data-name="sig-mood" data-value="6">
+        <div class="mp-top">
+          <span class="mp-cap"><i class="ic ic-heart"></i> Mood</span>
+          <span class="mp-now"><b>6</b>Okay</span>
+        </div>
+        <div class="mp-track" tabindex="0" role="slider" aria-label="Mood" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
+          <div class="mp-rail"></div><div class="mp-fill"></div>
+          <div class="mp-thumb"></div>
+        </div>
+        <div class="mp-ends"><span>Rough</span><span>Great</span></div>
       </div>
-      <div class="sig-ph">How's your overall energy?</div>
-      <div class="sig-levels" id="energyLevels">
-        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-w">Drained</div></button>
-        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-w">Low</div></button>
-        <button class="sig-lv sel" onclick="pickSig('energy',this)"><div class="sig-lv-w">Okay</div></button>
-        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-w">Good</div></button>
-        <button class="sig-lv" onclick="pickSig('energy',this)"><div class="sig-lv-w">Charged</div></button>
+      <div class="mood-pick" data-name="sig-energy" data-value="5">
+        <div class="mp-top">
+          <span class="mp-cap"><i class="ic ic-zap"></i> Energy</span>
+          <span class="mp-now"><b>5</b>Okay</span>
+        </div>
+        <div class="mp-track" tabindex="0" role="slider" aria-label="Energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="5">
+          <div class="mp-rail"></div><div class="mp-fill"></div>
+          <div class="mp-thumb"></div>
+        </div>
+        <div class="mp-ends"><span>Flat</span><span>Buzzing</span></div>
       </div>
       <button class="sig-save" onclick="saveSig()">Save signal</button>
     </div>
@@ -169,24 +162,24 @@
 
   <!-- ══════════ 2×2 OVERVIEW ══════════ -->
   <div class="overview">
-    <div class="ov-card active" id="ov-physical" onclick="switchCat('physical')">
-      <div class="ov-top"><div class="ov-icon"><i class="ic ic-activity"></i></div><div class="ov-name">Physical</div></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-physical" style="width:70%;background:var(--p-health)"></div></div>
+    <div class="ov-card active" id="ov-physical" style="--cat:#6dab5e" onclick="switchCat('physical')">
+      <div class="ov-top"><div class="ov-icon" style="color:#6dab5e"><i class="ic ic-activity"></i></div><div class="ov-name">Physical</div><i class="ic ic-chev ov-chev"></i></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-physical" style="width:70%;background:#6dab5e"></div></div>
       <div class="ov-level" id="ol-physical">Good · 7/10</div>
     </div>
-    <div class="ov-card" id="ov-mental" onclick="switchCat('mental')">
-      <div class="ov-top"><div class="ov-icon"><i class="ic ic-brain"></i></div><div class="ov-name">Mental</div></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-mental" style="width:50%;background:var(--p-admin)"></div></div>
+    <div class="ov-card" id="ov-mental" style="--cat:#937caf" onclick="switchCat('mental')">
+      <div class="ov-top"><div class="ov-icon" style="color:#937caf"><i class="ic ic-brain"></i></div><div class="ov-name">Mental</div><i class="ic ic-chev ov-chev"></i></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-mental" style="width:50%;background:#937caf"></div></div>
       <div class="ov-level" id="ol-mental">Okay · 5/10</div>
     </div>
-    <div class="ov-card" id="ov-emotional" onclick="switchCat('emotional')">
-      <div class="ov-top"><div class="ov-icon"><i class="ic ic-heart"></i></div><div class="ov-name">Emotional</div></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-emotional" style="width:40%;background:var(--p-family)"></div></div>
+    <div class="ov-card" id="ov-emotional" style="--cat:#b77980" onclick="switchCat('emotional')">
+      <div class="ov-top"><div class="ov-icon" style="color:#b77980"><i class="ic ic-heart"></i></div><div class="ov-name">Emotional</div><i class="ic ic-chev ov-chev"></i></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-emotional" style="width:40%;background:#b77980"></div></div>
       <div class="ov-level" id="ol-emotional">Low · 4/10</div>
     </div>
-    <div class="ov-card" id="ov-spiritual" onclick="switchCat('spiritual')">
-      <div class="ov-top"><div class="ov-icon"><i class="ic ic-spark"></i></div><div class="ov-name">Spiritual</div></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-spiritual" style="width:65%;background:var(--p-inner)"></div></div>
+    <div class="ov-card" id="ov-spiritual" style="--cat:#c99554" onclick="switchCat('spiritual')">
+      <div class="ov-top"><div class="ov-icon" style="color:#c99554"><i class="ic ic-spark"></i></div><div class="ov-name">Spiritual</div><i class="ic ic-chev ov-chev"></i></div>
+      <div class="mini-bat"><div class="mini-fill" id="mf-spiritual" style="width:65%;background:#c99554"></div></div>
       <div class="ov-level" id="ol-spiritual">Good · 6/10</div>
     </div>
   </div>
@@ -196,12 +189,16 @@
     <div class="cat-card">
       <div class="level-wrap">
         <div class="level-hint">How is your physical body feeling today?</div>
-        <div class="level-grid">
-          <button class="lv-btn" onclick="setLevel(this,'physical',1)"><div class="lv-word">Empty</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'physical',3)"><div class="lv-word">Low</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'physical',5)"><div class="lv-word">Okay</div></button>
-          <button class="lv-btn sel" onclick="setLevel(this,'physical',7)"><div class="lv-word">Good</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'physical',9)"><div class="lv-word">Charged</div></button>
+        <div class="mood-pick" data-name="physical" data-value="7">
+          <div class="mp-top">
+            <span class="mp-cap"><i class="ic ic-activity"></i> Physical</span>
+            <span class="mp-now"><b>7</b>Good</span>
+          </div>
+          <div class="mp-track" tabindex="0" role="slider" aria-label="Physical energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="7">
+            <div class="mp-rail"></div><div class="mp-fill"></div>
+            <div class="mp-thumb"></div>
+          </div>
+          <div class="mp-ends"><span>Empty</span><span>Charged</span></div>
         </div>
       </div>
       <div class="sect-hd">What gave physical energy</div>
@@ -237,12 +234,16 @@
     <div class="cat-card">
       <div class="level-wrap">
         <div class="level-hint">How sharp and focused does your mind feel?</div>
-        <div class="level-grid">
-          <button class="lv-btn" onclick="setLevel(this,'mental',1)"><div class="lv-word">Foggy</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'mental',3)"><div class="lv-word">Slow</div></button>
-          <button class="lv-btn sel" onclick="setLevel(this,'mental',5)"><div class="lv-word">Okay</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'mental',7)"><div class="lv-word">Sharp</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'mental',9)"><div class="lv-word">Flow</div></button>
+        <div class="mood-pick" data-name="mental" data-value="5">
+          <div class="mp-top">
+            <span class="mp-cap"><i class="ic ic-brain"></i> Mental</span>
+            <span class="mp-now"><b>5</b>Okay</span>
+          </div>
+          <div class="mp-track" tabindex="0" role="slider" aria-label="Mental energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="5">
+            <div class="mp-rail"></div><div class="mp-fill"></div>
+            <div class="mp-thumb"></div>
+          </div>
+          <div class="mp-ends"><span>Foggy</span><span>Flow</span></div>
         </div>
       </div>
       <div class="sect-hd">What replenished mental energy</div>
@@ -278,12 +279,16 @@
     <div class="cat-card">
       <div class="level-wrap">
         <div class="level-hint">How connected, motivated, and emotionally alive do you feel?</div>
-        <div class="level-grid">
-          <button class="lv-btn" onclick="setLevel(this,'emotional',1)"><div class="lv-word">Numb</div></button>
-          <button class="lv-btn sel" onclick="setLevel(this,'emotional',3)"><div class="lv-word">Low</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'emotional',5)"><div class="lv-word">Neutral</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'emotional',7)"><div class="lv-word">Warm</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'emotional',9)"><div class="lv-word">Full</div></button>
+        <div class="mood-pick" data-name="emotional" data-value="4">
+          <div class="mp-top">
+            <span class="mp-cap"><i class="ic ic-heart"></i> Emotional</span>
+            <span class="mp-now"><b>4</b>Low</span>
+          </div>
+          <div class="mp-track" tabindex="0" role="slider" aria-label="Emotional energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="4">
+            <div class="mp-rail"></div><div class="mp-fill"></div>
+            <div class="mp-thumb"></div>
+          </div>
+          <div class="mp-ends"><span>Numb</span><span>Full</span></div>
         </div>
       </div>
       <div class="sect-hd">What filled emotional energy</div>
@@ -319,12 +324,16 @@
     <div class="cat-card">
       <div class="level-wrap">
         <div class="level-hint">How aligned with purpose and meaning do you feel today?</div>
-        <div class="level-grid">
-          <button class="lv-btn" onclick="setLevel(this,'spiritual',1)"><div class="lv-word">Lost</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'spiritual',3)"><div class="lv-word">Drifting</div></button>
-          <button class="lv-btn sel" onclick="setLevel(this,'spiritual',6)"><div class="lv-word">Present</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'spiritual',7)"><div class="lv-word">Aligned</div></button>
-          <button class="lv-btn" onclick="setLevel(this,'spiritual',9)"><div class="lv-word">Purpose</div></button>
+        <div class="mood-pick" data-name="spiritual" data-value="6">
+          <div class="mp-top">
+            <span class="mp-cap"><i class="ic ic-spark"></i> Spiritual</span>
+            <span class="mp-now"><b>6</b>Present</span>
+          </div>
+          <div class="mp-track" tabindex="0" role="slider" aria-label="Spiritual energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
+            <div class="mp-rail"></div><div class="mp-fill"></div>
+            <div class="mp-thumb"></div>
+          </div>
+          <div class="mp-ends"><span>Lost</span><span>Purpose</span></div>
         </div>
       </div>
       <div class="sect-hd">What fed the spirit today</div>
@@ -355,7 +364,11 @@
   </div>
 
   <!-- ══════════ EXPERIMENTS ══════════ -->
-  <div class="sect-label">Energy experiments</div>
+  <div class="yhead">
+    <i class="ic ic-flask yhead-ic"></i>
+    <div class="yhead-t">Energy experiments</div>
+    <div class="yhead-rule"></div>
+  </div>
   <div class="exp-card">
     <div class="exp-intro">Test what actually works for your body and mind. Rate each as you try it — patterns surface over time in You → Progress.</div>
 
@@ -363,7 +376,7 @@
       <div class="exp-left">
         <div class="exp-name">Cold shower</div>
         <div class="exp-sub">Morning · 2 min · observe energy after</div>
-        <div class="exp-cat-tag tag-phys">physical</div>
+        <div class="exp-cat-tag">physical</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn boost" onclick="rateExp(this,'boost')" title="Gives energy">↑</button>
@@ -376,8 +389,8 @@
       <div class="exp-left">
         <div class="exp-name">No coffee before 10am</div>
         <div class="exp-sub">Try 3 days · watch afternoon crash</div>
-        <div class="exp-cat-tag tag-phys">physical</div>
-        <div class="exp-cat-tag tag-ment">mental</div>
+        <div class="exp-cat-tag">physical</div>
+        <div class="exp-cat-tag">mental</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
@@ -390,8 +403,8 @@
       <div class="exp-left">
         <div class="exp-name">Walk after lunch</div>
         <div class="exp-sub">10 min · combats afternoon slump</div>
-        <div class="exp-cat-tag tag-phys">physical</div>
-        <div class="exp-cat-tag tag-ment">mental</div>
+        <div class="exp-cat-tag">physical</div>
+        <div class="exp-cat-tag">mental</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn boost" onclick="rateExp(this,'boost')">↑</button>
@@ -404,8 +417,8 @@
       <div class="exp-left">
         <div class="exp-name">No screens 1hr before bed</div>
         <div class="exp-sub">Try a week · log morning energy next day</div>
-        <div class="exp-cat-tag tag-phys">physical</div>
-        <div class="exp-cat-tag tag-ment">mental</div>
+        <div class="exp-cat-tag">physical</div>
+        <div class="exp-cat-tag">mental</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn"       onclick="rateExp(this,'boost')">↑</button>
@@ -418,7 +431,7 @@
       <div class="exp-left">
         <div class="exp-name">Reach out to someone</div>
         <div class="exp-sub">Real connection · not just chat</div>
-        <div class="exp-cat-tag tag-emot">emotional</div>
+        <div class="exp-cat-tag">emotional</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
@@ -431,8 +444,8 @@
       <div class="exp-left">
         <div class="exp-name">5-min breathwork</div>
         <div class="exp-sub">Before a big task · box breathing</div>
-        <div class="exp-cat-tag tag-ment">mental</div>
-        <div class="exp-cat-tag tag-spir">spiritual</div>
+        <div class="exp-cat-tag">mental</div>
+        <div class="exp-cat-tag">spiritual</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
@@ -445,8 +458,8 @@
       <div class="exp-left">
         <div class="exp-name">Gratitude · 3 things</div>
         <div class="exp-sub">Evening · handwritten or spoken aloud</div>
-        <div class="exp-cat-tag tag-emot">emotional</div>
-        <div class="exp-cat-tag tag-spir">spiritual</div>
+        <div class="exp-cat-tag">emotional</div>
+        <div class="exp-cat-tag">spiritual</div>
       </div>
       <div class="exp-rate">
         <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
@@ -467,12 +480,88 @@
   </div>
 
 <script>
-const CATS = {
-  physical: {color:'var(--p-health)', levels:['Empty','Low','Okay','Good','Good','Good','Good','Charged','Charged','Charged']},
-  mental:   {color:'var(--p-admin)',  levels:['Foggy','Slow','Slow','Okay','Okay','Okay','Sharp','Sharp','Flow','Flow']},
-  emotional:{color:'var(--p-family)', levels:['Numb','Numb','Low','Low','Neutral','Neutral','Warm','Warm','Full','Full']},
-  spiritual:{color:'var(--p-inner)',  levels:['Lost','Lost','Drifting','Drifting','Present','Present','Aligned','Aligned','Purpose','Purpose']},
+// Word maps for each category's 1–10 slider (same pattern as Today's mood/energy)
+const MP_MAX = 10;
+const MP_WORDS = {
+  physical: ['Depleted','Empty','Heavy','Low','Okay','Steady','Good','Strong','Vibrant','Charged'],
+  mental:   ['Blank','Foggy','Hazy','Slow','Okay','Clear','Sharp','Focused','Bright','Flow'],
+  emotional:['Numb','Flat','Low','Guarded','Neutral','Open','Warm','Bright','Full','Alive'],
+  spiritual:['Lost','Hollow','Drifting','Distant','Present','Grounded','Aligned','Connected','Purpose','Whole'],
+  'sig-mood':   ['Rough','Low','Down','Flat','Okay','Fine','Good','Bright','Great','Radiant'],
+  'sig-energy': ['Flat','Depleted','Low','Sluggish','Okay','Steady','Good','High','Strong','Buzzing'],
 };
+const mpWord = (name, v) => MP_WORDS[name][v-1];
+const mpPct  = v => (v-1)/(MP_MAX-1)*100;
+// each slider ramps from a muted low to its dimension's own colour at the top
+const MP_COLORS = {
+  physical:'#6dab5e', mental:'#937caf', emotional:'#b77980', spiritual:'#c99554',
+};
+function hexToHsl(hex){
+  hex = hex.replace('#','');
+  const r=parseInt(hex.slice(0,2),16)/255, g=parseInt(hex.slice(2,4),16)/255, b=parseInt(hex.slice(4,6),16)/255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b); let h=0, s=0, l=(max+min)/2;
+  if(max!==min){
+    const d=max-min; s = l>.5 ? d/(2-max-min) : d/(max+min);
+    if(max===r) h=(g-b)/d+(g<b?6:0); else if(max===g) h=(b-r)/d+2; else h=(r-g)/d+4;
+    h/=6;
+  }
+  return { h:h*360, s:s*100, l:l*100 };
+}
+const mpColor = (name, v) => {
+  const t = (v-1)/(MP_MAX-1);
+  // signal card (mood + energy): calm slate-blue → teal/green → olive, same as the Sleep log
+  if(name === 'sig-mood' || name === 'sig-energy'){
+    return { h:Math.round(208+(92-208)*t), s:Math.round(34+(30-34)*t), l:Math.round(44+(38-44)*t) };
+  }
+  const base = hexToHsl(MP_COLORS[name] || '#5f6b5a');
+  return { h:Math.round(base.h), s:Math.round(base.s*(0.32+0.68*t)), l:Math.round(base.l + 15*(1-t)) };
+};
+function mpPaint(pick){
+  const v = +pick.dataset.value, name = pick.dataset.name, pct = mpPct(v), c = mpColor(name, v);
+  const solid = 'hsl('+c.h+','+c.s+'%,'+c.l+'%)', glow = 'hsla('+c.h+','+c.s+'%,'+c.l+'%,.38)';
+  const thumb = pick.querySelector('.mp-thumb'), fill = pick.querySelector('.mp-fill'), now = pick.querySelector('.mp-now');
+  thumb.style.left = pct + '%';
+  thumb.style.borderColor = solid;
+  thumb.style.boxShadow = '0 2px 8px ' + glow;
+  fill.style.width = pct + '%';
+  fill.style.background = solid;
+  now.innerHTML = '<b>'+v+'</b>'+mpWord(name, v);
+  now.style.color = '#FBFAF8';
+  now.style.background = solid;
+  pick.querySelector('.mp-track').setAttribute('aria-valuenow', v);
+  // sync overview card (only for category sliders)
+  const mf = document.getElementById('mf-'+name);
+  if(mf){
+    mf.style.width = Math.round(v/MP_MAX*100)+'%';
+    document.getElementById('ol-'+name).textContent = mpWord(name, v) + ' \u00b7 ' + v + '/10';
+  }
+}
+function mpSet(pick, clientX){
+  const r = pick.querySelector('.mp-track').getBoundingClientRect();
+  const ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+  pick.dataset.value = Math.min(MP_MAX, Math.max(1, Math.round(ratio * (MP_MAX-1)) + 1));
+  mpPaint(pick);
+}
+document.querySelectorAll('.mood-pick').forEach(pick=>{
+  const t = pick.querySelector('.mp-track'), thumb = pick.querySelector('.mp-thumb');
+  for(let i=1;i<=MP_MAX;i++){ const s=document.createElement('span'); s.className='mp-tick'; s.style.left=mpPct(i)+'%'; t.insertBefore(s, thumb); }
+  mpPaint(pick);
+  let drag = false;
+  const xOf = e => (e.touches ? e.touches[0] : e).clientX;
+  t.addEventListener('mousedown', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); });
+  t.addEventListener('touchstart', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); }, {passive:false});
+  window.addEventListener('mousemove', e=>{ if(drag) mpSet(pick, xOf(e)); });
+  window.addEventListener('touchmove', e=>{ if(drag) mpSet(pick, xOf(e)); }, {passive:false});
+  window.addEventListener('mouseup', ()=> drag=false);
+  window.addEventListener('touchend', ()=> drag=false);
+  t.addEventListener('keydown', e=>{
+    let v=+pick.dataset.value;
+    if(e.key==='ArrowRight'||e.key==='ArrowUp') v=Math.min(MP_MAX,v+1);
+    else if(e.key==='ArrowLeft'||e.key==='ArrowDown') v=Math.max(1,v-1);
+    else return;
+    pick.dataset.value=v; mpPaint(pick); e.preventDefault();
+  });
+});
 
 function switchCat(cat){
   document.querySelectorAll('.ov-card').forEach(c=>c.classList.remove('active'));
@@ -481,15 +570,12 @@ function switchCat(cat){
   document.getElementById('panel-'+cat).classList.add('active');
 }
 
-function setLevel(btn, cat, score){
-  const panel = document.getElementById('panel-'+cat);
-  panel.querySelectorAll('.lv-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  const pct = Math.round(score/10*100);
-  document.getElementById('mf-'+cat).style.width = pct+'%';
-  const desc = CATS[cat].levels[score-1] + ' · ' + score + '/10';
-  document.getElementById('ol-'+cat).textContent = desc;
-}
+// color-code experiment category tags to match the 4 energy dimensions
+const CAT_COLORS = {physical:'#6dab5e', mental:'#937caf', emotional:'#b77980', spiritual:'#c99554'};
+document.querySelectorAll('.exp-cat-tag').forEach(t=>{
+  const c = CAT_COLORS[t.textContent.trim()];
+  if(c){ t.style.color = c; t.style.background = 'color-mix(in srgb, '+c+' 15%, transparent)'; }
+});
 
 function tb(btn, cls){
   const other = cls === 'bs' ? 'bd' : 'bs';
@@ -527,12 +613,12 @@ function saveSection(id){
 function toggleSigPanel(){
   document.getElementById('sigPanel').classList.toggle('open');
 }
-function pickSig(type, btn){
-  const container = document.getElementById(type==='mood' ? 'moodLevels' : 'energyLevels');
-  container.querySelectorAll('.sig-lv').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-}
 function saveSig(){
+  // update the header numbers from the signal sliders
+  const mPick = document.querySelector('.mood-pick[data-name="sig-mood"]');
+  const ePick = document.querySelector('.mood-pick[data-name="sig-energy"]');
+  if(mPick) document.querySelector('.sig-item:first-child .sig-val').textContent = mPick.dataset.value;
+  if(ePick) document.querySelector('.sig-item:nth-child(3) .sig-val').textContent = ePick.dataset.value;
   document.getElementById('sigPanel').classList.remove('open');
 }
 </script>
