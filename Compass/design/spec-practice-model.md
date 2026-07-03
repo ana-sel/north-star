@@ -130,6 +130,8 @@ example, lives *once* (in Regulate); it's referenced elsewhere, never duplicated
 2. **Today** realigns to *one theme + light rituals* (not 3 co-equal cues).
 3. **Rest rhythm** cards adopt the standard card language (visual consistency).
 4. **Log · Habits** is the single home of rituals; embodied practices graduate into it.
+   The full habit domain model, ordering rules, meaning layer, and 108-repetition
+   model live in [`spec-habits.md`](spec-habits.md) (the canonical source).
 
 ## 8. Resolved
 - **Rhythm:** habits = daily; qualities = ~2–4×/week, **rotated from a small pool,
