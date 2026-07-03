@@ -70,22 +70,16 @@
 
 /* ── Today signal card ── */
 .signal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:13px 14px 11px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
-.sig-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;}
-.sig-row{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
-.sig-item{flex:1;text-align:center;}
-.sig-val{font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--ink);}
-.sig-name{font-size:var(--fs-xs);color:var(--muted);font-weight:500;margin-top:1px;}
-.sig-divider{width:1px;height:36px;background:var(--line);flex-shrink:0;}
-.sig-update{font-size:var(--fs-xs);font-weight:700;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;flex-shrink:0;}
-.sig-note{font-size:9px;color:var(--muted);line-height:1.5;}
-.sig-panel{display:none;border-top:1px solid var(--line);margin-top:10px;padding-top:11px;}
-.sig-panel.open{display:block;}
+.sig-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
+.sig-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin-bottom:12px;}
+.sig-panel{display:block;}
 .sig-panel .mood-pick + .mood-pick{margin-top:16px;}
 .sig-save{width:100%;padding:11px;border-radius:999px;border:none;background:var(--accent);color:#fff;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;}
 
 /* ── Experiments ── */
 .exp-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);}
 .exp-intro{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;padding:12px 16px;border-bottom:1px solid var(--line);}
+.exp-scroll{max-height:330px;overflow-y:auto;overscroll-behavior:contain;}
 .exp-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);}
 .exp-row:last-child{border-bottom:none;}
 .exp-left{flex:1;}
@@ -120,20 +114,8 @@
   <!-- Today's signal -->
   <div class="signal-card">
     <div class="sig-label">Today's overall signal</div>
-    <div class="sig-row">
-      <div class="sig-item">
-        <div class="sig-val">6</div>
-        <div class="sig-name">Mood</div>
-      </div>
-      <div class="sig-divider"></div>
-      <div class="sig-item">
-        <div class="sig-val">5</div>
-        <div class="sig-name">Energy</div>
-      </div>
-      <button class="sig-update" onclick="toggleSigPanel()">Update</button>
-    </div>
-    <div class="sig-note">Set at sleep log · logging the categories below adds context for why</div>
-    <div class="sig-panel" id="sigPanel">
+    <div class="sig-note">From this morning's sleep log — nudge it if the day's shifted</div>
+    <div class="sig-panel">
       <div class="mood-pick" data-name="sig-mood" data-value="6">
         <div class="mp-top">
           <span class="mp-cap"><i class="ic ic-heart"></i> Mood</span>
@@ -372,6 +354,7 @@
   <div class="exp-card">
     <div class="exp-intro">Test what actually works for your body and mind. Rate each as you try it — patterns surface over time in You → Progress.</div>
 
+    <div class="exp-scroll">
     <div class="exp-row">
       <div class="exp-left">
         <div class="exp-name">Cold shower</div>
@@ -466,6 +449,7 @@
         <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
         <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
       </div>
+    </div>
     </div>
 
   </div>
@@ -610,16 +594,8 @@ function saveSection(id){
   row.querySelector('.save-time').textContent =
     now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
 }
-function toggleSigPanel(){
-  document.getElementById('sigPanel').classList.toggle('open');
-}
 function saveSig(){
-  // update the header numbers from the signal sliders
-  const mPick = document.querySelector('.mood-pick[data-name="sig-mood"]');
-  const ePick = document.querySelector('.mood-pick[data-name="sig-energy"]');
-  if(mPick) document.querySelector('.sig-item:first-child .sig-val').textContent = mPick.dataset.value;
-  if(ePick) document.querySelector('.sig-item:nth-child(3) .sig-val').textContent = ePick.dataset.value;
-  document.getElementById('sigPanel').classList.remove('open');
+  // wireframe stub — signal captured from the two sliders above
 }
 </script>
 </body>
