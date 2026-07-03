@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Compass · Log · Sleep</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -27,46 +28,7 @@
 /* ── Lede ── */
 .lede{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.015em;margin:12px 0;}
 
-/* Dial card · gentle note · 1–10 scores now live in components.css (shared with Today) */
-#dialSvg{width:216px;height:216px;display:block;touch-action:none;}
-
-.b-label{font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;font-weight:500;}
-.b-note{
-  width:100%;min-height:60px;background:var(--greige);border:1.5px solid var(--line);
-  border-radius:12px;padding:9px 11px;font:500 var(--fs-md) inherit;color:var(--ink);
-  resize:vertical;outline:none;font-family:inherit;
-}
-.b-note:focus{background:var(--card);border-color:var(--btn);box-shadow:0 0 0 3px rgba(60,58,52,.08);}
-
-.btn-prim{
-  width:100%;border:none;border-radius:14px;background:var(--btn);color:#FBFAF8;
-  font:700 var(--fs-md) inherit;padding:14px;cursor:pointer;
-  box-shadow:0 6px 18px rgba(60,58,52,.2);margin-top:4px;
-  transition:opacity .15s,transform .12s;
-}
-.btn-prim:active{opacity:.88;transform:scale(.984);}
-
-/* ── Target-edit sheet (slides up over the screen) ── */
-.target-modal{
-  position:fixed;inset:0;background:var(--bg);z-index:100;
-  display:flex;flex-direction:column;
-  transform:translateY(100%);transition:transform .25s ease-out;
-  overflow:hidden;
-}
-.target-modal.open{transform:translateY(0);}
-.set-topbar{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:18px 18px 8px;flex-shrink:0;
-}
-.set-topbar h2{margin:0;font-size:var(--fs-lg);font-weight:800;letter-spacing:-.02em;}
-.set-close{
-  background:var(--card);border:1px solid var(--line);
-  width:30px;height:30px;border-radius:9px;
-  display:grid;place-items:center;font-size:13px;color:var(--muted);
-  cursor:pointer;box-shadow:var(--shadow-sm);
-}
-.set-body{flex:1;overflow-y:auto;padding:4px 16px 24px;}
-#targetDialSvg{width:216px;height:216px;display:block;touch-action:none;}
+/* btn-prim · b-label · b-note · sheet-back · sleep-sheet · ss-* → components.css */
 </style>
 </head>
 <body class="screen-body">
@@ -92,7 +54,7 @@
 
   <!-- 24h sleep dial -->
   <div class="dial-card">
-    <div class="dial-hint">Drag 🌙 or ☀ to adjust · snaps to 10 min</div>
+    <div class="dial-hint">Drag the bed &amp; wake points to adjust · snaps to 10 min</div>
     <svg id="dialSvg" viewBox="0 0 216 216" role="img" aria-label="24-hour sleep clock"></svg>
     <div class="dial-foot"><strong id="durDisplay">5h 40m</strong> sleep</div>
   </div>
@@ -137,28 +99,21 @@
 
   <button class="btn-prim">Save night</button>
 
-  <!-- Target-edit sheet (opens when you tap the target strip) -->
-  <div class="target-modal" id="targetModal">
-    <div class="set-topbar">
-      <h2>Sleep target</h2>
-      <button class="set-close" id="targetClose">✕</button>
+  <!-- Target sheet (slides up from the bottom when you tap the target strip) -->
+  <div class="sheet-back" id="targetBack" onclick="closeTarget()"></div>
+  <div class="sleep-sheet" id="targetModal">
+    <div class="ss-grip"></div>
+    <div class="ss-title">Sleep target</div>
+    <div class="ss-sub">Drag the bed and wake points to set the times you're aiming for.</div>
+    <div class="dial-card">
+      <div class="dial-hint">Same dial — just for your target window</div>
+      <svg id="targetDialSvg" viewBox="0 0 216 216" role="img" aria-label="target sleep clock"></svg>
+      <div class="dial-foot"><strong id="mDur">8h 00m</strong> target · <span id="mBedTxt">23:00</span> → <span id="mWakeTxt">07:00</span></div>
     </div>
-    <div class="set-body">
-      <p style="font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin:0 0 12px">
-        Drag 🌙 and ☀️ to set the bed and wake times you're aiming for.
-      </p>
-      <div class="dial-card">
-        <div class="dial-hint">Same dial — just for your target window</div>
-        <svg id="targetDialSvg" viewBox="0 0 216 216" role="img" aria-label="target sleep clock"></svg>
-        <div class="dial-foot">
-          <strong id="mDur">8h 00m</strong> target
-          · <span id="mBedTxt">23:00</span> → <span id="mWakeTxt">07:00</span>
-        </div>
-      </div>
-      <button class="btn-prim" id="mSave">Save target</button>
-    </div>
+    <button class="btn-prim" id="mSave">Save target</button>
   </div>
 
+<script src="../shared/dial.js"></script>
 <script>
 // Mood / energy sliders — tap or drag on a 1–10 scale (stored as-is in the DB)
 const MP_MAX = 10;
@@ -218,320 +173,38 @@ document.querySelectorAll('.mood-pick').forEach(pick => {
 // Shared target state (read by main dial, written by target modal)
 window._target = { sleep: 23, wake: 7 };
 
-// ── 24h sleep dial (ported from V2) ──
-window._mainDial = (function () {
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.getElementById('dialSvg');
-  const SZ = 216, CX = 108, CY = 108;
-  const R = 76, R_TICKS = 85, R_LABELS = 99, HR = 12;
-  let sleepH = 50 / 60, wakeH = 6.5; // 00:50 → 06:30
-  let dragging = null;
-
-  const mk = (tag, attrs, text) => {
-    const e = document.createElementNS(NS, tag);
-    for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
-    if (text !== undefined) e.textContent = text;
-    return e;
-  };
-  const toAngle = h => (h / 24) * Math.PI * 2 - Math.PI / 2;
-  const toTime = a => { let t = ((a + Math.PI / 2) / (Math.PI * 2)) * 24; return ((t % 24) + 24) % 24; };
-  const polar = (h, r) => { const a = toAngle(h); return [+(CX + r * Math.cos(a)).toFixed(2), +(CY + r * Math.sin(a)).toFixed(2)]; };
-  const arcD = (t1, t2, r) => {
-    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
-    const dur = ((t2 - t1) + 24) % 24;
-    return `M ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2}`;
-  };
-  const sectorD = (t1, t2, r) => {
-    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
-    const dur = ((t2 - t1) + 24) % 24;
-    return `M ${CX} ${CY} L ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2} Z`;
-  };
-  const fmtTime = h => {
-    const tot = Math.round(((h % 24 + 24) % 24) * 60);
-    return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
-  };
-  const fmtDur = (t1, t2) => {
-    const d = ((t2 - t1) + 24) % 24;
-    const h = Math.floor(d), m = Math.round((d - h) * 60);
-    return m > 0 ? `${h}h ${m}m` : `${h}h`;
-  };
-  const snap10 = h => Math.round(h * 6) / 6;
-
-  // Backdrop + face
-  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R + 22, fill: '#F0ECE5', stroke: 'none' }));
-  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R, fill: 'none', stroke: '#DDD9D2', 'stroke-width': '1.5' }));
-
-  // Hour ticks
-  for (let h = 0; h < 24; h++) {
-    const major = h % 6 === 0, medium = h % 3 === 0;
-    const a = toAngle(h);
-    const r1 = R_TICKS - (major ? 10 : medium ? 5 : 3), r2 = R_TICKS;
-    const cos = Math.cos(a), sin = Math.sin(a);
-    svg.appendChild(mk('line', {
-      x1: +(CX + r1 * cos).toFixed(2), y1: +(CY + r1 * sin).toFixed(2),
-      x2: +(CX + r2 * cos).toFixed(2), y2: +(CY + r2 * sin).toFixed(2),
-      stroke: major ? '#65645F' : '#C4BFBA',
-      'stroke-width': major ? '1.5' : '0.75', 'stroke-linecap': 'round'
-    }));
-  }
-
-  // Hour labels
-  [{ h: 0, t: '0' }, { h: 6, t: '6' }, { h: 12, t: '12' }, { h: 18, t: '18' }].forEach(({ h, t }) => {
-    const [x, y] = polar(h, R_LABELS);
-    svg.appendChild(mk('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-family': 'Inter, sans-serif', 'font-size': '9.5', 'font-weight': '600', fill: '#65645F' }, t));
-  });
-
-  // Target arc (dashed olive) — redrawn when target is saved
-  const targetArc = mk('path', { fill: 'none', stroke: '#768471', 'stroke-width': '3.5',
-    'stroke-linecap': 'round', 'stroke-dasharray': '3 4.5', opacity: '0.45',
-    d: arcD(window._target.sleep, window._target.wake, R) });
-  svg.appendChild(targetArc);
-
-  // Actual sleep sector + arc
-  const sector = mk('path', { fill: 'rgba(126,142,159,0.13)', stroke: 'none', d: sectorD(sleepH, wakeH, R) });
-  svg.appendChild(sector);
-  const sleepArc = mk('path', { fill: 'none', stroke: '#7E8E9F', 'stroke-width': '5.5',
-    'stroke-linecap': 'round', d: arcD(sleepH, wakeH, R) });
-  svg.appendChild(sleepArc);
-
-  // Center labels
-  const bedTxt = mk('text', { x: CX, y: CY - 9, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '800', fill: '#24231F' },
-    '🌙 ' + fmtTime(sleepH));
-  const wakeTxt = mk('text', { x: CX, y: CY + 11, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '700', fill: '#65645F' },
-    '☀️ ' + fmtTime(wakeH));
-  svg.appendChild(bedTxt); svg.appendChild(wakeTxt);
-
-  // Draggable handles
-  function makeHandle(emoji, fill) {
-    const g = mk('g', { cursor: 'grab' });
-    const c = mk('circle', { r: HR, fill, stroke: '#FFFEFC', 'stroke-width': '2.5' });
-    const ic = mk('text', { 'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-size': '11', 'pointer-events': 'none' }, emoji);
-    g.appendChild(c); g.appendChild(ic); svg.appendChild(g);
-    return { g, c, ic };
-  }
-  const sh = makeHandle('🌙', '#24231F'), wh = makeHandle('☀️', '#768471');
-  function posHandle({ c, ic }, h) {
-    const [x, y] = polar(h, R);
-    c.setAttribute('cx', x); c.setAttribute('cy', y);
-    ic.setAttribute('x', x); ic.setAttribute('y', y);
-  }
-  function update() {
-    posHandle(sh, sleepH); posHandle(wh, wakeH);
-    sleepArc.setAttribute('d', arcD(sleepH, wakeH, R));
-    sector.setAttribute('d', sectorD(sleepH, wakeH, R));
-    bedTxt.textContent = '🌙 ' + fmtTime(sleepH);
-    wakeTxt.textContent = '☀️ ' + fmtTime(wakeH);
-    document.getElementById('durDisplay').textContent = fmtDur(sleepH, wakeH);
-
-    const dur = ((wakeH - sleepH) + 24) % 24;
-    const h = Math.floor(dur), m = Math.round((dur - h) * 60);
-    const durStr = m > 0 ? `${h}h ${m}m` : `${h}h`;
-    const diff = dur - 8;
+// ── 24h sleep dial — shared factory ──
+window._mainDial = createSleepDial({
+  svg: 'dialSvg', sleep: 50/60, wake: 6.5, showTargetArc: true,
+  onUpdate: ctx => {
+    document.getElementById('durDisplay').textContent = ctx.fmtDur(ctx.sleepH, ctx.wakeH);
+    const durStr = ctx.fmtDur(ctx.sleepH, ctx.wakeH), diff = ctx.durHours - 8;
     let note;
     if (diff >= 0) note = `${durStr} — at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>`;
     else if (diff >= -1) note = `${durStr} is close to your 8h goal. <span class="soft">See how your energy feels today — one night off is just one night.</span>`;
     else note = `${durStr} is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>`;
     document.getElementById('insightText').innerHTML = note;
   }
-  update();
+});
 
-  function svgPt(e) {
-    const rect = svg.getBoundingClientRect();
-    const sx = SZ / rect.width, sy = SZ / rect.height;
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    return [(cx - rect.left) * sx, (cy - rect.top) * sy];
+// ── Target dial (in modal) — shared factory ──
+window._targetDial = createSleepDial({
+  svg: 'targetDialSvg', sleep: window._target.sleep, wake: window._target.wake,
+  arcColor: '#768471', sectorColor: 'rgba(118,132,113,0.18)',
+  onUpdate: ctx => {
+    document.getElementById('mBedTxt').textContent = ctx.fmtTime(ctx.sleepH);
+    document.getElementById('mWakeTxt').textContent = ctx.fmtTime(ctx.wakeH);
+    const d = ctx.durHours, h = Math.floor(d), m = Math.round((d - h) * 60);
+    document.getElementById('mDur').textContent = h + 'h ' + String(m).padStart(2, '0') + 'm';
+    window._target.sleep = ctx.sleepH; window._target.wake = ctx.wakeH;
   }
-  function near(px, py, h) {
-    const [hx, hy] = polar(h, R);
-    return Math.hypot(px - hx, py - hy) < HR * 2.4;
-  }
-  svg.addEventListener('mousedown', e => {
-    const [px, py] = svgPt(e);
-    if (near(px, py, sleepH)) { dragging = 'sleep'; svg.style.cursor = 'grabbing'; }
-    else if (near(px, py, wakeH)) { dragging = 'wake'; svg.style.cursor = 'grabbing'; }
-  });
-  svg.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const [px, py] = svgPt(e);
-    if (near(px, py, sleepH)) dragging = 'sleep';
-    else if (near(px, py, wakeH)) dragging = 'wake';
-  }, { passive: false });
-  window.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const [px, py] = svgPt(e);
-    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
-    if (dragging === 'sleep') sleepH = t; else wakeH = t;
-    update();
-  });
-  window.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    e.preventDefault();
-    const [px, py] = svgPt(e);
-    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
-    if (dragging === 'sleep') sleepH = t; else wakeH = t;
-    update();
-  }, { passive: false });
-  window.addEventListener('mouseup',  () => { dragging = null; svg.style.cursor = 'default'; });
-  window.addEventListener('touchend', () => { dragging = null; });
-
-  // Expose: redraw target arc + recompute insight when target changes
-  return {
-    refreshTarget(){
-      targetArc.setAttribute('d', arcD(window._target.sleep, window._target.wake, R));
-    }
-  };
-})();
-
-// ── Target dial (in modal) — sets target bed/wake ──
-(function () {
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.getElementById('targetDialSvg');
-  const SZ = 216, CX = 108, CY = 108;
-  const R = 76, R_TICKS = 85, R_LABELS = 99, HR = 12;
-  let sleepH = window._target.sleep, wakeH = window._target.wake;
-  let dragging = null;
-
-  const mk = (tag, attrs, text) => {
-    const e = document.createElementNS(NS, tag);
-    for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
-    if (text !== undefined) e.textContent = text;
-    return e;
-  };
-  const toAngle = h => (h / 24) * Math.PI * 2 - Math.PI / 2;
-  const toTime = a => { let t = ((a + Math.PI / 2) / (Math.PI * 2)) * 24; return ((t % 24) + 24) % 24; };
-  const polar = (h, r) => { const a = toAngle(h); return [+(CX + r * Math.cos(a)).toFixed(2), +(CY + r * Math.sin(a)).toFixed(2)]; };
-  const arcD = (t1, t2, r) => {
-    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
-    const dur = ((t2 - t1) + 24) % 24;
-    return `M ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2}`;
-  };
-  const sectorD = (t1, t2, r) => {
-    const [x1, y1] = polar(t1, r), [x2, y2] = polar(t2, r);
-    const dur = ((t2 - t1) + 24) % 24;
-    return `M ${CX} ${CY} L ${x1} ${y1} A ${r} ${r} 0 ${dur > 12 ? 1 : 0} 1 ${x2} ${y2} Z`;
-  };
-  const fmtTime = h => {
-    const tot = Math.round(((h % 24 + 24) % 24) * 60);
-    return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
-  };
-  const fmtDur = (t1, t2) => {
-    const d = ((t2 - t1) + 24) % 24;
-    const h = Math.floor(d), m = Math.round((d - h) * 60);
-    return m > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${h}h 00m`;
-  };
-  const snap10 = h => Math.round(h * 6) / 6;
-
-  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R + 22, fill: '#F0ECE5', stroke: 'none' }));
-  svg.appendChild(mk('circle', { cx: CX, cy: CY, r: R, fill: 'none', stroke: '#DDD9D2', 'stroke-width': '1.5' }));
-  for (let h = 0; h < 24; h++) {
-    const major = h % 6 === 0, medium = h % 3 === 0;
-    const a = toAngle(h);
-    const r1 = R_TICKS - (major ? 10 : medium ? 5 : 3), r2 = R_TICKS;
-    const cos = Math.cos(a), sin = Math.sin(a);
-    svg.appendChild(mk('line', {
-      x1: +(CX + r1 * cos).toFixed(2), y1: +(CY + r1 * sin).toFixed(2),
-      x2: +(CX + r2 * cos).toFixed(2), y2: +(CY + r2 * sin).toFixed(2),
-      stroke: major ? '#65645F' : '#C4BFBA',
-      'stroke-width': major ? '1.5' : '0.75', 'stroke-linecap': 'round'
-    }));
-  }
-  [{ h: 0, t: '0' }, { h: 6, t: '6' }, { h: 12, t: '12' }, { h: 18, t: '18' }].forEach(({ h, t }) => {
-    const [x, y] = polar(h, R_LABELS);
-    svg.appendChild(mk('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-family': 'Inter, sans-serif', 'font-size': '9.5', 'font-weight': '600', fill: '#65645F' }, t));
-  });
-
-  const sector = mk('path', { fill: 'rgba(118,132,113,0.18)', stroke: 'none', d: sectorD(sleepH, wakeH, R) });
-  svg.appendChild(sector);
-  const arc = mk('path', { fill: 'none', stroke: '#768471', 'stroke-width': '5.5',
-    'stroke-linecap': 'round', d: arcD(sleepH, wakeH, R) });
-  svg.appendChild(arc);
-  const bedTxt = mk('text', { x: CX, y: CY - 9, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '800', fill: '#24231F' },
-    '🌙 ' + fmtTime(sleepH));
-  const wakeTxt = mk('text', { x: CX, y: CY + 11, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-    'font-family': 'Inter, sans-serif', 'font-size': '14', 'font-weight': '700', fill: '#65645F' },
-    '☀️ ' + fmtTime(wakeH));
-  svg.appendChild(bedTxt); svg.appendChild(wakeTxt);
-
-  function makeHandle(emoji, fill) {
-    const g = mk('g', { cursor: 'grab' });
-    const c = mk('circle', { r: HR, fill, stroke: '#FFFEFC', 'stroke-width': '2.5' });
-    const ic = mk('text', { 'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-size': '11', 'pointer-events': 'none' }, emoji);
-    g.appendChild(c); g.appendChild(ic); svg.appendChild(g);
-    return { g, c, ic };
-  }
-  const sh = makeHandle('🌙', '#24231F'), wh = makeHandle('☀️', '#768471');
-  function posHandle({ c, ic }, h) {
-    const [x, y] = polar(h, R);
-    c.setAttribute('cx', x); c.setAttribute('cy', y);
-    ic.setAttribute('x', x); ic.setAttribute('y', y);
-  }
-  function update() {
-    posHandle(sh, sleepH); posHandle(wh, wakeH);
-    arc.setAttribute('d', arcD(sleepH, wakeH, R));
-    sector.setAttribute('d', sectorD(sleepH, wakeH, R));
-    bedTxt.textContent = '🌙 ' + fmtTime(sleepH);
-    wakeTxt.textContent = '☀️ ' + fmtTime(wakeH);
-    document.getElementById('mBedTxt').textContent = fmtTime(sleepH);
-    document.getElementById('mWakeTxt').textContent = fmtTime(wakeH);
-    document.getElementById('mDur').textContent = fmtDur(sleepH, wakeH);
-    window._target.sleep = sleepH; window._target.wake = wakeH;
-  }
-  update();
-
-  function svgPt(e) {
-    const rect = svg.getBoundingClientRect();
-    const sx = SZ / rect.width, sy = SZ / rect.height;
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    return [(cx - rect.left) * sx, (cy - rect.top) * sy];
-  }
-  function near(px, py, h) {
-    const [hx, hy] = polar(h, R);
-    return Math.hypot(px - hx, py - hy) < HR * 2.4;
-  }
-  svg.addEventListener('mousedown', e => {
-    const [px, py] = svgPt(e);
-    if (near(px, py, sleepH)) { dragging = 'sleep'; svg.style.cursor = 'grabbing'; }
-    else if (near(px, py, wakeH)) { dragging = 'wake'; svg.style.cursor = 'grabbing'; }
-  });
-  svg.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const [px, py] = svgPt(e);
-    if (near(px, py, sleepH)) dragging = 'sleep';
-    else if (near(px, py, wakeH)) dragging = 'wake';
-  }, { passive: false });
-  window.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const [px, py] = svgPt(e);
-    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
-    if (dragging === 'sleep') sleepH = t; else wakeH = t;
-    update();
-  });
-  window.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    e.preventDefault();
-    const [px, py] = svgPt(e);
-    const t = snap10(toTime(Math.atan2(py - CY, px - CX)));
-    if (dragging === 'sleep') sleepH = t; else wakeH = t;
-    update();
-  }, { passive: false });
-  window.addEventListener('mouseup',  () => { dragging = null; svg.style.cursor = 'default'; });
-  window.addEventListener('touchend', () => { dragging = null; });
-})();
+});
 
 // ── Open / close / save target sheet ──
 (function () {
   const tMod  = document.getElementById('targetModal');
+  const tBack = document.getElementById('targetBack');
   const strip = document.getElementById('targetStrip');
-  const close = document.getElementById('targetClose');
   const save  = document.getElementById('mSave');
 
   const fmtT = h => {
@@ -544,14 +217,16 @@ window._mainDial = (function () {
     return m > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${h} hours`;
   };
 
-  strip.addEventListener('click', () => tMod.classList.add('open'));
-  close.addEventListener('click', () => tMod.classList.remove('open'));
+  function openSheet(){ tMod.classList.add('open'); tBack.classList.add('open'); }
+  window.closeTarget = function(){ tMod.classList.remove('open'); tBack.classList.remove('open'); };
+
+  strip.addEventListener('click', openSheet);
   save.addEventListener('click', () => {
     document.getElementById('tBed').textContent  = fmtT(window._target.sleep);
     document.getElementById('tWake').textContent = fmtT(window._target.wake);
     document.getElementById('tDur').textContent  = fmtDurHours(window._target.sleep, window._target.wake);
     window._mainDial.refreshTarget();
-    tMod.classList.remove('open');
+    window.closeTarget();
   });
 })();
 </script>
