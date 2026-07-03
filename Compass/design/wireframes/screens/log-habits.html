@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Compass · Log · Habits</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -14,13 +15,19 @@
 .hhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .hdt{font-size:var(--fs-sm);color:var(--muted);font-weight:500;}
 .hstreak{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:700;background:var(--card);border:1px solid var(--line);padding:4px 11px;border-radius:999px;box-shadow:var(--shadow-sm);color:var(--ink);}
-.hstreak .ic{color:#c9803f;font-size:12px;}
 
-/* ── Baseline framing ── */
-.baseline-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;background:var(--greige);border-radius:12px;padding:11px 13px;margin-bottom:14px;}
-.baseline-note strong{color:var(--ink);font-weight:700;}
-.baseline-note a{color:var(--olive);font-weight:700;text-decoration:none;}
-.baseline-note em{font-style:italic;}
+/* ── Streak chip — plain day count, warm tint at 7+ ── */
+.yritual-streak{font-size:var(--fs-xs);font-weight:700;color:var(--muted);flex-shrink:0;padding:3px 10px;border-radius:999px;background:var(--greige);white-space:nowrap;transition:all .3s;}
+.yritual-streak.warm{background:#f3eee2;color:#a8843f;}
+
+/* ── Completion celebration — gentle pulse then fade ── */
+@keyframes ritualDone{
+  0%{box-shadow:0 0 0 0 rgba(118,132,113,.45);}
+  50%{box-shadow:0 0 0 10px rgba(118,132,113,0);}
+  100%{box-shadow:none;}
+}
+.yritual.celebrated{animation:ritualDone .7s ease-out;}
+.yritual.celebrated .yritual-streak{background:#eef4ec;color:#3d6e37;transition:all .4s;}
 
 /* ── Pace selector (shared concept with Today) ── */
 .pace{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
@@ -29,20 +36,36 @@
 .pace-btn{flex:1;padding:8px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;}
 .pace-btn.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
 .pace-btn.on[data-mode="rest"]{color:var(--p-inner);}
-.pace-cap{font-size:var(--fs-xs);color:var(--muted);margin:0 2px 16px;line-height:1.5;}
-.pace-cap b{color:var(--ink);font-weight:700;}
+
+/* Full/Lighter/Rest reassurance banners (shared language with Today) */
+.rest-banner,.lighter-banner{display:none;align-items:center;gap:12px;border-radius:16px;padding:13px 15px;margin:10px 0 14px;}
+.rest-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
+.lighter-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
+.mode-rest .rest-banner{display:flex;}
+.mode-lighter .lighter-banner{display:flex;}
+.rest-banner-em,.lighter-banner-em{color:var(--steel);font-size:20px;line-height:1;flex-shrink:0;}
+.rest-banner-txt,.lighter-banner-txt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
+.rest-banner-txt strong,.lighter-banner-txt strong{color:var(--ink);font-weight:700;}
 
 /* ── Expanded ritual card (uses shared .yritual from you.css) ── */
-.yritual-streak{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);flex-shrink:0;}
-.yritual-streak .ic{color:#c9803f;font-size:11px;}
+.yritual-streak{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);flex-shrink:0;white-space:nowrap;}
 .yritual-track{border-bottom:1px solid var(--line);padding-bottom:15px;}
 
 /* Habit rows */
 .hrow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer;user-select:none;}
 .hrow:first-of-type{border-top:none;}
-.hrow-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent;flex-shrink:0;transition:all .15s;}
+.hrow-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:12px;color:var(--line);flex-shrink:0;transition:all .15s;}
 .hrow.done .hrow-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
-.hrow-ic{width:34px;height:34px;border-radius:10px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:16px;flex-shrink:0;}
+.hrow-ic{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb, currentColor 14%, transparent);display:grid;place-items:center;color:var(--muted);font-size:16px;flex-shrink:0;}
+.hrow-ic:has(.ic-drop){color:#5b9bd5;}
+.hrow-ic:has(.ic-sun){color:#d4a843;}
+.hrow-ic:has(.ic-wind){color:#7cae9e;}
+.hrow-ic:has(.ic-activity){color:#6dab5e;}
+.hrow-ic:has(.ic-brain){color:#937caf;}
+.hrow-ic:has(.ic-leaf){color:#77936f;}
+.hrow-ic:has(.ic-moon){color:#6e7fa8;}
+.hrow-ic:has(.ic-pen){color:#b07f86;}
+.hrow-ic:has(.ic-sprout){color:#6dab5e;}
 .hrow-main{flex:1;min-width:0;}
 .hrow-name{font-size:var(--fs-md);font-weight:600;line-height:1.2;}
 .hrow.done .hrow-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
@@ -51,14 +74,11 @@
 .hpill.stillness{background:#ede8f6;color:#7a679c;}
 .hpill.land{background:#e4efe6;color:#4e7d5a;}
 .hrow-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
-.hdots{display:flex;gap:3px;}
-.hd{width:6px;height:6px;border-radius:50%;background:var(--line);}
+.hdots{display:flex;gap:4px;}
+.hd{width:9px;height:9px;border-radius:50%;background:var(--line);}
 .hd.on{background:var(--accent);}
-.hd.miss{background:#dcc6c9;}
-.hd.today{background:transparent;border:1.5px solid var(--accent);}
-.hfreq{font-size:8px;font-weight:800;letter-spacing:.05em;color:var(--muted);text-align:right;}
-.hfreq.l2{color:var(--olive);}
-.hfreq.l3{color:#4a8a42;}
+.hd.today{background:transparent;border:2px solid var(--accent);}
+.hfreq{font-size:var(--fs-xs);font-weight:600;color:var(--muted);text-align:right;}
 
 /* Frequency upgrade nudge (gradual escalation) */
 .hnudge{display:flex;align-items:center;gap:10px;padding:11px 16px;background:#f7efe1;border-top:1px solid var(--line);}
@@ -67,39 +87,170 @@
 .hnudge-t strong{color:#6f571f;font-weight:700;}
 .hnudge-b{font-size:var(--fs-xs);font-weight:700;color:#8a6d33;background:#efe1c4;border:1px solid #e2cfa0;border-radius:999px;padding:5px 12px;cursor:pointer;font-family:inherit;flex-shrink:0;}
 
-/* Add habit */
-.hadd{display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:var(--fs-sm);cursor:pointer;}
-.hadd .ic{font-size:14px;}
+/* ── Manage ritual button (on each ritual header) ── */
+.mgr-btn{width:32px;height:32px;display:grid;place-items:center;color:var(--ink);background:var(--greige);border:none;border-radius:50%;cursor:pointer;font-family:inherit;flex-shrink:0;transition:all .15s;}
+.mgr-btn .ic{width:15px;height:15px;}
+.mgr-btn:hover{background:var(--line);}
 
-/* Legend */
-.hlegend{display:flex;gap:14px;margin:8px 2px 20px;flex-wrap:wrap;}
-.hleg{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);color:var(--muted);}
-.hleg-b{font-size:8px;font-weight:800;background:var(--greige);padding:2px 7px;border-radius:999px;color:var(--muted);}
+/* ── Bottom sheet overlay ── */
+html,body{height:100%;position:relative;}
+.sheet-bg{position:absolute;top:0;left:0;right:0;min-height:100%;background:rgba(0,0,0,.38);z-index:40;display:none;}
+.sheet-bg.open{display:block;}
+/* Override components.css .sheet (old full-screen pattern) — log-habits uses bottom-drawer */
+.sheet{position:fixed;bottom:0;top:auto;left:0;right:0;z-index:41;
+  background:var(--card);border-radius:20px 20px 0 0;
+  box-shadow:0 -6px 28px rgba(0,0,0,.15);max-height:82vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  opacity:1;pointer-events:auto;transition:none;justify-content:flex-start;}
+.sheet-pill{width:36px;height:4px;background:var(--line);border-radius:2px;margin:10px auto 2px;flex-shrink:0;}
+.sheet-hdr{position:relative;display:flex;align-items:center;justify-content:center;padding:10px 46px 12px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.sheet-title{font-size:var(--fs-md);font-weight:700;color:var(--ink);text-align:center;}
+.hbackbtn{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;background:var(--greige);color:var(--ink);display:grid;place-items:center;cursor:pointer;border-radius:50%;opacity:1;pointer-events:auto;z-index:1;}
+.hbackbtn:active{opacity:.6;}
+.hbackbtn .ic{width:15px;height:15px;transform:rotate(180deg);}
+.sheet-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1;padding:4px 8px;border-radius:8px;font-family:inherit;}
+.sheet-scroll{overflow-y:auto;flex:1;}
+
+/* Draggable rows in sheet */
+.srow{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);user-select:none;background:var(--card);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s;}
+.srow:active{background:var(--greige);}
+.srow.dragging{opacity:.35;}
+.srow.drag-over{background:var(--greige);border-top:2px solid var(--accent);}
+.srow-ic{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb, currentColor 14%, transparent);display:grid;place-items:center;flex-shrink:0;}
+.srow-ic .ic{width:16px;height:16px;}
+.srow-main{flex:1;min-width:0;}
+.srow-name{font-size:var(--fs-md);font-weight:600;color:var(--ink);line-height:1.25;}
+.srow-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;font-weight:500;}
+.srow-chev{width:15px;height:15px;color:var(--line);flex-shrink:0;}
+.srow-handle{width:18px;height:14px;display:flex;flex-direction:column;justify-content:space-between;cursor:grab;padding:0;flex-shrink:0;}
+.srow-handle span{display:block;height:2px;background:var(--line);border-radius:1px;}
+.srow-handle:active{cursor:grabbing;}
+
+/* Add habit row */
+.sadd-row{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 18px;cursor:pointer;border-bottom:1px solid var(--line);}
+.sadd-circ{width:26px;height:26px;border-radius:50%;background:var(--accent);display:grid;place-items:center;color:#fff;flex-shrink:0;}
+.sadd-circ .ic{width:13px;height:13px;}
+.sadd-label{font-size:var(--fs-sm);font-weight:700;color:var(--accent);}
+
+/* Add-habit form panel */
+.sform{display:none;padding:16px 18px 10px;flex-direction:column;gap:13px;overflow-y:auto;}
+.sform.open{display:flex;flex:1;min-height:0;}
+.sf-field{display:flex;flex-direction:column;gap:5px;}
+.sf-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.sf-input{border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:inherit;font-size:var(--fs-sm);color:var(--ink);background:var(--bg);outline:none;}
+.sf-input:focus{border-color:var(--accent);}
+.sf-seg{display:flex;background:var(--greige);border-radius:11px;padding:3px;gap:2px;}
+.sf-seg button{flex:1;padding:7px 0;border:none;border-radius:9px;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);background:none;cursor:pointer;transition:all .12s;}
+.sf-seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+.sf-icons{display:flex;flex-wrap:wrap;gap:6px;}
+.sf-ico{width:36px;height:36px;border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;cursor:pointer;background:var(--greige);color:var(--muted);transition:all .12s;}
+.sf-ico .ic{width:16px;height:16px;}
+.sf-ico.on{border-color:var(--accent);background:#eef4ec;color:var(--accent);}
+.sf-save{background:var(--btn);color:#fff;border:none;border-radius:13px;padding:13px;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;margin-top:2px;width:100%;}
+.sform .sf-save{position:sticky;bottom:0;}
+
+/* ── Multi-step add panels (picker + Why) ── */
+.spanel{display:none;flex-direction:column;overflow-y:auto;padding-bottom:18px;}
+.spanel.open{display:flex;flex:1;min-height:0;}
+
+
+/* Template picker */
+.pick-hdr{display:flex;align-items:center;gap:8px;padding:12px 18px 10px;border-bottom:1px solid var(--line);}
+.pick-hdr-title{font-size:var(--fs-sm);font-weight:700;color:var(--ink);}
+.pick-ritual-seg{display:flex;background:var(--greige);border-radius:11px;padding:3px;gap:2px;margin-left:auto;}
+.pick-ritual-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-radius:9px;font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--muted);background:none;cursor:pointer;transition:all .12s;}
+.pick-ritual-btn .ic{width:14px;height:14px;}
+.pick-ritual-btn.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+.tpl-row{display:flex;align-items:center;gap:11px;padding:12px 18px;border-top:1px solid var(--line);cursor:pointer;}
+.tpl-row:hover{background:var(--greige);}
+.tpl-custom{color:var(--accent);}
+.tpl-ic{width:38px;height:38px;border-radius:11px;background:color-mix(in srgb, currentColor 14%, transparent);display:grid;place-items:center;flex-shrink:0;}
+.tpl-ic .ic{width:18px;height:18px;}
+.tpl-main{flex:1;min-width:0;}
+.tpl-name{font-size:var(--fs-md);font-weight:700;color:var(--ink);}
+.tpl-custom .tpl-name{color:var(--accent);}
+.tpl-why{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;line-height:1.35;}
+/* Ritual assignment checkbox */
+.tpl-assign{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex-shrink:0;color:var(--line);transition:all .12s;}
+.tpl-assign .ic{width:13px;height:13px;}
+.tpl-assign.assigned-am{border-color:var(--p-joy);background:var(--p-joy);color:#fff;}
+.tpl-assign.assigned-pm{border-color:var(--p-inner);background:var(--p-inner);color:#fff;}
+.tpl-chev{color:var(--line);flex-shrink:0;}
+.tpl-chev .ic{width:16px;height:16px;}
+
+/* Pillar tag */
+.ptag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;color:#fff;line-height:1.5;}
+
+/* Why hero + animated glyph (Tier-1 motion) */
+.why-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:6px 18px 14px;}
+.glyph{width:76px;height:76px;border-radius:20px;display:grid;place-items:center;position:relative;background:var(--greige);color:var(--accent);cursor:pointer;}
+.glyph .ic{width:32px;height:32px;position:relative;z-index:2;}
+.glyph::before{content:"";position:absolute;inset:0;border-radius:20px;opacity:0;}
+@keyframes ripple{0%{transform:scale(.45);opacity:.6;}100%{transform:scale(1.5);opacity:0;}}
+@keyframes breathe{0%,100%{transform:scale(.86);}50%{transform:scale(1.1);}}
+@keyframes sweep{0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
+.glyph.play.g-water::before{border:2px solid currentColor;animation:ripple 1.1s ease-out;}
+.glyph.play.g-breath{animation:breathe 1.1s ease-in-out;}
+.glyph.play.g-sun::before{background:conic-gradient(from 0deg,transparent,var(--greige),currentColor,transparent);animation:sweep 1.1s linear;}
+@media (prefers-reduced-motion: reduce){
+  .glyph.play.g-water::before,.glyph.play.g-breath,.glyph.play.g-sun::before{animation:none;}
+}
+.why-title{font-size:var(--fs-lg);font-weight:800;color:var(--ink);}
+.why-pills{display:flex;gap:5px;}
+.why-reason{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;padding:4px 18px 2px;text-align:center;max-width:300px;margin:0 auto;}
+
+/* Add button in Why card */
+.why-add{padding:12px 18px 14px;margin-top:auto;border-top:1px solid var(--line);background:var(--card);position:sticky;bottom:0;}
+
+/* Edit-habit panel spacing tune */
+#sheetHabit{padding-bottom:0;}
+#sheetHabit .why-hero{padding:14px 18px 10px;gap:10px;}
+#sheetHabit .glyph{width:72px;height:72px;}
+#sheetHabit .why-title{margin-top:2px;}
+#sheetHabit .why-reason{padding:0 24px 10px;max-width:320px;}
+#sheetHabit .sf-field{padding:0 18px;margin-top:0;gap:7px;}
+#sheetHabit .sf-field + .sf-field{margin-top:12px;}
+#sheetHabit .sf-label{margin-bottom:0;}
+#sheetHabit .sf-input{max-width:132px;}
+#sheetHabit .why-add{display:flex;gap:10px;padding:18px 14px 18px;margin-top:16px;}
+#sheetHabit .why-add .sf-save{margin-top:0;}
+.sf-save.alt{background:var(--greige);color:var(--ink);}
+/* Duration value + unit toggle */
+.dur-hero{display:flex;align-items:center;gap:14px;}
+.dur-val{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;min-width:40px;text-align:center;padding:2px 8px 5px;border-bottom:2px solid var(--line);-webkit-tap-highlight-color:transparent;}
+.dur-val:active{opacity:.55;}
+.dur-unit{flex:1;max-width:200px;}
+.dur-unit button{padding-left:18px;padding-right:18px;}
+/* Scroll-wheel picker — same design as body-weight entry */
+.dur-pk-back{position:fixed;inset:0;background:rgba(28,27,24,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:49;}
+.dur-pk-back.open{opacity:1;pointer-events:auto;}
+#durSheet{z-index:50;}
+.pk-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;text-align:center;margin-bottom:14px;}
+.pk-drum{position:relative;height:180px;overflow:hidden;margin:0 auto 16px;width:140px;user-select:none;-webkit-user-select:none;}
+.pk-drum::before,.pk-drum::after{content:'';position:absolute;left:0;right:0;height:60px;pointer-events:none;z-index:2;}
+.pk-drum::before{top:0;background:linear-gradient(to bottom,var(--bg),transparent);}
+.pk-drum::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent);}
+.pk-window{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);z-index:1;pointer-events:none;}
+.pk-list{position:absolute;left:0;right:0;top:0;transition:transform .12s ease-out;text-align:center;}
+.pk-item{height:44px;line-height:44px;font-size:20px;font-weight:700;color:var(--muted);letter-spacing:-.02em;}
+.pk-item.sel{color:var(--ink);font-size:24px;font-weight:800;}
+.pk-done{width:160px;margin:0 auto;display:block;}
 
 /* Pace visibility — the ritual scales to the day (spec-foundations §1b) */
 .mode-rest .hrow.opt-lighter,.mode-rest .hrow.opt-full,.mode-lighter .hrow.opt-full{display:none;}
 .mode-rest .hnudge.opt-lighter,.mode-rest .hnudge.opt-full,.mode-lighter .hnudge.opt-full{display:none;}
 
-/* Rest hint */
-.rest-hint{display:none;font-size:var(--fs-sm);color:var(--olive);background:#eef3ec;border:1px solid #cfe0c9;border-radius:12px;padding:11px 13px;margin-bottom:12px;line-height:1.55;}
-.mode-rest .rest-hint{display:block;}
-
 </style>
 </head>
 <body class="screen-body mode-full">
 
-  <!-- ── Header ── -->
-  <div class="hhdr">
-    <div class="hdt">Friday · 27 June · morning</div>
-    <div class="hstreak"><i class="ic ic-flame"></i> 3-day streak</div>
-  </div>
-
-  <!-- ── The habit engine framing ── -->
-  <div class="baseline-note">
-    <strong>Your daily baseline.</strong> The tiny rituals you keep every day — this is
-    the habit engine. Growing a quality (one <em>theme</em> a day) happens over in
-    <a href="plan-trails.html">Paths</a>. Build slowly: add one habit at a time, start
-    it at its smallest dose, let it grow.
+  <!-- Lens header -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-leaf"></i></div>
+    <div>
+      <div class="ylens-title">Habits</div>
+      <div class="ylens-sub">Your daily baseline rituals</div>
+    </div>
   </div>
 
   <!-- ── Pace selector (shared with Today) ── -->
@@ -111,9 +262,18 @@
       <button class="pace-btn" data-mode="rest" onclick="setPace('rest')">Rest</button>
     </div>
   </div>
-  <div class="pace-cap">Same setting as <b>Today</b>. A gentler day shows a <b>shorter ritual</b> — the bare minimum on Rest, a little more on Lighter, everything on Full.</div>
 
-  <div class="rest-hint">Just the bare minimum to get through today — wake, water, a few breaths, bed on time. Nothing is lost; the rest waits for you.</div>
+  <!-- compact rest reassurance (shows only on Rest pace) -->
+  <div class="rest-banner">
+    <span class="rest-banner-em"><i class="ic ic-shield"></i></span>
+    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Just the bare-minimum ritual to get through — streaks are held, nothing is lost.</div>
+  </div>
+
+  <!-- lighter-day reassurance (shows only on Lighter pace) -->
+  <div class="lighter-banner">
+    <span class="lighter-banner-em"><i class="ic ic-wind"></i></span>
+    <div class="lighter-banner-txt"><strong>A lighter day.</strong> A shorter ritual — streaks are held, nothing is lost.</div>
+  </div>
 
   <!-- ══════════════ MORNING RITUAL ══════════════ -->
   <div class="yritual" id="rit-morning">
@@ -123,7 +283,8 @@
         <div class="yritual-name">Morning ritual</div>
         <div class="yritual-meta">Right after waking · 07:00 · 2 of 4 done</div>
       </div>
-      <div class="yritual-streak"><i class="ic ic-flame"></i> 5</div>
+      <div class="yritual-streak warm" id="streak-morning">14 days</div>
+      <button class="mgr-btn" onclick="openSheet('morning')" aria-label="Edit morning ritual" title="Edit morning ritual"><i class="ic ic-pen"></i></button>
     </div>
 
     <!-- circle summary -->
@@ -134,11 +295,11 @@
       <span class="rlink opt-lighter"></span>
       <button class="rnode now opt-lighter" onclick="tapNode('morning',2)"><i class="ic ic-activity"></i></button>
       <span class="rlink opt-full"></span>
-      <button class="rnode opt-full" onclick="tapNode('morning',3)"><i class="ic ic-leaf"></i></button>
+      <button class="rnode opt-full" onclick="tapNode('morning',3)"><i class="ic ic-brain"></i></button>
     </div>
 
     <!-- detailed rows -->
-    <div class="hrow done" onclick="toggleHabit(this,'morning')">
+    <div class="hrow done" data-reps="35">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-drop"></i></div>
       <div class="hrow-main">
@@ -147,11 +308,11 @@
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span></div>
-        <div class="hfreq l3">Daily</div>
+        <div class="hfreq">Daily</div>
       </div>
     </div>
 
-    <div class="hrow done" onclick="toggleHabit(this,'morning')">
+    <div class="hrow done" data-reps="12">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-wind"></i></div>
       <div class="hrow-main">
@@ -160,11 +321,11 @@
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span></div>
-        <div class="hfreq l3">Daily</div>
+        <div class="hfreq">Daily</div>
       </div>
     </div>
 
-    <div class="hrow opt-lighter" onclick="toggleHabit(this,'morning')">
+    <div class="hrow opt-lighter" data-reps="67">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-activity"></i></div>
       <div class="hrow-main">
@@ -182,9 +343,9 @@
       <button class="hnudge-b" onclick="event.stopPropagation();upgradeFreq(this)">Try 5×</button>
     </div>
 
-    <div class="hrow opt-full" onclick="toggleHabit(this,'morning')">
+    <div class="hrow opt-full" data-reps="4">
       <div class="hrow-ck">✓</div>
-      <div class="hrow-ic"><i class="ic ic-leaf"></i></div>
+      <div class="hrow-ic"><i class="ic ic-brain"></i></div>
       <div class="hrow-main">
         <div class="hrow-name">5-min silent sit</div>
         <div class="hrow-meta">Before first screen</div>
@@ -196,7 +357,6 @@
       </div>
     </div>
 
-    <div class="hadd opt-full"><i class="ic ic-plus"></i> Add morning habit</div>
   </div>
 
   <!-- ══════════════ EVENING RITUAL ══════════════ -->
@@ -207,7 +367,8 @@
         <div class="yritual-name">Evening ritual</div>
         <div class="yritual-meta">After dinner · 22:00 · 0 of 4 done</div>
       </div>
-      <div class="yritual-streak"><i class="ic ic-flame"></i> 3</div>
+      <div class="yritual-streak" id="streak-evening">5 days</div>
+      <button class="mgr-btn" onclick="openSheet('evening')" aria-label="Edit evening ritual" title="Edit evening ritual"><i class="ic ic-pen"></i></button>
     </div>
 
     <div class="yritual-track">
@@ -220,7 +381,7 @@
       <button class="rnode opt-full" onclick="tapNode('evening',3)"><i class="ic ic-sprout"></i></button>
     </div>
 
-    <div class="hrow opt-lighter" onclick="toggleHabit(this,'evening')">
+    <div class="hrow opt-lighter" data-reps="22">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-leaf"></i></div>
       <div class="hrow-main">
@@ -229,11 +390,11 @@
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
-        <div class="hfreq l3">Daily</div>
+        <div class="hfreq">Daily</div>
       </div>
     </div>
 
-    <div class="hrow opt-lighter" onclick="toggleHabit(this,'evening')">
+    <div class="hrow opt-lighter" data-reps="8">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-moon"></i></div>
       <div class="hrow-main">
@@ -243,11 +404,11 @@
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
-        <div class="hfreq l2">5×/wk</div>
+        <div class="hfreq">5×/wk</div>
       </div>
     </div>
 
-    <div class="hrow opt-full" onclick="toggleHabit(this,'evening')">
+    <div class="hrow opt-full" data-reps="112">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-pen"></i></div>
       <div class="hrow-main">
@@ -261,31 +422,146 @@
       </div>
     </div>
 
-    <div class="hrow opt-full" onclick="toggleHabit(this,'evening')">
+    <div class="hrow opt-full" data-reps="5">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-sprout"></i></div>
       <div class="hrow-main">
         <div class="hrow-name">Save £50 to land fund</div>
-        <div class="hrow-meta">Any time · weekly</div>
+        <div class="hrow-meta">Any time · 5×/wk</div>
         <div class="hpill land"><i class="ic ic-route"></i> Land Path</div>
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
-        <div class="hfreq l3">Weekly</div>
+        <div class="hfreq">5×/wk</div>
       </div>
     </div>
 
-    <div class="hadd opt-full"><i class="ic ic-plus"></i> Add evening habit</div>
   </div>
 
-  <!-- Legend -->
-  <div class="hlegend">
-    <div class="hleg"><span class="hleg-b">3×/wk</span>Starting out</div>
-    <div class="hleg"><span class="hleg-b" style="color:var(--olive)">5×/wk</span>Building</div>
-    <div class="hleg"><span class="hleg-b" style="color:#4a8a42">Daily</span>Locked in</div>
+  <!-- ══ Manage-ritual bottom sheet ══ -->
+  <div class="sheet-bg" id="sheetBg" onclick="bgClick(event)">
+    <div class="sheet">
+      <div class="sheet-pill"></div>
+      <div class="sheet-hdr">
+        <button class="hbackbtn" id="sheetBack" onclick="sheetBack()" aria-label="Back"><i class="ic ic-chev"></i></button>
+        <span class="sheet-title" id="sheetTitle">Manage ritual</span>
+        <button class="sheet-close" onclick="closeSheet()">✕</button>
+      </div>
+      <!-- list view: srow items injected by openSheet() -->
+      <div class="sheet-scroll" id="sheetList">
+        <div class="sadd-row" onclick="openPicker()">
+          <span class="sadd-circ"><i class="ic ic-plus"></i></span>
+          <span class="sadd-label">New habit</span>
+        </div>
+      </div>
+
+      <!-- STEP 1 · template picker -->
+      <div class="spanel" id="sheetPick">
+        <div class="pick-hdr">
+          <span class="pick-hdr-title">Choose a habit</span>
+          <div class="pick-ritual-seg" id="pickRitualSeg">
+            <button class="pick-ritual-btn on" data-r="morning" onclick="pickRitual(this)"><i class="ic ic-sun"></i> Morning</button>
+            <button class="pick-ritual-btn" data-r="evening" onclick="pickRitual(this)"><i class="ic ic-moon"></i> Evening</button>
+          </div>
+        </div>
+        <div class="sadd-row" onclick="openCustom()" style="border-top:1px solid var(--line);">
+          <span class="sadd-circ"><i class="ic ic-plus"></i></span>
+          <span class="sadd-label">Create your own</span>
+        </div>
+        <div id="pickList"></div>
+      </div>
+
+      <!-- STEP 2 · Why card + placement -->
+      <div class="spanel" id="sheetWhy">
+        <div class="why-hero">
+          <div class="glyph g-water play" id="whyGlyph" onclick="replayGlyph()" title="Tap to replay"><i class="ic ic-drop"></i></div>
+          <div class="why-title" id="whyTitle">Habit</div>
+          <div class="why-pills" id="whyPills"></div>
+        </div>
+        <div class="why-reason" id="whyReason"></div>
+
+        <div class="why-add">
+          <button class="sf-save" onclick="addTemplateHabit()">Add to ritual</button>
+        </div>
+      </div>
+
+      <!-- STEP 2b · custom form (no preset reason) -->
+      <div class="sform" id="sheetForm">
+        <div class="sf-field">
+          <div class="sf-label">Habit name</div>
+          <input class="sf-input" id="sfName" placeholder="e.g. Cold shower">
+        </div>
+        <div class="sf-field">
+          <div class="sf-label">Icon</div>
+          <div class="sf-icons" id="sfIcons"></div>
+        </div>
+        <div class="sf-field">
+          <div class="sf-label">Duration</div>
+          <div class="dur-hero">
+            <div class="dur-val" id="sfDurVal" onclick="openDurPicker(this)">5</div>
+            <div class="sf-seg dur-unit" id="sfDurUnit">
+              <button type="button" data-u="m" class="on" onclick="durUnit(this)">min</button>
+              <button type="button" data-u="h" onclick="durUnit(this)">hr</button>
+            </div>
+          </div>
+        </div>
+        <div class="sf-field">
+          <div class="sf-label">Frequency</div>
+          <div class="sf-seg" id="sfFreq">
+            <button class="on" onclick="sfPick(this,'sfFreq')">Daily</button>
+            <button onclick="sfPick(this,'sfFreq')">3×/wk</button>
+            <button onclick="sfPick(this,'sfFreq')">5×/wk</button>
+          </div>
+        </div>
+        <button class="sf-save" onclick="saveHabit()">Add to ritual</button>
+      </div>
+
+      <!-- STEP 3 · existing habit detail (opened by long-press on Log) -->
+      <div class="spanel" id="sheetHabit">
+        <div class="why-hero">
+          <div class="glyph" id="habitGlyph"><i class="ic ic-drop"></i></div>
+          <div class="why-title" id="habitTitle">Habit</div>
+        </div>
+        <div class="why-reason" id="habitDesc"></div>
+        <div class="sf-field">
+          <div class="sf-label">Duration</div>
+          <div class="dur-hero">
+            <div class="dur-val" id="habitDurVal" onclick="openDurPicker(this)">5</div>
+            <div class="sf-seg dur-unit" id="habitDurUnit">
+              <button type="button" data-u="m" class="on" onclick="durUnit(this)">min</button>
+              <button type="button" data-u="h" onclick="durUnit(this)">hr</button>
+            </div>
+          </div>
+        </div>
+        <div class="sf-field">
+          <div class="sf-label">Frequency</div>
+          <div class="sf-seg" id="habitFreq">
+            <button onclick="sfPick(this,'habitFreq')">3×/wk</button>
+            <button onclick="sfPick(this,'habitFreq')">5×/wk</button>
+            <button class="on" onclick="sfPick(this,'habitFreq')">Daily</button>
+          </div>
+        </div>
+        <div class="why-add">
+          <button class="sf-save alt" onclick="resetHabitEdit()">Reset default</button>
+          <button class="sf-save" onclick="saveHabitEdit()">Save</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-<script>
+  <!-- Duration scroll-wheel picker (same design as body-weight entry) -->
+  <div class="dur-pk-back" id="durBack" onclick="closeDurPicker()"></div>
+  <div class="sleep-sheet" id="durSheet">
+    <div class="ss-grip"></div>
+    <div class="pk-title" id="durPkTitle">Minutes</div>
+    <div class="pk-drum" id="durDrum">
+      <div class="pk-window"></div>
+      <div class="pk-list" id="durPkList"></div>
+    </div>
+    <button class="btn-prim pk-done" onclick="confirmDurPicker()">Done</button>
+  </div>
+
+  <script>
 const ANCHORS = { morning:'Right after waking · 07:00', evening:'After dinner · 22:00' };
 
 function setPace(mode){
@@ -314,11 +590,17 @@ function recompute(id){
   });
   const done = rows.filter(r=>r.classList.contains('done')).length;
   card.querySelector('.yritual-meta').textContent = ANCHORS[id] + ' · ' + done + ' of ' + rows.length + ' done';
+  // celebration: gentle pulse when all visible habits are done
+  if(done===rows.length && rows.length>0){
+    if(!card.classList.contains('celebrated')){
+      card.classList.add('celebrated');
+      setTimeout(()=>card.classList.remove('celebrated'), 900);
+    }
+  }
 }
 
 function toggleHabit(row, id){
   row.classList.toggle('done');
-  row.querySelector('.hrow-ck').textContent = row.classList.contains('done') ? '✓' : '';
   recompute(id);
 }
 
@@ -333,11 +615,461 @@ function upgradeFreq(btn){
   const nudge = btn.closest('.hnudge');
   const hab = nudge.previousElementSibling;
   const f = hab.querySelector('.hfreq');
-  f.textContent = '5×/wk'; f.className = 'hfreq l2';
+  f.textContent = '5×/wk'; f.className = 'hfreq';
   nudge.innerHTML = '<i class="ic ic-spark"></i><div class="hnudge-t">Upgraded to <strong>5×/week</strong> — nicely built.</div>';
 }
 
 recompute('morning'); recompute('evening');
+
+// ── Sheet / manage panel ──
+const RITUAL_NAMES = { morning: 'Morning ritual', evening: 'Evening ritual' };
+const ICON_CHOICES = ['ic-drop','ic-wind','ic-activity','ic-brain','ic-leaf','ic-moon',
+                      'ic-pen','ic-sprout','ic-sun','ic-shield','ic-spark','ic-flame',
+                      'ic-heart','ic-zap','ic-book','ic-target'];
+let activeRitual = null;
+let sfIcon = 'ic-drop';
+let dragEl = null;
+let activePanel = 'sheetList';
+let editingHabit = null;
+const IC_COLORS = {'ic-drop':'#5b9bd5','ic-sun':'#d4a843','ic-wind':'#7cae9e','ic-activity':'#6dab5e','ic-brain':'#937caf','ic-leaf':'#77936f','ic-moon':'#6e7fa8','ic-pen':'#b07f86','ic-sprout':'#6dab5e','ic-shield':'#7395ad','ic-heart':'#b77980','ic-flame':'#c99554','ic-zap':'#d4a843','ic-book':'#958572','ic-target':'#8d8f63'};
+// soft translucent tint of a hex habit color for glyph backgrounds
+function tintBg(c){ return /^#/.test(c) ? c + '22' : 'var(--greige)'; }
+const DUR_PRESETS = {
+  'Drink water on waking':{seeding:'2m',growing:'2m',rooting:'3m',integrated:'3m'},
+  'Three grounding breaths':{seeding:'30s',growing:'1m',rooting:'2m',integrated:'2m'},
+  'Morning walk':{seeding:'10m',growing:'20m',rooting:'30m',integrated:'30m'},
+  '5-min silent sit':{seeding:'2m',growing:'5m',rooting:'8m',integrated:'10m'},
+  'Herbal tea, lights dim':{seeding:'5m',growing:'10m',rooting:'12m',integrated:'12m'},
+  'No screens after 22:00':{seeding:'15m',growing:'30m',rooting:'45m',integrated:'60m'},
+  'Journal · one line':{seeding:'2m',growing:'5m',rooting:'8m',integrated:'10m'}
+};
+
+function stageFromReps(reps){
+  if(reps>=108) return 'integrated';
+  if(reps>=66) return 'rooting';
+  if(reps>=21) return 'growing';
+  return 'seeding';
+}
+function defaultDur(name, reps, fallback){
+  const p = DUR_PRESETS[name];
+  if(!p) return fallback || '';
+  return p[stageFromReps(reps)] || fallback || '';
+}
+// parse "2 min"/"2m"/"1 hr"/"30s" → {num, unit:'m'|'h'} (seconds map to minutes)
+function parseDur(str){
+  const m = String(str || '').match(/(\d+)\s*([a-z]*)/i);
+  if(!m) return {num:'', unit:'m'};
+  const u = (m[2] || 'm').toLowerCase();
+  const unit = u.startsWith('h') ? 'h' : 'm';
+  return {num:m[1], unit};
+}
+// compose {num, unit} → "5 min"/"1 hr"
+function formatDur(num, unit){
+  if(num === '' || num == null) return '';
+  const label = unit === 'h' ? 'hr' : 'min';
+  return num + ' ' + label;
+}
+
+// ── Duration scroll-wheel picker (same design as body-weight entry) ──
+let _durpk = { valEl:null, items:[], idx:0 };
+function openDurPicker(valEl){
+  const seg = valEl.parentElement.querySelector('.dur-unit');
+  const unit = seg.querySelector('button.on')?.dataset.u || 'm';
+  const cur = parseInt((valEl.textContent||'').replace(/[^\d]/g,''),10) || (unit==='h'?1:5);
+  const max = unit==='h' ? 12 : 120;
+  const items = []; for(let v=1; v<=max; v++) items.push(v);
+  let idx = items.indexOf(cur); if(idx<0) idx=0;
+  _durpk = { valEl, items, idx };
+  document.getElementById('durPkTitle').textContent = unit==='h' ? 'Hours' : 'Minutes';
+  const list = document.getElementById('durPkList'); list.innerHTML='';
+  items.forEach((v,i)=>{ const d=document.createElement('div'); d.className='pk-item'+(i===idx?' sel':''); d.textContent=v; list.appendChild(d); });
+  scrollDurDrum();
+  document.getElementById('durSheet').classList.add('open');
+  document.getElementById('durBack').classList.add('open');
+}
+function scrollDurDrum(){
+  const list=document.getElementById('durPkList');
+  list.style.transform='translateY('+(-(_durpk.idx*44)+68)+'px)';
+  list.querySelectorAll('.pk-item').forEach((d,i)=>d.className='pk-item'+(i===_durpk.idx?' sel':''));
+}
+function closeDurPicker(){
+  document.getElementById('durSheet').classList.remove('open');
+  document.getElementById('durBack').classList.remove('open');
+}
+function confirmDurPicker(){
+  if(_durpk.valEl) _durpk.valEl.textContent = _durpk.items[_durpk.idx];
+  closeDurPicker();
+}
+// clamp the value into range when the unit toggles
+function durUnit(btn){
+  const seg = btn.parentElement;
+  sfPick(btn, seg.id);
+  const valEl = seg.parentElement.querySelector('.dur-val');
+  const max = btn.dataset.u==='h' ? 12 : 120;
+  let n = parseInt((valEl.textContent||'').replace(/[^\d]/g,''),10) || 0;
+  if(n<1) n = btn.dataset.u==='h' ? 1 : 5;
+  if(n>max) n = max;
+  valEl.textContent = n;
+}
+// drag the drum
+(function(){
+  const drum=document.getElementById('durDrum');
+  if(!drum) return;
+  let startY=0, startIdx=0, dragging=false;
+  const yOf=e=>(e.touches?e.touches[0]:e).clientY;
+  drum.addEventListener('touchstart',e=>{dragging=true;startY=yOf(e);startIdx=_durpk.idx;e.preventDefault();},{passive:false});
+  drum.addEventListener('mousedown',e=>{dragging=true;startY=yOf(e);startIdx=_durpk.idx;e.preventDefault();});
+  const move=e=>{if(!dragging)return;const shift=Math.round(-(yOf(e)-startY)/44);_durpk.idx=Math.max(0,Math.min(_durpk.items.length-1,startIdx+shift));scrollDurDrum();};
+  window.addEventListener('touchmove',move,{passive:true});
+  window.addEventListener('mousemove',move);
+  window.addEventListener('touchend',()=>dragging=false);
+  window.addEventListener('mouseup',()=>dragging=false);
+})();
+
+function openSheet(id) {
+  activeRitual = id;
+  document.getElementById('sheetTitle').textContent =
+    'Manage ' + RITUAL_NAMES[id].toLowerCase();
+  const list = document.getElementById('sheetList');
+  const addRow = list.querySelector('.sadd-row');
+  list.querySelectorAll('.srow').forEach(r => r.remove());
+  const card = document.getElementById('rit-' + id);
+  card.querySelectorAll('.hrow').forEach(hrow => {
+    const name = hrow.querySelector('.hrow-name')?.textContent.trim() || '';
+    const icEl  = hrow.querySelector('.hrow-ic i');
+    const icCls = icEl
+      ? [...icEl.classList].find(c => c.startsWith('ic-') && c !== 'ic') || 'ic-leaf'
+      : 'ic-leaf';
+    const tpl = TEMPLATES.find(t => t.name === name);
+    const color = tpl ? tpl.color : IC_COLORS[icCls] || '#999';
+    const dur = tpl ? tpl.dur : (hrow.querySelector('.hrow-meta')?.textContent.match(/(\d+\s*(?:min|sec|m|s|h))/i)?.[1] || '');
+    const reps = parseInt(hrow.dataset.reps || '0', 10);
+    const freq = hrow.querySelector('.hfreq')?.textContent.trim() || 'Daily';
+    const dflt = defaultDur(name, reps, dur);
+    list.insertBefore(makeSRow(name, icCls, color, dur || dflt, dflt, freq, hrow, id), addRow);
+  });
+  showPanel('sheetList');
+  document.getElementById('sheetBg').classList.add('open');
+}
+
+function makeSRow(name, icCls, color, dur, dfltDur, freq, hrow, ritualId) {
+  const el = document.createElement('div');
+  el.className = 'srow';
+  el.draggable = true;
+  el._hrow = hrow || null;
+  el._ritual = ritualId || null;
+  const p = parseDur(dur || dfltDur);
+  const durLabel = p.num ? formatDur(p.num, p.unit) : '';
+  const meta = [freq, durLabel].filter(Boolean).join(' · ');
+  el.innerHTML = `
+    <span class="srow-ic" style="color:${color}"><i class="ic ${icCls}"></i></span>
+    <div class="srow-main">
+      <div class="srow-name">${name}</div>
+      <div class="srow-meta">${meta}</div>
+    </div>
+    <i class="ic ic-chev srow-chev"></i>
+    <span class="srow-handle" title="Drag to reorder"><span></span><span></span><span></span></span>`;
+  el.addEventListener('click', e => {
+    if (e.target.closest('.srow-handle')) return;
+    if (el._dragged) { el._dragged = false; return; }
+    if (el._hrow) openHabitDetail(el._hrow, el._ritual, true);
+  });
+  el.addEventListener('dragstart', e => {
+    dragEl = el; el._dragged = true; el.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  el.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (el !== dragEl) el.classList.add('drag-over');
+  });
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault(); el.classList.remove('drag-over');
+    if (dragEl && el !== dragEl) {
+      const list = document.getElementById('sheetList');
+      const rows = [...list.querySelectorAll('.srow')];
+      if (rows.indexOf(dragEl) < rows.indexOf(el)) list.insertBefore(dragEl, el.nextSibling);
+      else list.insertBefore(dragEl, el);
+    }
+  });
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+    dragEl = null;
+  });
+  return el;
+}
+
+function closeSheet() {
+  document.getElementById('sheetBg').classList.remove('open');
+  activeRitual = null;
+}
+function bgClick(e) { if (e.target.id === 'sheetBg') closeSheet(); }
+
+// Add-habit sub-form
+function openCustom() {
+  showPanel('sheetForm');
+  const grid = document.getElementById('sfIcons');
+  grid.innerHTML = '';
+  ICON_CHOICES.forEach(ic => {
+    const btn = document.createElement('div');
+    btn.className = 'sf-ico' + (ic === sfIcon ? ' on' : '');
+    btn.innerHTML = `<i class="ic ${ic}"></i>`;
+    btn.onclick = () => {
+      grid.querySelectorAll('.sf-ico').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on'); sfIcon = ic;
+    };
+    grid.appendChild(btn);
+  });
+  document.getElementById('sfName').value = '';
+  setDurCtrl('sfDurVal','sfDurUnit','5 min');
+}
+function closeAddForm() { showPanel('sheetList'); }
+function sfPick(btn, groupId) {
+  document.getElementById(groupId).querySelectorAll('button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function saveHabit() {
+  const name = document.getElementById('sfName').value.trim();
+  if (!name) { document.getElementById('sfName').focus(); return; }
+  const dur = readDurCtrl('sfDurVal','sfDurUnit');
+  const color = IC_COLORS[sfIcon] || '#999';
+  const list = document.getElementById('sheetList');
+  list.insertBefore(makeSRow(name, sfIcon, color, dur, dur, 'Daily'), list.querySelector('.sadd-row'));
+  showPanel('sheetList');
+}
+
+// ── Panel switching (list ↔ picker ↔ why ↔ custom) ──
+function showPanel(id) {
+  activePanel = id;
+  document.getElementById('sheetList').style.display = (id === 'sheetList') ? '' : 'none';
+  ['sheetPick','sheetWhy','sheetForm','sheetHabit'].forEach(p =>
+    document.getElementById(p).classList.toggle('open', p === id));
+  const back = document.getElementById('sheetBack');
+  back.style.visibility = (id === 'sheetList') ? 'hidden' : 'visible';
+}
+
+function sheetBack(){
+  if(activePanel === 'sheetPick') return showPanel('sheetList');
+  if(activePanel === 'sheetWhy' || activePanel === 'sheetForm') return showPanel('sheetPick');
+  if(activePanel === 'sheetHabit') return editingHabit && editingHabit.fromList ? showPanel('sheetList') : closeSheet();
+}
+
+function wireHabitRows(){
+  document.querySelectorAll('.yritual .hrow').forEach(row => {
+    let hold = null;
+    row.addEventListener('pointerdown', () => {
+      const ritualId = row.closest('.yritual')?.id?.replace('rit-','');
+      hold = setTimeout(() => {
+        row.dataset.longPress = '1';
+        openHabitDetail(row, ritualId);
+      }, 450);
+    });
+    ['pointerup','pointerleave','pointercancel'].forEach(ev =>
+      row.addEventListener(ev, () => { if(hold) clearTimeout(hold); }));
+    row.addEventListener('click', () => {
+      const ritualId = row.closest('.yritual')?.id?.replace('rit-','');
+      if(row.dataset.longPress === '1') { row.dataset.longPress = '0'; return; }
+      toggleHabit(row, ritualId);
+    });
+  });
+}
+
+function openHabitDetail(row, ritualId, fromList){
+  const name = row.querySelector('.hrow-name')?.textContent.trim() || 'Habit';
+  const iconEl = row.querySelector('.hrow-ic i');
+  const iconCls = iconEl ? [...iconEl.classList].find(c => c.startsWith('ic-') && c !== 'ic') || 'ic-leaf' : 'ic-leaf';
+  const reps = parseInt(row.dataset.reps || '0', 10);
+  const fallbackDur = row.querySelector('.hrow-meta')?.textContent.match(/(\d+\s*(?:min|sec|m|s|h))/i)?.[1] || '';
+  const dflt = defaultDur(name, reps, fallbackDur);
+  const curDur = fallbackDur || dflt;
+  const curFreq = row.querySelector('.hfreq')?.textContent.trim() || 'Daily';
+  const tpl = TEMPLATES.find(t => t.name === name);
+  const desc = tpl ? tpl.reason : (row.querySelector('.hrow-meta')?.textContent || 'Edit habit settings');
+  const color = tpl ? tpl.color : (IC_COLORS[iconCls] || 'var(--accent)');
+  editingHabit = {row, ritualId, dfltDur:dflt, fromList:!!fromList};
+  document.getElementById('habitTitle').textContent = name;
+  const hGlyph = document.getElementById('habitGlyph');
+  hGlyph.style.color = color;
+  hGlyph.style.background = tintBg(color);
+  hGlyph.innerHTML = `<i class="ic ${iconCls}"></i>`;
+  document.getElementById('habitDesc').textContent = desc;
+  setDurCtrl('habitDurVal','habitDurUnit', curDur);
+  document.querySelectorAll('#habitFreq button').forEach(b => b.classList.toggle('on', b.textContent.trim() === curFreq));
+  document.getElementById('sheetTitle').textContent = 'Edit habit';
+  document.getElementById('sheetBg').classList.add('open');
+  showPanel('sheetHabit');
+}
+
+function resetHabitEdit(){
+  if(!editingHabit) return;
+  setDurCtrl('habitDurVal','habitDurUnit', editingHabit.dfltDur || '');
+}
+
+// set the value display + unit toggle from a duration string
+function setDurCtrl(valId, unitId, str){
+  const {num, unit} = parseDur(str);
+  document.getElementById(valId).textContent = num || (unit === 'h' ? 1 : 5);
+  document.querySelectorAll('#'+unitId+' button').forEach(b => b.classList.toggle('on', b.dataset.u === unit));
+}
+// read the value display + unit toggle → "5 min"
+function readDurCtrl(valId, unitId){
+  const num = (document.getElementById(valId).textContent || '').replace(/[^\d]/g,'');
+  const unit = document.querySelector('#'+unitId+' button.on')?.dataset.u || 'm';
+  return formatDur(num, unit);
+}
+
+function saveHabitEdit(){
+  if(!editingHabit) return;
+  const row = editingHabit.row;
+  const dur = readDurCtrl('habitDurVal','habitDurUnit');
+  const freq = document.querySelector('#habitFreq button.on')?.textContent.trim() || 'Daily';
+  const meta = row.querySelector('.hrow-meta');
+  if(meta && dur){
+    const txt = meta.textContent;
+    if(/\d+\s*(?:min|sec|m|s|h)/i.test(txt)) meta.textContent = txt.replace(/\d+\s*(?:min|sec|m|s|h)/i, dur);
+    else meta.textContent = dur + ' · ' + txt;
+  }
+  const hfreq = row.querySelector('.hfreq');
+  if(hfreq) hfreq.textContent = freq;
+  openSheet(editingHabit.ritualId);
+}
+
+// ── Curated habit templates (meaning lives here — spec-habits §1, §5) ──
+const CONF = { strong:'Strong evidence', emerging:'Emerging', traditional:'Traditional' };
+const TEMPLATES = [
+  { name:'Drink water on waking', icon:'ic-drop', glyph:'water', color:'#5b9bd5', dur:'2m',
+    pillars:[{k:'health',t:'Health'},{k:'joy',t:'Joy'}],
+    reason:'Rehydrates the body after a long night without fluid, helping you feel awake sooner.',
+    benefits:[
+      { text:'A clearer, gentler wake-up', horizon:'today', conf:'emerging' },
+      { text:'Steadier morning energy', horizon:'today', conf:'strong' },
+      { text:'Anchors a lifelong hydration rhythm', horizon:'compounding', conf:'traditional' },
+    ] },
+  { name:'Morning light', icon:'ic-sun', glyph:'sun', color:'#d4a843', dur:'10m',
+    pillars:[{k:'health',t:'Health'},{k:'inner',t:'Inner'}],
+    reason:'Early daylight anchors your body clock, setting the timing for sleep and mood.',
+    benefits:[
+      { text:'Easier wake-up over a few days', horizon:'today', conf:'emerging' },
+      { text:'Better night-time sleep pressure', horizon:'compounding', conf:'strong' },
+      { text:'A calmer, brighter baseline mood', horizon:'compounding', conf:'emerging' },
+    ] },
+  { name:'Three grounding breaths', icon:'ic-wind', glyph:'breath', color:'#7cae9e', dur:'30s',
+    pillars:[{k:'inner',t:'Inner'},{k:'health',t:'Health'}],
+    reason:'Slow exhales signal safety to the nervous system, settling you before the day begins.',
+    benefits:[
+      { text:'An immediate drop in tension', horizon:'today', conf:'strong' },
+      { text:'A moment of chosen calm', horizon:'today', conf:'traditional' },
+      { text:'A reliable off-ramp you can reach for anytime', horizon:'compounding', conf:'emerging' },
+    ] },
+  { name:'Morning walk', icon:'ic-activity', glyph:'sun', color:'#6dab5e', dur:'20m',
+    pillars:[{k:'health',t:'Health'},{k:'joy',t:'Joy'}],
+    reason:'Gentle movement and outdoor light lift mood and wake the body kindly.',
+    benefits:[
+      { text:'Lifted mood within minutes', horizon:'today', conf:'strong' },
+      { text:'Fresh air and a clear head', horizon:'today', conf:'traditional' },
+      { text:'Compounding cardiovascular health', horizon:'compounding', conf:'strong' },
+    ] },
+  { name:'5-min silent sit', icon:'ic-brain', glyph:'breath', color:'#937caf', dur:'5m',
+    pillars:[{k:'inner',t:'Inner'}],
+    reason:'A short stillness before the first screen trains attention and lowers reactivity.',
+    benefits:[
+      { text:'A quieter, less reactive start', horizon:'today', conf:'emerging' },
+      { text:'Space between feeling and action', horizon:'today', conf:'traditional' },
+      { text:'Steadier focus that grows with practice', horizon:'compounding', conf:'emerging' },
+    ] },
+  { name:'Herbal tea, lights dim', icon:'ic-leaf', glyph:'water', color:'#77936f', dur:'10m',
+    pillars:[{k:'health',t:'Health'},{k:'inner',t:'Inner'}],
+    reason:'A warm, low-light wind-down tells the body the day is ending, easing you toward sleep.',
+    benefits:[
+      { text:'A softer transition into evening', horizon:'today', conf:'traditional' },
+      { text:'Less wired, more settled at night', horizon:'today', conf:'emerging' },
+      { text:'A cue your body learns to trust', horizon:'compounding', conf:'traditional' },
+    ] },
+  { name:'No screens after 22:00', icon:'ic-moon', glyph:'breath', color:'#6e7fa8', dur:'15m+',
+    pillars:[{k:'health',t:'Health'},{k:'inner',t:'Inner'}],
+    reason:'Dimming screens before bed protects melatonin and deepens sleep. Grows 15 → 30 → 45 → 60 min.',
+    benefits:[
+      { text:'Falling asleep more easily', horizon:'today', conf:'strong' },
+      { text:'A calmer mind at bedtime', horizon:'today', conf:'emerging' },
+      { text:'Deeper, more restoring sleep over weeks', horizon:'compounding', conf:'strong' },
+    ] },
+  { name:'Journal · one line', icon:'ic-pen', glyph:'breath', color:'#b07f86', dur:'5m',
+    pillars:[{k:'inner',t:'Inner'},{k:'joy',t:'Joy'}],
+    reason:'One true sentence a day names what mattered, clearing the mind before sleep.',
+    benefits:[
+      { text:'A lighter, emptied mind at night', horizon:'today', conf:'emerging' },
+      { text:'One honest moment with yourself', horizon:'today', conf:'traditional' },
+      { text:'A record you grow to understand yourself by', horizon:'compounding', conf:'emerging' },
+    ] },
+];
+
+let whyTpl = null;
+
+function openPicker() {
+  // sync ritual seg with current active ritual
+  document.querySelectorAll('#pickRitualSeg button').forEach(b =>
+    b.classList.toggle('on', b.dataset.r === activeRitual));
+  buildPicker();
+  showPanel('sheetPick');
+}
+
+function pickRitual(btn) {
+  document.querySelectorAll('#pickRitualSeg button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildPicker();
+}
+
+function buildPicker() {
+  const list = document.getElementById('pickList');
+  const ritual = document.querySelector('#pickRitualSeg button.on')?.dataset.r || 'morning';
+  list.innerHTML = '';
+  TEMPLATES.forEach((t, i) => {
+    // check if already assigned to this ritual
+    const card = document.getElementById('rit-' + ritual);
+    const assigned = card && [...card.querySelectorAll('.hrow-name')].some(el => el.textContent.trim() === t.name);
+    const assignCls = assigned ? (ritual === 'morning' ? 'assigned-am' : 'assigned-pm') : '';
+    const assignIcon = assigned ? (ritual === 'morning' ? 'ic-sun' : 'ic-moon') : '';
+    const row = document.createElement('div');
+    row.className = 'tpl-row';
+    row.onclick = () => openWhy(i);
+    row.innerHTML = `
+      <span class="tpl-ic" style="color:${t.color}"><i class="ic ${t.icon}"></i></span>
+      <div class="tpl-main">
+        <div class="tpl-name">${t.name}</div>
+        <div class="tpl-why">${t.dur} · tap to see details</div>
+      </div>
+      <span class="tpl-assign ${assignCls}">${assignIcon ? `<i class="ic ${assignIcon}"></i>` : ''}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function openWhy(i) {
+  const t = TEMPLATES[i]; whyTpl = t;
+  const wGlyph = document.getElementById('whyGlyph');
+  wGlyph.className = 'glyph g-' + t.glyph;
+  wGlyph.style.color = t.color;
+  wGlyph.style.background = tintBg(t.color);
+  wGlyph.innerHTML = `<i class="ic ${t.icon}"></i>`;
+  document.getElementById('whyTitle').textContent = t.name;
+  document.getElementById('whyPills').innerHTML =
+    t.pillars.map(p => `<span class="ptag" style="background:var(--p-${p.k})">${p.t}</span>`).join('');
+  document.getElementById('whyReason').textContent = t.reason;
+  showPanel('sheetWhy');
+  replayGlyph();
+}
+
+function replayGlyph() {
+  const g = document.getElementById('whyGlyph');
+  g.classList.remove('play'); void g.offsetWidth; g.classList.add('play');
+}
+function addTemplateHabit() {
+  const list = document.getElementById('sheetList');
+  list.insertBefore(makeSRow(whyTpl.name, whyTpl.icon, whyTpl.color, whyTpl.dur, whyTpl.dur, 'Daily'), list.querySelector('.sadd-row'));
+  showPanel('sheetList');
+}
+
+wireHabitRows();
 </script>
 </body>
 </html>
