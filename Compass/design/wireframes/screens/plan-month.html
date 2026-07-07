@@ -23,6 +23,23 @@
   .pcard-parent b{color:var(--accent);font-weight:800;}
   .pcard-date{font-size:9px;font-weight:600;color:var(--muted);margin-left:auto;}
   .pcol-empty{font-size:var(--fs-xs);color:var(--muted);opacity:.55;text-align:center;padding:13px 6px;border:1px dashed var(--line);border-radius:12px;}
+  /* Edit sheet */
+  .msheet-back{position:fixed;inset:0;background:rgba(28,27,24,.35);z-index:40;display:none;}
+  .msheet-back.open{display:block;}
+  .msheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 30px rgba(28,27,24,.2);transform:translateY(100%);transition:transform .22s cubic-bezier(.22,1,.36,1);padding:12px 18px 24px;}
+  .msheet.open{transform:translateY(0);}
+  .msheet-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 14px;}
+  .msheet-title{font-size:var(--fs-md);font-weight:800;margin-bottom:10px;}
+  .msheet-horizon{font-size:var(--fs-xs);color:var(--accent);font-weight:700;margin-bottom:12px;}
+  .msheet-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .msheet-row:last-child{border-bottom:none;}
+  .msheet-lbl{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
+  .msheet-val{font-size:var(--fs-sm);font-weight:700;color:var(--ink);}
+  .msheet-btns{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .msheet-btn{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--ink);cursor:pointer;text-align:center;}
+  .msheet-btn:active{background:var(--greige);}
+  .msheet-btn.accent{border-color:var(--accent);color:var(--accent);}
+  .msheet-btn.done-btn{border-color:#b9cbb2;background:color-mix(in srgb,#6dab5e 10%,transparent);color:#4f8f43;}
 </style>
 </head>
 <body class="screen-body">
@@ -35,10 +52,20 @@
     </div>
   </div>
 
-  <p class="mnote">Steps you've sent here from your <b>Horizons</b>. Drag a card between columns, or tap its circle to complete it — it updates everywhere at once.</p>
+  <p class="mnote">Steps you've sent here from your <b>Horizons</b>. Drag a card between columns, or tap its circle to complete it — it updates everywhere at once. <a href="#" onclick="P.reset();return false" style="color:var(--accent);font-weight:700">Reset demo data</a></p>
 
   <div class="pboard-wrap">
     <div class="pboard" id="board"></div>
+  </div>
+
+  <!-- Edit sheet -->
+  <div class="msheet-back" id="msheetBack" onclick="closeEdit()"></div>
+  <div class="msheet" id="msheet">
+    <div class="msheet-grip"></div>
+    <div class="msheet-title" id="editTitle"></div>
+    <div class="msheet-horizon" id="editHorizon"></div>
+    <div id="editRows"></div>
+    <div class="msheet-btns" id="editBtns"></div>
   </div>
 
 <script src="../shared/plan-data.js"></script>
@@ -78,18 +105,8 @@ function render(){
           '</div>'+
         '</div>';
       card.querySelector('.pcard-ck').onclick = e=>{ e.stopPropagation(); P.toggleDone(n.id); };
-      // tap card → move between columns via prompt (mobile-friendly)
-      card.onclick = ()=>{
-        const choices = P.BUCKETS.filter(b=>b!==n.bucket).concat(n.done?[]:['done']);
-        const labels = choices.map(b=>P.BUCKET_LABEL[b]||b);
-        const pick = prompt('Move "'+n.name+'" to:\n'+labels.map((l,i)=>(i+1)+'. '+l).join('\n'));
-        const idx = parseInt(pick)-1;
-        if(idx>=0 && idx<choices.length){
-          const dest=choices[idx];
-          if(dest==='done') P.update(n.id,{done:true});
-          else P.update(n.id,{bucket:dest, done:false});
-        }
-      };
+      // tap card → open edit sheet
+      card.onclick = ()=> openEdit(n.id);
       card.addEventListener('dragstart', e=>{ card.classList.add('dragging'); e.dataTransfer.setData('text/plain', n.id); });
       card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
       colEl.appendChild(card);
@@ -121,6 +138,34 @@ function render(){
 
 P.subscribe(render);
 render();
+
+// ── Edit sheet ──
+function openEdit(id){
+  const n = P.byId(id); if(!n) return;
+  const root = P.rootOf(id);
+  document.getElementById('editTitle').textContent = n.name;
+  document.getElementById('editHorizon').textContent = root && root.id!==n.id ? '↳ from '+root.name : '';
+  const rows = document.getElementById('editRows');
+  rows.innerHTML = '';
+  const addRow = (label, val) => { rows.innerHTML += '<div class="msheet-row"><span class="msheet-lbl">'+label+'</span><span class="msheet-val">'+val+'</span></div>'; };
+  addRow('Pillar', n.pillar || '—');
+  addRow('Date', n.date ? fmtDate(n.date) : 'No date');
+  addRow('Bucket', P.BUCKET_LABEL[n.bucket] || '—');
+  const btns = document.getElementById('editBtns');
+  btns.innerHTML = '';
+  const mk = (label, fn, cls) => { const b=document.createElement('button'); b.className='msheet-btn'+(cls?' '+cls:''); b.textContent=label; b.onclick=()=>{fn();closeEdit();}; btns.appendChild(b); };
+  // Move buttons
+  P.BUCKETS.filter(b=>b!==n.bucket).forEach(b=> mk('Move to '+P.BUCKET_LABEL[b], ()=>P.update(id,{bucket:b, done:false}), 'accent'));
+  if(!n.done) mk('Mark done', ()=>P.update(id,{done:true}), 'done-btn');
+  else mk('Unmark done', ()=>P.update(id,{done:false, bucket:'today'}));
+  mk('Set date', ()=>{ const d=prompt('Date (YYYY-MM-DD):',n.date||''); if(d!==null) P.update(id,{date:d||null}); });
+  document.getElementById('msheetBack').classList.add('open');
+  document.getElementById('msheet').classList.add('open');
+}
+function closeEdit(){
+  document.getElementById('msheetBack').classList.remove('open');
+  document.getElementById('msheet').classList.remove('open');
+}
 
 // ── Touch/pointer drag-to-move (works on mobile + desktop) ──
 let dragId=null, ghost=null, startY=0;
