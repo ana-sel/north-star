@@ -9,6 +9,40 @@
 <link rel="stylesheet" href="../shared/tokens.css"/>
 <link rel="stylesheet" href="../shared/components.css"/>
 <link rel="stylesheet" href="../shared/you.css"/>
+<style>
+  /* Mission */
+  .mission{background:linear-gradient(135deg,#2f3a34,#3d4a41);color:#f4f2ec;border-radius:20px;padding:18px;margin-bottom:16px;}
+  .mission-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#b9c6ad;margin-bottom:7px;}
+  .mission-txt{font-size:17px;font-weight:700;line-height:1.45;font-style:italic;outline:none;}
+  .mission-sub{font-size:var(--fs-xs);color:#c9d3bf;margin-top:8px;}
+
+  .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 9px;display:flex;align-items:center;gap:8px;}
+  .band::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  /* a horizon on the map = a small rooted tree (root + immediate branches) */
+  .hnode{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+  .hnode::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
+  .hnode-top{display:flex;align-items:center;gap:11px;}
+  .ring{width:34px;height:34px;flex-shrink:0;position:relative;}
+  .ring svg{transform:rotate(-90deg);} .ring .tk{stroke:var(--line);} .ring .fl{stroke:var(--pill,var(--accent));}
+  .ring.full .fl{stroke:#6d9e5c;}
+  .ring-pct{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:800;color:var(--muted);}
+  .hnode-main{flex:1;min-width:0;}
+  .hnode-name{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
+  .hnode-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px;}
+  .hnode-when{font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:2px 8px;}
+  /* branches */
+  .branches{margin:11px 0 0 6px;border-left:1.5px solid var(--line);padding-left:12px;display:flex;flex-direction:column;gap:9px;}
+  .branch{position:relative;}
+  .branch::before{content:'';position:absolute;left:-12px;top:11px;width:10px;height:1.5px;background:var(--line);}
+  .branch-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:var(--fs-sm);}
+  .branch-name{font-weight:600;color:var(--ink);min-width:0;overflow-wrap:anywhere;}
+  .branch.done .branch-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .branch-ct{font-size:9px;font-weight:700;color:var(--muted);flex-shrink:0;}
+  .branch-bar{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;margin-top:5px;}
+  .branch-bar i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));transition:width .4s;}
+  .map-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin:-2px 2px 14px;}
+</style>
 </head>
 <body class="screen-body">
 
@@ -16,38 +50,74 @@
     <div class="ylens-badge"><i class="ic ic-compass"></i></div>
     <div>
       <div class="ylens-title">Map</div>
-      <div class="ylens-sub">The bigger picture of where you're headed</div>
+      <div class="ylens-sub">Where you are across the whole forest</div>
     </div>
   </div>
 
-    <!-- Mission Map — connects today → week → goals → mission -->
-    <div class="card" style="min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
-        <div style="font-size:30px;opacity:.3">◇</div>
-        <div class="card-h" style="margin:0">Mission map</div>
-        <div class="card-body" style="text-align:center">Connects today's tasks → week → goals → mission. Visual canvas — lives here from V3.</div>
-    </div>
-    
-    <div class="card" style="margin-bottom:12px;">
-      <div class="card-h">Mission</div>
-      <div class="card-body" style="font-size:16px;line-height:1.5;font-style:italic;color:var(--ink);margin-bottom:6px;">"Build a quiet life rooted in land, craft and family."</div>
-      <div class="card-body" style="font-size:11px;color:var(--muted);">Tap to edit</div>
-    </div>
-    
-  <!-- AI proposals live here — map is where strategy connects to action -->
-  <div class="ai-card">
-    <div class="ai-tag">AI proposal · Buy land goal</div>
-    <div class="ai-body">6-phase plan mapped to your mission. Phase 1 adds 8 cards across This Month and This Week. Suggests: read "The Land Buyer's Guide", develop Patience quality, build £5k buffer first.</div>
-    <div class="ai-btns">
-      <button class="ai-btn ai-accept">Add Phase 1 to Month</button>
-      <button class="ai-btn ai-reject">Edit first</button>
-    </div>
+  <div class="mission">
+    <div class="mission-cap">Mission</div>
+    <div class="mission-txt" contenteditable="true" spellcheck="false">Build a quiet life rooted in land, craft and family.</div>
+    <div class="mission-sub">Every horizon below points back here.</div>
   </div>
-  <div class="card">
-    <div class="card-h">Preview · Phase 1 cards</div>
-    <div class="row"><div class="dot" style="background:var(--p-admin)"></div><div class="label">Research mortgage types</div><div class="tag">This month</div></div>
-    <div class="row"><div class="dot" style="background:var(--p-admin)"></div><div class="label">Find solicitor</div><div class="tag">This month</div></div>
-    <div class="row"><div class="dot" style="background:var(--p-money)"></div><div class="label">Check land budget</div><div class="tag">This week</div></div>
-    <div class="row"><div class="dot" style="background:var(--p-inner)"></div><div class="label">Read "Land Buyer's Guide"</div><div class="tag">This week</div></div>
-  </div>
+
+  <p class="map-note">One glance at the whole forest — every horizon and how far along it is. It moves the moment you complete anything, anywhere.</p>
+
+  <div id="forest"></div>
+
+<script src="../shared/plan-data.js"></script>
+<script>
+const P = window.PlanData;
+function bandOf(h){ if(h==='this') return 'This year'; if(h==='someday') return 'Someday'; return 'Later years'; }
+const BAND_ORDER = ['This year','Later years','Someday'];
+function whenLabel(h){ if(h==='this') return 'This year'; if(h==='someday') return 'Someday'; return h; }
+
+function ring(pct, size){
+  const R=(size/2)-3, C=2*Math.PI*R, off=C*(1-pct);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+
+    '<circle class="tk" cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+R+'" fill="none" stroke-width="3"/>'+
+    '<circle class="fl" cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+R.toFixed(1)+'" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>';
+}
+
+function render(){
+  const forest = document.getElementById('forest');
+  forest.innerHTML = '';
+  const groups = {};
+  P.roots().forEach(r=>{ const b=bandOf(r.horizon); (groups[b]=groups[b]||[]).push(r); });
+  BAND_ORDER.forEach(band=>{
+    const rs = groups[band]; if(!rs || !rs.length) return;
+    const h=document.createElement('div'); h.className='band'; h.textContent=band; forest.appendChild(h);
+    rs.forEach(root=>{
+      const pr=P.progress(root.id), pillVar=P.PILLAR_VAR[root.pillar]||'--muted';
+      const node=document.createElement('div');
+      node.className='hnode'; node.style.setProperty('--pill','var('+pillVar+')');
+      let html = '<div class="hnode-top">'+
+        '<div class="ring'+(pr.pct===1?' full':'')+'">'+ring(pr.pct,34)+'<div class="ring-pct">'+Math.round(pr.pct*100)+'%</div></div>'+
+        '<div class="hnode-main"><div class="hnode-name">'+root.name+'</div>'+
+          '<div class="hnode-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+root.pillar+'</span>'+
+          '<span class="hnode-when">'+whenLabel(root.horizon)+'</span>'+
+          '<span class="chip">'+pr.done+' / '+pr.total+' done</span></div>'+
+        '</div></div>';
+      const kids = P.children(root.id);
+      if(kids.length){
+        html += '<div class="branches">';
+        kids.forEach(k=>{
+          const kp=P.progress(k.id), isLeaf=P.children(k.id).length===0;
+          const done = isLeaf ? k.done : (kp.pct===1 && kp.total>0);
+          html += '<div class="branch'+(done?' done':'')+'"><div class="branch-row">'+
+            '<span class="branch-name">'+k.name+'</span>'+
+            '<span class="branch-ct">'+(isLeaf ? (done?'done':'—') : kp.done+'/'+kp.total)+'</span></div>'+
+            (isLeaf ? '' : '<div class="branch-bar"><i style="width:'+Math.round(kp.pct*100)+'%"></i></div>')+
+          '</div>';
+        });
+        html += '</div>';
+      }
+      node.innerHTML = html;
+      forest.appendChild(node);
+    });
+  });
+}
+P.subscribe(render);
+render();
+</script>
 </body>
 </html>
