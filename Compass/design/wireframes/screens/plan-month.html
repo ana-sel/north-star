@@ -40,6 +40,12 @@
   .msheet-btn:active{background:var(--greige);}
   .msheet-btn.accent{border-color:var(--accent);color:var(--accent);}
   .msheet-btn.done-btn{border-color:#b9cbb2;background:color-mix(in srgb,#6dab5e 10%,transparent);color:#4f8f43;}
+  /* FAB + add fields */
+  .fab-add{position:fixed;bottom:20px;right:18px;z-index:30;padding:11px 18px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-sm);font-weight:700;box-shadow:0 4px 16px rgba(36,35,31,.25);cursor:pointer;}
+  .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
+  .add-field:focus{border-color:var(--accent);}
+  .add-pill{padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .add-pill.sel{border-color:var(--accent);background:var(--accent-soft,#eef1ec);color:var(--accent);}
 </style>
 </head>
 <body class="screen-body">
@@ -56,6 +62,31 @@
 
   <div class="pboard-wrap">
     <div class="pboard" id="board"></div>
+  </div>
+
+  <!-- FAB: add one-off task -->
+  <button class="fab-add" onclick="openAdd()">+ Add task</button>
+
+  <!-- Add-task sheet -->
+  <div class="msheet-back" id="addBack" onclick="closeAdd()"></div>
+  <div class="msheet" id="addSheet">
+    <div class="msheet-grip"></div>
+    <div class="msheet-title">New task</div>
+    <div class="msheet-row" style="flex-direction:column;align-items:stretch;gap:8px;border:none;">
+      <input id="addName" class="add-field" placeholder="What needs doing?" autocomplete="off"/>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="addPillars"></div>
+      <input id="addDate" class="add-field" type="date"/>
+      <select id="addBucket" class="add-field">
+        <option value="backlog">Backlog</option>
+        <option value="month">This month</option>
+        <option value="week" selected>This week</option>
+        <option value="today">Today</option>
+      </select>
+    </div>
+    <div class="msheet-btns">
+      <button class="msheet-btn done-btn" onclick="submitAdd()">Add</button>
+      <button class="msheet-btn" onclick="closeAdd()">Cancel</button>
+    </div>
   </div>
 
   <!-- Edit sheet -->
@@ -165,6 +196,37 @@ function openEdit(id){
 function closeEdit(){
   document.getElementById('msheetBack').classList.remove('open');
   document.getElementById('msheet').classList.remove('open');
+}
+
+// ── Add one-off task ──
+let addPillar='admin';
+function openAdd(){
+  document.getElementById('addName').value='';
+  document.getElementById('addDate').value='';
+  document.getElementById('addBucket').value='week';
+  const pillars=document.getElementById('addPillars');
+  pillars.innerHTML='';
+  ['health','inner','admin','family','joy','money','contrib'].forEach(p=>{
+    const b=document.createElement('button'); b.className='add-pill'+(p===addPillar?' sel':'');
+    b.textContent=p; b.onclick=()=>{ addPillar=p; pillars.querySelectorAll('.add-pill').forEach(x=>x.classList.toggle('sel',x.textContent===p)); };
+    pillars.appendChild(b);
+  });
+  document.getElementById('addBack').classList.add('open');
+  document.getElementById('addSheet').classList.add('open');
+  setTimeout(()=>document.getElementById('addName').focus(),200);
+}
+function closeAdd(){
+  document.getElementById('addBack').classList.remove('open');
+  document.getElementById('addSheet').classList.remove('open');
+}
+function submitAdd(){
+  const name=document.getElementById('addName').value.trim();
+  if(!name) return;
+  const date=document.getElementById('addDate').value||null;
+  const bucket=document.getElementById('addBucket').value;
+  // standalone task = a root with no children (just a leaf sitting on the board)
+  const id=P.addRoot(name, {pillar:addPillar, bucket, date, horizon:'this'});
+  closeAdd();
 }
 
 // ── Touch/pointer drag-to-move (works on mobile + desktop) ──
