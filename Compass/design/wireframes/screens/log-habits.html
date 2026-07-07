@@ -299,7 +299,7 @@ html,body{height:100%;position:relative;}
     </div>
 
     <!-- detailed rows -->
-    <div class="hrow done" data-reps="35">
+    <div class="hrow done" data-reps="35" data-min="2">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-drop"></i></div>
       <div class="hrow-main">
@@ -312,7 +312,7 @@ html,body{height:100%;position:relative;}
       </div>
     </div>
 
-    <div class="hrow done" data-reps="12">
+    <div class="hrow done" data-reps="12" data-min="1">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-wind"></i></div>
       <div class="hrow-main">
@@ -325,7 +325,7 @@ html,body{height:100%;position:relative;}
       </div>
     </div>
 
-    <div class="hrow opt-lighter" data-reps="67">
+    <div class="hrow opt-lighter" data-reps="67" data-min="20">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-activity"></i></div>
       <div class="hrow-main">
@@ -343,7 +343,7 @@ html,body{height:100%;position:relative;}
       <button class="hnudge-b" onclick="event.stopPropagation();upgradeFreq(this)">Try 5×</button>
     </div>
 
-    <div class="hrow opt-full" data-reps="4">
+    <div class="hrow opt-full" data-reps="4" data-min="5">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-brain"></i></div>
       <div class="hrow-main">
@@ -381,7 +381,7 @@ html,body{height:100%;position:relative;}
       <button class="rnode opt-full" onclick="tapNode('evening',3)"><i class="ic ic-sprout"></i></button>
     </div>
 
-    <div class="hrow opt-lighter" data-reps="22">
+    <div class="hrow opt-lighter" data-reps="22" data-min="10">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-leaf"></i></div>
       <div class="hrow-main">
@@ -394,7 +394,7 @@ html,body{height:100%;position:relative;}
       </div>
     </div>
 
-    <div class="hrow opt-lighter" data-reps="8">
+    <div class="hrow opt-lighter" data-reps="8" data-min="15">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-moon"></i></div>
       <div class="hrow-main">
@@ -408,7 +408,7 @@ html,body{height:100%;position:relative;}
       </div>
     </div>
 
-    <div class="hrow opt-full" data-reps="112">
+    <div class="hrow opt-full" data-reps="112" data-min="5">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-pen"></i></div>
       <div class="hrow-main">
@@ -422,7 +422,7 @@ html,body{height:100%;position:relative;}
       </div>
     </div>
 
-    <div class="hrow opt-full" data-reps="5">
+    <div class="hrow opt-full" data-reps="5" data-min="2">
       <div class="hrow-ck">✓</div>
       <div class="hrow-ic"><i class="ic ic-sprout"></i></div>
       <div class="hrow-main">
@@ -589,7 +589,9 @@ function recompute(id){
     }
   });
   const done = rows.filter(r=>r.classList.contains('done')).length;
-  card.querySelector('.yritual-meta').textContent = ANCHORS[id] + ' · ' + done + ' of ' + rows.length + ' done';
+  const totalMin = rows.reduce((s,r)=> s + (+r.dataset.min||0), 0);
+  const timeStr = totalMin >= 60 ? Math.floor(totalMin/60)+'h '+((totalMin%60)||'') + (totalMin%60?'min':'') : totalMin+'min';
+  card.querySelector('.yritual-meta').textContent = ANCHORS[id] + ' · ' + timeStr + ' · ' + done + ' of ' + rows.length + ' done';
   // celebration: gentle pulse when all visible habits are done
   if(done===rows.length && rows.length>0){
     if(!card.classList.contains('celebrated')){

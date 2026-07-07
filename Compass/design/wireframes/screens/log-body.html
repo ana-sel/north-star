@@ -34,7 +34,7 @@
 
 /* BMI track */
 .bmi-track-wrap{margin-bottom:4px;}
-.bmi-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#e8c4c4 0%,#e8c4c4 17%,#c5e0bf 17%,#c5e0bf 50%,#f7dfa5 50%,#f7dfa5 75%,#e8c4c4 75%);position:relative;overflow:visible;}
+.bmi-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#b0bfab 0%,#8eba84 20%,#6dab5e 40%,#c9b754 60%,#d1894a 78%,#b77980 100%);position:relative;overflow:visible;}
 .bmi-marker{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--p-health);transform:translateX(-50%);transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
 .bmi-zones{display:flex;font-size:8px;color:var(--muted);font-weight:600;margin-top:5px;padding:0 1px;}
 .bmi-zone{flex:1;text-align:center;}
@@ -96,10 +96,10 @@
 .pill-section{padding:12px 16px;border-bottom:1px solid var(--line);}
 .pill-section:last-child{border-bottom:none;}
 .pill-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;}
-.pill-row{display:flex;flex-wrap:wrap;gap:6px;}
-.pill{font-size:var(--fs-xs);font-weight:600;padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;}\n.pill{font-size:var(--fs-xs);font-weight:600;padding:8px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;white-space:nowrap;}
 .pill.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 .pill.sel-feel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+.pill-add{border-style:dashed;}
 
 /* ── Optional notice ── */
 .opt-notice{text-align:center;font-size:var(--fs-xs);color:var(--muted);margin-top:14px;line-height:1.6;padding:0 8px;}
@@ -225,24 +225,26 @@
     <div class="pill-section">
       <div class="pill-label">Activity today</div>
       <div class="pill-row">
-        <button class="pill sel" onclick="togglePill(this,'act')">Walk</button>
-        <button class="pill" onclick="togglePill(this,'act')">Run</button>
-        <button class="pill" onclick="togglePill(this,'act')">Gym</button>
-        <button class="pill" onclick="togglePill(this,'act')">Yoga</button>
-        <button class="pill" onclick="togglePill(this,'act')">Cycle</button>
-        <button class="pill" onclick="togglePill(this,'act')">Rest day</button>
+        <button class="pill sel" onclick="togglePill(this)">Walk</button>
+        <button class="pill" onclick="togglePill(this)">Run</button>
+        <button class="pill" onclick="togglePill(this)">Gym</button>
+        <button class="pill" onclick="togglePill(this)">Yoga</button>
+        <button class="pill" onclick="togglePill(this)">Cycle</button>
+        <button class="pill" onclick="togglePill(this)">Rest day</button>
+        <button class="pill pill-add" onclick="addPill(this)">＋</button>
       </div>
     </div>
 
-    <!-- Body feel -->
+    <!-- Body after movement -->
     <div class="pill-section">
-      <div class="pill-label">Body feel</div>
+      <div class="pill-label">Body after movement</div>
       <div class="pill-row">
-        <button class="pill" onclick="toggleFeel(this)">Light</button>
-        <button class="pill sel-feel" onclick="toggleFeel(this)">Easy</button>
-        <button class="pill" onclick="toggleFeel(this)">Meh</button>
-        <button class="pill" onclick="toggleFeel(this)">Tired</button>
-        <button class="pill" onclick="toggleFeel(this)">Heavy</button>
+        <button class="pill sel-feel" onclick="toggleFeel(this)">Energised</button>
+        <button class="pill" onclick="toggleFeel(this)">Loose</button>
+        <button class="pill" onclick="toggleFeel(this)">Neutral</button>
+        <button class="pill" onclick="toggleFeel(this)">Stiff</button>
+        <button class="pill" onclick="toggleFeel(this)">Sore</button>
+        <button class="pill pill-add" onclick="addPill(this)">＋</button>
       </div>
     </div>
 
@@ -399,14 +401,29 @@ function editNutr(elId, label){
 
 /* Activity pills — single select */
 function togglePill(btn){
-  btn.closest('.pill-row').querySelectorAll('.pill').forEach(b=>b.classList.remove('sel'));
+  if(btn.classList.contains('pill-add')) return;
+  btn.closest('.pill-row').querySelectorAll('.pill:not(.pill-add)').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
 }
 
 /* Body feel pills — single select */
 function toggleFeel(btn){
-  btn.closest('.pill-row').querySelectorAll('.pill').forEach(b=>b.className='pill');
+  if(btn.classList.contains('pill-add')) return;
+  btn.closest('.pill-row').querySelectorAll('.pill:not(.pill-add)').forEach(b=>b.className='pill');
   btn.classList.add('sel-feel');
+}
+
+/* Add custom pill */
+function addPill(addBtn){
+  const label = prompt('Add option:');
+  if(!label || !label.trim()) return;
+  const row = addBtn.closest('.pill-row');
+  const isAct = row.closest('.pill-section').querySelector('.pill-label').textContent.includes('Activity');
+  const newPill = document.createElement('button');
+  newPill.className = 'pill';
+  newPill.textContent = label.trim();
+  newPill.onclick = isAct ? function(){ togglePill(this); } : function(){ toggleFeel(this); };
+  row.insertBefore(newPill, addBtn);
 }
 
 /* Save / unsave toggle */
