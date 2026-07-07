@@ -26,7 +26,7 @@
   /* Edit sheet */
   .msheet-back{position:fixed;inset:0;background:rgba(28,27,24,.35);z-index:40;display:none;}
   .msheet-back.open{display:block;}
-  .msheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 30px rgba(28,27,24,.2);transform:translateY(100%);transition:transform .22s cubic-bezier(.22,1,.36,1);padding:12px 18px 24px;}
+  .msheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 30px rgba(28,27,24,.2);transform:translateY(100%);transition:transform .22s cubic-bezier(.22,1,.36,1);padding:12px 18px 24px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   .msheet.open{transform:translateY(0);}
   .msheet-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 14px;}
   .msheet-title{font-size:var(--fs-md);font-weight:800;margin-bottom:10px;}
@@ -55,8 +55,9 @@
   .fab-add{position:fixed;bottom:20px;right:18px;z-index:30;padding:11px 18px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-sm);font-weight:700;box-shadow:0 4px 16px rgba(36,35,31,.25);cursor:pointer;}
   .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
   .add-field:focus{border-color:var(--accent);}
-  .add-pill{padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
-  .add-pill.sel{border-color:var(--accent);background:var(--accent-soft,#eef1ec);color:var(--accent);}
+  .add-field-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .add-field-row .sp-lbl{width:auto;margin:0;flex-shrink:0;min-width:64px;}
+  .add-field-row .add-field{flex:1;}
 </style>
 </head>
 <body class="screen-body">
@@ -83,10 +84,10 @@
   <div class="msheet" id="addSheet">
     <div class="msheet-grip"></div>
     <div class="msheet-title">New task</div>
-    <div class="msheet-row" style="flex-direction:column;align-items:stretch;gap:8px;border:none;">
-      <input id="addName" class="add-field" placeholder="What needs doing?" autocomplete="off"/>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="addPillars"></div>
-      <input id="addDate" class="add-field" type="date"/>
+    <input id="addName" class="add-field" placeholder="What needs doing?" autocomplete="off" style="margin-bottom:12px;"/>
+    <div class="sheet-pillars" id="addPillars"></div>
+    <div class="add-field-row"><span class="sp-lbl">Date</span><input id="addDate" class="add-field" type="date"/></div>
+    <div class="add-field-row"><span class="sp-lbl">On Month</span>
       <select id="addBucket" class="add-field">
         <option value="backlog">Backlog</option>
         <option value="month">This month</option>
@@ -95,7 +96,7 @@
       </select>
     </div>
     <div class="msheet-btns">
-      <button class="msheet-btn done-btn" onclick="submitAdd()">Add</button>
+      <button class="msheet-btn done-btn" onclick="submitAdd()">Add task</button>
       <button class="msheet-btn" onclick="closeAdd()">Cancel</button>
     </div>
   </div>
@@ -234,16 +235,12 @@ function openAdd(){
   document.getElementById('addDate').value='';
   document.getElementById('addBucket').value='week';
   const pillars=document.getElementById('addPillars');
-  pillars.innerHTML='';
-  ['health','inner','admin','family','joy','money','contrib'].forEach(p=>{
-    const b=document.createElement('button'); b.className='add-pill'+(p===addPillar?' sel':'');
-    b.textContent=p; b.onclick=()=>{ addPillar=p; pillars.querySelectorAll('.add-pill').forEach(x=>x.classList.toggle('sel',x.textContent===p)); };
-    pillars.appendChild(b);
-  });
+  pillars.innerHTML='<span class="sp-lbl">Pillar</span>'+PILLARS.map(p=>'<button class="sp-pill'+(p===addPillar?' sel':'')+'" style="--pc:var('+P.PILLAR_VAR[p]+')" onclick="pickAddPillar(\''+p+'\')">'+p+'</button>').join('');
   document.getElementById('addBack').classList.add('open');
   document.getElementById('addSheet').classList.add('open');
   setTimeout(()=>document.getElementById('addName').focus(),200);
 }
+function pickAddPillar(p){ addPillar=p; document.querySelectorAll('#addPillars .sp-pill').forEach(x=>x.classList.toggle('sel', x.textContent===p)); }
 function closeAdd(){
   document.getElementById('addBack').classList.remove('open');
   document.getElementById('addSheet').classList.remove('open');
