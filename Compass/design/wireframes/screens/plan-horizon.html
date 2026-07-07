@@ -14,18 +14,19 @@
   .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 8px;display:flex;align-items:center;gap:8px;}
   .band::after{content:'';flex:1;height:1px;background:var(--line);}
 
-  /* ── horizon card (a root) ── */
-  .hrz{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:9px;box-shadow:var(--shadow-sm);cursor:pointer;position:relative;overflow:hidden;transition:transform .1s;}
+  /* ── horizon card (dark style — unified with detail) ── */
+  .hrz{background:linear-gradient(135deg,#2f3a34,#3d4a41);color:#f4f2ec;border-radius:18px;padding:16px 16px 14px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
   .hrz:active{transform:scale(.99);}
-  .hrz::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
-  .hrz-main{flex:1;min-width:0;}
+  .hrz-main{min-width:0;}
   .hrz-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
-  .hrz-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:5px 0 8px;}
-  .hrz-prog{height:6px;background:var(--greige);border-radius:999px;overflow:hidden;}
-  .hrz-prog i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));transition:width .4s;}
-  .hrz-pct{font-size:var(--fs-lg);font-weight:800;color:var(--muted);flex-shrink:0;}
-  .hrz-year{cursor:pointer;border:1px solid var(--line);transition:background .12s;}
-  .hrz-year:hover{background:var(--card);}
+  .hrz-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0 10px;}
+  .hrz-meta .chip{background:rgba(255,255,255,.14);color:#d4dcc9;border:none;}
+  .hrz-meta .chip.pillar{color:#d4dcc9;}
+  .hrz-meta .chip.pillar::before{background:var(--pill,#999);}
+  .hrz-prog{height:6px;background:rgba(255,255,255,.16);border-radius:999px;overflow:hidden;}
+  .hrz-prog i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#9db98e,#c7d8b6);transition:width .4s;}
+  .hrz-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;}
+  .hrz-pct{font-size:var(--fs-sm);font-weight:800;color:#c9d3bf;}
   .hrz-add{border:1px dashed var(--line);background:transparent;color:var(--muted);text-align:center;font-size:var(--fs-sm);font-weight:700;padding:13px;border-radius:16px;width:100%;cursor:pointer;font-family:inherit;margin-top:4px;}
 
   /* ── detail (tree) ── */
@@ -167,23 +168,26 @@ function suggestFor(name){
 
 let openId = null;
 
-// target time for a horizon — cycles This year → next years → Someday
-const CUR_YEAR = 2026;
-const TARGETS = ['this', String(CUR_YEAR + 1), String(CUR_YEAR + 2), String(CUR_YEAR + 3), 'someday'];
-function targetLabel(h){ if(h==='this') return 'This year'; if(h==='someday') return 'Someday'; return h; }
-
 // ── LIST view ──
-function bandOf(h){ if(h==='this') return 'This year'; if(h==='someday') return 'Someday'; return 'Later years'; }
-const BAND_ORDER = ['This year','Later years','Someday'];
+// Time band is auto-derived from the latest date in the tree
+function bandOf(rootId){ return P.timeBand(rootId); }
+function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b; }
+const BAND_ORDER = ['this','someday']; // computed bands; years are sorted in between
 function renderList(){
   const bandsEl = document.getElementById('bands');
   const groups = {};
-  P.roots().forEach(r=>{ const b=bandOf(r.horizon); (groups[b]=groups[b]||[]).push(r); });
+  P.roots().forEach(r=>{ const b=bandOf(r.id); (groups[b]=groups[b]||[]).push(r); });
   bandsEl.innerHTML = '';
+  // sort bands: 'this' first, then numeric years, then 'someday'
+  const bands = Object.keys(groups).sort((a,b)=>{
+    if(a==='this') return -1; if(b==='this') return 1;
+    if(a==='someday') return 1; if(b==='someday') return -1;
+    return a.localeCompare(b);
+  });
   // active horizons by time band
-  BAND_ORDER.forEach(band=>{
+  bands.forEach(band=>{
     const rs = (groups[band]||[]).filter(r=>P.progress(r.id).pct<1); if(!rs.length) return;
-    const h=document.createElement('div'); h.className='band'; h.textContent=band; bandsEl.appendChild(h);
+    const h=document.createElement('div'); h.className='band'; h.textContent=bandLabel(band); bandsEl.appendChild(h);
     rs.forEach(r=> bandsEl.appendChild(hrzCard(r)));
   });
   // done horizons (100%)
@@ -195,6 +199,7 @@ function renderList(){
 }
 function hrzCard(r){
   const pr=P.progress(r.id), pillVar=P.PILLAR_VAR[r.pillar]||'--muted';
+  const band=P.timeBand(r.id), latest=P.latestDate(r.id);
   const card=document.createElement('div');
   card.className='hrz'; card.style.setProperty('--pill','var('+pillVar+')');
   card.onclick=()=>openHorizon(r.id);
@@ -203,21 +208,16 @@ function hrzCard(r){
       '<div class="hrz-title">'+r.name+'</div>'+
       '<div class="hrz-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+r.pillar+'</span>'+
         '<span class="chip">'+pr.done+' / '+pr.total+' steps</span>'+
-        '<span class="chip hrz-year" data-id="'+r.id+'" onclick="event.stopPropagation();cycleYear(this)">'+targetLabel(r.horizon)+'</span></div>'+
+        (latest ? '<span class="chip">by '+fmtDate(latest)+'</span>' : '<span class="chip">no dates yet</span>')+
+      '</div>'+
       '<div class="hrz-prog"><i style="width:'+Math.round(pr.pct*100)+'%"></i></div>'+
-    '</div>'+
-    '<div class="hrz-pct">'+Math.round(pr.pct*100)+'%</div>';
+      '<div class="hrz-foot"><span class="hrz-pct">'+Math.round(pr.pct*100)+'%</span></div>'+
+    '</div>';
   return card;
 }
 function addHorizon(){
   const t=prompt('Name this horizon — a direction you\u2019re drawn to:');
   if(t&&t.trim()){ const id=P.addRoot(t.trim()); openHorizon(id); }
-}
-function cycleYear(chip){
-  const id=chip.dataset.id, root=P.byId(id); if(!root) return;
-  const i=TARGETS.indexOf(root.horizon);
-  const next=TARGETS[(i+1)%TARGETS.length];
-  P.setHorizon(id, next);
 }
 
 // ── DETAIL / tree view ──
@@ -231,8 +231,10 @@ function renderDetail(){
   dn.onblur=()=>P.rename(root.id, dn.textContent);
   dn.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); dn.blur(); } };
   const tEl=document.getElementById('dreamTarget');
-  tEl.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg> '+targetLabel(root.horizon||'this');
-  tEl.onclick=()=>{ const i=TARGETS.indexOf(root.horizon); const next=TARGETS[(i+1)%TARGETS.length]; P.setHorizon(root.id, next); };
+  const latest=P.latestDate(root.id);
+  const band=P.timeBand(root.id);
+  tEl.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg> '+(latest ? 'by '+fmtDate(latest) : 'no dates yet');
+  tEl.onclick=null; // auto-derived, not manual
   const pr=P.progress(root.id);
   document.getElementById('dreamBar').style.width=Math.round(pr.pct*100)+'%';
   document.getElementById('dreamPct').textContent=Math.round(pr.pct*100)+'%';
