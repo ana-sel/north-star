@@ -88,9 +88,8 @@
 <script src="../shared/plan-data.js"></script>
 <script>
 const P = window.PlanData;
-function bandOf(h){ if(h==='this') return 'This year'; if(h==='someday') return 'Someday'; return 'Later years'; }
-const BAND_ORDER = ['This year','Later years','Someday'];
-function whenLabel(h){ if(h==='this') return 'This year'; if(h==='someday') return 'Someday'; return h; }
+function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b; }
+function whenLabel(b){ return bandLabel(b); }
 
 function ring(pct, size){
   const R=(size/2)-3, C=2*Math.PI*R, off=C*(1-pct);
@@ -103,10 +102,16 @@ function render(){
   const forest = document.getElementById('forest');
   forest.innerHTML = '';
   const groups = {};
-  P.roots().forEach(r=>{ const b=bandOf(r.horizon); (groups[b]=groups[b]||[]).push(r); });
-  BAND_ORDER.forEach(band=>{
+  P.roots().forEach(r=>{ const b=P.timeBand(r.id); (groups[b]=groups[b]||[]).push(r); });
+  // sort bands: 'this' first, then numeric years, then 'someday'
+  const bands = Object.keys(groups).sort((a,b)=>{
+    if(a==='this') return -1; if(b==='this') return 1;
+    if(a==='someday') return 1; if(b==='someday') return -1;
+    return a.localeCompare(b);
+  });
+  bands.forEach(band=>{
     const rs = groups[band]; if(!rs || !rs.length) return;
-    const h=document.createElement('div'); h.className='band'; h.textContent=band; forest.appendChild(h);
+    const h=document.createElement('div'); h.className='band'; h.textContent=bandLabel(band); forest.appendChild(h);
     rs.forEach(root=>{
       const pr=P.progress(root.id), pillVar=P.PILLAR_VAR[root.pillar]||'--muted';
       const node=document.createElement('div');
@@ -115,7 +120,7 @@ function render(){
         '<div class="ring'+(pr.pct===1?' full':'')+'">'+ring(pr.pct,34)+'<div class="ring-pct">'+Math.round(pr.pct*100)+'%</div></div>'+
         '<div class="hnode-main"><div class="hnode-name">'+root.name+'</div>'+
           '<div class="hnode-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+root.pillar+'</span>'+
-          '<span class="hnode-when">'+whenLabel(root.horizon)+'</span>'+
+          '<span class="hnode-when">'+whenLabel(P.timeBand(root.id))+'</span>'+
           '<span class="chip">'+pr.done+' / '+pr.total+' done</span></div>'+
         '</div></div>';
       const kids = P.children(root.id);

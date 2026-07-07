@@ -104,6 +104,23 @@
     while (n && n.parentId != null) n = byId(n.parentId);
     return n;
   }
+  // auto-derive time band from latest date in the tree
+  function latestDate(id) {
+    const n = byId(id); if (!n) return null;
+    const kids = children(id);
+    if (!kids.length) return n.date || null;
+    const dates = kids.map(k => latestDate(k.id)).filter(Boolean);
+    if (n.date) dates.push(n.date);
+    return dates.length ? dates.sort().pop() : null;
+  }
+  function timeBand(id) {
+    const d = latestDate(id);
+    if (!d) return 'someday';
+    const year = parseInt(d.split('-')[0]);
+    const curYear = new Date().getFullYear();
+    if (year <= curYear) return 'this';
+    return String(year);
+  }
   // leaves that are scheduled onto the Month board
   const scheduled = bucket => nodes.filter(n => isLeaf(n) && !n.done && n.bucket === bucket);
   const doneCards = () => nodes.filter(n => isLeaf(n) && n.done && n.bucket != null);
@@ -149,7 +166,7 @@
     BUCKETS: ['backlog', 'month', 'week', 'today'],
     BUCKET_LABEL: { backlog: 'Backlog', month: 'This month', week: 'This week', today: 'Today', done: 'Done' },
     PILLAR_VAR: { health: '--p-health', inner: '--p-inner', admin: '--p-admin', family: '--p-family', joy: '--p-joy', money: '--p-money', contrib: '--p-contrib' },
-    all: () => nodes, byId, children, roots, isLeaf, leaves, progress, rootOf,
+    all: () => nodes, byId, children, roots, isLeaf, leaves, progress, rootOf, latestDate, timeBand,
     scheduled, doneCards,
     toggleDone, setDone, setBucket, rename, setNotes, setHorizon, update,
     addChild, addRoot, remove, reset, subscribe
