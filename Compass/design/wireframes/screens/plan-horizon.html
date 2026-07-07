@@ -261,9 +261,7 @@ function nodeEl(node){
     row.appendChild(ck);
   }
 
-  const name=document.createElement('div'); name.className='name'; name.contentEditable='true'; name.spellcheck=false; name.textContent=node.name;
-  name.onblur=()=>P.rename(node.id,name.textContent);
-  name.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); name.blur(); } };
+  const name=document.createElement('div'); name.className='name'; name.textContent=node.name;
   row.appendChild(name);
 
   // schedule chip + date on scheduled leaves
@@ -281,7 +279,7 @@ function nodeEl(node){
   // tap row → open action sheet (mobile-friendly, no tiny icons)
   row.style.cursor='pointer';
   row.onclick = e => {
-    if(e.target.closest('.ck')||e.target.closest('.chev')||e.target.closest('.keepbtn')||e.target.classList.contains('name')) return;
+    if(e.target.closest('.ck')||e.target.closest('.chev')||e.target.closest('.keepbtn')) return;
     openNodeSheet(node, has);
   };
 
@@ -302,6 +300,7 @@ function openNodeSheet(node, has){
     b.innerHTML = svg + '<span>'+label+'</span>'; b.onclick=()=>{ fn(); closeNodeSheet(); };
     btns.appendChild(b);
   };
+  mk(S.plus, 'Rename', ()=>{ const t=prompt('Rename:', node.name); if(t&&t.trim()) P.rename(node.id, t.trim()); });
   mk(S.plus, 'Add a step underneath', ()=>{ const t=prompt('New step:'); if(t&&t.trim()){ node.open=true; P.addChild(node.id,t.trim()); } });
   mk(S.spark, 'Ask AI for a breakdown', ()=>{ node.open=true; suggestFor(node.name).forEach(s=>P.addChild(node.id,s,{suggested:true})); }, 'sug');
   mk(S.cal, node.date ? 'Change date ('+fmtDate(node.date)+')' : 'Set a date', ()=>{ const d=prompt('Date (YYYY-MM-DD):', node.date||''); if(d!==null) P.update(node.id,{date:d||null}); });
