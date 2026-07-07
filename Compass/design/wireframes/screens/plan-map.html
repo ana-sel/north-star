@@ -42,6 +42,21 @@
   .branch-bar{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;margin-top:5px;}
   .branch-bar i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));transition:width .4s;}
   .map-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin:-2px 2px 14px;}
+  /* Toggle */
+  .map-toggle{display:flex;background:var(--greige);border-radius:12px;padding:3px;gap:2px;margin-bottom:14px;}
+  .map-toggle button{flex:1;padding:8px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .map-toggle button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+  /* Graph view */
+  #graphWrap{display:none;overflow-x:auto;padding-bottom:12px;}
+  #graphWrap.show{display:block;}
+  #forest.hide{display:none;}
+  .g-svg{display:block;}
+  .g-node{cursor:pointer;}
+  .g-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;fill:var(--ink);}
+  .g-sub{font-family:'Inter',sans-serif;font-size:8px;fill:var(--muted);}
+  .g-link{stroke:var(--line);stroke-width:1.5;fill:none;}
+  .g-ring-bg{stroke:var(--line);fill:none;stroke-width:2.5;}
+  .g-ring-fg{fill:none;stroke-width:2.5;stroke-linecap:round;}
 </style>
 </head>
 <body class="screen-body">
@@ -62,7 +77,13 @@
 
   <p class="map-note">One glance at the whole forest — every horizon and how far along it is. It moves the moment you complete anything, anywhere.</p>
 
+  <div class="map-toggle">
+    <button class="on" onclick="setView('list')">List</button>
+    <button onclick="setView('graph')">Graph</button>
+  </div>
+
   <div id="forest"></div>
+  <div id="graphWrap"><svg id="graphSvg" class="g-svg"></svg></div>
 
 <script src="../shared/plan-data.js"></script>
 <script>
@@ -116,8 +137,65 @@ function render(){
     });
   });
 }
-P.subscribe(render);
+P.subscribe(()=>{ render(); renderGraph(); });
 render();
+renderGraph();
+
+let currentView='list';
+function setView(v){
+  currentView=v;
+  document.querySelectorAll('.map-toggle button').forEach(b=>b.classList.toggle('on', b.textContent.toLowerCase()===v));
+  document.getElementById('forest').classList.toggle('hide', v==='graph');
+  document.getElementById('graphWrap').classList.toggle('show', v==='graph');
+}
+
+// ── Visual graph (SVG tree diagram) ──
+function renderGraph(){
+  const svg=document.getElementById('graphSvg');
+  const roots=P.roots();
+  if(!roots.length){ svg.innerHTML=''; return; }
+
+  const COL_W=140, ROW_H=52, PAD=16, R=12;
+  // layout: roots are the top row; their children are the second row, etc.
+  const nodes=[], links=[];
+  let col=0;
+  roots.forEach(root=>{
+    const pr=P.progress(root.id);
+    nodes.push({id:root.id, name:root.name, pct:pr.pct, pillar:root.pillar, x:col*COL_W+PAD, y:PAD, depth:0});
+    const kids=P.children(root.id);
+    kids.forEach((k,i)=>{
+      const kp=P.progress(k.id);
+      const isLeaf=P.children(k.id).length===0;
+      const pct=isLeaf?(k.done?1:0):kp.pct;
+      nodes.push({id:k.id, name:k.name, pct, pillar:k.pillar, x:(col+i)*COL_W+PAD, y:ROW_H+PAD, depth:1});
+      links.push({from:root.id, to:k.id});
+    });
+    col+=Math.max(kids.length, 1);
+  });
+
+  const W=col*COL_W+PAD*2, H=ROW_H*2+PAD*2;
+  svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 '+W+' '+H);
+
+  let html='';
+  // links
+  links.forEach(l=>{
+    const from=nodes.find(n=>n.id===l.from), to=nodes.find(n=>n.id===l.to);
+    if(from&&to) html+=`<path class="g-link" d="M${from.x+R} ${from.y+R*2+4} C ${from.x+R} ${(from.y+to.y)/2+20}, ${to.x+R} ${(from.y+to.y)/2+10}, ${to.x+R} ${to.y}"/>`;
+  });
+  // nodes
+  const COLORS={health:'#77936f',inner:'#937caf',admin:'#958572',family:'#b77980',joy:'#c99554',money:'#7395ad',contrib:'#8d8f63'};
+  nodes.forEach(n=>{
+    const cx=n.x+R, cy=n.y+R;
+    const C=2*Math.PI*10, off=C*(1-n.pct);
+    const col=COLORS[n.pillar]||'#768471';
+    html+=`<g class="g-node"><circle class="g-ring-bg" cx="${cx}" cy="${cy}" r="10"/>`;
+    html+=`<circle class="g-ring-fg" cx="${cx}" cy="${cy}" r="10" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    html+=`<text class="g-label" x="${cx+R+6}" y="${cy-2}">${n.name.length>14?n.name.slice(0,13)+'…':n.name}</text>`;
+    html+=`<text class="g-sub" x="${cx+R+6}" y="${cy+9}">${Math.round(n.pct*100)}%</text>`;
+    html+=`</g>`;
+  });
+  svg.innerHTML = html;
+}
 </script>
 </body>
 </html>

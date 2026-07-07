@@ -32,10 +32,10 @@
     { id: 'car-theory', name: 'Theory test', parentId: 'car-test', pillar: 'admin' },
     { id: 'car-t1', name: 'Learn 10 signs', parentId: 'car-theory', pillar: 'admin', done: true },
     { id: 'car-t2', name: 'Learn next 10 signs', parentId: 'car-theory', pillar: 'admin', done: true },
-    { id: 'car-t3', name: 'Learn next 10 signs', parentId: 'car-theory', pillar: 'admin', bucket: 'week' },
+    { id: 'car-t3', name: 'Learn next 10 signs', parentId: 'car-theory', pillar: 'admin', bucket: 'week', date: '2026-07-11' },
     { id: 'car-prac', name: 'Practical test', parentId: 'car-test', pillar: 'admin' },
-    { id: 'car-p1', name: 'Learn to pull over', parentId: 'car-prac', pillar: 'admin', bucket: 'month' },
-    { id: 'car-p2', name: 'Learn to park', parentId: 'car-prac', pillar: 'admin', bucket: 'month' },
+    { id: 'car-p1', name: 'Learn to pull over', parentId: 'car-prac', pillar: 'admin', bucket: 'month', date: '2026-07-18' },
+    { id: 'car-p2', name: 'Learn to park', parentId: 'car-prac', pillar: 'admin', bucket: 'month', date: '2026-07-22' },
     { id: 'car-buy', name: 'Buy a car', parentId: 'car', pillar: 'money' },
     { id: 'car-b1', name: 'Research a car', parentId: 'car-buy', pillar: 'money', bucket: 'backlog' },
     { id: 'car-b2', name: 'Buy the car', parentId: 'car-buy', pillar: 'money' },
@@ -43,11 +43,11 @@
     // ═══ Horizon: Buy land ═══
     { id: 'land', name: 'Buy land', parentId: null, pillar: 'money', horizon: 'this' },
     { id: 'land-mort', name: 'Sort financing', parentId: 'land', pillar: 'money' },
-    { id: 'land-m1', name: 'Research mortgages', parentId: 'land-mort', pillar: 'admin', bucket: 'today' },
+    { id: 'land-m1', name: 'Research mortgages', parentId: 'land-mort', pillar: 'admin', bucket: 'today', date: '2026-07-07' },
     { id: 'land-m2', name: 'Compare loan types', parentId: 'land-mort', pillar: 'money', bucket: 'backlog' },
     { id: 'land-m3', name: 'Check credit score', parentId: 'land-mort', pillar: 'money', done: true },
     { id: 'land-find', name: 'Find the plot', parentId: 'land', pillar: 'admin' },
-    { id: 'land-f1', name: 'View 3 plots', parentId: 'land-find', pillar: 'admin', bucket: 'month' },
+    { id: 'land-f1', name: 'View 3 plots', parentId: 'land-find', pillar: 'admin', bucket: 'month', date: '2026-07-15' },
     { id: 'land-f2', name: 'Shortlist solicitors', parentId: 'land-find', pillar: 'admin', bucket: 'backlog' },
 
     // ═══ Horizon: Learn Spanish (someday) ═══
