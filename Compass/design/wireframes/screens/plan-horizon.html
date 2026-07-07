@@ -148,8 +148,10 @@ const S = {
   plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   spark:'<svg viewBox="0 0 24 24"><path d="M12 3l1.6 4.9L18.5 9.5l-4.9 1.6L12 16l-1.6-4.9L5.5 9.5l4.9-1.6z"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
   x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
 };
+function fmtDate(d){ if(!d) return ''; const p=d.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return +p[2]+' '+months[+p[1]-1]; }
 function suggestFor(name){
   const n=name.toLowerCase();
   if(n.includes('theory')) return ['Learn road signs','Take 3 practice tests','Book the theory test'];
@@ -264,8 +266,9 @@ function nodeEl(node){
   name.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); name.blur(); } };
   row.appendChild(name);
 
-  // schedule chip on scheduled leaves
+  // schedule chip + date on scheduled leaves
   if(!has && node.bucket && !node.done){ const s=document.createElement('span'); s.className='sched'; s.textContent=P.BUCKET_LABEL[node.bucket]; row.appendChild(s); }
+  if(!has && node.date && !node.done){ const d=document.createElement('span'); d.className='sched'; d.style.color='var(--muted)'; d.style.background='var(--greige)'; d.textContent=fmtDate(node.date); row.appendChild(d); }
   if(has){ const c=document.createElement('span'); c.className='depth-count'; c.textContent=pr.done+'/'+pr.total; row.appendChild(c); }
 
   if(node.suggested){
@@ -301,6 +304,7 @@ function openNodeSheet(node, has){
   };
   mk(S.plus, 'Add a step underneath', ()=>{ const t=prompt('New step:'); if(t&&t.trim()){ node.open=true; P.addChild(node.id,t.trim()); } });
   mk(S.spark, 'Ask AI for a breakdown', ()=>{ node.open=true; suggestFor(node.name).forEach(s=>P.addChild(node.id,s,{suggested:true})); }, 'sug');
+  mk(S.cal, node.date ? 'Change date ('+fmtDate(node.date)+')' : 'Set a date', ()=>{ const d=prompt('Date (YYYY-MM-DD):', node.date||''); if(d!==null) P.update(node.id,{date:d||null}); });
   if(!has && !node.done){ mk(S.send, node.bucket?'Unschedule from Month':'Send to Month', ()=>{ P.setBucket(node.id, node.bucket?null:'month'); }, 'send'); }
   mk(S.x, 'Remove', ()=>P.remove(node.id), 'danger');
   document.getElementById('nsheetBack').classList.add('open');

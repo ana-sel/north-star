@@ -21,6 +21,7 @@
   .pcard-body{flex:1;min-width:0;}
   .pcard-parent{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .pcard-parent b{color:var(--accent);font-weight:800;}
+  .pcard-date{font-size:9px;font-weight:600;color:var(--muted);margin-left:auto;}
   .pcol-empty{font-size:var(--fs-xs);color:var(--muted);opacity:.55;text-align:center;padding:13px 6px;border:1px dashed var(--line);border-radius:12px;}
 </style>
 </head>
@@ -45,6 +46,7 @@
 const P = window.PlanData;
 const COLS = ['backlog','month','week','today','done'];
 const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>';
+function fmtDate(d){ if(!d) return ''; const p=d.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return +p[2]+' '+months[+p[1]-1]; }
 
 function cardsFor(col){ return col==='done' ? P.doneCards() : P.scheduled(col); }
 
@@ -71,7 +73,9 @@ function render(){
         '<div class="pcard-body">'+
           (root && root.id!==n.id ? '<div class="pcard-parent">\u21b3 <b>'+root.name+'</b></div>' : '')+
           '<div class="pcard-title">'+n.name+'</div>'+
-          '<div class="pcard-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+n.pillar+'</span></div>'+
+          '<div class="pcard-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+n.pillar+'</span>'+
+            (n.date ? '<span class="pcard-date">'+fmtDate(n.date)+'</span>' : '')+
+          '</div>'+
         '</div>';
       card.querySelector('.pcard-ck').onclick = e=>{ e.stopPropagation(); P.toggleDone(n.id); };
       // tap card → move between columns via prompt (mobile-friendly)
@@ -117,6 +121,49 @@ function render(){
 
 P.subscribe(render);
 render();
+
+// ── Touch/pointer drag-to-move (works on mobile + desktop) ──
+let dragId=null, ghost=null, startY=0;
+document.addEventListener('pointerdown', e=>{
+  const card = e.target.closest('.pcard');
+  if(!card || e.target.closest('.pcard-ck')) return;
+  dragId = card.dataset.id;
+  startY = e.clientY;
+  // create ghost after a small movement threshold (to avoid stealing taps)
+  card.setPointerCapture(e.pointerId);
+  card._pid = e.pointerId;
+});
+document.addEventListener('pointermove', e=>{
+  if(!dragId) return;
+  if(!ghost && Math.abs(e.clientY - startY) < 8) return; // threshold
+  const card = document.querySelector('[data-id="'+dragId+'"]');
+  if(!ghost){
+    ghost = card.cloneNode(true);
+    ghost.style.cssText = 'position:fixed;z-index:99;opacity:.85;pointer-events:none;width:'+card.offsetWidth+'px;transform:rotate(2deg);';
+    document.body.appendChild(ghost);
+    card.classList.add('dragging');
+  }
+  ghost.style.left = e.clientX - 40 + 'px';
+  ghost.style.top = e.clientY - 20 + 'px';
+  // highlight column under pointer
+  document.querySelectorAll('.pcol').forEach(col=>{
+    const r=col.getBoundingClientRect();
+    col.classList.toggle('drop', e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
+  });
+});
+document.addEventListener('pointerup', e=>{
+  if(!dragId) return;
+  const dropCol = document.querySelector('.pcol.drop');
+  if(dropCol && ghost){
+    const col = dropCol.dataset.col;
+    if(col==='done') P.update(dragId, {done:true});
+    else P.update(dragId, {bucket:col, done:false});
+  }
+  if(ghost){ ghost.remove(); ghost=null; }
+  document.querySelectorAll('.pcol.drop').forEach(c=>c.classList.remove('drop'));
+  document.querySelectorAll('.pcard.dragging').forEach(c=>c.classList.remove('dragging'));
+  dragId = null;
+});
 </script>
 </body>
 </html>
