@@ -24,6 +24,8 @@
   .hrz-prog{height:6px;background:var(--greige);border-radius:999px;overflow:hidden;}
   .hrz-prog i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));transition:width .4s;}
   .hrz-pct{font-size:var(--fs-lg);font-weight:800;color:var(--muted);flex-shrink:0;}
+  .hrz-year{cursor:pointer;border:1px solid var(--line);transition:background .12s;}
+  .hrz-year:hover{background:var(--card);}
   .hrz-add{border:1px dashed var(--line);background:transparent;color:var(--muted);text-align:center;font-size:var(--fs-sm);font-weight:700;padding:13px;border-radius:16px;width:100%;cursor:pointer;font-family:inherit;margin-top:4px;}
 
   /* ── detail (tree) ── */
@@ -193,7 +195,6 @@ function renderList(){
 }
 function hrzCard(r){
   const pr=P.progress(r.id), pillVar=P.PILLAR_VAR[r.pillar]||'--muted';
-  const yr = (r.horizon!=='this' && r.horizon!=='someday') ? r.horizon : '';
   const card=document.createElement('div');
   card.className='hrz'; card.style.setProperty('--pill','var('+pillVar+')');
   card.onclick=()=>openHorizon(r.id);
@@ -201,7 +202,8 @@ function hrzCard(r){
     '<div class="hrz-main">'+
       '<div class="hrz-title">'+r.name+'</div>'+
       '<div class="hrz-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+r.pillar+'</span>'+
-        '<span class="chip">'+pr.done+' / '+pr.total+' steps</span>'+(yr?'<span class="chip">'+yr+'</span>':'')+'</div>'+
+        '<span class="chip">'+pr.done+' / '+pr.total+' steps</span>'+
+        '<span class="chip hrz-year" data-id="'+r.id+'" onclick="event.stopPropagation();cycleYear(this)">'+targetLabel(r.horizon)+'</span></div>'+
       '<div class="hrz-prog"><i style="width:'+Math.round(pr.pct*100)+'%"></i></div>'+
     '</div>'+
     '<div class="hrz-pct">'+Math.round(pr.pct*100)+'%</div>';
@@ -210,6 +212,12 @@ function hrzCard(r){
 function addHorizon(){
   const t=prompt('Name this horizon — a direction you\u2019re drawn to:');
   if(t&&t.trim()){ const id=P.addRoot(t.trim()); openHorizon(id); }
+}
+function cycleYear(chip){
+  const id=chip.dataset.id, root=P.byId(id); if(!root) return;
+  const i=TARGETS.indexOf(root.horizon);
+  const next=TARGETS[(i+1)%TARGETS.length];
+  P.setHorizon(id, next);
 }
 
 // ── DETAIL / tree view ──
