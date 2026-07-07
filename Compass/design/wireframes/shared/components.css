@@ -138,9 +138,12 @@
 .pcard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 13px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
 .pcard:active{transform:scale(.98);}
 .pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
-.pcard-title{font-size:var(--fs-sm);font-weight:700;line-height:1.35;color:var(--ink);}
+.pcard-title{font-size:var(--fs-sm);font-weight:700;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.pcard-parent{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pcard-parent b{color:var(--accent);font-weight:800;}
 .pcard-sub{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.4;}
 .pcard-meta{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:7px;}
+.pcard-date{font-size:9px;font-weight:600;color:var(--muted);margin-left:auto;}
 .chip{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:2px 7px;letter-spacing:.02em;}
 .chip .ic{font-size:10px;}
 /* Pillar chip — coloured dot + name; carries pillar identity on every card */
