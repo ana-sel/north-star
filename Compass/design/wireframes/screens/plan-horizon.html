@@ -100,6 +100,10 @@
   .node.suggested > .node-row > .name{color:var(--accent);font-style:italic;}
   .ai-flag{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 6px;flex-shrink:0;}
   .keepbtn{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:var(--accent-soft,#eef1ec);border:none;border-radius:999px;padding:3px 9px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+  /* Year filter */
+  .yr-filter{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .yr-filter label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
+  .yr-select{font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2365645F' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
 </style>
 </head>
 <body class="screen-body">
@@ -114,7 +118,10 @@
 
   <!-- ── LIST: horizons grouped by time ── -->
   <div id="list">
-    <p class="hint">A horizon is a direction you're drawn toward — it can shift as you go. Open one to break it down until each leaf is doable in a sitting.</p>
+    <div class="yr-filter">
+      <label>Show</label>
+      <select class="yr-select" id="yrFilter" onchange="renderList()"></select>
+    </div>
     <div id="bands"></div>
     <button class="hrz-add" onclick="addHorizon()">+ New horizon</button>
   </div>
@@ -169,28 +176,65 @@ let openId = null;
 
 // ── LIST view ──
 // Time band is auto-derived from the latest date in the tree
-function bandOf(rootId){ return P.timeBand(rootId); }
-function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b; }
-const BAND_ORDER = ['this','someday']; // computed bands; years are sorted in between
+function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b + ' Year'; }
+
+function buildYearOptions(){
+  const sel=document.getElementById('yrFilter');
+  const prev=sel.value;
+  // collect all years from dates across the whole forest
+  const years=new Set();
+  const curYear=new Date().getFullYear();
+  P.all().forEach(n=>{ if(n.date){ const y=parseInt(n.date.split('-')[0]); years.add(y); } });
+  years.add(curYear);
+  const sorted=[...years].sort();
+  sel.innerHTML='<option value="all">All</option>'+sorted.map(y=>'<option value="'+y+'">'+y+'</option>').join('');
+  sel.value = prev && [...sel.options].some(o=>o.value===prev) ? prev : 'all';
+}
+
 function renderList(){
+  buildYearOptions();
+  const filter=document.getElementById('yrFilter').value;
   const bandsEl = document.getElementById('bands');
-  const groups = {};
-  P.roots().forEach(r=>{ const b=bandOf(r.id); (groups[b]=groups[b]||[]).push(r); });
   bandsEl.innerHTML = '';
-  // sort bands: 'this' first, then numeric years, then 'someday'
+
+  let roots = P.roots();
+  if(filter!=='all'){
+    // filter: show only horizons whose latest date falls in the selected year, or undated (someday)
+    const yr=parseInt(filter);
+    roots = roots.filter(r=>{
+      const d=P.latestDate(r.id);
+      if(!d) return false; // undated only shows in "All"
+      return parseInt(d.split('-')[0])===yr;
+    });
+    // single band for the selected year
+    const active=roots.filter(r=>P.progress(r.id).pct<1);
+    const done=roots.filter(r=>{const p=P.progress(r.id);return p.total>0&&p.pct===1;});
+    if(active.length){
+      const h=document.createElement('div'); h.className='band'; h.textContent=filter+' Year'; bandsEl.appendChild(h);
+      active.forEach(r=>bandsEl.appendChild(hrzCard(r)));
+    }
+    if(done.length){
+      const h=document.createElement('div'); h.className='band'; h.textContent='Done'; bandsEl.appendChild(h);
+      done.forEach(r=>bandsEl.appendChild(hrzCard(r)));
+    }
+    if(!active.length&&!done.length){ bandsEl.innerHTML='<p style="color:var(--muted);font-size:var(--fs-sm);text-align:center;padding:20px">No horizons for '+filter+'</p>'; }
+    return;
+  }
+
+  // "All" mode: group by derived band
+  const groups = {};
+  roots.forEach(r=>{ const b=P.timeBand(r.id); (groups[b]=groups[b]||[]).push(r); });
   const bands = Object.keys(groups).sort((a,b)=>{
     if(a==='this') return -1; if(b==='this') return 1;
     if(a==='someday') return 1; if(b==='someday') return -1;
     return a.localeCompare(b);
   });
-  // active horizons by time band
   bands.forEach(band=>{
     const rs = (groups[band]||[]).filter(r=>P.progress(r.id).pct<1); if(!rs.length) return;
     const h=document.createElement('div'); h.className='band'; h.textContent=bandLabel(band); bandsEl.appendChild(h);
     rs.forEach(r=> bandsEl.appendChild(hrzCard(r)));
   });
-  // done horizons (100%)
-  const doneRoots = P.roots().filter(r=>{ const p=P.progress(r.id); return p.total>0 && p.pct===1; });
+  const doneRoots = roots.filter(r=>{ const p=P.progress(r.id); return p.total>0 && p.pct===1; });
   if(doneRoots.length){
     const h=document.createElement('div'); h.className='band'; h.textContent='Done'; bandsEl.appendChild(h);
     doneRoots.forEach(r=> bandsEl.appendChild(hrzCard(r)));
