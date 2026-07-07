@@ -96,6 +96,12 @@
   .nsheet-btn.send svg{color:var(--accent);}
   .nsheet-btn.danger{color:#b0574a;}
   .nsheet-btn.danger svg{color:#b0574a;}
+  /* Pillar picker (shared with Month) */
+  .sheet-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .sp-lbl{font-size:var(--fs-xs);font-weight:700;color:var(--muted);width:100%;margin-bottom:2px;}
+  .sp-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .sp-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--pc,var(--line));}
+  .sp-pill.sel{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 14%,transparent);color:var(--ink);}
   .node.suggested > .node-row{background:repeating-linear-gradient(135deg,transparent,transparent 6px,rgba(118,132,113,.05) 6px,rgba(118,132,113,.05) 12px);}
   .node.suggested > .node-row > .name{color:var(--accent);font-style:italic;}
   .ai-flag{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 6px;flex-shrink:0;}
@@ -359,20 +365,22 @@ function nodeEl(node){
 
 // ── Node action sheet (replaces inline icons) ──
 let sheetNode = null;
+let sheetHas = false;
+const PILLARS = ['health','inner','admin','family','joy','money','contrib'];
 function openNodeSheet(node, has){
-  sheetNode = node;
+  sheetNode = node; sheetHas = has;
   document.getElementById('nsheetTitle').textContent = node.name;
   const btns = document.getElementById('nsheetBtns');
-  // facts section (same layout as Month's edit sheet)
+  // facts (from / date / bucket)
   const root=P.rootOf(node.id);
-  let facts='<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
-  if(root&&root.id!==node.id) facts+='<div style="padding:10px 14px;font-size:var(--fs-xs);color:var(--accent);font-weight:700;border-bottom:1px solid var(--line);">\u21b3 from '+root.name+'</div>';
-  facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Pillar</span><span style="font-size:var(--fs-sm);font-weight:700;">'+node.pillar+'</span></div>';
-  facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Date</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(node.date?fmtDate(node.date):'No date')+'</span></div>';
-  if(node.bucket) facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Bucket</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(P.BUCKET_LABEL[node.bucket]||'\u2014')+'</span></div>';
-  else facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Bucket</span><span style="font-size:var(--fs-sm);font-weight:700;color:var(--muted);">Not on Month</span></div>';
-  facts+='</div>';
-  btns.innerHTML=facts;
+  let html='<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
+  if(root&&root.id!==node.id) html+='<div style="padding:10px 14px;font-size:var(--fs-xs);color:var(--accent);font-weight:700;border-bottom:1px solid var(--line);">\u21b3 from '+root.name+'</div>';
+  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Date</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(node.date?fmtDate(node.date):'No date')+'</span></div>';
+  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">On Month</span><span style="font-size:var(--fs-sm);font-weight:700;'+(node.bucket?'':'color:var(--muted);')+'">'+(node.bucket?P.BUCKET_LABEL[node.bucket]:'No')+'</span></div>';
+  html+='</div>';
+  // pillar picker
+  html+='<div class="sheet-pillars"><span class="sp-lbl">Pillar</span>'+PILLARS.map(p=>'<button class="sp-pill'+(p===node.pillar?' sel':'')+'" style="--pc:var('+P.PILLAR_VAR[p]+')" onclick="setNodePillar(\''+p+'\')">'+p+'</button>').join('')+'</div>';
+  btns.innerHTML=html;
   const mk = (svg, label, fn, cls) => {
     const b=document.createElement('button'); b.className='nsheet-btn'+(cls?' '+cls:'');
     b.innerHTML = svg + '<span>'+label+'</span>'; b.onclick=()=>{ fn(); closeNodeSheet(); };
@@ -387,6 +395,7 @@ function openNodeSheet(node, has){
   document.getElementById('nsheetBack').classList.add('open');
   document.getElementById('nsheet').classList.add('open');
 }
+function setNodePillar(p){ if(sheetNode){ P.update(sheetNode.id,{pillar:p}); openNodeSheet(sheetNode, sheetHas); } }
 function closeNodeSheet(){
   document.getElementById('nsheetBack').classList.remove('open');
   document.getElementById('nsheet').classList.remove('open');

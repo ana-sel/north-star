@@ -36,11 +36,21 @@
   .msheet-lbl{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
   .msheet-val{font-size:var(--fs-sm);font-weight:700;color:var(--ink);}
   .msheet-btns{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
-  .msheet-btn{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--ink);cursor:pointer;text-align:center;}
+  .msheet-btn{display:flex;align-items:center;gap:12px;width:100%;padding:15px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--ink);cursor:pointer;text-align:left;}
   .msheet-btn:active{background:var(--greige);}
-  .msheet-btn.accent{border-color:var(--accent);color:var(--accent);}
+  .msheet-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--muted);}
+  .msheet-btn.accent{color:var(--accent);}
+  .msheet-btn.accent svg{color:var(--accent);}
   .msheet-btn.done-btn{border-color:#b9cbb2;background:color-mix(in srgb,#6dab5e 10%,transparent);color:#4f8f43;}
-  .msheet-btn.danger{color:#b0574a;border-color:#e8ccc8;}
+  .msheet-btn.done-btn svg{color:#4f8f43;}
+  .msheet-btn.danger{color:#b0574a;}
+  .msheet-btn.danger svg{color:#b0574a;}
+  /* Pillar picker (shared with Horizon) */
+  .sheet-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .sp-lbl{font-size:var(--fs-xs);font-weight:700;color:var(--muted);width:100%;margin-bottom:2px;}
+  .sp-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .sp-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--pc,var(--line));}
+  .sp-pill.sel{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 14%,transparent);color:var(--ink);}
   /* FAB + add fields */
   .fab-add{position:fixed;bottom:20px;right:18px;z-index:30;padding:11px 18px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-sm);font-weight:700;box-shadow:0 4px 16px rgba(36,35,31,.25);cursor:pointer;}
   .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
@@ -105,6 +115,16 @@
 const P = window.PlanData;
 const COLS = ['backlog','month','week','today','done'];
 const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>';
+const PILLARS = ['health','inner','admin','family','joy','money','contrib'];
+const S = {
+  pencil:'<svg viewBox="0 0 24 24"><path d="M17 3l4 4L7 21H3v-4L17 3z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  spark:'<svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  move:'<svg viewBox="0 0 24 24"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l3 3M2 12h20"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>',
+  x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+};
 function fmtDate(d){ if(!d) return ''; const p=d.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return +p[2]+' '+months[+p[1]-1]; }
 
 function cardsFor(col){ return col==='done' ? P.doneCards() : P.scheduled(col); }
@@ -171,32 +191,37 @@ function render(){
 P.subscribe(render);
 render();
 
-// ── Edit sheet ──
+// ── Edit sheet (mirrors Horizon's action sheet) ──
+let editId = null;
 function openEdit(id){
   const n = P.byId(id); if(!n) return;
+  editId = id;
   const root = P.rootOf(id);
   document.getElementById('editTitle').textContent = n.name;
-  document.getElementById('editHorizon').textContent = root && root.id!==n.id ? '↳ from '+root.name : '';
+  document.getElementById('editHorizon').textContent = '';
   const rows = document.getElementById('editRows');
-  rows.innerHTML = '';
-  const addRow = (label, val) => { rows.innerHTML += '<div class="msheet-row"><span class="msheet-lbl">'+label+'</span><span class="msheet-val">'+val+'</span></div>'; };
-  addRow('Pillar', n.pillar || '—');
-  addRow('Date', n.date ? fmtDate(n.date) : 'No date');
-  addRow('Bucket', P.BUCKET_LABEL[n.bucket] || '—');
+  let html='<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
+  if(root&&root.id!==n.id) html+='<div style="padding:10px 14px;font-size:var(--fs-xs);color:var(--accent);font-weight:700;border-bottom:1px solid var(--line);">↳ from '+root.name+'</div>';
+  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Date</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(n.date?fmtDate(n.date):'No date')+'</span></div>';
+  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">On Month</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(n.bucket?P.BUCKET_LABEL[n.bucket]:'—')+'</span></div>';
+  html+='</div>';
+  html+='<div class="sheet-pillars"><span class="sp-lbl">Pillar</span>'+PILLARS.map(p=>'<button class="sp-pill'+(p===n.pillar?' sel':'')+'" style="--pc:var('+P.PILLAR_VAR[p]+')" onclick="setEditPillar(\''+p+'\')">'+p+'</button>').join('')+'</div>';
+  rows.innerHTML = html;
   const btns = document.getElementById('editBtns');
   btns.innerHTML = '';
-  const mk = (label, fn, cls) => { const b=document.createElement('button'); b.className='msheet-btn'+(cls?' '+cls:''); b.textContent=label; b.onclick=()=>{fn();closeEdit();}; btns.appendChild(b); };
-  // Same actions as Horizon's sheet
-  mk('Rename', ()=>{ const t=prompt('Rename:',n.name); if(t&&t.trim()) P.rename(id,t.trim()); });
-  mk('Set date', ()=>{ const d=prompt('Date (YYYY-MM-DD):',n.date||''); if(d!==null) P.update(id,{date:d||null}); });
-  // Move buttons
-  P.BUCKETS.filter(b=>b!==n.bucket).forEach(b=> mk('Move to '+P.BUCKET_LABEL[b], ()=>P.update(id,{bucket:b, done:false}), 'accent'));
-  if(!n.done) mk('Mark done', ()=>P.update(id,{done:true}), 'done-btn');
-  else mk('Unmark done', ()=>P.update(id,{done:false, bucket:'today'}));
-  mk('Remove', ()=>P.remove(id), 'danger');
+  const mk = (svg, label, fn, cls) => { const b=document.createElement('button'); b.className='msheet-btn'+(cls?' '+cls:''); b.innerHTML=svg+'<span>'+label+'</span>'; b.onclick=()=>{fn();closeEdit();}; btns.appendChild(b); };
+  mk(S.pencil, 'Rename', ()=>{ const t=prompt('Rename:',n.name); if(t&&t.trim()) P.rename(id,t.trim()); });
+  mk(S.plus, 'Add a step underneath', ()=>{ const t=prompt('New step:'); if(t&&t.trim()) P.addChild(id,t.trim(),{bucket:n.bucket}); });
+  mk(S.spark, 'Ask AI for a breakdown', ()=>{ ['First small step','Next step','Final step'].forEach(s=>P.addChild(id,s,{bucket:n.bucket,suggested:true})); });
+  mk(S.cal, n.date?'Change date ('+fmtDate(n.date)+')':'Set a date', ()=>{ const d=prompt('Date (YYYY-MM-DD):',n.date||''); if(d!==null) P.update(id,{date:d||null}); });
+  P.BUCKETS.filter(b=>b!==n.bucket).forEach(b=> mk(S.move, 'Move to '+P.BUCKET_LABEL[b], ()=>P.update(id,{bucket:b, done:false}), 'accent'));
+  if(!n.done) mk(S.check, 'Mark done', ()=>P.update(id,{done:true}), 'done-btn');
+  else mk(S.check, 'Unmark done', ()=>P.update(id,{done:false, bucket:'today'}));
+  mk(S.x, 'Remove', ()=>P.remove(id), 'danger');
   document.getElementById('msheetBack').classList.add('open');
   document.getElementById('msheet').classList.add('open');
 }
+function setEditPillar(p){ if(editId){ P.update(editId,{pillar:p}); openEdit(editId); } }
 function closeEdit(){
   document.getElementById('msheetBack').classList.remove('open');
   document.getElementById('msheet').classList.remove('open');
