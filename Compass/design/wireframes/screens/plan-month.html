@@ -10,385 +10,113 @@
 <link rel="stylesheet" href="../shared/components.css"/>
 <link rel="stylesheet" href="../shared/you.css"/>
 <style>
-/* Month at-a-glance summary */
-.mglance{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:15px 16px;margin-bottom:4px;box-shadow:var(--shadow-sm);}
-.mg-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
-.mg-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;}
-.mg-month{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;line-height:1;}
-.mg-pct{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;color:var(--olive);line-height:1;text-align:right;}
-.mg-done{font-size:9px;color:var(--muted);text-align:right;margin-top:5px;font-weight:600;}
-.mg-bar{height:8px;background:var(--greige);border-radius:999px;overflow:hidden;}
-.mg-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#8fae83,var(--olive));}
-.mg-pillars{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;}
-/* Task detail sheet */
-.tk-meta{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;}
-.tk-moves{display:flex;flex-wrap:wrap;gap:6px;}
-.tk-move{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);font-family:inherit;cursor:pointer;}
-.tk-move.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
-.tk-move:active{background:var(--greige);}
-.tk-done-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;padding:13px;border-radius:999px;border:1.5px solid #b9cbb2;background:color-mix(in srgb,#6dab5e 10%,transparent);font-family:inherit;font-size:var(--fs-md);font-weight:700;color:#4f8f43;cursor:pointer;}
-.tk-done-btn:active{background:color-mix(in srgb,#6dab5e 18%,transparent);}
-input.sheet-field[type=date]{appearance:none;-webkit-appearance:none;}
-/* Card long-press + parent link */
-.pcard{transition:transform .12s ease,box-shadow .12s ease;touch-action:pan-x pan-y;}
-.pcard.lifted{transform:scale(1.04);box-shadow:0 8px 22px rgba(0,0,0,.16);z-index:3;}
-.pcard-parent{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--muted);margin-bottom:4px;}
-.pcard-parent b{color:var(--accent);font-weight:800;}
-/* Move sheet */
-.move-what{font-size:var(--fs-sm);font-weight:700;color:var(--ink);margin:2px 0 10px;}
-.move-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
-.move-opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-md);font-weight:600;color:var(--ink);cursor:pointer;}
-.move-opt.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
-.move-opt:active{background:var(--greige);}
-.move-opt .move-here{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
-/* Break into steps */
-.sheet-inner{max-height:88vh;overflow-y:auto;}
-.brk-note{font-size:var(--fs-xs);color:var(--muted);margin:2px 0 9px;line-height:1.45;}
-.brk-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
-.brk-step{display:flex;align-items:center;gap:9px;background:var(--greige);border-radius:11px;padding:9px 12px;font-size:var(--fs-sm);font-weight:600;color:var(--ink);}
-.brk-num{flex:none;width:19px;height:19px;border-radius:999px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--muted);}
-.brk-x{margin-left:auto;color:var(--muted);cursor:pointer;font-weight:800;padding:0 2px;}
-.brk-add{display:flex;gap:8px;margin-bottom:10px;}
-.brk-add .sheet-field{margin:0;flex:1;}
-.brk-add button{flex:none;width:46px;border:1px solid var(--line);background:var(--card);border-radius:12px;font-size:20px;font-weight:500;color:var(--accent);cursor:pointer;font-family:inherit;}
-.brk-split{width:100%;padding:12px;border-radius:999px;border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--accent);font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;}
-.brk-split:disabled{opacity:.4;cursor:default;}
+  .mnote{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin:-2px 2px 14px;}
+  .pcol.drop{outline:2px dashed var(--accent);outline-offset:3px;border-radius:12px;}
+  .pcard{display:flex;gap:9px;align-items:flex-start;}
+  .pcard.dragging{opacity:.4;}
+  .pcard-ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;flex-shrink:0;cursor:pointer;margin-top:1px;transition:all .15s;}
+  .pcard-ck svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
+  .pcard.done .pcard-ck{background:var(--accent);border-color:var(--accent);}
+  .pcard.done .pcard-ck svg{opacity:1;}
+  .pcard-body{flex:1;min-width:0;}
+  .pcard-parent{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pcard-parent b{color:var(--accent);font-weight:800;}
+  .pcol-empty{font-size:var(--fs-xs);color:var(--muted);opacity:.55;text-align:center;padding:13px 6px;border:1px dashed var(--line);border-radius:12px;}
 </style>
 </head>
 <body class="screen-body">
 
   <div class="ylens">
-    <div class="ylens-badge"><i class="ic ic-list"></i></div>
+    <div class="ylens-badge"><i class="ic ic-route"></i></div>
     <div>
       <div class="ylens-title">Month</div>
-      <div class="ylens-sub">This month at a glance</div>
+      <div class="ylens-sub">The stretch you're walking now</div>
     </div>
   </div>
 
-  <!-- ── At-a-glance summary ── -->
-  <div class="mglance">
-    <div class="mg-row">
-      <div>
-        <div class="mg-label">In focus</div>
-        <div class="mg-month">June 2026</div>
-      </div>
-      <div>
-        <div class="mg-pct">22%</div>
-        <div class="mg-done">2 of 9 done</div>
-      </div>
-    </div>
-    <div class="mg-bar"><i style="width:22%"></i></div>
-    <div class="mg-pillars">
-      <span class="chip pillar" style="--pill:var(--p-admin)">Admin 3</span>
-      <span class="chip pillar" style="--pill:var(--p-health)">Health 3</span>
-      <span class="chip pillar" style="--pill:var(--p-money)">Money 1</span>
-      <span class="chip pillar" style="--pill:var(--p-inner)">Inner 1</span>
-      <span class="chip pillar" style="--pill:var(--p-family)">Family 1</span>
-    </div>
-  </div>
-
-  <div class="yhead">
-    <i class="ic ic-list yhead-ic"></i>
-    <div class="yhead-t">Month board</div>
-    <div class="yhead-rule"></div>
-  </div>
+  <p class="mnote">Steps you've sent here from your <b>Horizons</b>. Drag a card between columns, or tap its circle to complete it — it updates everywhere at once.</p>
 
   <div class="pboard-wrap">
-    <div class="pboard">
-      <div class="pcol" data-col="Backlog">
-        <div class="pcol-head">Backlog <span class="pcol-count">3</span></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-money)"><div class="pcard-title">Budget audit Q3</div><div class="pcard-meta"><span class="chip pillar">Money</span></div></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-admin)"><div class="pcard-title">Solicitor shortlist</div><div class="pcard-meta"><span class="chip pillar">Admin</span></div></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-inner)"><div class="pcard-title">Start meditation</div><div class="pcard-meta"><span class="chip pillar">Inner</span></div></div>
-      </div>
-      <div class="pcol" data-col="This month">
-        <div class="pcol-head">This month <span class="pcol-count">3</span></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-money)"><div class="pcard-title">Mortgage comparison</div><div class="pcard-meta"><span class="chip pillar">Money</span></div></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-admin)"><div class="pcard-title">View 3 plots</div><div class="pcard-meta"><span class="chip pillar">Admin</span></div></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-health)"><div class="pcard-title">Set sleep target</div><div class="pcard-meta"><span class="chip pillar">Health</span></div></div>
-      </div>
-      <div class="pcol" data-col="This week">
-        <div class="pcol-head">This week <span class="pcol-count">2</span></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-family)"><div class="pcard-title">Call Mum</div><div class="pcard-meta"><span class="chip pillar">Family</span></div></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-health)"><div class="pcard-title">Meal prep Sunday</div><div class="pcard-meta"><span class="chip pillar">Health</span></div></div>
-      </div>
-      <div class="pcol" data-col="Today">
-        <div class="pcol-head is-now">Today <span class="pcol-count">2</span></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-admin)"><div class="pcard-title">Research mortgages</div><div class="pcard-meta"><span class="chip pillar">Admin</span></div></div>
-        <div class="pcard" onclick="openTask(this)" style="--pill:var(--p-inner)"><div class="pcard-title">Read chapter 3</div><div class="pcard-meta"><span class="chip pillar">Inner</span></div></div>
-      </div>
-      <div class="pcol" data-col="Done">
-        <div class="pcol-head">Done <span class="pcol-count">2</span></div>
-        <div class="pcard done" onclick="openTask(this)" style="--pill:var(--p-health)"><div class="pcard-title">Book dentist</div><div class="pcard-meta"><span class="chip pillar">Health</span></div></div>
-        <div class="pcard done" onclick="openTask(this)" style="--pill:var(--p-admin)"><div class="pcard-title">Update CV</div><div class="pcard-meta"><span class="chip pillar">Admin</span></div></div>
-      </div>
-    </div>
+    <div class="pboard" id="board"></div>
   </div>
 
-  <!-- ══════════ TASK DETAIL SHEET ══════════ -->
-  <div class="sheet" id="taskSheet">
-    <div class="sheet-inner">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">Edit task</div>
-
-      <div class="sheet-label">Title</div>
-      <input class="sheet-field" id="tkTitle" value="Task"/>
-
-      <div class="sheet-label">Pillar</div>
-      <div class="pill-pick" id="tkPillars">
-        <span class="pp" data-p="Health"  onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-health)"></span>Health</span>
-        <span class="pp" data-p="Inner"   onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-inner)"></span>Inner</span>
-        <span class="pp" data-p="Admin"   onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-admin)"></span>Admin</span>
-        <span class="pp" data-p="Family"  onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-family)"></span>Family</span>
-        <span class="pp" data-p="Joy"     onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-joy)"></span>Joy</span>
-        <span class="pp" data-p="Money"   onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-money)"></span>Money</span>
-        <span class="pp" data-p="Contrib" onclick="pickTkPillar(this)"><span class="ppd" style="background:var(--p-contrib)"></span>Contrib</span>
-      </div>
-
-      <div class="sheet-label">Due date</div>
-      <input class="sheet-field" id="tkDate" type="date"/>
-
-      <div class="sheet-label">Bucket</div>
-      <div class="tk-moves">
-        <button class="tk-move" data-b="Backlog"    onclick="pickMove(this)">Backlog</button>
-        <button class="tk-move" data-b="This month" onclick="pickMove(this)">This month</button>
-        <button class="tk-move" data-b="This week"  onclick="pickMove(this)">This week</button>
-        <button class="tk-move" data-b="Today"      onclick="pickMove(this)">Today</button>
-      </div>
-
-      <div class="sheet-label">Break into steps</div>
-      <div class="brk-note">Split this into smaller cards. The original name stays as a link on each, so later you can see what it grew from.</div>
-      <div class="brk-steps" id="brkSteps"></div>
-      <div class="brk-add">
-        <input class="sheet-field" id="brkInput" placeholder="Add a step…"/>
-        <button onclick="addStep()">+</button>
-      </div>
-      <button class="brk-split" id="brkSplit" onclick="splitCard()" disabled>Split into cards</button>
-
-      <div class="sheet-btns">
-        <button class="sheet-btn ghost" onclick="closeTask()">Cancel</button>
-        <button class="sheet-btn" onclick="saveTask()">Save</button>
-      </div>
-      <button class="tk-done-btn" id="tkDone" onclick="markDone()">Mark done</button>
-    </div>
-  </div>
-
-  <!-- ══════════ MOVE SHEET (long-press) ══════════ -->
-  <div class="sheet" id="moveSheet">
-    <div class="sheet-inner">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">Move card</div>
-      <div class="move-what" id="moveWhat">—</div>
-      <div class="move-list">
-        <button class="move-opt" data-c="Backlog"    onclick="doMove(this)">Backlog</button>
-        <button class="move-opt" data-c="This month" onclick="doMove(this)">This month</button>
-        <button class="move-opt" data-c="This week"  onclick="doMove(this)">This week</button>
-        <button class="move-opt" data-c="Today"      onclick="doMove(this)">Today</button>
-        <button class="move-opt" data-c="Done"       onclick="doMove(this)">Done</button>
-      </div>
-      <div class="sheet-btns">
-        <button class="sheet-btn ghost" onclick="closeMove()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
+<script src="../shared/plan-data.js"></script>
 <script>
-const taskSheet = document.getElementById('taskSheet');
-const moveSheet = document.getElementById('moveSheet');
-const PMAP = {Health:'--p-health',Inner:'--p-inner',Admin:'--p-admin',Family:'--p-family',Joy:'--p-joy',Money:'--p-money',Contrib:'--p-contrib'};
-let currentCard = null;   // card open in the edit sheet
-let brkList = [];         // pending break steps
+const P = window.PlanData;
+const COLS = ['backlog','month','week','today','done'];
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>';
 
-// ── Edit sheet ──
-function openTask(card){
-  if(suppressClick){ suppressClick = false; return; }   // long-press already handled it
-  currentCard = card;
-  const title  = card.querySelector('.pcard-title').textContent;
-  const chip   = card.querySelector('.chip.pillar');
-  const pillar = chip ? chip.textContent.trim() : '';
-  const bucket = card.closest('.pcol').dataset.col;
-  document.getElementById('tkTitle').value = title;
-  document.querySelectorAll('#tkPillars .pp').forEach(p => p.classList.toggle('sel', p.dataset.p === pillar));
-  document.getElementById('tkDate').value = card.dataset.date || '';
-  document.querySelectorAll('.tk-move').forEach(b => b.classList.toggle('on', b.dataset.b === bucket));
-  document.getElementById('tkDone').textContent = card.classList.contains('done') ? 'Mark not done' : 'Mark done';
-  brkList = []; renderSteps();
-  taskSheet.classList.add('open');
-}
-function closeTask(){ taskSheet.classList.remove('open'); }
-function pickMove(btn){
-  document.querySelectorAll('.tk-move').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-}
-function pickTkPillar(el){
-  el.parentElement.querySelectorAll('.pp').forEach(p => p.classList.remove('sel'));
-  el.classList.add('sel');
-}
-function saveTask(){
-  if(currentCard){
-    const t = document.getElementById('tkTitle').value.trim();
-    if(t) currentCard.querySelector('.pcard-title').textContent = t;
-    const selP = document.querySelector('#tkPillars .pp.sel');
-    if(selP){
-      currentCard.style.setProperty('--pill', 'var(' + PMAP[selP.dataset.p] + ')');
-      const chip = currentCard.querySelector('.chip.pillar');
-      if(chip) chip.textContent = selP.dataset.p;
-    }
-    currentCard.dataset.date = document.getElementById('tkDate').value || '';
-    const selB = document.querySelector('.tk-move.on');
-    if(selB){
-      const target = document.querySelector('.pcol[data-col="' + selB.dataset.b + '"]');
-      if(target && currentCard.closest('.pcol') !== target){
-        target.appendChild(currentCard);
-        currentCard.classList.toggle('done', selB.dataset.b === 'Done');
-      }
-    }
-    recount();
-  }
-  closeTask();
-}
-function markDone(){
-  if(currentCard){
-    if(currentCard.classList.contains('done')){
-      currentCard.classList.remove('done');
-    } else {
-      currentCard.classList.add('done');
-      document.querySelector('.pcol[data-col="Done"]').appendChild(currentCard);
-    }
-    recount();
-  }
-  closeTask();
-}
+function cardsFor(col){ return col==='done' ? P.doneCards() : P.scheduled(col); }
 
-// ── Break into steps ──
-function addStep(){
-  const inp = document.getElementById('brkInput');
-  const v = inp.value.trim();
-  if(!v) return;
-  brkList.push(v); inp.value = ''; inp.focus();
-  renderSteps();
-}
-function removeStep(i){ brkList.splice(i,1); renderSteps(); }
-function renderSteps(){
-  const wrap = document.getElementById('brkSteps');
-  wrap.innerHTML = '';
-  brkList.forEach((s,i) => {
-    const row = document.createElement('div');
-    row.className = 'brk-step';
-    row.innerHTML = '<span class="brk-num">' + (i+1) + '</span>' + s +
-      '<span class="brk-x" onclick="removeStep(' + i + ')">\u00d7</span>';
-    wrap.appendChild(row);
-  });
-  document.getElementById('brkSplit').disabled = brkList.length < 2;
-  document.getElementById('brkSplit').textContent =
-    brkList.length ? 'Split into ' + brkList.length + ' cards' : 'Split into cards';
-}
-function splitCard(){
-  if(!currentCard || brkList.length < 2) return;
-  const col        = currentCard.closest('.pcol');
-  const pill       = currentCard.style.getPropertyValue('--pill');
-  const pchip      = currentCard.querySelector('.chip.pillar');
-  const pillTxt    = pchip ? pchip.textContent.trim() : '';
-  const parentName = currentCard.querySelector('.pcard-title').textContent.trim();
-  const done       = currentCard.classList.contains('done');
-  const frag = document.createDocumentFragment();
-  brkList.forEach(step => {
-    const c = document.createElement('div');
-    c.className = 'pcard child' + (done ? ' done' : '');
-    c.setAttribute('onclick', 'openTask(this)');
-    c.style.setProperty('--pill', pill);
-    c.dataset.parent = parentName;
-    c.innerHTML =
-      '<div class="pcard-parent">\u21b3 <b>' + parentName + '</b></div>' +
-      '<div class="pcard-title">' + step + '</div>' +
-      '<div class="pcard-meta"><span class="chip pillar">' + pillTxt + '</span></div>';
-    frag.appendChild(c);
-  });
-  currentCard.replaceWith(frag);
-  currentCard = null; brkList = []; renderSteps();
-  recount(); closeTask();
-}
-document.getElementById('brkInput').addEventListener('keydown', e => {
-  if(e.key === 'Enter'){ e.preventDefault(); addStep(); }
-});
+function render(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLS.forEach(col=>{
+    const cards = cardsFor(col);
+    const colEl = document.createElement('div');
+    colEl.className = 'pcol'; colEl.dataset.col = col;
+    const isNow = col==='today';
+    colEl.innerHTML = '<div class="pcol-head'+(isNow?' is-now':'')+'">'+P.BUCKET_LABEL[col]+
+      ' <span class="pcol-count">'+cards.length+'</span></div>';
 
-// ── Long-press → move sheet ──
-const board = document.querySelector('.pboard');
-let lpTimer = null, lpCard = null, suppressClick = false, startX = 0, startY = 0;
-board.addEventListener('pointerdown', e => {
-  const card = e.target.closest('.pcard');
-  if(!card) return;
-  lpCard = card; startX = e.clientX; startY = e.clientY;
-  lpTimer = setTimeout(() => {
-    suppressClick = true;
-    if(navigator.vibrate) navigator.vibrate(15);
-    openMove(card);
-  }, 480);
-});
-board.addEventListener('pointermove', e => {
-  if(lpTimer && (Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8)) cancelLp();
-});
-board.addEventListener('pointerup', cancelLp);
-board.addEventListener('pointercancel', cancelLp);
-function cancelLp(){ clearTimeout(lpTimer); lpTimer = null; }
-function openMove(card){
-  lpCard = card;
-  card.classList.add('lifted');
-  document.getElementById('moveWhat').textContent = card.querySelector('.pcard-title').textContent.trim();
-  const here = card.closest('.pcol').dataset.col;
-  document.querySelectorAll('.move-opt').forEach(o => {
-    const on = o.dataset.c === here;
-    o.classList.toggle('on', on);
-    o.querySelector('.move-here')?.remove();
-    if(on){ const t = document.createElement('span'); t.className = 'move-here'; t.textContent = 'here now'; o.appendChild(t); }
-  });
-  moveSheet.classList.add('open');
-}
-function closeMove(){
-  moveSheet.classList.remove('open');
-  if(lpCard){ lpCard.classList.remove('lifted'); }
-}
-function doMove(btn){
-  const target = document.querySelector('.pcol[data-col="' + btn.dataset.c + '"]');
-  if(lpCard && target){
-    target.appendChild(lpCard);
-    lpCard.classList.toggle('done', btn.dataset.c === 'Done');
-    recount();
-  }
-  closeMove();
-}
-
-// ── Recount columns + glance summary ──
-function recount(){
-  const pc = {}; let committed = 0, done = 0;
-  document.querySelectorAll('.pcol').forEach(col => {
-    const name  = col.dataset.col;
-    const cards = col.querySelectorAll('.pcard');
-    col.querySelector('.pcol-count').textContent = cards.length;
-    if(name === 'Backlog') return;   // backlog excluded from "in focus" totals
-    cards.forEach(c => {
-      committed++;
-      if(name === 'Done' || c.classList.contains('done')) done++;
-      const chip = c.querySelector('.chip.pillar');
-      if(chip){ const k = chip.textContent.trim(); if(k) pc[k] = (pc[k]||0) + 1; }
+    cards.forEach(n=>{
+      const root = P.rootOf(n.id);
+      const pillVar = P.PILLAR_VAR[n.pillar]||'--muted';
+      const card = document.createElement('div');
+      card.className = 'pcard'+(n.done?' done':'');
+      card.draggable = true; card.dataset.id = n.id;
+      card.style.setProperty('--pill','var('+pillVar+')');
+      card.innerHTML =
+        '<div class="pcard-ck">'+CHECK+'</div>'+
+        '<div class="pcard-body">'+
+          (root && root.id!==n.id ? '<div class="pcard-parent">\u21b3 <b>'+root.name+'</b></div>' : '')+
+          '<div class="pcard-title">'+n.name+'</div>'+
+          '<div class="pcard-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+n.pillar+'</span></div>'+
+        '</div>';
+      card.querySelector('.pcard-ck').onclick = e=>{ e.stopPropagation(); P.toggleDone(n.id); };
+      // tap card → move between columns via prompt (mobile-friendly)
+      card.onclick = ()=>{
+        const choices = P.BUCKETS.filter(b=>b!==n.bucket).concat(n.done?[]:['done']);
+        const labels = choices.map(b=>P.BUCKET_LABEL[b]||b);
+        const pick = prompt('Move "'+n.name+'" to:\n'+labels.map((l,i)=>(i+1)+'. '+l).join('\n'));
+        const idx = parseInt(pick)-1;
+        if(idx>=0 && idx<choices.length){
+          const dest=choices[idx];
+          if(dest==='done') P.update(n.id,{done:true});
+          else P.update(n.id,{bucket:dest, done:false});
+        }
+      };
+      card.addEventListener('dragstart', e=>{ card.classList.add('dragging'); e.dataTransfer.setData('text/plain', n.id); });
+      card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+      colEl.appendChild(card);
     });
-  });
-  const pct = committed ? Math.round(done/committed*100) : 0;
-  document.querySelector('.mg-pct').textContent  = pct + '%';
-  document.querySelector('.mg-done').textContent = done + ' of ' + committed + ' done';
-  document.querySelector('.mg-bar i').style.width = pct + '%';
-  const wrap = document.querySelector('.mg-pillars'); wrap.innerHTML = '';
-  Object.entries(pc).sort((a,b) => b[1]-a[1]).forEach(([k,v]) => {
-    const s = document.createElement('span');
-    s.className = 'chip pillar';
-    s.style.setProperty('--pill', 'var(' + (PMAP[k] || '--p-admin') + ')');
-    s.textContent = k + ' ' + v;
-    wrap.appendChild(s);
+
+    if(!cards.length){ const e=document.createElement('div'); e.className='pcol-empty'; e.textContent='—'; colEl.appendChild(e); }
+
+    // "Clear done" — removes from board but stays done in Horizon tree
+    if(col==='done' && cards.length){
+      const clr = document.createElement('button');
+      clr.className = 'pcol-empty';
+      clr.style.cssText = 'cursor:pointer;color:var(--accent);border-color:var(--accent);font-weight:700;';
+      clr.textContent = 'Clear — stays done in Horizon';
+      clr.onclick = ()=>{ cards.forEach(n=> P.update(n.id,{bucket:null})); };
+      colEl.appendChild(clr);
+    }
+
+    colEl.addEventListener('dragover', e=>{ e.preventDefault(); colEl.classList.add('drop'); });
+    colEl.addEventListener('dragleave', ()=> colEl.classList.remove('drop'));
+    colEl.addEventListener('drop', e=>{
+      e.preventDefault(); colEl.classList.remove('drop');
+      const id = e.dataTransfer.getData('text/plain'); if(!id) return;
+      if(col==='done') P.update(id,{done:true});
+      else P.update(id,{bucket:col, done:false});
+    });
+    board.appendChild(colEl);
   });
 }
 
-taskSheet.addEventListener('click', e => { if(e.target === taskSheet) closeTask(); });
-moveSheet.addEventListener('click', e => { if(e.target === moveSheet) closeMove(); });
+P.subscribe(render);
+render();
 </script>
 </body>
 </html>
