@@ -135,9 +135,9 @@
 .pcol-head.is-now .pcol-count{background:var(--accent-soft);color:var(--accent);}
 
 /* Rich task / goal card — pillar rail, title, meta chips */
-.pcard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 13px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
+.pcard{position:relative;background:color-mix(in srgb, var(--pill,var(--card)) 6%, var(--card));border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 15px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
 .pcard:active{transform:scale(.98);}
-.pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
+.pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:3px 0 0 3px;background:var(--pill,var(--line));}
 .pcard-title{font-size:var(--fs-sm);font-weight:700;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .pcard-parent{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pcard-parent b{color:var(--accent);font-weight:800;}
