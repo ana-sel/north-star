@@ -86,11 +86,15 @@
 .exp-name{font-size:var(--fs-md);font-weight:600;}
 .exp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
 .exp-cat-tag{display:inline-block;font-size:var(--fs-xs);font-weight:700;padding:2px 8px;border-radius:999px;margin-top:4px;background:var(--greige);color:var(--muted);}
-.exp-rate{display:flex;gap:5px;flex-shrink:0;}
-.exp-btn{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:transparent;display:grid;place-items:center;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;color:var(--muted);}
-.exp-btn.boost{border-color:#6dab5e;background:color-mix(in srgb,#6dab5e 16%,transparent);color:#4f8f43;}
-.exp-btn.neut{border-color:#c3bdb2;background:var(--greige);color:var(--ink);}
-.exp-btn.drain{border-color:#c67b6b;background:color-mix(in srgb,#c67b6b 16%,transparent);color:#b0574a;}
+.exp-rate{display:flex;gap:7px;flex-shrink:0;}
+.exp-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;font-family:inherit;transition:all .15s;}
+.exp-btn svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.exp-btn.boost{border-color:var(--accent);background:var(--accent-soft,#eef1ec);}
+.exp-btn.boost svg{stroke:var(--accent);}
+.exp-btn.neut{border-color:#c3bdb2;background:var(--greige);}
+.exp-btn.neut svg{stroke:var(--ink);}
+.exp-btn.drain{border-color:#c67b6b;background:#fdf2f0;}
+.exp-btn.drain svg{stroke:#b0574a;}
 
 /* Patterns footer */
 .patterns-link{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-card);padding:13px 16px;margin-top:12px;cursor:pointer;box-shadow:var(--shadow-sm);}
@@ -586,6 +590,17 @@ function rateExp(btn, type){
   group.querySelectorAll('.exp-btn').forEach(b=>b.className='exp-btn');
   btn.classList.add(type);
 }
+
+// Replace text arrows with SVG icons
+const SVG_UP='<svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>';
+const SVG_DASH='<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>';
+const SVG_DOWN='<svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>';
+document.querySelectorAll('.exp-btn').forEach(btn=>{
+  const t=btn.textContent.trim();
+  if(t==='↑') btn.innerHTML=SVG_UP;
+  else if(t==='—') btn.innerHTML=SVG_DASH;
+  else if(t==='↓') btn.innerHTML=SVG_DOWN;
+});
 
 function saveSection(id){
   const row = document.getElementById(id);
