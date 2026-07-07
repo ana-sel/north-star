@@ -14,19 +14,23 @@
   .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 8px;display:flex;align-items:center;gap:8px;}
   .band::after{content:'';flex:1;height:1px;background:var(--line);}
 
-  /* ── horizon card (dark style — unified with detail) ── */
-  .hrz{background:linear-gradient(135deg,#2f3a34,#3d4a41);color:#f4f2ec;border-radius:18px;padding:16px 16px 14px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;}
+  /* ── horizon card (clean: ring + branches, minimal meta) ── */
+  .hrz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;position:relative;}
   .hrz:active{transform:scale(.99);}
-  .hrz-main{min-width:0;}
+  .hrz::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:3px 0 0 3px;background:var(--pill,var(--line));}
+  .hrz-top{display:flex;align-items:center;gap:12px;}
+  .hrz-ring{width:38px;height:38px;flex-shrink:0;position:relative;}
+  .hrz-ring svg{transform:rotate(-90deg);} .hrz-ring .tk{stroke:var(--line);} .hrz-ring .fl{stroke:var(--pill,var(--accent));}
+  .hrz-ring.full .fl{stroke:#6d9e5c;}
+  .hrz-ring-pct{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:800;color:var(--muted);}
+  .hrz-main{flex:1;min-width:0;}
   .hrz-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
-  .hrz-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0 10px;}
-  .hrz-meta .chip{background:rgba(255,255,255,.14);color:#d4dcc9;border:none;}
-  .hrz-meta .chip.pillar{color:#d4dcc9;}
-  .hrz-meta .chip.pillar::before{background:var(--pill,#999);}
-  .hrz-prog{height:6px;background:rgba(255,255,255,.16);border-radius:999px;overflow:hidden;}
-  .hrz-prog i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#9db98e,#c7d8b6);transition:width .4s;}
-  .hrz-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;}
-  .hrz-pct{font-size:var(--fs-sm);font-weight:800;color:#c9d3bf;}
+  .hrz-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+  .hrz-branches{margin:10px 0 0 4px;border-left:1.5px solid var(--line);padding-left:11px;display:flex;flex-direction:column;gap:7px;}
+  .hrz-br{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-sm);}
+  .hrz-br-name{font-weight:600;color:var(--ink);}
+  .hrz-br.done .hrz-br-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .hrz-br-ct{font-size:9px;font-weight:700;color:var(--muted);}
   .hrz-add{border:1px dashed var(--line);background:transparent;color:var(--muted);text-align:center;font-size:var(--fs-sm);font-weight:700;padding:13px;border-radius:16px;width:100%;cursor:pointer;font-family:inherit;margin-top:4px;}
 
   /* ── detail (tree) ── */
@@ -126,11 +130,6 @@
       <div class="dream-meta"><span id="dreamCount"></span><b id="dreamPct"></b></div>
       <div class="dream-real">🌟 You've arrived.</div>
     </div>
-    <div class="legend">
-      <span><b style="color:var(--accent)">+</b> add step</span>
-      <span>✨ ask AI</span>
-      <span>→ send to Month</span>
-    </div>
     <div class="tree" id="tree"></div>
   </div>
 
@@ -199,20 +198,34 @@ function renderList(){
 }
 function hrzCard(r){
   const pr=P.progress(r.id), pillVar=P.PILLAR_VAR[r.pillar]||'--muted';
-  const band=P.timeBand(r.id), latest=P.latestDate(r.id);
+  const latest=P.latestDate(r.id);
+  const R=15, C=2*Math.PI*R, off=C*(1-pr.pct);
   const card=document.createElement('div');
   card.className='hrz'; card.style.setProperty('--pill','var('+pillVar+')');
   card.onclick=()=>openHorizon(r.id);
-  card.innerHTML =
-    '<div class="hrz-main">'+
-      '<div class="hrz-title">'+r.name+'</div>'+
-      '<div class="hrz-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+r.pillar+'</span>'+
-        '<span class="chip">'+pr.done+' / '+pr.total+' steps</span>'+
-        (latest ? '<span class="chip">by '+fmtDate(latest)+'</span>' : '<span class="chip">no dates yet</span>')+
+  let html =
+    '<div class="hrz-top">'+
+      '<div class="hrz-ring'+(pr.pct===1?' full':'')+'">'+
+        '<svg width="38" height="38" viewBox="0 0 38 38"><circle class="tk" cx="19" cy="19" r="'+R+'" fill="none" stroke-width="3"/><circle class="fl" cx="19" cy="19" r="'+R+'" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>'+
+        '<div class="hrz-ring-pct">'+Math.round(pr.pct*100)+'%</div>'+
       '</div>'+
-      '<div class="hrz-prog"><i style="width:'+Math.round(pr.pct*100)+'%"></i></div>'+
-      '<div class="hrz-foot"><span class="hrz-pct">'+Math.round(pr.pct*100)+'%</span></div>'+
+      '<div class="hrz-main">'+
+        '<div class="hrz-title">'+r.name+'</div>'+
+        '<div class="hrz-sub">'+r.pillar+(latest?' · by '+fmtDate(latest):' · no dates yet')+' · '+pr.done+'/'+pr.total+' done</div>'+
+      '</div>'+
     '</div>';
+  // show immediate branches
+  const kids=P.children(r.id);
+  if(kids.length){
+    html+='<div class="hrz-branches">';
+    kids.forEach(k=>{
+      const kp=P.progress(k.id), isLeaf=P.children(k.id).length===0;
+      const done=isLeaf?k.done:(kp.pct===1&&kp.total>0);
+      html+='<div class="hrz-br'+(done?' done':'')+'"><span class="hrz-br-name">'+k.name+'</span><span class="hrz-br-ct">'+(isLeaf?(done?'done':'—'):kp.done+'/'+kp.total)+'</span></div>';
+    });
+    html+='</div>';
+  }
+  card.innerHTML=html;
   return card;
 }
 function addHorizon(){

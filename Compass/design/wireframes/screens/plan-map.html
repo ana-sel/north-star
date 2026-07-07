@@ -19,28 +19,6 @@
   .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 9px;display:flex;align-items:center;gap:8px;}
   .band::after{content:'';flex:1;height:1px;background:var(--line);}
 
-  /* a horizon on the map = a small rooted tree (root + immediate branches) */
-  .hnode{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
-  .hnode::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pill,var(--line));}
-  .hnode-top{display:flex;align-items:center;gap:11px;}
-  .ring{width:34px;height:34px;flex-shrink:0;position:relative;}
-  .ring svg{transform:rotate(-90deg);} .ring .tk{stroke:var(--line);} .ring .fl{stroke:var(--pill,var(--accent));}
-  .ring.full .fl{stroke:#6d9e5c;}
-  .ring-pct{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:800;color:var(--muted);}
-  .hnode-main{flex:1;min-width:0;}
-  .hnode-name{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
-  .hnode-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px;}
-  .hnode-when{font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:2px 8px;}
-  /* branches */
-  .branches{margin:11px 0 0 6px;border-left:1.5px solid var(--line);padding-left:12px;display:flex;flex-direction:column;gap:9px;}
-  .branch{position:relative;}
-  .branch::before{content:'';position:absolute;left:-12px;top:11px;width:10px;height:1.5px;background:var(--line);}
-  .branch-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:var(--fs-sm);}
-  .branch-name{font-weight:600;color:var(--ink);min-width:0;overflow-wrap:anywhere;}
-  .branch.done .branch-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
-  .branch-ct{font-size:9px;font-weight:700;color:var(--muted);flex-shrink:0;}
-  .branch-bar{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;margin-top:5px;}
-  .branch-bar i{display:block;height:100%;border-radius:999px;background:var(--pill,var(--accent));transition:width .4s;}
   .map-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin:-2px 2px 14px;}
   /* Toggle */
   .map-toggle{display:flex;background:var(--greige);border-radius:12px;padding:3px;gap:2px;margin-bottom:14px;}
@@ -75,83 +53,29 @@
     <div class="mission-sub">Every horizon below points back here.</div>
   </div>
 
-  <p class="map-note">One glance at the whole forest — every horizon and how far along it is. It moves the moment you complete anything, anywhere.</p>
+  <p class="map-note">The whole forest as a visual graph — every horizon and how it connects. Moves the moment you complete anything, anywhere.</p>
 
   <div class="map-toggle">
-    <button class="on" onclick="setView('list')">List</button>
-    <button onclick="setView('graph')">Graph</button>
+    <button class="on" onclick="setView('graph')">Graph</button>
+    <button onclick="setView('3d')">3D</button>
   </div>
 
-  <div id="forest"></div>
-  <div id="graphWrap"><svg id="graphSvg" class="g-svg"></svg></div>
+  <div id="graphWrap" class="show"><svg id="graphSvg" class="g-svg"></svg></div>
+  <div id="view3d" style="display:none;text-align:center;padding:40px 20px;color:var(--muted);font-size:var(--fs-sm);">3D forest view — coming soon.<br/>Imagine walking through your horizons as trees in a landscape.</div>
 
 <script src="../shared/plan-data.js"></script>
 <script>
 const P = window.PlanData;
-function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b; }
-function whenLabel(b){ return bandLabel(b); }
 
-function ring(pct, size){
-  const R=(size/2)-3, C=2*Math.PI*R, off=C*(1-pct);
-  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+
-    '<circle class="tk" cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+R+'" fill="none" stroke-width="3"/>'+
-    '<circle class="fl" cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+R.toFixed(1)+'" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>';
-}
-
-function render(){
-  const forest = document.getElementById('forest');
-  forest.innerHTML = '';
-  const groups = {};
-  P.roots().forEach(r=>{ const b=P.timeBand(r.id); (groups[b]=groups[b]||[]).push(r); });
-  // sort bands: 'this' first, then numeric years, then 'someday'
-  const bands = Object.keys(groups).sort((a,b)=>{
-    if(a==='this') return -1; if(b==='this') return 1;
-    if(a==='someday') return 1; if(b==='someday') return -1;
-    return a.localeCompare(b);
-  });
-  bands.forEach(band=>{
-    const rs = groups[band]; if(!rs || !rs.length) return;
-    const h=document.createElement('div'); h.className='band'; h.textContent=bandLabel(band); forest.appendChild(h);
-    rs.forEach(root=>{
-      const pr=P.progress(root.id), pillVar=P.PILLAR_VAR[root.pillar]||'--muted';
-      const node=document.createElement('div');
-      node.className='hnode'; node.style.setProperty('--pill','var('+pillVar+')');
-      let html = '<div class="hnode-top">'+
-        '<div class="ring'+(pr.pct===1?' full':'')+'">'+ring(pr.pct,34)+'<div class="ring-pct">'+Math.round(pr.pct*100)+'%</div></div>'+
-        '<div class="hnode-main"><div class="hnode-name">'+root.name+'</div>'+
-          '<div class="hnode-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+root.pillar+'</span>'+
-          '<span class="hnode-when">'+whenLabel(P.timeBand(root.id))+'</span>'+
-          '<span class="chip">'+pr.done+' / '+pr.total+' done</span></div>'+
-        '</div></div>';
-      const kids = P.children(root.id);
-      if(kids.length){
-        html += '<div class="branches">';
-        kids.forEach(k=>{
-          const kp=P.progress(k.id), isLeaf=P.children(k.id).length===0;
-          const done = isLeaf ? k.done : (kp.pct===1 && kp.total>0);
-          html += '<div class="branch'+(done?' done':'')+'"><div class="branch-row">'+
-            '<span class="branch-name">'+k.name+'</span>'+
-            '<span class="branch-ct">'+(isLeaf ? (done?'done':'—') : kp.done+'/'+kp.total)+'</span></div>'+
-            (isLeaf ? '' : '<div class="branch-bar"><i style="width:'+Math.round(kp.pct*100)+'%"></i></div>')+
-          '</div>';
-        });
-        html += '</div>';
-      }
-      node.innerHTML = html;
-      forest.appendChild(node);
-    });
-  });
-}
-P.subscribe(()=>{ render(); renderGraph(); });
-render();
+P.subscribe(()=>{ renderGraph(); });
 renderGraph();
 
-let currentView='list';
+let currentView='graph';
 function setView(v){
   currentView=v;
   document.querySelectorAll('.map-toggle button').forEach(b=>b.classList.toggle('on', b.textContent.toLowerCase()===v));
-  document.getElementById('forest').classList.toggle('hide', v==='graph');
   document.getElementById('graphWrap').classList.toggle('show', v==='graph');
+  document.getElementById('view3d').style.display = v==='3d' ? 'block' : 'none';
 }
 
 // ── Visual graph (SVG tree diagram) ──
