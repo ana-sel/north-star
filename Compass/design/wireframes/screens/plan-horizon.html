@@ -100,10 +100,10 @@
   .node.suggested > .node-row > .name{color:var(--accent);font-style:italic;}
   .ai-flag{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 6px;flex-shrink:0;}
   .keepbtn{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:var(--accent-soft,#eef1ec);border:none;border-radius:999px;padding:3px 9px;cursor:pointer;font-family:inherit;flex-shrink:0;}
-  /* Year filter */
-  .yr-filter{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-  .yr-filter label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
-  .yr-select{font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2365645F' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+  /* Year filter — pill row */
+  .yr-filter{display:flex;align-items:center;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+  .yr-pill{padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .12s;flex-shrink:0;}
+  .yr-pill.on{border-color:var(--accent);background:var(--accent-soft,#eef1ec);color:var(--accent);}
 </style>
 </head>
 <body class="screen-body">
@@ -118,10 +118,7 @@
 
   <!-- ── LIST: horizons grouped by time ── -->
   <div id="list">
-    <div class="yr-filter">
-      <label>Show</label>
-      <select class="yr-select" id="yrFilter" onchange="renderList()"></select>
-    </div>
+    <div class="yr-filter" id="yrFilter"></div>
     <div id="bands"></div>
     <button class="hrz-add" onclick="addHorizon()">+ New horizon</button>
   </div>
@@ -179,22 +176,26 @@ let openId = null;
 // Time band is auto-derived from the latest date in the tree
 function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b + ' Year'; }
 
+let yrFilterVal = 'all';
+
 function buildYearOptions(){
-  const sel=document.getElementById('yrFilter');
-  const prev=sel.value;
-  // collect all years from dates across the whole forest
+  const wrap=document.getElementById('yrFilter');
   const years=new Set();
   const curYear=new Date().getFullYear();
   P.all().forEach(n=>{ if(n.date){ const y=parseInt(n.date.split('-')[0]); years.add(y); } });
   years.add(curYear);
   const sorted=[...years].sort();
-  sel.innerHTML='<option value="all">All</option>'+sorted.map(y=>'<option value="'+y+'">'+y+'</option>').join('');
-  sel.value = prev && [...sel.options].some(o=>o.value===prev) ? prev : 'all';
+  const opts=['all',...sorted.map(String)];
+  wrap.innerHTML=opts.map(v=>{
+    const label = v==='all' ? 'All' : v;
+    return '<button class="yr-pill'+(v===yrFilterVal?' on':'')+'" onclick="pickYear(\''+v+'\')">'+label+'</button>';
+  }).join('');
 }
+function pickYear(v){ yrFilterVal=v; renderList(); }
 
 function renderList(){
   buildYearOptions();
-  const filter=document.getElementById('yrFilter').value;
+  const filter=yrFilterVal;
   const bandsEl = document.getElementById('bands');
   bandsEl.innerHTML = '';
 
@@ -362,7 +363,16 @@ function openNodeSheet(node, has){
   sheetNode = node;
   document.getElementById('nsheetTitle').textContent = node.name;
   const btns = document.getElementById('nsheetBtns');
-  btns.innerHTML = '';
+  // facts section (same layout as Month's edit sheet)
+  const root=P.rootOf(node.id);
+  let facts='<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
+  if(root&&root.id!==node.id) facts+='<div style="padding:10px 14px;font-size:var(--fs-xs);color:var(--accent);font-weight:700;border-bottom:1px solid var(--line);">\u21b3 from '+root.name+'</div>';
+  facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Pillar</span><span style="font-size:var(--fs-sm);font-weight:700;">'+node.pillar+'</span></div>';
+  facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Date</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(node.date?fmtDate(node.date):'No date')+'</span></div>';
+  if(node.bucket) facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Bucket</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(P.BUCKET_LABEL[node.bucket]||'\u2014')+'</span></div>';
+  else facts+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Bucket</span><span style="font-size:var(--fs-sm);font-weight:700;color:var(--muted);">Not on Month</span></div>';
+  facts+='</div>';
+  btns.innerHTML=facts;
   const mk = (svg, label, fn, cls) => {
     const b=document.createElement('button'); b.className='nsheet-btn'+(cls?' '+cls:'');
     b.innerHTML = svg + '<span>'+label+'</span>'; b.onclick=()=>{ fn(); closeNodeSheet(); };

@@ -40,6 +40,7 @@
   .msheet-btn:active{background:var(--greige);}
   .msheet-btn.accent{border-color:var(--accent);color:var(--accent);}
   .msheet-btn.done-btn{border-color:#b9cbb2;background:color-mix(in srgb,#6dab5e 10%,transparent);color:#4f8f43;}
+  .msheet-btn.danger{color:#b0574a;border-color:#e8ccc8;}
   /* FAB + add fields */
   .fab-add{position:fixed;bottom:20px;right:18px;z-index:30;padding:11px 18px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-sm);font-weight:700;box-shadow:0 4px 16px rgba(36,35,31,.25);cursor:pointer;}
   .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
@@ -185,11 +186,14 @@ function openEdit(id){
   const btns = document.getElementById('editBtns');
   btns.innerHTML = '';
   const mk = (label, fn, cls) => { const b=document.createElement('button'); b.className='msheet-btn'+(cls?' '+cls:''); b.textContent=label; b.onclick=()=>{fn();closeEdit();}; btns.appendChild(b); };
+  // Same actions as Horizon's sheet
+  mk('Rename', ()=>{ const t=prompt('Rename:',n.name); if(t&&t.trim()) P.rename(id,t.trim()); });
+  mk('Set date', ()=>{ const d=prompt('Date (YYYY-MM-DD):',n.date||''); if(d!==null) P.update(id,{date:d||null}); });
   // Move buttons
   P.BUCKETS.filter(b=>b!==n.bucket).forEach(b=> mk('Move to '+P.BUCKET_LABEL[b], ()=>P.update(id,{bucket:b, done:false}), 'accent'));
   if(!n.done) mk('Mark done', ()=>P.update(id,{done:true}), 'done-btn');
   else mk('Unmark done', ()=>P.update(id,{done:false, bucket:'today'}));
-  mk('Set date', ()=>{ const d=prompt('Date (YYYY-MM-DD):',n.date||''); if(d!==null) P.update(id,{date:d||null}); });
+  mk('Remove', ()=>P.remove(id), 'danger');
   document.getElementById('msheetBack').classList.add('open');
   document.getElementById('msheet').classList.add('open');
 }
