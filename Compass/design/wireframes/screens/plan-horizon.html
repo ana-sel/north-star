@@ -106,6 +106,19 @@
   .node.suggested > .node-row > .name{color:var(--accent);font-style:italic;}
   .ai-flag{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 6px;flex-shrink:0;}
   .keepbtn{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:var(--accent-soft,#eef1ec);border:none;border-radius:999px;padding:3px 9px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+  /* Form fields */
+  .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
+  .add-field:focus{border-color:var(--accent);}
+  /* Icon toolbar */
+  .icon-bar{display:flex;justify-content:center;gap:6px;margin:14px 0 4px;padding:10px 0;border-top:1px solid var(--line);}
+  .ib{display:flex;flex-direction:column;align-items:center;gap:4px;width:54px;padding:8px 4px;border-radius:12px;border:none;background:none;cursor:pointer;font-family:inherit;transition:background .12s;}
+  .ib:active{background:var(--greige);}
+  .ib .ic{width:20px;height:20px;color:var(--muted);}
+  .ib span{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .ib.done-ib .ic{color:#4f8f43;}
+  .ib.done-ib span{color:#4f8f43;}
+  .ib.danger .ic{color:#b0574a;}
+  .ib.danger span{color:#b0574a;}
   /* Year filter — pill row */
   .yr-filter{display:flex;align-items:center;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
   .yr-pill{padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .12s;flex-shrink:0;}
@@ -369,29 +382,52 @@ let sheetHas = false;
 const PILLARS = ['health','inner','admin','family','joy','money','contrib'];
 function openNodeSheet(node, has){
   sheetNode = node; sheetHas = has;
-  document.getElementById('nsheetTitle').textContent = node.name;
+  document.getElementById('nsheetTitle').textContent = 'Edit step';
   const btns = document.getElementById('nsheetBtns');
-  // facts (from / date / bucket)
   const root=P.rootOf(node.id);
-  let html='<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
-  if(root&&root.id!==node.id) html+='<div style="padding:10px 14px;font-size:var(--fs-xs);color:var(--accent);font-weight:700;border-bottom:1px solid var(--line);">\u21b3 from '+root.name+'</div>';
-  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Date</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(node.date?fmtDate(node.date):'No date')+'</span></div>';
-  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">On Month</span><span style="font-size:var(--fs-sm);font-weight:700;'+(node.bucket?'':'color:var(--muted);')+'">'+(node.bucket?P.BUCKET_LABEL[node.bucket]:'No')+'</span></div>';
-  html+='</div>';
+  // Build form via DOM (no innerHTML with closing tags)
+  btns.innerHTML='';
+  if(root&&root.id!==node.id){const d=document.createElement('div');d.style.cssText='font-size:var(--fs-xs);color:var(--accent);font-weight:700;margin-bottom:8px;';d.textContent='\u21b3 from '+root.name;btns.appendChild(d);}
+  const nameIn=document.createElement('input');nameIn.className='add-field';nameIn.value=node.name;nameIn.style.marginBottom='12px';nameIn.id='hnName';btns.appendChild(nameIn);
   // pillar picker
-  html+='<div class="sheet-pillars"><span class="sp-lbl">Pillar</span>'+PILLARS.map(p=>'<button class="sp-pill'+(p===node.pillar?' sel':'')+'" style="--pc:var('+P.PILLAR_VAR[p]+')" onclick="setNodePillar(\''+p+'\')">'+p+'</button>').join('')+'</div>';
-  btns.innerHTML=html;
-  const mk = (svg, label, fn, cls) => {
-    const b=document.createElement('button'); b.className='nsheet-btn'+(cls?' '+cls:'');
-    b.innerHTML = svg + '<span>'+label+'</span>'; b.onclick=()=>{ fn(); closeNodeSheet(); };
-    btns.appendChild(b);
+  const pp=document.createElement('div');pp.className='sheet-pillars';
+  const lbl=document.createElement('span');lbl.className='sp-lbl';lbl.textContent='Pillar';pp.appendChild(lbl);
+  PILLARS.forEach(p=>{const b=document.createElement('button');b.className='sp-pill'+(p===node.pillar?' sel':'');b.style.setProperty('--pc','var('+P.PILLAR_VAR[p]+')');b.textContent=p;b.onclick=()=>setNodePillar(p);pp.appendChild(b);});
+  btns.appendChild(pp);
+  // date row
+  const dr=document.createElement('div');dr.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+  const dl=document.createElement('span');dl.style.cssText='font-size:var(--fs-xs);font-weight:700;color:var(--muted);min-width:50px;';dl.textContent='Date';dr.appendChild(dl);
+  const di=document.createElement('input');di.className='add-field';di.type='date';di.value=node.date||'';di.style.cssText='flex:1;margin:0;';di.id='hnDate';dr.appendChild(di);btns.appendChild(dr);
+  // bucket row (leaves only)
+  if(!has){
+    const br=document.createElement('div');br.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+    const bl=document.createElement('span');bl.style.cssText='font-size:var(--fs-xs);font-weight:700;color:var(--muted);min-width:50px;';bl.textContent='When';br.appendChild(bl);
+    const sel=document.createElement('select');sel.className='add-field';sel.style.cssText='flex:1;margin:0;';sel.id='hnBucket';
+    const none=document.createElement('option');none.value='';none.textContent='Not on Month';if(!node.bucket)none.selected=true;sel.appendChild(none);
+    P.BUCKETS.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=P.BUCKET_LABEL[b];if(b===node.bucket)o.selected=true;sel.appendChild(o);});
+    br.appendChild(sel);btns.appendChild(br);
+  }
+  // Save button
+  const saveBtn=document.createElement('button');saveBtn.className='btn-prim';saveBtn.textContent='Save';
+  saveBtn.onclick=()=>{
+    const name=document.getElementById('hnName').value.trim();
+    const date=document.getElementById('hnDate').value||null;
+    const bucketEl=document.getElementById('hnBucket');
+    const bucket=bucketEl?bucketEl.value||null:node.bucket;
+    if(name) P.update(node.id,{name,date,bucket});
+    closeNodeSheet();
   };
-  mk(S.pencil, 'Rename', ()=>{ const t=prompt('Rename:', node.name); if(t&&t.trim()) P.rename(node.id, t.trim()); });
-  mk(S.plus, 'Add a step underneath', ()=>{ const t=prompt('New step:'); if(t&&t.trim()){ node.open=true; P.addChild(node.id,t.trim()); } });
-  mk(S.spark, 'Ask AI for a breakdown', ()=>{ node.open=true; suggestFor(node.name).forEach(s=>P.addChild(node.id,s,{suggested:true})); });
-  mk(S.cal, node.date ? 'Change date ('+fmtDate(node.date)+')' : 'Set a date', ()=>{ const d=prompt('Date (YYYY-MM-DD):', node.date||''); if(d!==null) P.update(node.id,{date:d||null}); });
-  if(!has && !node.done){ mk(S.send, node.bucket?'Unschedule from Month':'Send to Month', ()=>{ P.setBucket(node.id, node.bucket?null:'month'); }, 'send'); }
-  mk(S.x, 'Remove', ()=>P.remove(node.id), 'danger');
+  btns.appendChild(saveBtn);
+  // Icon toolbar
+  const bar=document.createElement('div');bar.className='icon-bar';
+  const ib=(icon,label,fn,cls)=>{const b=document.createElement('button');b.className='ib'+(cls?' '+cls:'');const ic=document.createElement('i');ic.className='ic ic-'+icon;b.appendChild(ic);const sp=document.createElement('span');sp.textContent=label;b.appendChild(sp);b.onclick=fn;bar.appendChild(b);};
+  ib('route','Split',()=>{node.open=true;const t=prompt('New step:');if(t&&t.trim())P.addChild(node.id,t.trim());closeNodeSheet();});
+  ib('spark','AI',()=>{node.open=true;suggestFor(node.name).forEach(s=>P.addChild(node.id,s,{suggested:true}));closeNodeSheet();});
+  if(!has&&!node.done) ib('check','Done',()=>{P.toggleDone(node.id);closeNodeSheet();},'done-ib');
+  if(!has&&node.bucket==='today'&&!node.done) ib('wind','Later',()=>{if(confirm('Postpone?')){P.update(node.id,{bucket:'backlog',postponed:(node.postponed||0)+1});closeNodeSheet();}});
+  if(!has&&!node.done&&!node.bucket) ib('chev','Send',()=>{P.setBucket(node.id,'month');closeNodeSheet();},'done-ib');
+  ib('x','Delete',()=>{if(confirm('Remove "'+node.name+'"?')){P.remove(node.id);closeNodeSheet();}},'danger');
+  btns.appendChild(bar);
   document.getElementById('nsheetBack').classList.add('open');
   document.getElementById('nsheet').classList.add('open');
 }
