@@ -22,6 +22,9 @@
   .pcard-parent{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .pcard-parent b{color:var(--accent);font-weight:800;}
   .pcard-date{font-size:9px;font-weight:600;color:var(--muted);margin-left:auto;}
+  .pcard-date.soon{color:#c99554;font-weight:800;}
+  .pcard-date.overdue{color:#b0574a;font-weight:800;}
+  .pcard-postponed{font-size:8px;font-weight:800;color:#c99554;background:#fef3e2;border-radius:999px;padding:1px 6px;margin-left:4px;}
   .pcol-empty{font-size:var(--fs-xs);color:var(--muted);opacity:.55;text-align:center;padding:13px 6px;border:1px dashed var(--line);border-radius:12px;}
   /* Edit sheet */
   .msheet-back{position:fixed;inset:0;background:rgba(28,27,24,.35);z-index:40;display:none;}
@@ -29,7 +32,10 @@
   .msheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 30px rgba(28,27,24,.2);transform:translateY(100%);transition:transform .22s cubic-bezier(.22,1,.36,1);padding:12px 18px 24px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   .msheet.open{transform:translateY(0);}
   .msheet-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 14px;}
-  .msheet-title{font-size:var(--fs-md);font-weight:800;margin-bottom:10px;}
+  .msheet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .msheet-title{font-size:var(--fs-md);font-weight:800;}
+  .msheet-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--greige);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:16px;font-family:inherit;flex-shrink:0;}
+  .msheet-close:hover{background:var(--line);color:var(--ink);}
   .msheet-horizon{font-size:var(--fs-xs);color:var(--accent);font-weight:700;margin-bottom:12px;}
   .msheet-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
   .msheet-row:last-child{border-bottom:none;}
@@ -45,6 +51,16 @@
   .msheet-btn.done-btn svg{color:#4f8f43;}
   .msheet-btn.danger{color:#b0574a;}
   .msheet-btn.danger svg{color:#b0574a;}
+  /* Icon toolbar (compact secondary actions) */
+  .icon-bar{display:flex;justify-content:center;gap:6px;margin:14px 0 4px;padding:10px 0;border-top:1px solid var(--line);}
+  .ib{display:flex;flex-direction:column;align-items:center;gap:4px;width:54px;padding:8px 4px;border-radius:12px;border:none;background:none;cursor:pointer;font-family:inherit;transition:background .12s;}
+  .ib:active{background:var(--greige);}
+  .ib .ic{width:20px;height:20px;color:var(--muted);}
+  .ib span{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .ib.done-ib .ic{color:#4f8f43;}
+  .ib.done-ib span{color:#4f8f43;}
+  .ib.danger .ic{color:#b0574a;}
+  .ib.danger span{color:#b0574a;}
   /* Pillar picker (shared with Horizon) */
   .sheet-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
   .sp-lbl{font-size:var(--fs-xs);font-weight:700;color:var(--muted);width:100%;margin-bottom:2px;}
@@ -77,27 +93,26 @@
   </div>
 
   <!-- FAB: add one-off task -->
-  <button class="fab-add" onclick="openAdd()">+ Add task</button>
+  <button class="fab-add" onclick="openAdd()"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;vertical-align:middle;margin-right:4px;"><path d="M12 5v14M5 12h14"/></svg>Add Task</button>
 
   <!-- Add-task sheet -->
   <div class="msheet-back" id="addBack" onclick="closeAdd()"></div>
   <div class="msheet" id="addSheet">
     <div class="msheet-grip"></div>
-    <div class="msheet-title">New task</div>
+    <div class="msheet-hdr"><div class="msheet-title">New task</div><button class="msheet-close" onclick="closeAdd()">✕</button></div>
     <input id="addName" class="add-field" placeholder="What needs doing?" autocomplete="off" style="margin-bottom:12px;"/>
     <div class="sheet-pillars" id="addPillars"></div>
     <div class="add-field-row"><span class="sp-lbl">Date</span><input id="addDate" class="add-field" type="date"/></div>
-    <div class="add-field-row"><span class="sp-lbl">On Month</span>
+    <div class="add-field-row"><span class="sp-lbl">When</span>
       <select id="addBucket" class="add-field">
         <option value="backlog">Backlog</option>
-        <option value="month">This month</option>
+        <option value="month">Planned</option>
         <option value="week" selected>This week</option>
         <option value="today">Today</option>
       </select>
     </div>
     <div class="msheet-btns">
-      <button class="msheet-btn done-btn" onclick="submitAdd()">Add task</button>
-      <button class="msheet-btn" onclick="closeAdd()">Cancel</button>
+      <button class="btn-prim" onclick="submitAdd()">Add task</button>
     </div>
   </div>
 
@@ -105,7 +120,7 @@
   <div class="msheet-back" id="msheetBack" onclick="closeEdit()"></div>
   <div class="msheet" id="msheet">
     <div class="msheet-grip"></div>
-    <div class="msheet-title" id="editTitle"></div>
+    <div class="msheet-hdr"><div class="msheet-title" id="editTitle"></div><button class="msheet-close" onclick="closeEdit()">✕</button></div>
     <div class="msheet-horizon" id="editHorizon"></div>
     <div id="editRows"></div>
     <div class="msheet-btns" id="editBtns"></div>
@@ -127,6 +142,15 @@ const S = {
   x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
 };
 function fmtDate(d){ if(!d) return ''; const p=d.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return +p[2]+' '+months[+p[1]-1]; }
+function dateChip(n){
+  if(!n.date) return '';
+  const today=new Date(); today.setHours(0,0,0,0);
+  const due=new Date(n.date+'T00:00:00');
+  const diff=Math.round((due-today)/(1000*60*60*24));
+  if(diff<0) return '<span class="pcard-date overdue">overdue '+fmtDate(n.date)+'</span>';
+  if(diff<=3) return '<span class="pcard-date soon">due '+fmtDate(n.date)+'</span>';
+  return '<span class="pcard-date">'+fmtDate(n.date)+'</span>';
+}
 
 function cardsFor(col){ return col==='done' ? P.doneCards() : P.scheduled(col); }
 
@@ -154,7 +178,8 @@ function render(){
           (root && root.id!==n.id ? '<div class="pcard-parent">\u21b3 <b>'+root.name+'</b></div>' : '')+
           '<div class="pcard-title">'+n.name+'</div>'+
           '<div class="pcard-meta"><span class="chip pillar" style="--pill:var('+pillVar+')">'+n.pillar+'</span>'+
-            (n.date ? '<span class="pcard-date">'+fmtDate(n.date)+'</span>' : '')+
+            dateChip(n)+
+            (n.postponed && n.postponed>=2 ? '<span class="pcard-postponed">'+n.postponed+'\u00d7 postponed</span>' : '')+
           '</div>'+
         '</div>';
       card.querySelector('.pcard-ck').onclick = e=>{ e.stopPropagation(); P.toggleDone(n.id); };
@@ -192,36 +217,101 @@ function render(){
 P.subscribe(render);
 render();
 
-// ── Edit sheet (mirrors Horizon's action sheet) ──
+// ── Edit sheet (form + icon toolbar) ──
 let editId = null;
 function openEdit(id){
   const n = P.byId(id); if(!n) return;
   editId = id;
   const root = P.rootOf(id);
-  document.getElementById('editTitle').textContent = n.name;
-  document.getElementById('editHorizon').textContent = '';
+  document.getElementById('editTitle').textContent = 'Edit task';
+  document.getElementById('editHorizon').textContent = root && root.id!==n.id ? '↳ from '+root.name : '';
   const rows = document.getElementById('editRows');
-  let html='<div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
-  if(root&&root.id!==n.id) html+='<div style="padding:10px 14px;font-size:var(--fs-xs);color:var(--accent);font-weight:700;border-bottom:1px solid var(--line);">↳ from '+root.name+'</div>';
-  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">Date</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(n.date?fmtDate(n.date):'No date')+'</span></div>';
-  html+='<div style="display:flex;justify-content:space-between;padding:10px 14px;"><span style="font-size:var(--fs-xs);color:var(--muted);font-weight:600;">On Month</span><span style="font-size:var(--fs-sm);font-weight:700;">'+(n.bucket?P.BUCKET_LABEL[n.bucket]:'—')+'</span></div>';
-  html+='</div>';
+  let html='<input id="editName" class="add-field" value="'+n.name.replace(/"/g,'&quot;')+'" style="margin-bottom:12px;"/>';
   html+='<div class="sheet-pillars"><span class="sp-lbl">Pillar</span>'+PILLARS.map(p=>'<button class="sp-pill'+(p===n.pillar?' sel':'')+'" style="--pc:var('+P.PILLAR_VAR[p]+')" onclick="setEditPillar(\''+p+'\')">'+p+'</button>').join('')+'</div>';
+  html+='<div class="add-field-row"><span class="sp-lbl">Date</span><input id="editDate" class="add-field" type="date" value="'+(n.date||'')+'"/></div>';
+  html+='<div class="add-field-row"><span class="sp-lbl">When</span><select id="editBucket" class="add-field">'+
+    P.BUCKETS.map(b=>'<option value="'+b+'"'+(b===n.bucket?' selected':'')+'>'+P.BUCKET_LABEL[b]+'</option>').join('')+'</select></div>';
+  if(n.postponed && n.postponed>=2) html+='<div style="font-size:var(--fs-xs);color:#c99554;font-weight:700;margin:8px 0;">⚠ '+n.postponed+'× postponed — is something blocking this?</div>';
   rows.innerHTML = html;
+
   const btns = document.getElementById('editBtns');
   btns.innerHTML = '';
-  const mk = (svg, label, fn, cls) => { const b=document.createElement('button'); b.className='msheet-btn'+(cls?' '+cls:''); b.innerHTML=svg+'<span>'+label+'</span>'; b.onclick=()=>{fn();closeEdit();}; btns.appendChild(b); };
-  mk(S.pencil, 'Rename', ()=>{ const t=prompt('Rename:',n.name); if(t&&t.trim()) P.rename(id,t.trim()); });
-  mk(S.plus, 'Add a step underneath', ()=>{ const t=prompt('New step:'); if(t&&t.trim()) P.addChild(id,t.trim(),{bucket:n.bucket}); });
-  mk(S.spark, 'Ask AI for a breakdown', ()=>{ ['First small step','Next step','Final step'].forEach(s=>P.addChild(id,s,{bucket:n.bucket,suggested:true})); });
-  mk(S.cal, n.date?'Change date ('+fmtDate(n.date)+')':'Set a date', ()=>{ const d=prompt('Date (YYYY-MM-DD):',n.date||''); if(d!==null) P.update(id,{date:d||null}); });
-  P.BUCKETS.filter(b=>b!==n.bucket).forEach(b=> mk(S.move, 'Move to '+P.BUCKET_LABEL[b], ()=>P.update(id,{bucket:b, done:false}), 'accent'));
-  if(!n.done) mk(S.check, 'Mark done', ()=>P.update(id,{done:true}), 'done-btn');
-  else mk(S.check, 'Unmark done', ()=>P.update(id,{done:false, bucket:'today'}));
-  mk(S.x, 'Remove', ()=>P.remove(id), 'danger');
+  // Save (primary)
+  const saveBtn=document.createElement('button'); saveBtn.className='btn-prim'; saveBtn.textContent='Save';
+  saveBtn.onclick=()=>{
+    const name=document.getElementById('editName').value.trim();
+    const date=document.getElementById('editDate').value||null;
+    const bucket=document.getElementById('editBucket').value;
+    if(name) P.update(id,{name, date, bucket});
+    closeEdit();
+  };
+  btns.appendChild(saveBtn);
+  // Icon toolbar (compact row — uses .ic line icons from you.css)
+  const bar=document.createElement('div'); bar.className='icon-bar';
+  const ib=(icon,label,fn,cls)=>{const b=document.createElement('button');b.className='ib'+(cls?' '+cls:'');b.innerHTML='<i class="ic ic-'+icon+'"></i><span>'+label+'</span>';b.onclick=fn;bar.appendChild(b);};
+  ib('route','Split',()=>openSplitView(id,n));
+  ib('spark','AI',()=>openSplitView(id,n,true));
+  if(!n.done) ib('check','Done',()=>{P.update(id,{done:true});closeEdit();},'done-ib');
+  else ib('check','Undo',()=>{P.update(id,{done:false,bucket:'today'});closeEdit();},'done-ib');
+  if(n.bucket==='today'&&!n.done) ib('wind','Later',()=>{if(confirm('Postpone this task?')){P.update(id,{bucket:'backlog',postponed:(n.postponed||0)+1});closeEdit();}});
+  ib('x','Delete',()=>{if(confirm('Remove "'+n.name+'"?')){P.remove(id);closeEdit();}},'danger');
+  btns.appendChild(bar);
   document.getElementById('msheetBack').classList.add('open');
   document.getElementById('msheet').classList.add('open');
 }
+
+// ── Split view (manual + AI) ──
+function openSplitView(id, n, useAI){
+  closeEdit();
+  const suggestions = useAI ? suggestForMonth(n.name) : [];
+  let steps = useAI ? suggestions.map(s=>({name:s,keep:true})) : [];
+  document.getElementById('editTitle').textContent = 'Split: '+n.name;
+  document.getElementById('editHorizon').textContent = 'Break into smaller steps. Each becomes its own card.';
+  const rows = document.getElementById('editRows');
+  const btns = document.getElementById('editBtns');
+
+  function renderSplit(){
+    let html='<div id="splitSteps" style="margin-bottom:10px;">';
+    steps.forEach((s,i)=>{
+      html+='<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);">'+
+        '<span style="flex:1;font-size:var(--fs-sm);font-weight:600;'+(s.keep?'':'color:var(--muted);text-decoration:line-through;')+'">'+s.name+'</span>'+
+        '<button onclick="toggleSplitStep('+i+')" style="font-size:var(--fs-xs);font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid '+(s.keep?'var(--accent)':'var(--line)')+';background:'+(s.keep?'var(--accent-soft,#eef1ec)':'var(--greige)')+';color:'+(s.keep?'var(--accent)':'var(--muted)')+';cursor:pointer;font-family:inherit;">'+(s.keep?'Keep':'Removed')+'</button>'+
+      '</div>';
+    });
+    html+='</div>';
+    html+='<div style="display:flex;gap:8px;margin-bottom:10px;"><input id="splitInput" class="add-field" placeholder="Add a step…" style="flex:1;margin:0;"/><button onclick="addSplitStep()" style="width:44px;border:1px solid var(--line);background:var(--card);border-radius:12px;font-size:18px;color:var(--accent);cursor:pointer;font-family:inherit;">+</button></div>';
+    if(useAI) html+='<button onclick="revertAISplit()" style="font-size:var(--fs-xs);font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:8px;">↺ Revert AI suggestions</button>';
+    rows.innerHTML=html;
+
+    btns.innerHTML='';
+    const kept=steps.filter(s=>s.keep);
+    const applyBtn=document.createElement('button'); applyBtn.className='btn-prim';
+    applyBtn.textContent=kept.length?'Split into '+kept.length+' steps':'Add steps above';
+    applyBtn.disabled=!kept.length;
+    applyBtn.onclick=()=>{
+      kept.forEach(s=>P.addChild(id,s.name,{bucket:n.bucket}));
+      closeEdit();
+    };
+    btns.appendChild(applyBtn);
+    const back=document.createElement('button'); back.className='msheet-btn'; back.style.cssText='justify-content:center;color:var(--muted);border:none;margin-top:4px;';
+    back.innerHTML='<span>Back</span>'; back.onclick=()=>openEdit(id); btns.appendChild(back);
+  }
+
+  window.toggleSplitStep=(i)=>{ steps[i].keep=!steps[i].keep; renderSplit(); };
+  window.addSplitStep=()=>{ const inp=document.getElementById('splitInput'); const v=inp.value.trim(); if(v){ steps.push({name:v,keep:true}); renderSplit(); } };
+  window.revertAISplit=()=>{ steps=steps.filter(s=>!suggestions.includes(s.name)); renderSplit(); };
+
+  renderSplit();
+  document.getElementById('msheetBack').classList.add('open');
+  document.getElementById('msheet').classList.add('open');
+}
+function suggestForMonth(name){
+  const n=name.toLowerCase();
+  if(n.includes('mortgage')||n.includes('loan')) return ['Compare 3 lenders','Get a decision in principle','Book appointment'];
+  if(n.includes('research')) return ['List requirements','Read 3 reviews','Make a shortlist'];
+  return ['First small step','Middle step','Final step'];
+}
+// AI preview for Month (same pattern as Horizon)
 function setEditPillar(p){ if(editId){ P.update(editId,{pillar:p}); openEdit(editId); } }
 function closeEdit(){
   document.getElementById('msheetBack').classList.remove('open');

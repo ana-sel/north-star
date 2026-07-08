@@ -19,7 +19,7 @@
    BroadcastChannel, so every open lens (even in another iframe) re-renders.
    ───────────────────────────────────────────────────────────── */
 (function (global) {
-  const KEY = 'compass.plan.v2';
+  const KEY = 'compass.plan.v3';
   const CH = 'compass-plan';
   const channel = ('BroadcastChannel' in global) ? new BroadcastChannel(CH) : null;
   const subs = [];
@@ -44,7 +44,7 @@
     { id: 'land', name: 'Buy land', parentId: null, pillar: 'money', horizon: 'this' },
     { id: 'land-mort', name: 'Sort financing', parentId: 'land', pillar: 'money' },
     { id: 'land-m1', name: 'Research mortgages', parentId: 'land-mort', pillar: 'admin', bucket: 'today', date: '2026-07-07' },
-    { id: 'land-m2', name: 'Compare loan types', parentId: 'land-mort', pillar: 'money', bucket: 'backlog' },
+    { id: 'land-m2', name: 'Compare loan types', parentId: 'land-mort', pillar: 'money', bucket: 'backlog', date: '2026-07-05', postponed: 3 },
     { id: 'land-m3', name: 'Check credit score', parentId: 'land-mort', pillar: 'money', done: true },
     { id: 'land-find', name: 'Find the plot', parentId: 'land', pillar: 'admin' },
     { id: 'land-f1', name: 'View 3 plots', parentId: 'land-find', pillar: 'admin', bucket: 'month', date: '2026-07-15' },
@@ -55,10 +55,28 @@
     { id: 'sp-1', name: 'Finish basics course', parentId: 'spanish', pillar: 'joy', done: true },
     { id: 'sp-2', name: 'Hold a 5-min conversation', parentId: 'spanish', pillar: 'joy', bucket: 'backlog' },
 
-    // ═══ Horizon: Home renovation (later year) ═══
+    // ═══ Horizon: Home renovation (2027) ═══
     { id: 'reno', name: 'Home renovation', parentId: null, pillar: 'admin', horizon: '2027' },
-    { id: 'reno-1', name: 'Get 3 quotes', parentId: 'reno', pillar: 'admin', bucket: 'backlog' },
-    { id: 'reno-2', name: 'Draw up plans', parentId: 'reno', pillar: 'admin' },
+    { id: 'reno-1', name: 'Get 3 quotes', parentId: 'reno', pillar: 'admin', bucket: 'backlog', date: '2027-03-01' },
+    { id: 'reno-2', name: 'Draw up plans', parentId: 'reno', pillar: 'admin', date: '2027-05-01' },
+
+    // ═══ Past + future horizons for year-filter demo ═══
+    { id: 'h2021', name: 'Graduate university', parentId: null, pillar: 'inner' },
+    { id: 'h2021-1', name: 'Submit dissertation', parentId: 'h2021', pillar: 'inner', done: true, date: '2021-06-15' },
+    { id: 'h2022', name: 'First job', parentId: null, pillar: 'admin' },
+    { id: 'h2022-1', name: 'Pass probation', parentId: 'h2022', pillar: 'admin', done: true, date: '2022-09-01' },
+    { id: 'h2023', name: 'Move to new city', parentId: null, pillar: 'family' },
+    { id: 'h2023-1', name: 'Find a flat', parentId: 'h2023', pillar: 'admin', done: true, date: '2023-04-10' },
+    { id: 'h2024', name: 'Run a half marathon', parentId: null, pillar: 'health' },
+    { id: 'h2024-1', name: 'Complete training plan', parentId: 'h2024', pillar: 'health', done: true, date: '2024-10-20' },
+    { id: 'h2025', name: 'Save emergency fund', parentId: null, pillar: 'money' },
+    { id: 'h2025-1', name: 'Reach £5k', parentId: 'h2025', pillar: 'money', done: true, date: '2025-12-01' },
+    { id: 'h2028', name: 'Start a family', parentId: null, pillar: 'family' },
+    { id: 'h2028-1', name: 'Settle into home', parentId: 'h2028', pillar: 'family', date: '2028-06-01' },
+    { id: 'h2029', name: 'Build a workshop', parentId: null, pillar: 'joy' },
+    { id: 'h2029-1', name: 'Design plans', parentId: 'h2029', pillar: 'joy', date: '2029-03-01' },
+    { id: 'h2030', name: 'Write a book', parentId: null, pillar: 'inner' },
+    { id: 'h2030-1', name: 'Draft first chapter', parentId: 'h2030', pillar: 'inner', date: '2030-01-15' },
   ];
 
   let nodes = load();
@@ -118,7 +136,7 @@
     if (!d) return 'someday';
     const year = parseInt(d.split('-')[0]);
     const curYear = new Date().getFullYear();
-    if (year <= curYear) return 'this';
+    if (year === curYear) return 'this';
     return String(year);
   }
   // leaves that are scheduled onto the Month board
@@ -164,7 +182,7 @@
 
   global.PlanData = {
     BUCKETS: ['backlog', 'month', 'week', 'today'],
-    BUCKET_LABEL: { backlog: 'Backlog', month: 'This month', week: 'This week', today: 'Today', done: 'Done' },
+    BUCKET_LABEL: { backlog: 'Backlog', month: 'Planned', week: 'This week', today: 'Today', done: 'Done' },
     PILLAR_VAR: { health: '--p-health', inner: '--p-inner', admin: '--p-admin', family: '--p-family', joy: '--p-joy', money: '--p-money', contrib: '--p-contrib' },
     all: () => nodes, byId, children, roots, isLeaf, leaves, progress, rootOf, latestDate, timeBand,
     scheduled, doneCards,
