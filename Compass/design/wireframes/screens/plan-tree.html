@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Compass · Plan · Tree</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<style>
+  /* ── Dream header (tree root) ── */
+  .dream{position:relative;background:linear-gradient(135deg,#2f3a34,#3d4a41);color:#f4f2ec;border-radius:20px;padding:18px 18px 16px;margin-bottom:14px;overflow:hidden;transition:box-shadow .4s;}
+  .dream-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#b9c6ad;margin-bottom:5px;}
+  .dream-name{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.15;outline:none;}
+  .dream-prog{height:8px;background:rgba(255,255,255,.16);border-radius:999px;margin-top:14px;overflow:hidden;}
+  .dream-prog i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#9db98e,#c7d8b6);transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .dream-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;font-size:var(--fs-xs);color:#c9d3bf;}
+  .dream-meta b{color:#fff;font-weight:800;font-size:var(--fs-sm);}
+  .dream-real{display:none;align-items:center;gap:8px;margin-top:12px;font-size:var(--fs-md);font-weight:800;color:#f4f2ec;}
+  .dream.complete{box-shadow:0 0 0 3px rgba(157,185,142,.5),0 14px 40px rgba(47,58,52,.4);}
+  .dream.complete .dream-real{display:flex;animation:rise .6s ease-out;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* ── Tree ── */
+  .tree{margin-left:2px;margin-bottom:16px;}
+  .kids{margin-left:15px;border-left:1.5px solid var(--line);}
+  .node{position:relative;}
+  .node-row{display:flex;align-items:center;gap:8px;padding:7px 6px 7px 10px;border-radius:10px;position:relative;}
+  .node-row:hover{background:var(--greige);}
+  .node-row::before{content:'';position:absolute;left:-15px;top:50%;width:15px;height:1.5px;background:var(--line);}
+  .tree > .node > .node-row::before{display:none;}
+
+  .chev{width:18px;height:18px;flex-shrink:0;display:grid;place-items:center;cursor:pointer;color:var(--muted);border:none;background:none;padding:0;transition:transform .15s;}
+  .chev.open{transform:rotate(90deg);}
+  .chev.leaf{visibility:hidden;}
+  .chev svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+
+  .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+  .ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
+  .node.done > .node-row > .ck{background:var(--accent);border-color:var(--accent);}
+  .node.done > .node-row > .ck svg{opacity:1;}
+
+  .pdot{width:22px;height:22px;flex-shrink:0;}
+  .pdot svg{transform:rotate(-90deg);}
+  .pdot .track{stroke:var(--line);}
+  .pdot .fill{stroke:var(--accent);transition:stroke-dashoffset .4s;}
+  .pdot.full .fill{stroke:#6d9e5c;}
+
+  .name{flex:1;font-size:var(--fs-md);font-weight:600;line-height:1.3;outline:none;border-radius:6px;padding:2px 3px;min-width:34px;}
+  .name:focus{background:var(--card);box-shadow:0 0 0 2px var(--accent-soft,#eef1ec);}
+  .node.done > .node-row > .name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .depth-count{font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:1px 7px;flex-shrink:0;}
+
+  .nact{display:flex;gap:1px;flex-shrink:0;opacity:0;transition:opacity .12s;}
+  .node-row:hover .nact{opacity:1;}
+  .nbtn{width:24px;height:24px;border-radius:8px;border:none;background:none;display:grid;place-items:center;cursor:pointer;color:var(--muted);font-family:inherit;}
+  .nbtn:hover{background:var(--card);color:var(--ink);}
+  .nbtn.sug:hover{color:var(--accent);}
+  .nbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .nbtn.sug svg{fill:currentColor;stroke:none;}
+
+  .node.suggested > .node-row{background:repeating-linear-gradient(135deg,transparent,transparent 6px,rgba(118,132,113,.05) 6px,rgba(118,132,113,.05) 12px);}
+  .node.suggested > .node-row > .name{color:var(--accent);font-style:italic;font-weight:600;}
+  .ai-flag{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 6px;flex-shrink:0;}
+  .keepbtn{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:var(--accent-soft,#eef1ec);border:none;border-radius:999px;padding:3px 9px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;font-size:var(--fs-xs);color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+</style>
+</head>
+<body class="screen-body">
+
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-route"></i></div>
+    <div>
+      <div class="ylens-title">Breakdown</div>
+      <div class="ylens-sub">Break a dream into doable leaves</div>
+    </div>
+  </div>
+
+  <p class="hint">One primitive: a node. Break a dream down until each leaf is doable in one sitting. Check the leaves — the branches fill, and the dream completes itself from the bottom up. AI only ever <em>offers</em> a breakdown; you decide.</p>
+
+  <!-- Root / dream -->
+  <div class="dream" id="dream">
+    <div class="dream-cap">The dream</div>
+    <div class="dream-name" id="dreamName" contenteditable="true" spellcheck="false">Drive own car</div>
+    <div class="dream-prog"><i id="dreamBar" style="width:0%"></i></div>
+    <div class="dream-meta"><span id="dreamCount">0 of 0 leaves</span><b id="dreamPct">0%</b></div>
+    <div class="dream-real">🌟 The dream is real.</div>
+  </div>
+
+  <div class="legend">
+    <span><b style="color:var(--accent)">+</b> add a step</span>
+    <span>✨ ask AI for a breakdown</span>
+    <span>◯ leaf = one sitting</span>
+  </div>
+
+  <div class="tree" id="tree"></div>
+
+<script>
+// ── data: one recursive primitive ──
+let tree = { name:'Drive own car', root:true, children:[
+  { name:'Pass driving test', open:true, children:[
+    { name:'Theory test', open:true, children:[
+      { name:'Learn 10 signs', done:true },
+      { name:'Learn next 10 signs', done:true },
+      { name:'Learn next 10 signs', done:false },
+    ]},
+    { name:'Practical test', open:true, children:[
+      { name:'Learn to pull over', done:false },
+      { name:'Learn to park', done:false },
+    ]},
+  ]},
+  { name:'Buy a car', open:true, children:[
+    { name:'Research a car', done:false },
+    { name:'Buy the car', done:false },
+  ]},
+]};
+
+// ── AI suggestion stub (keyword → plausible children). Never auto-applied. ──
+function suggestFor(name){
+  const n = name.toLowerCase();
+  if(n.includes('theory')) return ['Learn road signs','Take 3 practice tests','Book the theory test'];
+  if(n.includes('practical')) return ['Master clutch control','Practise manoeuvres','Book the practical test'];
+  if(n.includes('buy') && n.includes('car')) return ['Set a budget','Compare 3 models','Find a trusted dealer','Sort tax & insurance'];
+  if(n.includes('research')) return ['List must-haves','Compare reviews','Check running costs'];
+  if(n.includes('park')) return ['Practise in an empty lot','Practise parallel parking'];
+  return ['First small step','Next step','Final step'];
+}
+
+const S = {
+  chev:'<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  spark:'<svg viewBox="0 0 24 24"><path d="M12 3l1.6 4.9L18.5 9.5l-4.9 1.6L12 16l-1.6-4.9L5.5 9.5l4.9-1.6z"/></svg>',
+  x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+};
+
+function leaves(n){ return (n.children&&n.children.length) ? n.children.flatMap(leaves) : [n]; }
+function prog(n){ const ls=leaves(n); const d=ls.filter(l=>l.done).length; return {done:d,total:ls.length,pct:ls.length?d/ls.length:0}; }
+
+const treeEl = document.getElementById('tree');
+function render(){
+  treeEl.innerHTML = '';
+  tree.children.forEach(c => treeEl.appendChild(nodeEl(c)));
+  const p = prog(tree);
+  document.getElementById('dreamBar').style.width = Math.round(p.pct*100)+'%';
+  document.getElementById('dreamPct').textContent = Math.round(p.pct*100)+'%';
+  document.getElementById('dreamCount').textContent = p.done+' of '+p.total+' leaves done';
+  document.getElementById('dream').classList.toggle('complete', p.total>0 && p.done===p.total);
+}
+
+function nodeEl(node){
+  const wrap = document.createElement('div');
+  const kids = node.children && node.children.length;
+  const p = prog(node);
+  const isDone = kids ? (p.pct===1 && p.total>0) : node.done;
+  wrap.className = 'node' + (isDone?' done':'') + (node.suggested?' suggested':'');
+
+  const row = document.createElement('div');
+  row.className = 'node-row';
+
+  const chev = document.createElement('button');
+  chev.className = 'chev' + (kids?(node.open?' open':''):' leaf');
+  chev.innerHTML = S.chev;
+  if(kids) chev.onclick = ()=>{ node.open=!node.open; render(); };
+  row.appendChild(chev);
+
+  if(kids){
+    const dot = document.createElement('div');
+    dot.className = 'pdot' + (p.pct===1?' full':'');
+    const R=9, C=2*Math.PI*R, off=C*(1-p.pct);
+    dot.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22">'+
+      '<circle class="track" cx="11" cy="11" r="'+R+'" fill="none" stroke-width="2.4"/>'+
+      '<circle class="fill" cx="11" cy="11" r="'+R+'" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>';
+    dot.title = p.done+'/'+p.total;
+    row.appendChild(dot);
+  } else {
+    const ck = document.createElement('div');
+    ck.className = 'ck';
+    ck.innerHTML = S.check;
+    ck.onclick = ()=>{ node.done=!node.done; render(); };
+    row.appendChild(ck);
+  }
+
+  const name = document.createElement('div');
+  name.className = 'name';
+  name.contentEditable = 'true';
+  name.spellcheck = false;
+  name.textContent = node.name;
+  name.onblur = ()=>{ node.name = name.textContent.trim() || node.name; };
+  name.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); name.blur(); } };
+  row.appendChild(name);
+
+  if(kids){ const c=document.createElement('span'); c.className='depth-count'; c.textContent=p.done+'/'+p.total; row.appendChild(c); }
+
+  if(node.suggested){
+    const flag=document.createElement('span'); flag.className='ai-flag'; flag.textContent='AI'; row.appendChild(flag);
+    const keep=document.createElement('button'); keep.className='keepbtn'; keep.textContent='Keep';
+    keep.onclick=()=>{ delete node.suggested; render(); };
+    row.appendChild(keep);
+  }
+
+  const act = document.createElement('div');
+  act.className = 'nact';
+  act.appendChild(mkBtn(S.plus,'Add a step',()=>{
+    const t = prompt('New step:'); if(!t||!t.trim()) return;
+    node.children = node.children||[]; node.open=true;
+    node.children.push({ name:t.trim(), done:false }); render();
+  }));
+  act.appendChild(mkBtn(S.spark,'Ask AI for a breakdown',()=>{
+    node.children = node.children||[]; node.open=true;
+    suggestFor(node.name).forEach(s=> node.children.push({ name:s, done:false, suggested:true }));
+    render();
+  },'sug'));
+  act.appendChild(mkBtn(S.x,'Remove',()=>{ removeNode(tree,node); render(); }));
+  row.appendChild(act);
+
+  wrap.appendChild(row);
+
+  if(kids && node.open){
+    const kwrap = document.createElement('div');
+    kwrap.className = 'kids';
+    node.children.forEach(c => kwrap.appendChild(nodeEl(c)));
+    wrap.appendChild(kwrap);
+  }
+  return wrap;
+}
+
+function mkBtn(svg,title,fn,cls){
+  const b=document.createElement('button'); b.className='nbtn'+(cls?' '+cls:''); b.innerHTML=svg; b.title=title;
+  b.onclick=fn; return b;
+}
+function removeNode(parent,target){
+  if(!parent.children) return false;
+  const i=parent.children.indexOf(target);
+  if(i>-1){ parent.children.splice(i,1); return true; }
+  return parent.children.some(c=>removeNode(c,target));
+}
+
+render();
+</script>
+</body>
+</html>
