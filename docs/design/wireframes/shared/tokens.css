@@ -1,0 +1,18 @@
+/* Compass design tokens — single source of truth */
+:root {
+  /* surfaces */
+  --bg:#F6F5F2; --card:#FFFEFC; --greige:#F0ECE5; --line:#E2DFD9;
+  --muted:#65645F; --ink:#24231F; --steel:#7E8E9F; --olive:#768471; --btn:#3C3A34;
+
+  /* 7 pillar accents */
+  --p-health:#77936f; --p-inner:#937caf; --p-admin:#958572;
+  --p-family:#b77980; --p-joy:#c99554; --p-money:#7395ad; --p-contrib:#8d8f63;
+
+  /* type scale */
+  --fs-xl:26px; --fs-lg:17px; --fs-md:14px; --fs-sm:12px; --fs-xs:10px;
+
+  /* shape + depth */
+  --r-card:18px;
+  --shadow:0 1px 2px rgba(36,35,31,.04),0 10px 28px rgba(36,35,31,.08);
+  --shadow-sm:0 1px 2px rgba(36,35,31,.03),0 4px 14px rgba(36,35,31,.05);
+}

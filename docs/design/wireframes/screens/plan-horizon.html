@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Compass · Plan · Horizon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<style>
+  /* ── time bands ── */
+  .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 8px;display:flex;align-items:center;gap:8px;}
+  .band::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  /* ── horizon card (clean: ring + branches, minimal meta) ── */
+  .hrz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;transition:transform .1s;position:relative;}
+  .hrz:active{transform:scale(.99);}
+  .hrz::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:3px 0 0 3px;background:var(--pill,var(--line));}
+  .hrz-top{display:flex;align-items:center;gap:12px;}
+  .hrz-ring{width:38px;height:38px;flex-shrink:0;position:relative;}
+  .hrz-ring svg{transform:rotate(-90deg);} .hrz-ring .tk{stroke:var(--line);} .hrz-ring .fl{stroke:var(--pill,var(--accent));}
+  .hrz-ring.full .fl{stroke:#6d9e5c;}
+  .hrz-ring-pct{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:800;color:var(--muted);}
+  .hrz-main{flex:1;min-width:0;}
+  .hrz-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
+  .hrz-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+  .hrz-branches{margin:10px 0 0 4px;border-left:1.5px solid var(--line);padding-left:11px;display:flex;flex-direction:column;gap:7px;}
+  .hrz-br{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-sm);}
+  .hrz-br-name{font-weight:600;color:var(--ink);}
+  .hrz-br.done .hrz-br-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .hrz-br-ct{font-size:9px;font-weight:700;color:var(--muted);}
+  .hrz-add{border:1px dashed var(--line);background:transparent;color:var(--muted);text-align:center;font-size:var(--fs-sm);font-weight:700;padding:13px;border-radius:16px;width:100%;cursor:pointer;font-family:inherit;margin-top:4px;}
+
+  /* ── detail (tree) ── */
+  #detail{display:none;}
+  .back{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;margin-bottom:10px;}
+  .back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transform:rotate(180deg);}
+
+  .dream{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px 18px 15px;margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow .4s;}
+  .dream-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;}
+  .dream-name{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--ink);outline:none;}
+  .dream-target{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:var(--fs-xs);font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:5px 12px;}
+  .dream-target svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+  .dream-prog{height:8px;background:var(--greige);border-radius:999px;margin-top:13px;overflow:hidden;}
+  .dream-prog i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#8fae83,var(--accent));transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .dream-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;font-size:var(--fs-xs);color:var(--muted);}
+  .dream-meta b{color:var(--ink);font-weight:800;font-size:var(--fs-sm);}
+  .dream-real{display:none;align-items:center;gap:8px;margin-top:11px;font-size:var(--fs-md);font-weight:800;color:var(--accent);}
+  .dream.complete{box-shadow:0 0 0 3px rgba(118,132,113,.3),0 10px 30px rgba(36,35,31,.12);}
+  .dream.complete .dream-real{display:flex;animation:rise .6s ease-out;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;font-size:var(--fs-xs);color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+
+  .tree{margin-left:2px;}
+  .kids{margin-left:15px;border-left:1.5px solid var(--line);}
+  .node{position:relative;}
+  .node-row{display:flex;align-items:center;gap:7px;padding:7px 4px 7px 10px;border-radius:10px;position:relative;}
+  .node-row:hover{background:var(--greige);}
+  .node-row::before{content:'';position:absolute;left:-15px;top:50%;width:15px;height:1.5px;background:var(--line);}
+  .tree > .node > .node-row::before{display:none;}
+  .chev{width:18px;height:18px;flex-shrink:0;display:grid;place-items:center;cursor:pointer;color:var(--muted);border:none;background:none;padding:0;transition:transform .15s;}
+  .chev.open{transform:rotate(90deg);}
+  .chev.leaf{visibility:hidden;}
+  .chev svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+  .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+  .ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
+  .node.done > .node-row > .ck{background:var(--accent);border-color:var(--accent);}
+  .node.done > .node-row > .ck svg{opacity:1;}
+  .pdot{width:22px;height:22px;flex-shrink:0;}
+  .pdot svg{transform:rotate(-90deg);}
+  .pdot .track{stroke:var(--line);}
+  .pdot .fill{stroke:var(--accent);transition:stroke-dashoffset .4s;}
+  .pdot.full .fill{stroke:#6d9e5c;}
+  .name{flex:1;font-size:var(--fs-md);font-weight:600;line-height:1.3;outline:none;border-radius:6px;padding:2px 3px;min-width:0;overflow-wrap:anywhere;}
+  .name:focus{background:var(--card);box-shadow:0 0 0 2px var(--accent-soft,#eef1ec);}
+  .node.done > .node-row > .name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .sched{font-size:8px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 7px;flex-shrink:0;}
+  .depth-count{font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:1px 7px;flex-shrink:0;}
+  .nact{display:none;}
+
+  /* ── Node action sheet (tap a row to open) ── */
+  .nsheet-back{position:fixed;inset:0;background:rgba(28,27,24,.35);z-index:40;display:none;}
+  .nsheet-back.open{display:block;}
+  .nsheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 30px rgba(28,27,24,.2);transform:translateY(100%);transition:transform .22s cubic-bezier(.22,1,.36,1);padding:12px 18px 22px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .nsheet.open{transform:translateY(0);}
+  .nsheet-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 14px;}
+  .nsheet-title{font-size:var(--fs-md);font-weight:800;margin-bottom:12px;}
+  .nsheet-btn{display:flex;align-items:center;gap:12px;width:100%;padding:15px 14px;border:none;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--ink);cursor:pointer;text-align:left;}
+  .nsheet-btn:active{background:var(--greige);}
+  .nsheet-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--muted);}
+  .nsheet-btn.send{color:var(--accent);}
+  .nsheet-btn.send svg{color:var(--accent);}
+  .nsheet-btn.danger{color:#b0574a;}
+  .nsheet-btn.danger svg{color:#b0574a;}
+  /* Pillar picker (shared with Month) */
+  .sheet-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .sp-lbl{font-size:var(--fs-xs);font-weight:700;color:var(--muted);width:100%;margin-bottom:2px;}
+  .sp-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .sp-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--pc,var(--line));}
+  .sp-pill.sel{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 14%,transparent);color:var(--ink);}
+  .node.suggested > .node-row{background:repeating-linear-gradient(135deg,transparent,transparent 6px,rgba(118,132,113,.05) 6px,rgba(118,132,113,.05) 12px);}
+  .node.suggested > .node-row > .name{color:var(--accent);font-style:italic;}
+  .ai-flag{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft,#eef1ec);border-radius:999px;padding:2px 6px;flex-shrink:0;}
+  .keepbtn{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:var(--accent-soft,#eef1ec);border:none;border-radius:999px;padding:3px 9px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+  /* Form fields */
+  .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
+  .add-field:focus{border-color:var(--accent);}
+  /* Icon toolbar */
+  .icon-bar{display:flex;justify-content:center;gap:6px;margin:14px 0 4px;padding:10px 0;border-top:1px solid var(--line);}
+  .ib{display:flex;flex-direction:column;align-items:center;gap:4px;width:54px;padding:8px 4px;border-radius:12px;border:none;background:none;cursor:pointer;font-family:inherit;transition:background .12s;}
+  .ib:active{background:var(--greige);}
+  .ib .ic{width:20px;height:20px;color:var(--muted);}
+  .ib span{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .ib.done-ib .ic{color:#4f8f43;}
+  .ib.done-ib span{color:#4f8f43;}
+  .ib.danger .ic{color:#b0574a;}
+  .ib.danger span{color:#b0574a;}
+  /* Year filter — pill row */
+  .yr-filter{display:flex;align-items:center;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+  .yr-pill{padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .12s;flex-shrink:0;}
+  .yr-pill.on{border-color:var(--accent);background:var(--accent-soft,#eef1ec);color:var(--accent);}
+</style>
+</head>
+<body class="screen-body">
+
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-compass"></i></div>
+    <div>
+      <div class="ylens-title">Horizon</div>
+      <div class="ylens-sub">The directions you're heading</div>
+    </div>
+  </div>
+
+  <!-- ── LIST: horizons grouped by time ── -->
+  <div id="list">
+    <div class="yr-filter" id="yrFilter"></div>
+    <div id="bands"></div>
+    <button class="hrz-add" onclick="addHorizon()">+ New horizon</button>
+  </div>
+
+  <!-- ── DETAIL: one horizon's tree ── -->
+  <div id="detail">
+    <button class="back" onclick="closeHorizon()"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg> Back</button>
+    <div class="dream" id="dream">
+      <div class="dream-cap">The horizon</div>
+      <div class="dream-name" id="dreamName" contenteditable="true" spellcheck="false"></div>
+      <div class="dream-target" id="dreamTarget" title="When you're heading there — tap to change"></div>
+      <div class="dream-prog"><i id="dreamBar" style="width:0%"></i></div>
+      <div class="dream-meta"><span id="dreamCount"></span><b id="dreamPct"></b></div>
+      <div class="dream-real">🌟 You've arrived.</div>
+    </div>
+    <div class="tree" id="tree"></div>
+  </div>
+
+  <!-- Node action sheet -->
+  <div class="nsheet-back" id="nsheetBack" onclick="closeNodeSheet()"></div>
+  <div class="nsheet" id="nsheet">
+    <div class="nsheet-grip"></div>
+    <div class="nsheet-title" id="nsheetTitle"></div>
+    <div id="nsheetBtns"></div>
+  </div>
+
+<script src="../shared/plan-data.js"></script>
+<script>
+const P = window.PlanData;
+const S = {
+  chev:'<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24"><path d="M17 3l4 4L7 21H3v-4L17 3z"/></svg>',
+  spark:'<svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+  send:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+};
+function fmtDate(d){ if(!d) return ''; const p=d.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return +p[2]+' '+months[+p[1]-1]; }
+function suggestFor(name){
+  const n=name.toLowerCase();
+  if(n.includes('theory')) return ['Learn road signs','Take 3 practice tests','Book the theory test'];
+  if(n.includes('practical')) return ['Master clutch control','Practise manoeuvres','Book the practical test'];
+  if(n.includes('financ')||n.includes('mortgage')) return ['Set a monthly budget','Compare loan types','Get a decision in principle'];
+  if(n.includes('buy')&&n.includes('car')) return ['Set a budget','Compare 3 models','Find a trusted dealer','Sort tax & insurance'];
+  if(n.includes('research')) return ['List must-haves','Compare reviews','Check running costs'];
+  if(n.includes('plot')||n.includes('find')) return ['Define the area','Book 3 viewings','Check planning permission'];
+  return ['First small step','Next step','Final step'];
+}
+
+let openId = null;
+
+// ── LIST view ──
+// Time band is auto-derived from the latest date in the tree
+function bandLabel(b){ if(b==='this') return 'This year'; if(b==='someday') return 'Someday'; return b + ' Year'; }
+
+let yrFilterVal = 'all';
+
+function buildYearOptions(){
+  const wrap=document.getElementById('yrFilter');
+  const years=new Set();
+  const curYear=new Date().getFullYear();
+  P.all().forEach(n=>{ if(n.date){ const y=parseInt(n.date.split('-')[0]); years.add(y); } });
+  years.add(curYear);
+  const sorted=[...years].sort();
+  const opts=['all',...sorted.map(String)];
+  wrap.innerHTML=opts.map(v=>{
+    const label = v==='all' ? 'All' : v;
+    return '<button class="yr-pill'+(v===yrFilterVal?' on':'')+'" onclick="pickYear(\''+v+'\')">'+label+'</button>';
+  }).join('');
+}
+function pickYear(v){ yrFilterVal=v; renderList(); }
+
+function renderList(){
+  buildYearOptions();
+  const filter=yrFilterVal;
+  const bandsEl = document.getElementById('bands');
+  bandsEl.innerHTML = '';
+
+  let roots = P.roots();
+  if(filter!=='all'){
+    // filter: show only horizons whose latest date falls in the selected year, or undated (someday)
+    const yr=parseInt(filter);
+    roots = roots.filter(r=>{
+      const d=P.latestDate(r.id);
+      if(!d) return false; // undated only shows in "All"
+      return parseInt(d.split('-')[0])===yr;
+    });
+    // single band for the selected year
+    const active=roots.filter(r=>P.progress(r.id).pct<1);
+    const done=roots.filter(r=>{const p=P.progress(r.id);return p.total>0&&p.pct===1;});
+    if(active.length){
+      const h=document.createElement('div'); h.className='band'; h.textContent=filter+' Year'; bandsEl.appendChild(h);
+      active.forEach(r=>bandsEl.appendChild(hrzCard(r)));
+    }
+    if(done.length){
+      const h=document.createElement('div'); h.className='band'; h.textContent='Done'; bandsEl.appendChild(h);
+      done.forEach(r=>bandsEl.appendChild(hrzCard(r)));
+    }
+    if(!active.length&&!done.length){ bandsEl.innerHTML='<p style="color:var(--muted);font-size:var(--fs-sm);text-align:center;padding:20px">No horizons for '+filter+'</p>'; }
+    return;
+  }
+
+  // "All" mode: group by derived band
+  const groups = {};
+  roots.forEach(r=>{ const b=P.timeBand(r.id); (groups[b]=groups[b]||[]).push(r); });
+  const bands = Object.keys(groups).sort((a,b)=>{
+    if(a==='this') return -1; if(b==='this') return 1;
+    if(a==='someday') return 1; if(b==='someday') return -1;
+    return a.localeCompare(b);
+  });
+  bands.forEach(band=>{
+    const rs = (groups[band]||[]).filter(r=>P.progress(r.id).pct<1); if(!rs.length) return;
+    const h=document.createElement('div'); h.className='band'; h.textContent=bandLabel(band); bandsEl.appendChild(h);
+    rs.forEach(r=> bandsEl.appendChild(hrzCard(r)));
+  });
+  const doneRoots = roots.filter(r=>{ const p=P.progress(r.id); return p.total>0 && p.pct===1; });
+  if(doneRoots.length){
+    const h=document.createElement('div'); h.className='band'; h.textContent='Done'; bandsEl.appendChild(h);
+    doneRoots.forEach(r=> bandsEl.appendChild(hrzCard(r)));
+  }
+}
+function hrzCard(r){
+  const pr=P.progress(r.id), pillVar=P.PILLAR_VAR[r.pillar]||'--muted';
+  const latest=P.latestDate(r.id);
+  const R=15, C=2*Math.PI*R, off=C*(1-pr.pct);
+  const card=document.createElement('div');
+  card.className='hrz'; card.style.setProperty('--pill','var('+pillVar+')');
+  card.onclick=()=>openHorizon(r.id);
+  let html =
+    '<div class="hrz-top">'+
+      '<div class="hrz-ring'+(pr.pct===1?' full':'')+'">'+
+        '<svg width="38" height="38" viewBox="0 0 38 38"><circle class="tk" cx="19" cy="19" r="'+R+'" fill="none" stroke-width="3"/><circle class="fl" cx="19" cy="19" r="'+R+'" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>'+
+        '<div class="hrz-ring-pct">'+Math.round(pr.pct*100)+'%</div>'+
+      '</div>'+
+      '<div class="hrz-main">'+
+        '<div class="hrz-title">'+r.name+'</div>'+
+        '<div class="hrz-sub">'+r.pillar+(latest?' · by '+fmtDate(latest):' · no dates yet')+' · '+pr.done+'/'+pr.total+' done</div>'+
+      '</div>'+
+    '</div>';
+  // show immediate branches
+  const kids=P.children(r.id);
+  if(kids.length){
+    html+='<div class="hrz-branches">';
+    kids.forEach(k=>{
+      const kp=P.progress(k.id), isLeaf=P.children(k.id).length===0;
+      const done=isLeaf?k.done:(kp.pct===1&&kp.total>0);
+      html+='<div class="hrz-br'+(done?' done':'')+'"><span class="hrz-br-name">'+k.name+'</span><span class="hrz-br-ct">'+(isLeaf?(done?'done':'—'):kp.done+'/'+kp.total)+'</span></div>';
+    });
+    html+='</div>';
+  }
+  card.innerHTML=html;
+  return card;
+}
+function addHorizon(){
+  const t=prompt('Name this horizon — a direction you\u2019re drawn to:');
+  if(t&&t.trim()){ const id=P.addRoot(t.trim()); openHorizon(id); }
+}
+
+// ── DETAIL / tree view ──
+function openHorizon(id){ openId=id; document.getElementById('list').style.display='none'; document.getElementById('detail').style.display='block'; renderDetail(); }
+function closeHorizon(){ openId=null; document.getElementById('detail').style.display='none'; document.getElementById('list').style.display='block'; renderList(); }
+
+function renderDetail(){
+  const root=P.byId(openId); if(!root){ closeHorizon(); return; }
+  const dn=document.getElementById('dreamName');
+  if(dn.textContent!==root.name && document.activeElement!==dn) dn.textContent=root.name;
+  dn.onblur=()=>P.rename(root.id, dn.textContent);
+  dn.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); dn.blur(); } };
+  const tEl=document.getElementById('dreamTarget');
+  const latest=P.latestDate(root.id);
+  const band=P.timeBand(root.id);
+  tEl.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg> '+(latest ? 'by '+fmtDate(latest) : 'no dates yet');
+  tEl.onclick=null; // auto-derived, not manual
+  const pr=P.progress(root.id);
+  document.getElementById('dreamBar').style.width=Math.round(pr.pct*100)+'%';
+  document.getElementById('dreamPct').textContent=Math.round(pr.pct*100)+'%';
+  document.getElementById('dreamCount').textContent=pr.done+' of '+pr.total+' leaves done';
+  document.getElementById('dream').classList.toggle('complete', pr.total>0 && pr.done===pr.total);
+  const treeEl=document.getElementById('tree'); treeEl.innerHTML='';
+  P.children(root.id).forEach(c=> treeEl.appendChild(nodeEl(c)));
+}
+
+function nodeEl(node){
+  const wrap=document.createElement('div');
+  const kids=P.children(node.id);
+  const has=kids.length>0;
+  const pr=P.progress(node.id);
+  const isDone= has ? (pr.pct===1 && pr.total>0) : node.done;
+  if(node.open===undefined) node.open=true;
+  wrap.className='node'+(isDone?' done':'')+(node.suggested?' suggested':'');
+
+  const row=document.createElement('div'); row.className='node-row';
+
+  const chev=document.createElement('button');
+  chev.className='chev'+(has?(node.open?' open':''):' leaf'); chev.innerHTML=S.chev;
+  if(has) chev.onclick=()=>{ node.open=!node.open; renderDetail(); };
+  row.appendChild(chev);
+
+  if(has){
+    const dot=document.createElement('div'); dot.className='pdot'+(pr.pct===1?' full':'');
+    const R=9,C=2*Math.PI*R,off=C*(1-pr.pct);
+    dot.innerHTML='<svg width="22" height="22" viewBox="0 0 22 22"><circle class="track" cx="11" cy="11" r="'+R+'" fill="none" stroke-width="2.4"/><circle class="fill" cx="11" cy="11" r="'+R+'" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>';
+    row.appendChild(dot);
+  } else {
+    const ck=document.createElement('div'); ck.className='ck'; ck.innerHTML=S.check;
+    ck.onclick=()=>P.toggleDone(node.id);
+    row.appendChild(ck);
+  }
+
+  const name=document.createElement('div'); name.className='name'; name.textContent=node.name;
+  row.appendChild(name);
+
+  // schedule chip + date on scheduled leaves
+  if(!has && node.bucket && !node.done){ const s=document.createElement('span'); s.className='sched'; s.textContent=P.BUCKET_LABEL[node.bucket]; row.appendChild(s); }
+  if(!has && node.date && !node.done){ const d=document.createElement('span'); d.className='sched'; d.style.color='var(--muted)'; d.style.background='var(--greige)'; d.textContent=fmtDate(node.date); row.appendChild(d); }
+  if(has){ const c=document.createElement('span'); c.className='depth-count'; c.textContent=pr.done+'/'+pr.total; row.appendChild(c); }
+
+  if(node.suggested){
+    const flag=document.createElement('span'); flag.className='ai-flag'; flag.textContent='AI'; row.appendChild(flag);
+    const keep=document.createElement('button'); keep.className='keepbtn'; keep.textContent='Keep';
+    keep.onclick=e=>{ e.stopPropagation(); P.update(node.id,{suggested:false}); };
+    row.appendChild(keep);
+  }
+
+  // tap row → open action sheet (mobile-friendly, no tiny icons)
+  row.style.cursor='pointer';
+  row.onclick = e => {
+    if(e.target.closest('.ck')||e.target.closest('.chev')||e.target.closest('.keepbtn')) return;
+    openNodeSheet(node, has);
+  };
+
+  wrap.appendChild(row);
+  if(has && node.open){ const k=document.createElement('div'); k.className='kids'; kids.forEach(c=>k.appendChild(nodeEl(c))); wrap.appendChild(k); }
+  return wrap;
+}
+
+// ── Node action sheet (replaces inline icons) ──
+let sheetNode = null;
+let sheetHas = false;
+const PILLARS = ['health','inner','admin','family','joy','money','contrib'];
+function openNodeSheet(node, has){
+  sheetNode = node; sheetHas = has;
+  document.getElementById('nsheetTitle').textContent = 'Edit step';
+  const btns = document.getElementById('nsheetBtns');
+  const root=P.rootOf(node.id);
+  // Build form via DOM (no innerHTML with closing tags)
+  btns.innerHTML='';
+  if(root&&root.id!==node.id){const d=document.createElement('div');d.style.cssText='font-size:var(--fs-xs);color:var(--accent);font-weight:700;margin-bottom:8px;';d.textContent='\u21b3 from '+root.name;btns.appendChild(d);}
+  const nameIn=document.createElement('input');nameIn.className='add-field';nameIn.value=node.name;nameIn.style.marginBottom='12px';nameIn.id='hnName';btns.appendChild(nameIn);
+  // pillar picker
+  const pp=document.createElement('div');pp.className='sheet-pillars';
+  const lbl=document.createElement('span');lbl.className='sp-lbl';lbl.textContent='Pillar';pp.appendChild(lbl);
+  PILLARS.forEach(p=>{const b=document.createElement('button');b.className='sp-pill'+(p===node.pillar?' sel':'');b.style.setProperty('--pc','var('+P.PILLAR_VAR[p]+')');b.textContent=p;b.onclick=()=>setNodePillar(p);pp.appendChild(b);});
+  btns.appendChild(pp);
+  // date row
+  const dr=document.createElement('div');dr.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+  const dl=document.createElement('span');dl.style.cssText='font-size:var(--fs-xs);font-weight:700;color:var(--muted);min-width:50px;';dl.textContent='Date';dr.appendChild(dl);
+  const di=document.createElement('input');di.className='add-field';di.type='date';di.value=node.date||'';di.style.cssText='flex:1;margin:0;';di.id='hnDate';dr.appendChild(di);btns.appendChild(dr);
+  // bucket row (leaves only)
+  if(!has){
+    const br=document.createElement('div');br.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+    const bl=document.createElement('span');bl.style.cssText='font-size:var(--fs-xs);font-weight:700;color:var(--muted);min-width:50px;';bl.textContent='When';br.appendChild(bl);
+    const sel=document.createElement('select');sel.className='add-field';sel.style.cssText='flex:1;margin:0;';sel.id='hnBucket';
+    const none=document.createElement('option');none.value='';none.textContent='Not on Month';if(!node.bucket)none.selected=true;sel.appendChild(none);
+    P.BUCKETS.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=P.BUCKET_LABEL[b];if(b===node.bucket)o.selected=true;sel.appendChild(o);});
+    br.appendChild(sel);btns.appendChild(br);
+  }
+  // Save button
+  const saveBtn=document.createElement('button');saveBtn.className='btn-prim';saveBtn.textContent='Save';
+  saveBtn.onclick=()=>{
+    const name=document.getElementById('hnName').value.trim();
+    const date=document.getElementById('hnDate').value||null;
+    const bucketEl=document.getElementById('hnBucket');
+    const bucket=bucketEl?bucketEl.value||null:node.bucket;
+    if(name) P.update(node.id,{name,date,bucket});
+    closeNodeSheet();
+  };
+  btns.appendChild(saveBtn);
+  // Icon toolbar
+  const bar=document.createElement('div');bar.className='icon-bar';
+  const ib=(icon,label,fn,cls)=>{const b=document.createElement('button');b.className='ib'+(cls?' '+cls:'');const ic=document.createElement('i');ic.className='ic ic-'+icon;b.appendChild(ic);const sp=document.createElement('span');sp.textContent=label;b.appendChild(sp);b.onclick=fn;bar.appendChild(b);};
+  ib('route','Split',()=>{node.open=true;const t=prompt('New step:');if(t&&t.trim())P.addChild(node.id,t.trim());closeNodeSheet();});
+  ib('spark','AI',()=>{node.open=true;suggestFor(node.name).forEach(s=>P.addChild(node.id,s,{suggested:true}));closeNodeSheet();});
+  if(!has&&!node.done) ib('check','Done',()=>{P.toggleDone(node.id);closeNodeSheet();},'done-ib');
+  if(!has&&node.bucket==='today'&&!node.done) ib('wind','Later',()=>{if(confirm('Postpone?')){P.update(node.id,{bucket:'backlog',postponed:(node.postponed||0)+1});closeNodeSheet();}});
+  if(!has&&!node.done&&!node.bucket) ib('chev','Send',()=>{P.setBucket(node.id,'month');closeNodeSheet();},'done-ib');
+  ib('x','Delete',()=>{if(confirm('Remove "'+node.name+'"?')){P.remove(node.id);closeNodeSheet();}},'danger');
+  btns.appendChild(bar);
+  document.getElementById('nsheetBack').classList.add('open');
+  document.getElementById('nsheet').classList.add('open');
+}
+function setNodePillar(p){ if(sheetNode){ P.update(sheetNode.id,{pillar:p}); openNodeSheet(sheetNode, sheetHas); } }
+function closeNodeSheet(){
+  document.getElementById('nsheetBack').classList.remove('open');
+  document.getElementById('nsheet').classList.remove('open');
+  sheetNode = null;
+}
+
+// live re-render on any model change (from this or another lens)
+P.subscribe(()=>{ if(openId) renderDetail(); else renderList(); });
+renderList();
+</script>
+</body>
+</html>
