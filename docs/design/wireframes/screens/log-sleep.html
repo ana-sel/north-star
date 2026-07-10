@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compass · Log · Sleep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/><link rel="stylesheet" href="../shared/you.css"/><style>
+/* ── Target strip (V1 style — big times, tap to edit) ── */
+.target-strip{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px 16px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);cursor:pointer;
+}
+.t-header{
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);
+}
+.t-range{display:flex;align-items:center;gap:32px;}
+.t-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.t-icon{font-size:16px;color:var(--muted);}
+.t-time{font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1;}
+.t-dur{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;}
+
+/* ── Lede ── */
+.lede{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.015em;margin:12px 0;}
+
+/* btn-prim · b-label · b-note · sheet-back · sleep-sheet · ss-* → components.css */
+</style>
+</head>
+<body class="screen-body">
+
+  <!-- Lens header -->
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-moon"></i></div>
+    <div>
+      <div class="ylens-title">Sleep</div>
+      <div class="ylens-sub">How did you rest last night?</div>
+    </div>
+  </div>
+
+  <!-- Target strip (tap to edit goal) -->
+  <div class="target-strip" id="targetStrip">
+    <div class="t-header">target</div>
+    <div class="t-range">
+      <div class="t-col"><span class="t-icon"><i class="ic ic-moon"></i></span><span class="t-time" id="tBed">23:00</span></div>
+      <div class="t-col"><span class="t-icon"><i class="ic ic-sun"></i></span><span class="t-time" id="tWake">07:00</span></div>
+    </div>
+    <div class="t-dur" id="tDur">8 hours</div>
+  </div>
+
+  <!-- 24h sleep dial -->
+  <div class="dial-card">
+    <div class="dial-hint">Drag the bed &amp; wake points to adjust · snaps to 10 min</div>
+    <svg id="dialSvg" viewBox="0 0 216 216" role="img" aria-label="24-hour sleep clock"></svg>
+    <div class="dial-foot"><strong id="durDisplay">5h 40m</strong> sleep</div>
+  </div>
+
+  <!-- Gentle note -->
+  <div class="insight">
+    <span class="insight-tag">Gentle note</span>
+    <p class="insight-p" id="insightText">
+      5h 40m is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>
+    </p>
+  </div>
+
+  <!-- Mood + energy -->
+  <div class="b-sect">
+    <div class="mood-pick" data-name="mood" data-value="7">
+      <div class="mp-top">
+        <span class="mp-cap"><i class="ic ic-heart"></i> Mood</span>
+        <span class="mp-now"><b>7</b>Good</span>
+      </div>
+      <div class="mp-track" tabindex="0" role="slider" aria-label="Mood" aria-valuemin="1" aria-valuemax="10" aria-valuenow="7">
+        <div class="mp-rail"></div><div class="mp-fill"></div>
+        <div class="mp-thumb"></div>
+      </div>
+      <div class="mp-ends"><span>Rough</span><span>Great</span></div>
+    </div>
+
+    <div class="mood-pick" data-name="energy" data-value="6">
+      <div class="mp-top">
+        <span class="mp-cap"><i class="ic ic-zap"></i> Energy</span>
+        <span class="mp-now"><b>6</b>Steady</span>
+      </div>
+      <div class="mp-track" tabindex="0" role="slider" aria-label="Energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
+        <div class="mp-rail"></div><div class="mp-fill"></div>
+        <div class="mp-thumb"></div>
+      </div>
+      <div class="mp-ends"><span>Flat</span><span>Buzzing</span></div>
+    </div>
+
+    <div class="b-label" style="margin-top:16px">Note (optional)</div>
+    <textarea class="b-note" placeholder="What's on your mind…"></textarea>
+  </div>
+
+  <button class="btn-prim">Save night</button>
+
+  <!-- Target sheet (slides up from the bottom when you tap the target strip) -->
+  <div class="sheet-back" id="targetBack" onclick="closeTarget()"></div>
+  <div class="sleep-sheet" id="targetModal">
+    <div class="ss-grip"></div>
+    <div class="ss-title">Sleep target</div>
+    <div class="ss-sub">Drag the bed and wake points to set the times you're aiming for.</div>
+    <div class="dial-card">
+      <div class="dial-hint">Same dial — just for your target window</div>
+      <svg id="targetDialSvg" viewBox="0 0 216 216" role="img" aria-label="target sleep clock"></svg>
+      <div class="dial-foot"><strong id="mDur">8h 00m</strong> target · <span id="mBedTxt">23:00</span> → <span id="mWakeTxt">07:00</span></div>
+    </div>
+    <button class="btn-prim" id="mSave">Save target</button>
+  </div>
+
+<script src="../shared/dial.js"></script>
+<script>
+// Mood / energy sliders — tap or drag on a 1–10 scale (stored as-is in the DB)
+const MP_MAX = 10;
+const MP_WORDS = {
+  mood:   ['Rough','Low','Okay','Good','Great'],
+  energy: ['Flat','Low','Steady','High','Buzzing']
+};
+const mpWord = (name, v) => MP_WORDS[name][Math.ceil(v/2)-1];
+const mpPct  = v => (v-1)/(MP_MAX-1)*100;
+// gradual, non-judgmental colour that stays alive: soft slate-blue (low) sweeps
+// through teal + green to a lively olive (high) — calm, and never red
+const mpColor = v => {
+  const t=(v-1)/(MP_MAX-1);
+  return { h:Math.round(208+(92-208)*t), s:Math.round(34+(30-34)*t), l:Math.round(44+(38-44)*t) };
+};
+function mpPaint(pick){
+  const v = +pick.dataset.value, pct = mpPct(v), c = mpColor(v);
+  const solid = 'hsl('+c.h+','+c.s+'%,'+c.l+'%)', glow = 'hsla('+c.h+','+c.s+'%,'+c.l+'%,.38)';
+  const thumb = pick.querySelector('.mp-thumb'), fill = pick.querySelector('.mp-fill'), now = pick.querySelector('.mp-now');
+  thumb.style.left = pct + '%';
+  thumb.style.borderColor = solid;
+  thumb.style.boxShadow = '0 2px 8px ' + glow;
+  fill.style.width = pct + '%';
+  fill.style.background = solid;
+  now.innerHTML = '<b>'+v+'</b>'+mpWord(pick.dataset.name, v);
+  now.style.color = '#FBFAF8';
+  now.style.background = solid;
+  pick.querySelector('.mp-track').setAttribute('aria-valuenow', v);
+}
+function mpSet(pick, clientX){
+  const r = pick.querySelector('.mp-track').getBoundingClientRect();
+  const ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+  pick.dataset.value = Math.min(MP_MAX, Math.max(1, Math.round(ratio * (MP_MAX-1)) + 1));
+  mpPaint(pick);
+}
+document.querySelectorAll('.mood-pick').forEach(pick => {
+  const t = pick.querySelector('.mp-track'), thumb = pick.querySelector('.mp-thumb');
+  for(let i=1;i<=MP_MAX;i++){ const s=document.createElement('span'); s.className='mp-tick'; s.style.left=mpPct(i)+'%'; t.insertBefore(s, thumb); }
+  mpPaint(pick);
+  let drag = false;
+  const xOf = e => (e.touches ? e.touches[0] : e).clientX;
+  t.addEventListener('mousedown', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); });
+  t.addEventListener('touchstart', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); }, {passive:false});
+  window.addEventListener('mousemove', e=>{ if(drag) mpSet(pick, xOf(e)); });
+  window.addEventListener('touchmove', e=>{ if(drag) mpSet(pick, xOf(e)); }, {passive:false});
+  window.addEventListener('mouseup', ()=> drag=false);
+  window.addEventListener('touchend', ()=> drag=false);
+  t.addEventListener('keydown', e=>{
+    let v=+pick.dataset.value;
+    if(e.key==='ArrowRight'||e.key==='ArrowUp') v=Math.min(MP_MAX,v+1);
+    else if(e.key==='ArrowLeft'||e.key==='ArrowDown') v=Math.max(1,v-1);
+    else return;
+    pick.dataset.value=v; mpPaint(pick); e.preventDefault();
+  });
+});
+
+// Shared target state (read by main dial, written by target modal)
+window._target = { sleep: 23, wake: 7 };
+
+// ── 24h sleep dial — shared factory ──
+window._mainDial = createSleepDial({
+  svg: 'dialSvg', sleep: 50/60, wake: 6.5, showTargetArc: true,
+  onUpdate: ctx => {
+    document.getElementById('durDisplay').textContent = ctx.fmtDur(ctx.sleepH, ctx.wakeH);
+    const durStr = ctx.fmtDur(ctx.sleepH, ctx.wakeH), diff = ctx.durHours - 8;
+    let note;
+    if (diff >= 0) note = `${durStr} — at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>`;
+    else if (diff >= -1) note = `${durStr} is close to your 8h goal. <span class="soft">See how your energy feels today — one night off is just one night.</span>`;
+    else note = `${durStr} is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>`;
+    document.getElementById('insightText').innerHTML = note;
+  }
+});
+
+// ── Target dial (in modal) — shared factory ──
+window._targetDial = createSleepDial({
+  svg: 'targetDialSvg', sleep: window._target.sleep, wake: window._target.wake,
+  arcColor: '#768471', sectorColor: 'rgba(118,132,113,0.18)',
+  onUpdate: ctx => {
+    document.getElementById('mBedTxt').textContent = ctx.fmtTime(ctx.sleepH);
+    document.getElementById('mWakeTxt').textContent = ctx.fmtTime(ctx.wakeH);
+    const d = ctx.durHours, h = Math.floor(d), m = Math.round((d - h) * 60);
+    document.getElementById('mDur').textContent = h + 'h ' + String(m).padStart(2, '0') + 'm';
+    window._target.sleep = ctx.sleepH; window._target.wake = ctx.wakeH;
+  }
+});
+
+// ── Open / close / save target sheet ──
+(function () {
+  const tMod  = document.getElementById('targetModal');
+  const tBack = document.getElementById('targetBack');
+  const strip = document.getElementById('targetStrip');
+  const save  = document.getElementById('mSave');
+
+  const fmtT = h => {
+    const tot = Math.round(((h % 24 + 24) % 24) * 60);
+    return String(Math.floor(tot / 60) % 24).padStart(2,'0') + ':' + String(tot % 60).padStart(2,'0');
+  };
+  const fmtDurHours = (t1, t2) => {
+    const d = ((t2 - t1) + 24) % 24;
+    const h = Math.floor(d), m = Math.round((d - h) * 60);
+    return m > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${h} hours`;
+  };
+
+  function openSheet(){ tMod.classList.add('open'); tBack.classList.add('open'); }
+  window.closeTarget = function(){ tMod.classList.remove('open'); tBack.classList.remove('open'); };
+
+  strip.addEventListener('click', openSheet);
+  save.addEventListener('click', () => {
+    document.getElementById('tBed').textContent  = fmtT(window._target.sleep);
+    document.getElementById('tWake').textContent = fmtT(window._target.wake);
+    document.getElementById('tDur').textContent  = fmtDurHours(window._target.sleep, window._target.wake);
+    window._mainDial.refreshTarget();
+    window.closeTarget();
+  });
+})();
+</script>
+</body>
+</html>
