@@ -1,0 +1,445 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compass · Log · Body</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<style>
+
+/* ── Shared card ── */
+.bc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
+.bc-save{padding:12px 16px 16px;}  /* btn-prim wrapper at card bottom */
+
+/* ─────────────── WEIGHT + BMI ─────────────── */
+.weight-hero{padding:18px 18px 14px;}
+/* Weight row — tappable */
+.wh-row{display:flex;align-items:flex-end;gap:0;margin-bottom:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.wh-row:active{opacity:.7;}
+.wh-num{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;line-height:1;cursor:pointer;}
+.wh-unit{font-size:var(--fs-sm);font-weight:600;color:var(--muted);margin-bottom:3px;margin-left:4px;}
+.wh-chev{margin-left:auto;color:var(--line);font-size:15px;align-self:center;}
+
+/* BMI row — number left, status pill right */
+.bmi-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.bmi-val{font-size:var(--fs-lg);font-weight:800;}
+.bmi-label{font-size:var(--fs-xs);font-weight:700;padding:4px 10px;border-radius:999px;}
+.bmi-healthy{background:#e5f2e3;color:#3d6e37;}
+.bmi-over   {background:#fef3e2;color:#a06010;}
+.bmi-under  {background:#fce8e8;color:#a03030;}
+
+/* BMI track */
+.bmi-track-wrap{margin-bottom:4px;}
+.bmi-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#b0bfab 0%,#8eba84 20%,#6dab5e 40%,#c9b754 60%,#d1894a 78%,#b77980 100%);position:relative;overflow:visible;}
+.bmi-marker{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--p-health);transform:translateX(-50%);transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.bmi-zones{display:flex;font-size:8px;color:var(--muted);font-weight:600;margin-top:5px;padding:0 1px;}
+.bmi-zone{flex:1;text-align:center;}
+.bmi-zone:first-child{text-align:left;}
+.bmi-zone:last-child{text-align:right;}
+
+/* ─────────────── NUTRITION ─────────────── */
+/* Sweets-free tick (same pattern as habit ticks in Today) */
+.sweets-tick{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.sweets-tick-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
+.sweets-tick.ticked .sweets-tick-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
+.sweets-tick-ic{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb, currentColor 14%, transparent);display:grid;place-items:center;flex-shrink:0;}
+.sweets-tick-ic .ic{width:16px;height:16px;}
+.sweets-tick-name{font-size:var(--fs-md);font-weight:600;}
+.sweets-tick.ticked .sweets-tick-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+.sweets-tick-sub{font-size:var(--fs-xs);color:var(--muted);display:block;margin-top:2px;}
+
+/* Nutrient rows */
+.nutr-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.nutr-row:active{background:var(--greige);}
+.nutr-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb, currentColor 14%, transparent);display:grid;place-items:center;flex-shrink:0;}
+.nutr-icon .ic{width:16px;height:16px;}
+.nutr-col{flex:1;}
+.nutr-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}
+.nutr-val{font-size:var(--fs-lg);font-weight:800;line-height:1.1;margin-top:1px;}
+.nutr-val.empty{font-size:var(--fs-sm);font-weight:400;color:var(--muted);}
+/* mini bar */
+.nutr-bar{height:4px;background:var(--greige);border-radius:999px;margin-top:6px;overflow:hidden;}
+.nutr-fill{height:100%;border-radius:999px;}
+.nutr-chev{color:var(--line);font-size:15px;flex-shrink:0;}
+
+/* ── Scroll-wheel picker sheet ── */
+.pk-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;text-align:center;margin-bottom:14px;}
+.pk-drum{position:relative;height:180px;overflow:hidden;margin:0 auto 16px;width:140px;user-select:none;-webkit-user-select:none;}
+.pk-drum::before,.pk-drum::after{content:'';position:absolute;left:0;right:0;height:60px;pointer-events:none;z-index:2;}
+.pk-drum::before{top:0;background:linear-gradient(to bottom,var(--bg),transparent);}
+.pk-drum::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent);}
+.pk-window{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);z-index:1;pointer-events:none;}
+.pk-list{position:absolute;left:0;right:0;top:0;transition:transform .12s ease-out;text-align:center;}
+.pk-item{height:44px;line-height:44px;font-size:20px;font-weight:700;color:var(--muted);letter-spacing:-.02em;}
+.pk-item.sel{color:var(--ink);font-size:24px;font-weight:800;}
+/* Tap-to-type mode */
+.pk-keypad{display:none;flex-direction:column;align-items:center;gap:12px;margin:0 auto 16px;}
+.pk-keypad.show{display:flex;}
+.pk-drum.hide{display:none;}
+.pk-input{width:140px;font-size:28px;font-weight:800;font-family:inherit;text-align:center;
+  border:none;border-bottom:2.5px solid var(--accent);background:transparent;
+  outline:none;color:var(--ink);letter-spacing:-.02em;padding:6px 0;}
+.pk-hint{font-size:var(--fs-xs);color:var(--muted);}
+.pk-mode{font-size:var(--fs-xs);font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 14px;margin-bottom:4px;}
+.pk-done{width:100%;}
+
+/* ── Save toggled state ── */
+.btn-prim.saved{background:var(--olive);}
+
+/* ─────────────── MOVEMENT ─────────────── */
+/* Activity + feel pill pickers */
+
+.pill-section{padding:12px 16px;border-bottom:1px solid var(--line);}
+.pill-section:last-child{border-bottom:none;}
+.pill-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;}\n.pill{font-size:var(--fs-xs);font-weight:600;padding:8px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;white-space:nowrap;}
+.pill.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+.pill.sel-feel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+.pill-add{border-style:dashed;}
+
+/* ── Optional notice ── */
+.opt-notice{text-align:center;font-size:var(--fs-xs);color:var(--muted);margin-top:14px;line-height:1.6;padding:0 8px;}
+
+</style>
+</head>
+<body class="screen-body">
+
+  <div class="ylens">
+    <div class="ylens-badge"><i class="ic ic-activity"></i></div>
+    <div>
+      <div class="ylens-title">Body</div>
+      <div class="ylens-sub">Weight, nutrition and movement</div>
+    </div>
+  </div>
+
+  <!-- ══════════ WEIGHT + BMI ══════════ -->
+  <div class="yhead">
+    <i class="ic ic-scale yhead-ic"></i>
+    <div class="yhead-t">Weight</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="bc">
+    <div class="weight-hero">
+
+      <div class="wh-row" onclick="editWeight()">
+        <div class="wh-num" id="weightNum">72.4</div>
+        <div class="wh-unit">kg</div>
+        <i class="ic ic-chev wh-chev"></i>
+      </div>
+
+      <div class="bmi-row">
+        <div class="bmi-val" id="bmiVal">23.6</div>
+        <div class="bmi-label bmi-healthy" id="bmiLabel">Healthy</div>
+      </div>
+
+      <!-- BMI track: underweight | healthy | overweight | obese -->
+      <!-- Range shown: 15–35. Zones: <18.5 | 18.5–25 | 25–30 | >30 -->
+      <!-- Healthy zone: 17.5%–50%. Overweight: 50–75%. -->
+      <div class="bmi-track-wrap">
+        <div class="bmi-track">
+          <div class="bmi-marker" id="bmiMarker" style="left:43%"></div>
+        </div>
+        <div class="bmi-zones">
+          <div class="bmi-zone">Under</div>
+          <div class="bmi-zone">Healthy</div>
+          <div class="bmi-zone">Over</div>
+          <div class="bmi-zone">Obese</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="bc-save">
+      <button class="btn-prim" onclick="saveSection(this)">Save weight</button>
+    </div>
+  </div>
+
+  <!-- ══════════ NUTRITION ══════════ -->
+  <div class="yhead">
+    <i class="ic ic-apple yhead-ic"></i>
+    <div class="yhead-t">Nutrition</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="bc">
+
+    <!-- Sweets-free tick -->
+    <div class="sweets-tick" onclick="toggleSweets(this)">
+      <div class="sweets-tick-ck">✓</div>
+      <div class="sweets-tick-ic" style="color:#c77b9e"><i class="ic ic-candy"></i></div>
+      <div>
+        <div class="sweets-tick-name">Sweets-free today</div>
+        <span class="sweets-tick-sub">No sugar, chocolate or pastries</span>
+      </div>
+    </div>
+
+    <!-- Calories -->
+    <div class="nutr-row" onclick="editNutr('calVal','Calories')">
+      <div class="nutr-icon" style="color:#d1894a"><i class="ic ic-flame"></i></div>
+      <div class="nutr-col">
+        <div class="nutr-label">Calories</div>
+        <div class="nutr-val" id="calVal">1,820</div>
+        <div class="nutr-bar"><div class="nutr-fill" style="width:70%;background:var(--p-joy)"></div></div>
+      </div>
+      <i class="ic ic-chev nutr-chev"></i>
+    </div>
+
+    <!-- Protein -->
+    <div class="nutr-row" onclick="editNutr('protVal','Protein')">
+      <div class="nutr-icon" style="color:#c9a24e"><i class="ic ic-egg"></i></div>
+      <div class="nutr-col">
+        <div class="nutr-label">Protein</div>
+        <div class="nutr-val" id="protVal">88 g</div>
+        <div class="nutr-bar"><div class="nutr-fill" style="width:55%;background:var(--p-health)"></div></div>
+      </div>
+      <i class="ic ic-chev nutr-chev"></i>
+    </div>
+
+    <div class="bc-save">
+      <button class="btn-prim" onclick="saveSection(this)">Save nutrition</button>
+    </div>
+  </div>
+
+  <!-- ══════════ MOVEMENT ══════════ -->
+  <div class="yhead">
+    <i class="ic ic-activity yhead-ic"></i>
+    <div class="yhead-t">Movement</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="bc">
+
+    <!-- Steps -->
+    <div class="nutr-row" onclick="editNutr('stepsNum','Steps')">
+      <div class="nutr-icon" style="color:#6dab5e"><i class="ic ic-footprints"></i></div>
+      <div class="nutr-col">
+        <div class="nutr-label">Steps · goal 10k</div>
+        <div class="nutr-val" id="stepsNum">8,420</div>
+        <div class="nutr-bar"><div class="nutr-fill" style="width:84%;background:var(--p-health)"></div></div>
+      </div>
+      <i class="ic ic-chev nutr-chev"></i>
+    </div>
+
+    <!-- Activity type -->
+    <div class="pill-section">
+      <div class="pill-label">Activity today</div>
+      <div class="pill-row">
+        <button class="pill sel" onclick="togglePill(this)">Walk</button>
+        <button class="pill" onclick="togglePill(this)">Run</button>
+        <button class="pill" onclick="togglePill(this)">Gym</button>
+        <button class="pill" onclick="togglePill(this)">Yoga</button>
+        <button class="pill" onclick="togglePill(this)">Cycle</button>
+        <button class="pill" onclick="togglePill(this)">Rest day</button>
+        <button class="pill pill-add" onclick="addPill(this)">＋</button>
+      </div>
+    </div>
+
+    <!-- Body after movement -->
+    <div class="pill-section">
+      <div class="pill-label">Body after movement</div>
+      <div class="pill-row">
+        <button class="pill sel-feel" onclick="toggleFeel(this)">Energised</button>
+        <button class="pill" onclick="toggleFeel(this)">Loose</button>
+        <button class="pill" onclick="toggleFeel(this)">Neutral</button>
+        <button class="pill" onclick="toggleFeel(this)">Stiff</button>
+        <button class="pill" onclick="toggleFeel(this)">Sore</button>
+        <button class="pill pill-add" onclick="addPill(this)">＋</button>
+      </div>
+    </div>
+
+    <div class="bc-save">
+      <button class="btn-prim" onclick="saveSection(this)">Save movement</button>
+    </div>
+  </div>
+
+  <div class="opt-notice">Nothing is tracked unless you save it.<br/>Trends appear after a few entries.</div>
+
+  <!-- ═══ NUMBER PICKER SHEET (shared by all numeric fields) ═══ -->
+  <div class="sheet-back" id="pkBack" onclick="closePicker()"></div>
+  <div class="sleep-sheet" id="pkSheet">
+    <div class="ss-grip"></div>
+    <div class="pk-title" id="pkTitle">Weight</div>
+    <!-- Drum mode -->
+    <div class="pk-drum" id="pkDrum">
+      <div class="pk-window"></div>
+      <div class="pk-list" id="pkList"></div>
+    </div>
+    <!-- Keypad mode -->
+    <div class="pk-keypad" id="pkKeypad">
+      <input class="pk-input" id="pkInput" type="number" inputmode="decimal"/>
+      <div class="pk-hint">Type a number and tap Done</div>
+    </div>
+    <button class="pk-mode" id="pkModeBtn" onclick="togglePickerMode()">Tap to type</button>
+    <button class="btn-prim pk-done" onclick="confirmPicker()">Done</button>
+  </div>
+
+<script>
+/* Sweets-free tick */
+function toggleSweets(row){ row.classList.toggle('ticked'); }
+
+/* ═══ SCROLL-WHEEL PICKER ═══ */
+let _pk = { elId:null, label:null, min:0, max:500, step:1, decimals:0, idx:0, mode:'drum' };
+
+function openPicker(elId, label, min, max, step, decimals){
+  const el = document.getElementById(elId);
+  const cur = parseFloat(el.textContent.replace(/[^\d.]/g,''));
+  _pk = { elId, label, min, max, step, decimals: decimals||0, mode:'drum' };
+  document.getElementById('pkTitle').textContent = label;
+  // Build drum items
+  const list = document.getElementById('pkList');
+  list.innerHTML = '';
+  const items = [];
+  for(let v=min; v<=max; v+=step){ items.push(v); }
+  _pk.items = items;
+  _pk.idx = items.indexOf(cur);
+  if(_pk.idx<0) _pk.idx = items.reduce((best,v,i) => Math.abs(v-cur)<Math.abs(items[best]-cur)?i:best, 0);
+  items.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.className='pk-item'+(i===_pk.idx?' sel':'');
+    d.textContent = decimals ? v.toFixed(decimals) : v.toLocaleString();
+    list.appendChild(d);
+  });
+  // Position
+  scrollDrum();
+  // Reset to drum mode
+  document.getElementById('pkDrum').classList.remove('hide');
+  document.getElementById('pkKeypad').classList.remove('show');
+  document.getElementById('pkModeBtn').textContent = 'Tap to type';
+  _pk.mode='drum';
+  // Open sheet
+  document.getElementById('pkSheet').classList.add('open');
+  document.getElementById('pkBack').classList.add('open');
+}
+function scrollDrum(){
+  const list=document.getElementById('pkList');
+  const offset = -((_pk.idx)*44) + 68; // center in 180px window
+  list.style.transform = 'translateY('+offset+'px)';
+  list.querySelectorAll('.pk-item').forEach((d,i)=>d.className='pk-item'+(i===_pk.idx?' sel':''));
+}
+function closePicker(){
+  document.getElementById('pkSheet').classList.remove('open');
+  document.getElementById('pkBack').classList.remove('open');
+}
+function togglePickerMode(){
+  if(_pk.mode==='drum'){
+    _pk.mode='keypad';
+    document.getElementById('pkDrum').classList.add('hide');
+    document.getElementById('pkKeypad').classList.add('show');
+    document.getElementById('pkModeBtn').textContent = 'Use scroll wheel';
+    const inp = document.getElementById('pkInput');
+    inp.value = _pk.decimals ? _pk.items[_pk.idx].toFixed(_pk.decimals) : _pk.items[_pk.idx];
+    inp.step = _pk.step; inp.focus(); inp.select();
+  } else {
+    _pk.mode='drum';
+    document.getElementById('pkDrum').classList.remove('hide');
+    document.getElementById('pkKeypad').classList.remove('show');
+    document.getElementById('pkModeBtn').textContent = 'Tap to type';
+  }
+}
+function confirmPicker(){
+  let val;
+  if(_pk.mode==='keypad'){
+    val = parseFloat(document.getElementById('pkInput').value);
+  } else {
+    val = _pk.items[_pk.idx];
+  }
+  if(isNaN(val)||val<=0){ closePicker(); return; }
+  applyValue(_pk.elId, _pk.label, val);
+  closePicker();
+}
+function applyValue(elId, label, val){
+  const el = document.getElementById(elId);
+  if(label==='Weight'){
+    el.textContent = val.toFixed(1);
+    const h=1.75, bmi=val/(h*h);
+    document.getElementById('bmiVal').textContent = bmi.toFixed(1);
+    const lbl=document.getElementById('bmiLabel');
+    const pct=Math.max(2,Math.min(96,Math.round((bmi-15)/20*100)));
+    document.getElementById('bmiMarker').style.left=pct+'%';
+    if(bmi<18.5){lbl.className='bmi-label bmi-under';lbl.textContent='Underweight';}
+    else if(bmi<25){lbl.className='bmi-label bmi-healthy';lbl.textContent='Healthy';}
+    else if(bmi<30){lbl.className='bmi-label bmi-over';lbl.textContent='Overweight';}
+    else{lbl.className='bmi-label bmi-under';lbl.textContent='Obese';}
+  } else if(label==='Calories'){
+    el.textContent=Math.round(val).toLocaleString();
+    el.nextElementSibling.firstElementChild.style.width=Math.min(100,Math.round(val/2600*100))+'%';
+  } else if(label==='Protein'){
+    el.textContent=Math.round(val)+' g';
+    el.nextElementSibling.firstElementChild.style.width=Math.min(100,Math.round(val/160*100))+'%';
+  } else {
+    el.textContent=Math.round(val).toLocaleString();
+    el.nextElementSibling.firstElementChild.style.width=Math.min(100,Math.round(val/10000*100))+'%';
+  }
+}
+// Touch/mouse scroll on the drum
+(function(){
+  const drum=document.getElementById('pkDrum');
+  let startY=0, startIdx=0, dragging=false;
+  const yOf=e=>(e.touches?e.touches[0]:e).clientY;
+  drum.addEventListener('touchstart',e=>{dragging=true;startY=yOf(e);startIdx=_pk.idx;e.preventDefault();},{passive:false});
+  drum.addEventListener('mousedown',e=>{dragging=true;startY=yOf(e);startIdx=_pk.idx;e.preventDefault();});
+  const move=e=>{if(!dragging)return;const dy=yOf(e)-startY;const shift=Math.round(-dy/44);_pk.idx=Math.max(0,Math.min(_pk.items.length-1,startIdx+shift));scrollDrum();};
+  window.addEventListener('touchmove',move,{passive:true});
+  window.addEventListener('mousemove',move);
+  window.addEventListener('touchend',()=>dragging=false);
+  window.addEventListener('mouseup',()=>dragging=false);
+  // Click on center number → switch to type
+  drum.addEventListener('click',e=>{
+    const item=e.target.closest('.pk-item.sel');
+    if(item) togglePickerMode();
+  });
+})();
+
+/* Shortcut openers for each field */
+function editWeight(){ openPicker('weightNum','Weight',40,150,0.1,1); }
+function editNutr(elId, label){
+  if(label==='Calories') openPicker(elId,label,0,5000,10,0);
+  else if(label==='Protein') openPicker(elId,label,0,300,1,0);
+  else openPicker(elId,label,0,30000,100,0);
+}
+
+/* Activity pills — single select */
+function togglePill(btn){
+  if(btn.classList.contains('pill-add')) return;
+  btn.closest('.pill-row').querySelectorAll('.pill:not(.pill-add)').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+/* Body feel pills — single select */
+function toggleFeel(btn){
+  if(btn.classList.contains('pill-add')) return;
+  btn.closest('.pill-row').querySelectorAll('.pill:not(.pill-add)').forEach(b=>b.className='pill');
+  btn.classList.add('sel-feel');
+}
+
+/* Add custom pill */
+function addPill(addBtn){
+  const label = prompt('Add option:');
+  if(!label || !label.trim()) return;
+  const row = addBtn.closest('.pill-row');
+  const isAct = row.closest('.pill-section').querySelector('.pill-label').textContent.includes('Activity');
+  const newPill = document.createElement('button');
+  newPill.className = 'pill';
+  newPill.textContent = label.trim();
+  newPill.onclick = isAct ? function(){ togglePill(this); } : function(){ toggleFeel(this); };
+  row.insertBefore(newPill, addBtn);
+}
+
+/* Save / unsave toggle */
+function saveSection(btn){
+  if(btn.classList.contains('saved')){
+    btn.classList.remove('saved');
+    btn.textContent = btn.dataset.orig;
+  } else {
+    if(!btn.dataset.orig) btn.dataset.orig = btn.textContent;
+    const now = new Date();
+    const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+    btn.classList.add('saved');
+    btn.textContent = '\u2713\u2009Saved \u00b7 ' + t;
+  }
+}
+</script>
+
+</body>
+</html>
