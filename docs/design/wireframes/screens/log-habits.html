@@ -253,13 +253,13 @@ html,body{height:100%;position:relative;}
     </div>
   </div>
 
-  <!-- ── Pace selector (shared with Today) ── -->
+  <!-- Pace mirrors Today (read-only here) -->
   <div class="pace">
-    <div class="pace-label">Today's pace</div>
-    <div class="pace-seg">
-      <button class="pace-btn on" data-mode="full" onclick="setPace('full')">Full</button>
-      <button class="pace-btn" data-mode="lighter" onclick="setPace('lighter')">Lighter</button>
-      <button class="pace-btn" data-mode="rest" onclick="setPace('rest')">Rest</button>
+    <div class="pace-label" style="flex:1">Today's pace &nbsp;<span style="font-weight:500;opacity:.65;font-size:var(--fs-xs)">Set on Today screen</span></div>
+    <div class="pace-seg" style="pointer-events:none;opacity:.75">
+      <button class="pace-btn on" data-mode="full">Full</button>
+      <button class="pace-btn" data-mode="lighter">Lighter</button>
+      <button class="pace-btn" data-mode="rest">Rest</button>
     </div>
   </div>
 
