@@ -10,24 +10,60 @@
 <link rel="stylesheet" href="../shared/components.css"/>
 <link rel="stylesheet" href="../shared/you.css"/>
 <style>
-  /* Mission */
+  .sec-head{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:8px;}
+  .sec-head::after{content:'';flex:1;height:1px;background:var(--line);}
   .mission{background:linear-gradient(135deg,#2f3a34,#3d4a41);color:#f4f2ec;border-radius:20px;padding:18px;margin-bottom:16px;}
   .mission-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#b9c6ad;margin-bottom:7px;}
-  .mission-txt{font-size:17px;font-weight:700;line-height:1.45;font-style:italic;outline:none;}
+  .mission-txt{font-size:17px;font-weight:700;line-height:1.45;font-style:italic;outline:none;color:#f4f2ec;}
+  .mission-txt:empty::before{content:'Set your direction — tap to edit';opacity:.45;font-style:italic;}
   .mission-sub{font-size:var(--fs-xs);color:#c9d3bf;margin-top:8px;}
-
-  .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 9px;display:flex;align-items:center;gap:8px;}
-  .band::after{content:'';flex:1;height:1px;background:var(--line);}
-
-  .map-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin:-2px 2px 14px;}
-  /* Toggle */
-  .map-toggle{display:flex;background:var(--greige);border-radius:12px;padding:3px;gap:2px;margin-bottom:14px;}
-  .map-toggle button{flex:1;padding:8px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
-  .map-toggle button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
-  /* Graph view */
-  #graphWrap{display:none;overflow-x:auto;padding-bottom:12px;}
-  #graphWrap.show{display:block;}
-  #forest.hide{display:none;}
+  .mission-setup{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;}
+  .mission-setup-title{font-size:var(--fs-md);font-weight:800;margin-bottom:4px;}
+  .mission-setup-sub{font-size:var(--fs-xs);color:var(--muted);margin-bottom:14px;line-height:1.5;}
+  .mission-q{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:4px;}
+  .mission-q-input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:var(--fs-sm);background:var(--bg);color:var(--ink);outline:none;box-sizing:border-box;margin-bottom:10px;}
+  .mission-q-input:focus{border-color:var(--accent);}
+  .btn-prim{width:100%;padding:13px;border-radius:13px;border:none;background:var(--btn);color:#FBFAF8;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
+  .insight-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:9px;box-shadow:var(--shadow-sm);}
+  .insight-card.red{border-left:4px solid #b0574a;}
+  .insight-card.amber{border-left:4px solid #c99554;}
+  .insight-card.green{border-left:4px solid #6d9e5c;}
+  .insight-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .insight-dot.red{background:#b0574a;}
+  .insight-dot.amber{background:#c99554;}
+  .insight-dot.green{background:#6d9e5c;}
+  .insight-title{font-size:var(--fs-sm);font-weight:800;color:var(--ink);margin-bottom:5px;}
+  .insight-body{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;margin-bottom:8px;}
+  .insight-action{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}
+  .show-more-btn{font-size:var(--fs-xs);font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 0;font-family:inherit;display:block;margin:0 auto;}
+  .ai-card{background:linear-gradient(135deg,#2d2a3e,#1e1c2a);color:#e8e4f5;border-radius:14px;padding:14px 16px;margin-bottom:9px;}
+  .ai-tag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#9b95bf;margin-bottom:8px;}
+  .ai-prompts{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
+  .ai-prompt{font-size:var(--fs-xs);color:#c8c4e8;line-height:1.45;padding:7px 10px;background:rgba(255,255,255,.06);border-radius:8px;border:1px solid rgba(255,255,255,.08);}
+  .ai-open-btn{font-size:var(--fs-xs);font-weight:700;color:#9b95bf;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}
+  .checkin-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:10px;}
+  .checkin-title{font-size:var(--fs-md);font-weight:800;margin-bottom:4px;}
+  .checkin-auto{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:10px;padding:9px 12px;margin-bottom:14px;line-height:1.55;}
+  .checkin-q{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:5px;margin-top:10px;}
+  .checkin-q:first-of-type{margin-top:0;}
+  .checkin-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:var(--fs-sm);background:var(--bg);color:var(--ink);outline:none;resize:vertical;box-sizing:border-box;min-height:60px;}
+  .checkin-textarea:focus{border-color:var(--accent);}
+  .energy-row{display:flex;gap:6px;margin-top:10px;margin-bottom:14px;}
+  .en-emoji{flex:1;padding:8px 0;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font-size:14px;text-align:center;cursor:pointer;transition:all .12s;}
+  .en-emoji.sel{border-color:var(--accent);background:color-mix(in srgb,#768471 14%,transparent);}
+  .checkin-done{display:flex;align-items:center;gap:8px;font-size:var(--fs-xs);color:var(--muted);padding:8px 0;}
+  .checkin-done .review-again{color:var(--accent);font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-size:var(--fs-xs);}
+  .balance-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:10px;}
+  .period-row{display:flex;gap:5px;margin-bottom:12px;}
+  .period-pill{padding:5px 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .period-pill.on{border-color:var(--accent);background:color-mix(in srgb,#768471 14%,transparent);color:var(--ink);}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .bar-label{width:54px;font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0;text-align:right;}
+  .bar-track{flex:1;height:8px;background:var(--greige);border-radius:999px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .bar-ct{width:22px;font-size:9px;font-weight:700;color:var(--muted);text-align:right;flex-shrink:0;}
+  .bar-goal-hint{font-size:8px;color:var(--accent);font-weight:700;flex-shrink:0;}
+  .graph-wrap{overflow-x:auto;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-top:10px;}
   .g-svg{display:block;}
   .g-node{cursor:pointer;}
   .g-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;fill:var(--ink);}
@@ -35,96 +71,406 @@
   .g-link{stroke:var(--line);stroke-width:1.5;fill:none;}
   .g-ring-bg{stroke:var(--line);fill:none;stroke-width:2.5;}
   .g-ring-fg{fill:none;stroke-width:2.5;stroke-linecap:round;}
+  .archive-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  .archive-stat{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--fs-sm);padding:5px 0;border-bottom:1px solid var(--line);}
+  .archive-stat:last-of-type{border-bottom:none;}
+  .archive-stat-label{color:var(--muted);}
+  .archive-stat-val{font-weight:800;color:var(--ink);}
+  .archive-goal{font-size:var(--fs-xs);color:var(--muted);padding:3px 0 3px 8px;}
+  .archive-goal.done::before{content:'✓ ';color:#6d9e5c;font-weight:700;}
+  .archive-goal.prog::before{content:'○ ';color:var(--accent);}
+  .past-rev{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:7px;overflow:hidden;}
+  .past-rev-head{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;}
+  .past-rev-date{font-size:var(--fs-xs);font-weight:700;color:var(--ink);flex:1;}
+  .past-rev-type{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--greige);padding:2px 7px;border-radius:99px;}
+  .past-rev-en{font-size:14px;}
+  .past-rev-body{display:none;padding:0 14px 12px;font-size:var(--fs-xs);color:var(--muted);line-height:1.7;}
+  .past-rev-body.open{display:block;}
+  .yr-pills{display:flex;gap:5px;overflow-x:auto;margin-bottom:10px;}
+  .yr-pills::-webkit-scrollbar{display:none;}
+  .yr-pill{padding:5px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .yr-pill.on{border-color:var(--accent);background:color-mix(in srgb,#768471 14%,transparent);color:var(--accent);}
+
+  /* Map v2: direction -> constraint -> smallest useful decision */
+  .legacy-map{display:none;}
+  .map-intro{margin:-3px 0 14px;font-size:var(--fs-sm);line-height:1.5;color:var(--muted);}
+  .direction-card{position:relative;overflow:hidden;background:#303a34;color:#f7f4ed;border-radius:18px;padding:16px 17px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .direction-card::after{content:'';position:absolute;right:-20px;top:-26px;width:92px;height:92px;border:18px solid rgba(185,198,173,.09);border-radius:50%;}
+  .direction-label,.eyebrow{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;}
+  .direction-label{color:#b9c6ad;margin-bottom:7px;}
+  .direction-text{position:relative;z-index:1;font-size:17px;font-weight:750;line-height:1.4;outline:none;max-width:92%;}
+  .direction-text:empty::before{content:'Tap to write the direction you want your life to move in';color:#c9d3bf;font-weight:500;}
+  .direction-foot{position:relative;z-index:1;margin-top:10px;font-size:var(--fs-xs);color:#c9d3bf;}
+  .section-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 2px 9px;}
+  .section-title{font-size:var(--fs-lg);font-weight:800;line-height:1.2;}
+  .section-meta{font-size:var(--fs-xs);color:var(--muted);text-align:right;}
+  .flow-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow-sm);}
+  .flow-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .flow-status{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#9a6734;background:#f5eadb;border-radius:999px;padding:4px 8px;}
+  .flow-energy{margin-left:auto;font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+  .flow-title{font-size:18px;font-weight:800;line-height:1.25;margin-bottom:5px;}
+  .flow-copy{font-size:var(--fs-sm);line-height:1.55;color:var(--muted);}
+  .flow-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:13px 0 10px;}
+  .decision-btn{min-height:62px;padding:8px 6px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font:700 10px/1.3 inherit;color:var(--ink);cursor:pointer;}
+  .decision-btn b{display:block;font-size:15px;color:var(--accent);margin-bottom:3px;}
+  .decision-btn.selected{border-color:var(--accent);background:var(--accent-soft);}
+  .flow-confirm{width:100%;border:0;border-radius:11px;background:var(--btn);color:#fff;padding:11px 12px;font:700 var(--fs-sm) inherit;cursor:pointer;}
+  .reward-strip{display:flex;align-items:center;gap:11px;margin-top:9px;padding:11px 13px;background:#eef3eb;border:1px solid #d9e4d4;border-radius:13px;color:#4e6848;}
+  .reward-mark{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#dce9d6;font-size:15px;font-weight:800;flex-shrink:0;}
+  .reward-title{font-size:var(--fs-sm);font-weight:800;}
+  .reward-copy{font-size:var(--fs-xs);line-height:1.4;margin-top:2px;opacity:.82;}
+  .goal-flow{display:flex;gap:9px;overflow-x:auto;scroll-snap-type:x mandatory;padding:1px 1px 5px;}
+  .goal-flow::-webkit-scrollbar{display:none;}
+  .flow-goal{min-width:238px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+  .flow-goal::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--goal-color,var(--accent));}
+  .goal-head{display:flex;align-items:flex-start;gap:8px;}
+  .goal-name{flex:1;font-size:var(--fs-md);font-weight:800;line-height:1.3;}
+  .energy-chip{font-size:9px;font-weight:800;color:var(--muted);background:var(--greige);border-radius:999px;padding:4px 7px;white-space:nowrap;}
+  .goal-next{font-size:var(--fs-xs);line-height:1.45;color:var(--muted);margin:8px 0;min-height:35px;}
+  .goal-next b{color:var(--ink);}
+  .goal-bar{height:5px;background:var(--greige);border-radius:999px;overflow:hidden;}
+  .goal-bar i{display:block;height:100%;background:var(--goal-color,var(--accent));border-radius:999px;}
+  .goal-foot{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;font-weight:700;color:var(--muted);}
+  .timeline{display:grid;grid-template-columns:54px 1fr;column-gap:10px;}
+  .time-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding-top:12px;text-align:right;}
+  .time-items{border-left:2px solid var(--line);padding:0 0 10px 13px;min-width:0;}
+  .time-item{position:relative;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 11px;margin-bottom:6px;font-size:var(--fs-sm);font-weight:700;line-height:1.35;}
+  .time-item::before{content:'';position:absolute;left:-18px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--time-color,var(--accent));border:2px solid var(--bg);}
+  .time-sub{display:flex;justify-content:space-between;gap:8px;margin-top:3px;font-size:9px;font-weight:600;color:var(--muted);}
+  .question-card{background:#292b3a;color:#eeecf4;border-radius:16px;padding:15px 16px;margin-top:4px;box-shadow:var(--shadow-sm);}
+  .question-card .eyebrow{color:#aaa5c7;margin-bottom:8px;}
+  .question-text{font-size:var(--fs-md);font-weight:750;line-height:1.5;margin-bottom:11px;}
+  .question-answer{width:100%;min-height:64px;resize:vertical;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:rgba(255,255,255,.07);color:#eeecf4;padding:10px 11px;font:var(--fs-sm) inherit;outline:none;}
+  .question-answer::placeholder{color:rgba(238,236,244,.4);}
+  .question-actions{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .question-save{border:0;border-radius:9px;background:#e7e3f0;color:#292b3a;padding:8px 12px;font:800 var(--fs-xs) inherit;cursor:pointer;}
+  .question-later{border:0;background:none;color:#aaa5c7;padding:8px;font:700 var(--fs-xs) inherit;cursor:pointer;}
+  .saved-note{font-size:var(--fs-xs);color:#b9c6ad;margin-left:auto;}
+  @media(max-width:330px){.flow-options{grid-template-columns:1fr}.decision-btn{min-height:44px}.flow-goal{min-width:210px}.timeline{grid-template-columns:45px 1fr;}}
 </style>
 </head>
 <body class="screen-body">
 
+  <main id="mapV2">
+    <div class="ylens">
+      <div class="ylens-badge"><i class="ic ic-compass"></i></div>
+      <div><div class="ylens-title">Map</div><div class="ylens-sub">Direction, flow and next decisions</div></div>
+    </div>
+
+    <p class="map-intro">See what is moving, what is constraining you, and the smallest step that keeps life flowing.</p>
+
+    <section class="direction-card">
+      <div class="direction-label">North star</div>
+      <div class="direction-text" id="mapMission" contenteditable="true" spellcheck="false"></div>
+      <div class="direction-foot">Your goals should make this direction more real.</div>
+    </section>
+
+    <div class="section-row">
+      <div class="section-title">Flow now</div>
+      <div class="section-meta" id="capacityMeta"></div>
+    </div>
+    <section id="bottleneckSection"></section>
+
+    <div class="section-row">
+      <div class="section-title">Goals in motion</div>
+      <div class="section-meta">Energy-aware</div>
+    </div>
+    <section class="goal-flow" id="goalFlow"></section>
+
+    <div class="section-row">
+      <div class="section-title">Timeline</div>
+      <div class="section-meta">Now to horizon</div>
+    </div>
+    <section class="timeline" id="mapTimeline"></section>
+
+    <div class="section-row">
+      <div class="section-title">Direction question</div>
+      <div class="section-meta">Occasionally, not daily</div>
+    </div>
+    <section class="question-card" id="directionQuestion"></section>
+  </main>
+
+  <div class="legacy-map" aria-hidden="true" inert>
+
   <div class="ylens">
     <div class="ylens-badge"><i class="ic ic-compass"></i></div>
-    <div>
-      <div class="ylens-title">Map</div>
-      <div class="ylens-sub">Where you are across the whole forest</div>
+    <div><div class="ylens-title">Map</div><div class="ylens-sub">The big picture</div></div>
+  </div>
+
+  <div id="missionSetup" style="display:none">
+    <div class="mission-setup">
+      <div class="mission-setup-title">Set your direction</div>
+      <div class="mission-setup-sub">Everything you plan points back to this. One honest sentence is enough.</div>
+      <div class="mission-q">What do I want to change or build?</div>
+      <input class="mission-q-input" id="mq1" placeholder="In my life, family, work…"/>
+      <div class="mission-q">What makes effort feel worthwhile?</div>
+      <input class="mission-q-input" id="mq2" placeholder="Not just money — what's worth building toward?"/>
+      <div class="mission-q">What do I do unusually well?</div>
+      <input class="mission-q-input" id="mq3" placeholder="Others notice this about you"/>
+      <button class="btn-prim" onclick="saveMissionSetup()">Set my direction</button>
+      <button onclick="skipMissionSetup()" style="width:100%;padding:10px;border:none;background:none;color:var(--muted);font-family:inherit;font-size:var(--fs-xs);cursor:pointer;margin-top:6px">Skip for now</button>
+    </div>
+  </div>
+  <div id="missionCard">
+    <div class="mission">
+      <div class="mission-cap">Mission</div>
+      <div class="mission-txt" id="missionText" contenteditable="true" spellcheck="false"></div>
+      <div class="mission-sub" id="missionSub">Tap to edit</div>
     </div>
   </div>
 
-  <div class="mission">
-    <div class="mission-cap">Mission</div>
-    <div class="mission-txt" contenteditable="true" spellcheck="false">Build a quiet life rooted in land, craft and family.</div>
-    <div class="mission-sub">Every horizon below points back here.</div>
+  <div class="sec-head">Insights</div>
+  <div id="insightsSection"></div>
+
+  <div style="font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:14px 2px 6px;display:flex;align-items:center;gap:6px"><i class="ic ic-compass" style="width:12px;height:12px;opacity:.7"></i>Weekly reflection</div>
+  <div id="reflectSection"></div>
+
+  <div class="sec-head">Goals</div>
+  <div id="goalsSection"></div>
+
+  <div class="sec-head">Timeline</div>
+  <div id="timelineSection"></div>
+
   </div>
-
-  <p class="map-note">The whole forest as a visual graph — every horizon and how it connects. Moves the moment you complete anything, anywhere.</p>
-
-  <div class="map-toggle">
-    <button class="on" onclick="setView('graph')">Graph</button>
-    <button onclick="setView('3d')">3D</button>
-  </div>
-
-  <div id="graphWrap" class="show"><svg id="graphSvg" class="g-svg"></svg></div>
-  <div id="view3d" style="display:none;text-align:center;padding:40px 20px;color:var(--muted);font-size:var(--fs-sm);">3D forest view — coming soon.<br/>Imagine walking through your horizons as trees in a landscape.</div>
 
 <script src="../shared/plan-data.js"></script>
-<script>
+<script type="text/plain">
 const P = window.PlanData;
+const PILLARS=P.PILLARS, PILLAR_VAR=P.PILLAR_VAR, PILLAR_LABEL=P.PILLAR_LABEL;
+let archiveYear=new Date().getFullYear(), showAllInsights=false;
 
-P.subscribe(()=>{ renderGraph(); });
-renderGraph();
+function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return+day+' '+mo[+m-1]+' '+y;}
+function periodDates(p){const now=new Date(),today=now.toISOString().slice(0,10);if(p==='week'){const d=new Date(now);d.setDate(d.getDate()-6);return{start:d.toISOString().slice(0,10),end:today};}if(p==='month'){const d=new Date(now);d.setDate(1);return{start:d.toISOString().slice(0,10),end:today};}return{start:null,end:null};}
 
-let currentView='graph';
-function setView(v){
-  currentView=v;
-  document.querySelectorAll('.map-toggle button').forEach(b=>b.classList.toggle('on', b.textContent.toLowerCase()===v));
-  document.getElementById('graphWrap').classList.toggle('show', v==='graph');
-  document.getElementById('view3d').style.display = v==='3d' ? 'block' : 'none';
+// ── S1: Mission ──────────────────────────────────────────────
+function renderMission(){
+  const m=P.getMission();
+  const empty=!m;
+  document.getElementById('missionSetup').style.display=empty?'block':'none';
+  document.getElementById('missionCard').style.display=empty?'none':'block';
+  if(!empty){
+    const txt=document.getElementById('missionText');
+    txt.textContent=m;
+    txt.onblur=()=>{const v=txt.textContent.trim();if(v)P.setMission(v);};
+    document.getElementById('missionSub').textContent='Every goal below points back here · tap to edit';
+  }
+}
+function saveMissionSetup(){
+  const parts=[document.getElementById('mq1').value.trim(),document.getElementById('mq2').value.trim(),document.getElementById('mq3').value.trim()].filter(Boolean);
+  P.setMission(parts.join('. ')||'My direction is taking shape.');renderMission();
+}
+function skipMissionSetup(){P.setMission('My direction is taking shape. Tap to edit.');renderMission();}
+
+// ── S2: Insights ─────────────────────────────────────────────
+function renderInsights(){
+  const el=document.getElementById('insightsSection');
+  const all=P.detectInsights();
+  const shown=showAllInsights?all:all.slice(0,5);
+  if(!all.length){el.innerHTML='<div class="insight-card green"><div class="insight-title"><span class="insight-dot green"></span>Getting started</div><div class="insight-body">Insights appear as you use Flow and Goals. Add a few tasks or goals to get started.</div></div>';return;}
+  let html=shown.map(ins=>`<div class="insight-card ${ins.severity}"><div class="insight-title"><span class="insight-dot ${ins.severity}"></span>${ins.title}</div><div class="insight-body">${ins.body}</div>${ins.actionLabel?`<button class="insight-action">${ins.actionLabel} →</button>`:''}</div>`).join('');
+  if(all.length>5&&!showAllInsights)html+=`<button class="show-more-btn" onclick="showAll()">Show ${all.length-5} more</button>`;
+  html+=`<div class="ai-card"><div class="ai-tag">💬 Ask your compass</div><div class="ai-prompts"><div class="ai-prompt">"What should I focus on this week?"</div><div class="ai-prompt">"Which of my goals has the most leverage right now?"</div><div class="ai-prompt">"Help me think through what's stalled."</div></div><button class="ai-open-btn">Open chat →</button></div>`;
+  el.innerHTML=html;
+}
+function showAll(){showAllInsights=true;renderInsights();}
+
+// ── S3: Discover nudge (weekly/monthly review lives in You → Discover) ──
+function renderReflectNudge(){
+  const el=document.getElementById('reflectSection');
+  const last=P.getReviews().filter(r=>r.type==='weekly').sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const wkDue=P.reviewDue('weekly'), moDue=P.reviewDue('monthly');
+  const badge=wkDue
+    ?`<span style="background:#f0eef6;color:var(--p-inner);font-size:var(--fs-xs);font-weight:700;padding:3px 9px;border-radius:999px">Ready</span>`
+    :`<span style="font-size:var(--fs-xs);color:var(--muted)">Last: ${last?fmtDate(last.date):'—'}</span>`;
+  const monthNote=moDue?`<div style="font-size:var(--fs-xs);color:var(--muted);margin-top:6px;line-height:1.5">Monthly review also available in <b>You → Discover</b>.</div>`:'';
+  el.innerHTML=`<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm)">
+    <div style="flex:1"><div style="font-size:var(--fs-sm);font-weight:700;margin-bottom:3px">Weekly reflection ${badge}</div>
+    <div style="font-size:var(--fs-xs);color:var(--muted);line-height:1.5">Your weekly check-in lives in <b>You → Discover</b>. Insights from your reflections appear here as planning context.</div>${monthNote}</div>
+    <div style="font-size:var(--fs-xl);color:var(--muted)">→</div></div>`;
 }
 
-// ── Visual graph (SVG tree diagram) ──
-function renderGraph(){
-  const svg=document.getElementById('graphSvg');
-  const roots=P.roots();
-  if(!roots.length){ svg.innerHTML=''; return; }
-
-  const COL_W=140, ROW_H=52, PAD=16, R=12;
-  // layout: roots are the top row; their children are the second row, etc.
-  const nodes=[], links=[];
-  let col=0;
-  roots.forEach(root=>{
-    const pr=P.progress(root.id);
-    nodes.push({id:root.id, name:root.name, pct:pr.pct, pillar:root.pillar, x:col*COL_W+PAD, y:PAD, depth:0});
-    const kids=P.children(root.id);
-    kids.forEach((k,i)=>{
-      const kp=P.progress(k.id);
-      const isLeaf=P.children(k.id).length===0;
-      const pct=isLeaf?(k.done?1:0):kp.pct;
-      nodes.push({id:k.id, name:k.name, pct, pillar:k.pillar, x:(col+i)*COL_W+PAD, y:ROW_H+PAD, depth:1});
-      links.push({from:root.id, to:k.id});
-    });
-    col+=Math.max(kids.length, 1);
-  });
-
-  const W=col*COL_W+PAD*2, H=ROW_H*2+PAD*2;
-  svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', '0 0 '+W+' '+H);
-
-  let html='';
-  // links
-  links.forEach(l=>{
-    const from=nodes.find(n=>n.id===l.from), to=nodes.find(n=>n.id===l.to);
-    if(from&&to) html+=`<path class="g-link" d="M${from.x+R} ${from.y+R*2+4} C ${from.x+R} ${(from.y+to.y)/2+20}, ${to.x+R} ${(from.y+to.y)/2+10}, ${to.x+R} ${to.y}"/>`;
-  });
-  // nodes
+// ── S4: Goals (goal graph — planning home of intent vs. progress) ─────────
+function renderGoals(){
+  const el=document.getElementById('goalsSection');
+  el.innerHTML=renderGoalGraph();
+}
+function renderGoalGraph(){
+  const gs=P.goals();if(!gs.length)return`<div style="font-size:var(--fs-xs);color:var(--muted);text-align:center;padding:14px 0">Add goals in Goals to see them here.</div>`;
+  const COL_W=138,ROW_H=52,PAD=14,R=12;
   const COLORS={health:'#77936f',inner:'#937caf',admin:'#958572',family:'#b77980',joy:'#c99554',money:'#7395ad',contrib:'#8d8f63'};
-  nodes.forEach(n=>{
-    const cx=n.x+R, cy=n.y+R;
-    const C=2*Math.PI*10, off=C*(1-n.pct);
-    const col=COLORS[n.pillar]||'#768471';
-    html+=`<g class="g-node"><circle class="g-ring-bg" cx="${cx}" cy="${cy}" r="10"/>`;
-    html+=`<circle class="g-ring-fg" cx="${cx}" cy="${cy}" r="10" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    html+=`<text class="g-label" x="${cx+R+6}" y="${cy-2}">${n.name.length>14?n.name.slice(0,13)+'…':n.name}</text>`;
-    html+=`<text class="g-sub" x="${cx+R+6}" y="${cy+9}">${Math.round(n.pct*100)}%</text>`;
-    html+=`</g>`;
+  const nodes=[],links=[];let col=0;
+  gs.forEach(root=>{
+    const pr=P.progress(root.id),pillar=(root.pillars||[])[0]||'admin';
+    nodes.push({id:root.id,name:root.name,pct:pr.pct,pillar,x:col*COL_W+PAD,y:PAD});
+    const kids=P.children(root.id);
+    kids.forEach((k,i)=>{const kp=P.progress(k.id);const isLeaf=P.children(k.id).length===0;const pct=isLeaf?(k.done?1:0):kp.pct;nodes.push({id:k.id,name:k.name,pct,pillar:(k.pillars||[])[0]||pillar,x:(col+i)*COL_W+PAD,y:ROW_H+PAD});links.push({from:root.id,to:k.id});});
+    col+=Math.max(kids.length,1);
   });
-  svg.innerHTML = html;
+  const W=col*COL_W+PAD*2,H=ROW_H*2+PAD*2;
+  let svg='';
+  links.forEach(l=>{const f=nodes.find(n=>n.id===l.from),t=nodes.find(n=>n.id===l.to);if(f&&t)svg+=`<path class="g-link" d="M${f.x+R} ${f.y+R*2+4} C ${f.x+R} ${(f.y+t.y)/2+18}, ${t.x+R} ${(f.y+t.y)/2+10}, ${t.x+R} ${t.y}"/>`;});
+  nodes.forEach(n=>{const cx=n.x+R,cy=n.y+R,C=2*Math.PI*10,off=C*(1-n.pct),col=COLORS[n.pillar]||'#768471';svg+=`<g class="g-node"><circle class="g-ring-bg" cx="${cx}" cy="${cy}" r="10"/><circle class="g-ring-fg" cx="${cx}" cy="${cy}" r="10" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/><text class="g-label" x="${cx+R+5}" y="${cy-1}">${n.name.length>15?n.name.slice(0,14)+'…':n.name}</text><text class="g-sub" x="${cx+R+5}" y="${cy+9}">${Math.round(n.pct*100)}%</text></g>`;});
+  return`<div class="graph-wrap"><svg class="g-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${svg}</svg></div>`;
 }
+
+// ── S5: Timeline ─────────────────────────────────────────────
+function renderTimeline(){
+  const el=document.getElementById('timelineSection');
+  const years=new Set([new Date().getFullYear()]);
+  P.all().forEach(n=>{if(n.completedDate)years.add(+n.completedDate.slice(0,4));if(n.date)years.add(+n.date.slice(0,4));});
+  const sortedYears=[...years].sort((a,b)=>b-a);
+  const yrPills=sortedYears.map(y=>`<button class="yr-pill${archiveYear===y?' on':''}" onclick="setArchiveYear(${y})">${y}</button>`).join('');
+  const ar=P.yearArchive(archiveYear);
+  const compGs=P.completedGoals().filter(g=>P.leaves(g.id).some(l=>l.completedDate&&l.completedDate.startsWith(String(archiveYear))));
+  const actGs=P.activeGoals().filter(g=>{const d=P.latestDate(g.id);return d&&d.startsWith(String(archiveYear));});
+  const act=P.pillarActivity(archiveYear+'-01-01',archiveYear+'-12-31');
+  const maxA=Math.max(...Object.values(act),1);
+  const curYear=new Date().getFullYear();
+  const zeroPillars=archiveYear<curYear?P.annualPillarCoverage(archiveYear):[];
+  const annualNote=zeroPillars.length?`<div style="font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:10px;padding:9px 12px;margin-bottom:10px;line-height:1.55">${zeroPillars.map(p=>PILLAR_LABEL[p]).join(', ')} had no activity in ${archiveYear}. Was that intentional?</div>`:'';
+  const archiveHtml=`<div class="archive-card"><div class="archive-stat"><span class="archive-stat-label">Goals completed</span><span class="archive-stat-val">${compGs.length}</span></div>${compGs.map(g=>`<div class="archive-goal done">${g.name}</div>`).join('')}<div class="archive-stat"><span class="archive-stat-label">Goals in progress</span><span class="archive-stat-val">${actGs.length}</span></div>${actGs.map(g=>{const pr=P.progress(g.id);return`<div class="archive-goal prog">${g.name} (${Math.round(pr.pct*100)}%)</div>`;}).join('')}<div class="archive-stat"><span class="archive-stat-label">Steps completed</span><span class="archive-stat-val">${ar.length}</span></div><div style="margin-top:10px">${PILLARS.filter(p=>act[p]>0).map(p=>`<div class="bar-row"><span class="bar-label">${PILLAR_LABEL[p]}</span><div class="bar-track"><div class="bar-fill" style="width:${(act[p]/maxA*100).toFixed(0)}%;background:var(${PILLAR_VAR[p]})"></div></div><span class="bar-ct">${act[p]}</span></div>`).join('')}</div></div>`;
+  el.innerHTML=`<div class="yr-pills">${yrPills}</div>${annualNote}${archiveHtml}`;
+}
+function setArchiveYear(y){archiveYear=y;renderTimeline();}
+function toggleRev(i){const b=document.getElementById('rev-body-'+i);if(b)b.classList.toggle('open');}
+
+// ── Main render ──────────────────────────────────────────────
+function render(){renderMission();renderInsights();renderReflectNudge();renderGoals();renderTimeline();}
+P.subscribe(render);
+render();
+</script>
+<script>
+(function renderDecisionMap(){
+  document.querySelector('.legacy-map')?.remove();
+  const M=window.PlanData;
+  const ENERGY={L:{label:'Low energy',value:1},M:{label:'Medium energy',value:2},H:{label:'High energy',value:3}};
+  const COLORS={health:'#77936f',inner:'#937caf',admin:'#958572',family:'#b77980',joy:'#c99554',money:'#7395ad',contrib:'#8d8f63'};
+  const QUESTIONS=[
+    'What work gives you energy even when it is difficult?',
+    'What problem would still feel worth solving if nobody applauded?',
+    'Which ability do people naturally come to you for?',
+    'What part of your current life feels most aligned with who you want to become?',
+    'If one obligation disappeared, what meaningful thing would you make room for?'
+  ];
+  let selectedDecision='shrink';
+
+  function esc(value){
+    return String(value||'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+  }
+  function openLeaves(goal){
+    return M.leaves(goal.id).filter(item=>!item.done);
+  }
+  function nextStep(goal){
+    const leaves=openLeaves(goal);
+    return leaves.find(item=>item.bucket==='today')||leaves.find(item=>item.bucket==='week')||leaves.find(item=>item.bucket==='month')||leaves[0]||null;
+  }
+  function energyOf(item){
+    return ENERGY[item&&item.energyLevel]||{label:'Energy not set',value:0};
+  }
+  function bottleneck(){
+    const candidates=M.activeGoals().flatMap(goal=>openLeaves(goal).map(item=>({goal,item})));
+    candidates.sort((a,b)=>((b.item.postponed||0)*10+energyOf(b.item).value)-((a.item.postponed||0)*10+energyOf(a.item).value));
+    return candidates[0]||null;
+  }
+  function latestEnergy(){
+    const reviews=M.getReviews().filter(review=>review.energy).sort((a,b)=>b.date.localeCompare(a.date));
+    return reviews[0]?reviews[0].energy:null;
+  }
+  function renderMissionV2(){
+    const el=document.getElementById('mapMission');
+    el.textContent=M.getMission()||'';
+    el.onblur=()=>M.setMission(el.textContent.trim());
+  }
+  function renderBottleneck(){
+    const host=document.getElementById('bottleneckSection');
+    const capacity=latestEnergy();
+    document.getElementById('capacityMeta').textContent=capacity?`Current capacity ${capacity}/5`:'Capacity unknown';
+    const blocked=bottleneck();
+    if(!blocked){
+      host.innerHTML='<div class="reward-strip"><div class="reward-mark">✓</div><div><div class="reward-title">Nothing is blocked</div><div class="reward-copy">Choose one small step and keep the line moving.</div></div></div>';
+      return;
+    }
+    const energy=energyOf(blocked.item);
+    const postponed=blocked.item.postponed||0;
+    const reason=postponed?`Postponed ${postponed} times and needs ${energy.label.toLowerCase()}.`:`This is the highest-energy open step in your current goals.`;
+    host.innerHTML=`<div class="flow-card">
+      <div class="flow-top"><span class="flow-status">Bottleneck</span><span class="flow-energy">${esc(energy.label)}</span></div>
+      <div class="flow-title">${esc(blocked.item.name)}</div>
+      <div class="flow-copy">${esc(reason)} Make a decision that widens the flow instead of carrying the same blockage forward.</div>
+      <div class="flow-options">
+        <button class="decision-btn selected" data-decision="shrink" onclick="chooseMapDecision(this)"><b>1%</b>Shrink the step</button>
+        <button class="decision-btn" data-decision="support" onclick="chooseMapDecision(this)"><b>+</b>Find support</button>
+        <button class="decision-btn" data-decision="pause" onclick="chooseMapDecision(this)"><b>○</b>Pause on purpose</button>
+      </div>
+      <button class="flow-confirm" onclick="confirmMapDecision('${esc(blocked.item.id)}')">Make this decision</button>
+    </div>
+    <div id="mapReward"></div>`;
+  }
+  function renderGoalsV2(){
+    const goals=M.activeGoals().slice().sort((a,b)=>M.progress(b.id).pct-M.progress(a.id).pct);
+    const host=document.getElementById('goalFlow');
+    if(!goals.length){host.innerHTML='<div class="flow-goal">Add a goal to begin shaping your flow.</div>';return;}
+    host.innerHTML=goals.map(goal=>{
+      const progress=M.progress(goal.id),next=nextStep(goal),energy=energyOf(next),pillar=(goal.pillars||[])[0]||'admin';
+      const weeks=M.consecutiveWeeks(goal.id);
+      return `<article class="flow-goal" style="--goal-color:${COLORS[pillar]||'#768471'}">
+        <div class="goal-head"><div class="goal-name">${esc(goal.name)}</div><span class="energy-chip">${esc(energy.label)}</span></div>
+        <div class="goal-next"><b>Next:</b> ${esc(next?next.name:'Define the next small step')}</div>
+        <div class="goal-bar"><i style="width:${Math.round(progress.pct*100)}%"></i></div>
+        <div class="goal-foot"><span>${progress.done} of ${progress.total} steps</span><span>${weeks?weeks+' steady week'+(weeks===1?'':'s'):'Ready to begin'}</span></div>
+      </article>`;
+    }).join('');
+  }
+  function timelineGroup(label,items){
+    const visible=items.slice(0,3);
+    const body=visible.length?visible.map(item=>{
+      const root=M.rootOf(item.id),pillar=((item.pillars||[])[0]||'admin');
+      return `<div class="time-item" style="--time-color:${COLORS[pillar]||'#768471'}">${esc(item.name)}<div class="time-sub"><span>${esc(root&&root.id!==item.id?root.name:'Independent step')}</span><span>${esc(energyOf(item).label)}</span></div></div>`;
+    }).join(''):'<div class="time-item" style="color:var(--muted);font-weight:600">Space available</div>';
+    return `<div class="time-label">${label}</div><div class="time-items">${body}</div>`;
+  }
+  function renderTimelineV2(){
+    const open=M.all().filter(item=>M.isLeaf(item)&&!item.done);
+    const now=open.filter(item=>item.bucket==='today'||item.bucket==='week');
+    const next=open.filter(item=>item.bucket==='month');
+    const later=open.filter(item=>item.bucket==='year'||item.bucket==='someday'||(!item.bucket&&item.date));
+    document.getElementById('mapTimeline').innerHTML=timelineGroup('Now',now)+timelineGroup('Next',next)+timelineGroup('Later',later);
+  }
+  function renderQuestion(){
+    const month=new Date().toISOString().slice(0,7);
+    const key='compass.map.question.'+month;
+    const saved=localStorage.getItem(key)||'';
+    const index=Number(localStorage.getItem(key+'.index')||new Date().getMonth())%QUESTIONS.length;
+    document.getElementById('directionQuestion').innerHTML=`<div class="eyebrow">A clue toward your Ikigai</div>
+      <div class="question-text">${esc(QUESTIONS[index])}</div>
+      <textarea class="question-answer" id="mapQuestionAnswer" placeholder="A few honest words are enough">${esc(saved)}</textarea>
+      <div class="question-actions"><button class="question-save" onclick="saveMapAnswer()">Save reflection</button><button class="question-later" onclick="rotateMapQuestion()">Another question</button><span class="saved-note" id="mapSavedNote">${saved?'Saved this month':''}</span></div>`;
+  }
+  window.chooseMapDecision=function(button){
+    selectedDecision=button.dataset.decision;
+    document.querySelectorAll('.decision-btn').forEach(item=>item.classList.toggle('selected',item===button));
+  };
+  window.confirmMapDecision=function(itemId){
+    const patches={shrink:{energyLevel:'L',bucket:'week'},support:{bucket:'week'},pause:{bucket:'someday'}};
+    M.update(itemId,patches[selectedDecision]);
+    const messages={shrink:'Step made lighter. Small enough to keep moving.',support:'Support is now the next decision, not an afterthought.',pause:'Paused on purpose. Nothing is lost.'};
+    const reward=document.getElementById('mapReward');
+    if(reward)reward.innerHTML=`<div class="reward-strip"><div class="reward-mark">✓</div><div><div class="reward-title">Good decision</div><div class="reward-copy">${messages[selectedDecision]}</div></div></div>`;
+  };
+  window.saveMapAnswer=function(){
+    const month=new Date().toISOString().slice(0,7),key='compass.map.question.'+month;
+    localStorage.setItem(key,document.getElementById('mapQuestionAnswer').value.trim());
+    document.getElementById('mapSavedNote').textContent='Saved this month';
+  };
+  window.rotateMapQuestion=function(){
+    const month=new Date().toISOString().slice(0,7),key='compass.map.question.'+month+'.index';
+    localStorage.setItem(key,String((Number(localStorage.getItem(key)||new Date().getMonth())+1)%QUESTIONS.length));
+    renderQuestion();
+  };
+  function renderV2(){renderMissionV2();renderBottleneck();renderGoalsV2();renderTimelineV2();renderQuestion();}
+  M.subscribe(renderV2);
+  renderV2();
+})();
 </script>
 </body>
 </html>

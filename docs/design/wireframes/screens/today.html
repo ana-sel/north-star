@@ -11,38 +11,120 @@
 <link rel="stylesheet" href="../shared/you.css"/>
 <style>
 
+/* ══════════ WELCOME BACK (conditional · 3+ day gap) ══════════ */
+.welcome-back{
+  background:linear-gradient(145deg,#f7f3ed,#ede8df);border:1px solid #e2dcc4;
+  border-left:4px solid var(--olive);border-radius:20px;padding:20px;
+  margin-bottom:14px;position:relative;
+}
+.wb-dismiss{position:absolute;top:12px;right:14px;background:none;border:none;
+  color:var(--muted);font-size:16px;cursor:pointer;font-family:inherit;padding:4px;}
+.wb-icon{font-size:28px;color:var(--olive);margin-bottom:10px;display:block;}
+.wb-greeting{font-size:var(--fs-lg);font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-.01em;}
+.wb-sub{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;margin-bottom:16px;}
+.wb-action{width:100%;padding:13px;border-radius:13px;border:none;background:var(--olive);
+  color:#fff;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
+
+/* ══════════ ANCHOR HERO (Band 0 · IS the theme practice) ══════════ */
+.anchor-hero{
+  background:linear-gradient(155deg,#2d2b27,#3a3734);color:#f1ede6;
+  border-radius:20px;padding:20px;margin-bottom:14px;
+  box-shadow:0 6px 24px rgba(28,27,24,.22);
+}
+.anchor-hero.done-state{opacity:.75;}
+.ah-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ah-path{font-size:var(--fs-xs);font-weight:600;background:rgba(255,255,255,.1);
+  padding:3px 10px;border-radius:999px;color:rgba(241,237,230,.6);cursor:pointer;}
+.ah-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  background:rgba(255,255,255,.1);color:rgba(241,237,230,.55);padding:3px 9px;border-radius:999px;}
+.ah-practice{font-size:15px;font-weight:700;line-height:1.5;margin-bottom:18px;letter-spacing:-.01em;}
+.ah-bottom{display:flex;align-items:center;gap:14px;}
+/* haptic: light impact · scale(.88)->scale(1) spring 150ms · fill olive on done */
+.ah-tick{width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.3);
+  background:transparent;display:grid;place-items:center;font-size:20px;color:transparent;
+  cursor:pointer;flex-shrink:0;transition:all .2s;font-family:inherit;}
+.ah-tick:active{transform:scale(.88);}
+.anchor-hero.done-state .ah-tick{background:var(--olive);border-color:var(--olive);color:#fff;}
+.anchor-hero.done-state .ah-practice{opacity:.5;text-decoration:line-through;
+  text-decoration-color:rgba(255,255,255,.25);}
+.ah-pulse{flex:1;display:flex;flex-direction:column;gap:6px;}
+.ah-dots{display:flex;gap:5px;}
+.ah-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.15);}
+.ah-dot.on{background:var(--olive);}
+.ah-dot.today{background:transparent;border:2px solid rgba(255,255,255,.4);width:5px;height:5px;}
+.ah-dot.skip{background:rgba(255,255,255,.08);}
+.ah-freq{font-size:var(--fs-xs);color:rgba(241,237,230,.4);font-weight:500;}
+/* Rest/Lighter: hide practice, show rest message */
+.mode-rest .anchor-hero .ah-practice,.mode-rest .anchor-hero .ah-bottom,
+.mode-lighter .anchor-hero .ah-practice,.mode-lighter .anchor-hero .ah-bottom{display:none;}
+.ah-rest-msg{display:none;font-size:var(--fs-sm);color:rgba(241,237,230,.5);line-height:1.55;font-style:italic;}
+.mode-rest .ah-rest-msg,.mode-lighter .ah-rest-msg{display:block;}
+
+/* ══════════ INSIGHT PLACEHOLDER (shimmer · 600ms anticipation) ══════════ */
+.insight-placeholder{
+  display:none;height:80px;border-radius:var(--r-card);margin-bottom:14px;
+  background:linear-gradient(90deg,var(--greige) 25%,#f5f3ef 50%,var(--greige) 75%);
+  background-size:200% 100%;animation:shimmer 1.2s ease-in-out infinite;
+}
+.insight-placeholder.show{display:block;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ══════════ INSIGHT REVEAL (variable reward · slot-machine moment) ══════════ */
+.insight-reveal{
+  display:none;background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--accent);border-radius:var(--r-card);
+  padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow-sm);
+  opacity:0;transform:translateY(12px);position:relative;
+  transition:opacity .3s cubic-bezier(.22,1,.36,1),transform .3s cubic-bezier(.22,1,.36,1);
+}
+.insight-reveal.show{display:block;opacity:1;transform:translateY(0);}
+.ir-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ir-icon{width:28px;height:28px;border-radius:9px;background:var(--accent-soft);
+  display:grid;place-items:center;color:var(--accent);font-size:14px;flex-shrink:0;}
+.ir-label{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--accent);}
+.ir-dismiss{position:absolute;top:10px;right:12px;background:none;border:none;
+  color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;padding:4px;}
+.ir-text{font-size:var(--fs-sm);color:var(--ink);line-height:1.6;}
+.ir-text b{font-weight:700;}
+
 /* ══════════ BAND 1 · ARRIVAL ══════════ */
 .today-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .dt{font-size:var(--fs-sm);color:var(--muted);font-weight:500;}
 .done-chip{font-size:var(--fs-xs);font-weight:700;background:var(--greige);padding:4px 12px;border-radius:999px;color:var(--muted);transition:all .2s;}
 .done-chip.all{background:#eef4ec;color:#3d6e37;}
 
-.sleep-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;cursor:pointer;}
+.sleep-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:12px;cursor:pointer;transition:box-shadow .2s;}
+.sleep-card:hover{box-shadow:var(--shadow);}
 .sleep-prompt{display:flex;align-items:center;gap:14px;padding:16px;}
 .sp-icon{font-size:24px;flex-shrink:0;color:var(--muted);}
 .sp-col{flex:1;}
 .sp-q{font-size:var(--fs-md);font-weight:700;}
 .sp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
-.sp-arrow{font-size:14px;color:var(--muted);}
-.sleep-logged{display:none;grid-template-columns:1fr 1fr;}
-.sl-item{padding:14px 16px;}
-.sl-item:first-child{border-right:1px solid var(--line);}
-.sl-icon{font-size:16px;margin-bottom:6px;color:var(--muted);}
-.sl-val{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;line-height:1;}
-.sl-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
-.sl-label{font-size:var(--fs-xs);font-weight:600;color:var(--muted);margin-bottom:6px;}
-.me-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
-.me-row:last-child{margin-bottom:0;}
-.me-weather{font-size:20px;line-height:1;}
-.me-desc{font-size:var(--fs-xs);color:var(--muted);}
-.battery-wrap{display:flex;align-items:center;gap:7px;}
-.battery{width:36px;height:15px;border:2px solid #b0bfab;border-radius:3px;position:relative;flex-shrink:0;}
-.battery::after{content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:4px;height:7px;border-radius:0 2px 2px 0;background:#b0bfab;}
-.battery-fill{position:absolute;left:1px;top:1px;bottom:1px;border-radius:2px;transition:width .3s;}
-.bat-hi .battery{border-color:#5d9e56;} .bat-hi .battery::after{background:#5d9e56;} .bat-hi .battery-fill{background:#5d9e56;}
-.bat-mid .battery{border-color:#c99554;} .bat-mid .battery::after{background:#c99554;} .bat-mid .battery-fill{background:#c99554;}
-.bat-lo .battery{border-color:#b77980;} .bat-lo .battery::after{background:#b77980;} .bat-lo .battery-fill{background:#b77980;}
-.bat-label{font-size:var(--fs-xs);color:var(--muted);}
+.sleep-logged{display:none;padding:14px 16px;align-items:center;gap:16px;}
+
+/* ── Triple concentric ring ── */
+.tri-ring{position:relative;width:96px;height:96px;flex-shrink:0}
+.tri-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.tr-bg{fill:none;stroke-width:var(--sw);stroke:var(--greige);stroke-dasharray:none}
+.tr-arc{fill:none;stroke-width:var(--sw);stroke-linecap:round;stroke-dasharray:100;transition:stroke-dashoffset .5s cubic-bezier(.22,1,.36,1)}
+.tr-sleep{--sw:9}.tr-energy{--sw:8}.tr-mood{--sw:7}
+.tr-sleep .tr-bg,.tr-sleep .tr-arc{r:45}
+.tr-energy .tr-bg,.tr-energy .tr-arc{r:35}
+.tr-mood .tr-bg,.tr-mood .tr-arc{r:25}
+.tr-sleep .tr-arc{stroke:#937caf}
+.tr-energy .tr-arc{stroke:#6f9068}
+.tr-mood .tr-arc{stroke:#c99554}
+
+/* ── Legend rows ── */
+.tri-legend{display:block;flex-shrink:0}
+.lg-row{display:block;margin:0 0 10px;padding:0;border:none;background:none;line-height:1}
+.lg-row:last-child{margin-bottom:0}
+.lg-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:9px;vertical-align:middle}
+.lg-dot.sleep{background:#937caf}
+.lg-dot.energy{background:#6f9068}
+.lg-dot.mood{background:#c99554}
+.lg-name{display:inline;font-size:13px;font-weight:700;color:var(--ink);vertical-align:middle}
 
 /* ── Today's pace ── */
 .pace{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
@@ -51,47 +133,23 @@
 .pace-btn{flex:1;padding:8px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s;}
 .pace-btn.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
 .pace-btn.on[data-mode="rest"]{color:var(--p-inner);}
-.pace-note{display:none;font-size:var(--fs-sm);color:var(--olive);background:#eef3ec;border:1px solid #cfe0c9;border-radius:12px;padding:11px 13px;margin-bottom:12px;line-height:1.55;}
-.pace-note.show{display:block;}
+.pace-btn.suggested{position:relative;}
+.pace-btn.suggested::after{content:'✦';position:absolute;top:-2px;right:3px;font-size:12px;color:var(--p-joy);}
+.pace-note{display:none;align-items:center;gap:12px;font-size:var(--fs-sm);color:var(--muted);background:#f3f4ef;border:1px solid #dfe3d8;border-radius:16px;padding:13px 15px;margin-bottom:14px;line-height:1.5;}
+.pace-note.show{display:flex;}
+.pace-note b{color:var(--ink);font-weight:700;}
+.pace-note-em{color:var(--olive);font-size:20px;line-height:1;flex-shrink:0;}
 
-/* ══════════ BAND 2 · TODAY'S FOCUS ══════════ */
-.focus-note{font-size:var(--fs-xs);color:var(--muted);margin:-2px 0 10px;line-height:1.5;}
-/* Lighter rests the growth theme but keeps the tiny daily rituals */
-.mode-lighter .theme-group{display:none;}
-.primary{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
-.pr-top{display:flex;align-items:center;gap:13px;padding:14px 16px 10px;}
-.pr-head{flex:1;min-width:0;text-decoration:none;color:inherit;}
-.pr-src{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:2px;}
-.pr-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);padding:3px 9px;border-radius:999px;flex-shrink:0;}
-.pr-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
-.pr-trigger-row{display:flex;align-items:flex-start;gap:12px;padding:10px 16px 4px;}
-.pr-trigger{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;flex:1;}
-.pr-steps{padding:6px 16px 10px;display:flex;flex-direction:column;gap:8px;}
-.pr-step{display:flex;gap:8px;font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
-.pr-step-arr{color:var(--accent);font-weight:700;flex-shrink:0;}
-.pr-step em{color:var(--ink);font-style:italic;}
-.pr-dots-bar{display:flex;justify-content:center;padding:10px 16px 14px;}
-.pr-tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:12px;color:var(--line);cursor:pointer;transition:all .2s;flex-shrink:0;margin-top:2px;}
-.pr-tick:active{transform:scale(.92);}
-.primary.done .pr-tick{background:var(--accent);border-color:var(--accent);color:#fff;}
-.primary.rested .pr-tick{opacity:.35;pointer-events:none;}
-.pr-dots{display:flex;gap:6px;align-items:center;}
-.pr-dot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .2s;}
-.pr-dot.sel{background:var(--accent);}
-.primary.rested{display:none;}
-.theme-rested{display:none;background:#f3f1ec;border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-bottom:10px;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;}
-.theme-rested.show{display:block;}
-.theme-rested strong{color:var(--ink);font-weight:700;}
-/* daily rituals strip (the habit engine — tiny, repeats every day) */
-.ritual-note{font-size:var(--fs-xs);color:var(--muted);margin:-2px 0 10px;line-height:1.5;}
-.cue{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;}
-.cue-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--line);flex-shrink:0;transition:all .15s;}
-.cue.done .cue-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
-.cue-ic{width:31px;height:31px;border-radius:9px;background:var(--greige);display:grid;place-items:center;color:var(--muted);font-size:15px;flex-shrink:0;}
-.cue-main{flex:1;min-width:0;}
-.cue-name{font-size:var(--fs-md);font-weight:600;}
-.cue.done .cue-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
-.cue-src{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;display:inline-block;}
+/* ══════════ BAND 2 · DAILY RITUALS ══════════ */
+.mode-rest .day-band,.mode-rest .signals-band{display:none;}
+.rest-banner,.lighter-banner{display:none;align-items:center;gap:12px;border-radius:16px;padding:13px 15px;margin-bottom:14px;}
+.rest-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
+.lighter-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
+.mode-rest .rest-banner{display:flex;}
+.mode-lighter .lighter-banner{display:flex;}
+.rest-banner-em,.lighter-banner-em{color:var(--steel);font-size:20px;line-height:1;flex-shrink:0;}
+.rest-banner-txt,.lighter-banner-txt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
+.rest-banner-txt strong,.lighter-banner-txt strong{color:var(--ink);font-weight:700;}
 
 /* ══════════ BAND 3 · YOUR DAY ══════════ */
 .mode-lighter .day-band .tasks-card{opacity:.5;}
@@ -118,24 +176,7 @@
 .coach-btns{display:flex;gap:8px;padding:0 16px 15px;}
 .coach-btn{flex:1;padding:9px;border-radius:999px;font-family:inherit;font-size:var(--fs-xs);font-weight:600;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);}
 .coach-accept{border-color:var(--olive);color:var(--olive);}
-
-/* ══════════ REST STATE ══════════ */
-/* Rest keeps the same full-width ritual cards as Lighter — just fewer circles.
-   Only the theme, day and signals bands fold away; a compact banner reassures. */
-.mode-rest .theme-group,.mode-rest .day-band,.mode-rest .signals-band{display:none;}
-.rest-banner,.lighter-banner{display:none;align-items:center;gap:12px;border-radius:16px;padding:13px 15px;margin-bottom:14px;}
-.rest-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
-.lighter-banner{background:#f3f4ef;border:1px solid #dfe3d8;}
-.mode-rest .rest-banner{display:flex;}
-.mode-lighter .lighter-banner{display:flex;}
-.rest-banner-em,.lighter-banner-em{color:var(--steel);font-size:20px;line-height:1;flex-shrink:0;}
-.rest-banner-txt,.lighter-banner-txt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
-.rest-banner-txt strong,.lighter-banner-txt strong{color:var(--ink);font-weight:700;}
-
-/* all-done */
 .alldone{display:none;text-align:center;color:var(--muted);font-size:var(--fs-sm);padding:18px 0 4px;line-height:1.6;}
-
-/* sheet-back · sleep-sheet · ss-* · btn-prim → components.css */
 
 /* quality swap options */
 .q-list{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
@@ -148,11 +189,59 @@
 .q-opt-ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .15s;}
 .q-opt.sel .q-opt-ck{background:var(--accent);border-color:var(--accent);color:#fff;}
 .q-rest{width:100%;margin-top:14px;border:none;background:none;font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--muted);padding:12px;cursor:pointer;}
-.q-rest:active{color:var(--ink);}
 
 </style>
-</head>
-<body class="screen-body mode-full">
+</head><body class="screen-body mode-full">
+
+  <!-- ══════════ WELCOME BACK (conditional · 3+ day gap) ══════════ -->
+  <!-- Hidden by default. No missed tasks. No streak damage. Just warmth. -->
+  <div class="welcome-back" id="welcomeBack" style="display:none">
+    <button class="wb-dismiss" onclick="dismissWelcome()" title="Dismiss">&#10005;</button>
+    <i class="ic ic-leaf wb-icon"></i>
+    <div class="wb-greeting">Welcome back. Nothing's lost.</div>
+    <div class="wb-sub">Life happened. Your path is still here, exactly where you left it.</div>
+    <button class="wb-action" onclick="startFromWelcome()">Just do today's anchor</button>
+  </div>
+
+  <!-- ══════════ BAND 0 · ANCHOR HERO (IS the theme practice) ══════════ -->
+  <!-- Dark, dominant. ONE rotating step. The day's single focus. -->
+  <div class="anchor-hero" id="anchorHero">
+    <div class="ah-top">
+      <div class="ah-path" id="ahPath" onclick="openQualitySheet()">Stillness Path · Camp 2</div>
+      <div class="ah-badge">Theme</div>
+    </div>
+    <div class="ah-practice" id="ahPractice">When you feel the urge to react — pause for one breath first.</div>
+    <div class="ah-rest-msg"><i class="ic ic-shield"></i> Today is for rest. The theme holds — nothing is lost.</div>
+    <div class="ah-bottom">
+      <!-- haptic: light impact · scale(.88)->scale(1) spring 150ms · fill olive on done -->
+      <button class="ah-tick" id="ahTick" onclick="toggleAnchor()" title="I practised this">&#10003;</button>
+      <div class="ah-pulse">
+        <div class="ah-dots">
+          <span class="ah-dot on"></span>
+          <span class="ah-dot"></span>
+          <span class="ah-dot on"></span>
+          <span class="ah-dot on"></span>
+          <span class="ah-dot skip"></span>
+          <span class="ah-dot on"></span>
+          <span class="ah-dot today" id="ahDotToday"></span>
+        </div>
+        <div class="ah-freq">4th session this week · spacing is working</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shimmer anticipation · appears instantly on tick, holds 600ms -->
+  <div class="insight-placeholder" id="insightPlaceholder"></div>
+
+  <!-- variable reward · slides up after shimmer fades · the text IS the reward -->
+  <div class="insight-reveal" id="insightReveal">
+    <button class="ir-dismiss" onclick="dismissInsight()" title="Dismiss">&#10005;</button>
+    <div class="ir-head">
+      <div class="ir-icon"><i class="ic ic-spark"></i></div>
+      <div class="ir-label">Pattern spotted</div>
+    </div>
+    <div class="ir-text">On your 5 best-mood days this month, the anchor was done <b>before 8am</b>. Today you did it at 7:12.</div>
+  </div>
 
   <!-- ══════════ BAND 1 · ARRIVAL ══════════ -->
   <div class="today-hdr">
@@ -169,29 +258,19 @@
       </div>
     </div>
     <div class="sleep-logged" id="sleepLogged">
-      <div class="sl-item">
-        <i class="ic ic-moon sl-icon"></i>
-        <div class="sl-label">Sleep</div>
-        <div class="sl-val" id="slVal">—</div>
-        <div class="sl-sub" id="slSub"></div>
+      <div class="tri-ring" id="triRing">
+        <svg class="tr-sleep" viewBox="0 0 100 100"><circle class="tr-bg" cx="50" cy="50" r="45" pathLength="100"/><circle class="tr-arc" id="arcSleep" cx="50" cy="50" r="45" pathLength="100" stroke-dashoffset="100"/></svg>
+        <svg class="tr-energy" viewBox="0 0 100 100"><circle class="tr-bg" cx="50" cy="50" r="35" pathLength="100"/><circle class="tr-arc" id="arcEnergy" cx="50" cy="50" r="35" pathLength="100" stroke-dashoffset="100"/></svg>
+        <svg class="tr-mood"  viewBox="0 0 100 100"><circle class="tr-bg" cx="50" cy="50" r="25" pathLength="100"/><circle class="tr-arc" id="arcMood"  cx="50" cy="50" r="25" pathLength="100" stroke-dashoffset="100"/></svg>
       </div>
-      <div class="sl-item">
-        <div class="sl-label">Mood · Energy</div>
-        <div class="me-row">
-          <i class="ic ic-heart me-weather" id="moodIcon"></i>
-          <div class="me-desc" id="moodDesc"></div>
-        </div>
-        <div class="me-row">
-          <div class="battery-wrap bat-mid" id="batWrap">
-            <div class="battery"><div class="battery-fill" id="batFill" style="width:60%"></div></div>
-            <div class="bat-label" id="batLabel">6 / 10</div>
-          </div>
-        </div>
+      <div class="tri-legend">
+        <div class="lg-row"><div class="lg-dot sleep"></div><div class="lg-name">Sleep</div></div>
+        <div class="lg-row"><div class="lg-dot energy"></div><div class="lg-name">Energy</div></div>
+        <div class="lg-row"><div class="lg-dot mood"></div><div class="lg-name">Mood</div></div>
       </div>
     </div>
   </div>
 
-  <!-- Today's pace -->
   <div class="pace">
     <div class="pace-label">Today's pace</div>
     <div class="pace-seg">
@@ -200,71 +279,24 @@
       <button class="pace-btn" data-mode="rest" onclick="setMode('rest')">Rest</button>
     </div>
   </div>
-  <div class="pace-note" id="paceNote"></div>
+  <div class="pace-note" id="paceNote"><span class="pace-note-em"><i class="ic ic-compass"></i></span><span id="paceNoteText"></span></div>
 
-  <!-- ══════════ BAND 2 · TODAY'S FOCUS ══════════ -->
-  <div class="focus-band">
-
-  <!-- compact rest reassurance (shows only on Rest pace) -->
+  <!-- ══════════ BAND 2 · DAILY RITUALS ══════════ -->
   <div class="rest-banner">
     <span class="rest-banner-em"><i class="ic ic-shield"></i></span>
-    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Just the bare-minimum ritual to get through — streaks are held, nothing is lost.</div>
+    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Just the bare-minimum ritual — streaks are held, nothing is lost.</div>
   </div>
-
-  <!-- lighter-day reassurance (shows only on Lighter pace) -->
   <div class="lighter-banner">
     <span class="lighter-banner-em"><i class="ic ic-wind"></i></span>
-    <div class="lighter-banner-txt"><strong>A lighter day.</strong> A shorter ritual, and the growth theme rests — streaks are held, nothing is lost.</div>
+    <div class="lighter-banner-txt"><strong>A lighter day.</strong> A shorter ritual — streaks are held, nothing is lost.</div>
   </div>
 
-  <!-- ── The one theme quality (growth engine) ── -->
-  <!-- No permanent helper text here: rotation/gesture hints are first-run only.
-       See design/spec-onboarding.md (§1 daily bands get self-evident design + coach marks). -->
-  <div class="theme-group">
-  <div class="yhead">
-    <i class="ic ic-flame yhead-ic"></i>
-    <div class="yhead-t">Today's theme</div>
-    <div class="yhead-rule"></div>
-  </div>
-
-  <!-- Theme practice -->
-  <div class="primary" id="primary">
-    <div class="pr-top">
-      <div class="yritual-badge theme"><i class="ic ic-leaf"></i></div>
-      <a class="pr-head" href="plan-trails.html">
-        <div class="pr-title">Stillness</div>
-        <div class="pr-src">Stillness Path · Camp 2</div>
-      </a>
-      <div class="pr-badge">Theme</div>
-      <i class="ic ic-chev yritual-chev"></i>
-    </div>
-    <div class="pr-trigger-row">
-      <button class="pr-tick" onclick="togglePrimary()" title="Mark done">✓</button>
-      <div class="pr-trigger">When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —</div>
-    </div>
-    <div class="pr-steps">
-      <div class="pr-step"><span class="pr-step-arr">→</span> Pause for one breath before responding</div>
-      <div class="pr-step"><span class="pr-step-arr">→</span> Ask yourself: <em>“What am I actually feeling right now?”</em></div>
-      <div class="pr-step"><span class="pr-step-arr">→</span> If it helps, say: <em>“I have time. I can choose how I respond.”</em></div>
-    </div>
-    <div class="pr-dots-bar"><div class="pr-dots" id="prDots"></div></div>
-  </div>
-
-  <!-- not-today rested state -->
-  <div class="theme-rested" id="themeRested">
-    <strong>Resting Stillness today.</strong> No streak lost — it simply rotates on, and another quality comes round tomorrow.
-  </div>
-  </div><!-- /theme-group -->
-
-  <!-- ── Daily rituals (habit engine — morning & evening) ── -->
   <div class="rituals-group">
   <div class="yhead">
     <i class="ic ic-sun yhead-ic"></i>
     <div class="yhead-t">Daily rituals</div>
     <div class="yhead-rule"></div>
   </div>
-
-  <!-- Morning ritual card -->
   <div class="yritual" id="ritual-morning">
     <div class="yritual-top" onclick="location.href='log-habits.html'">
       <div class="yritual-badge am"><i class="ic ic-sun"></i></div>
@@ -284,8 +316,6 @@
       <button class="rnode opt-full" onclick="toggleNode(this,'morning')" title="5-min silent sit"><i class="ic ic-brain"></i></button>
     </div>
   </div>
-
-  <!-- Evening ritual card -->
   <div class="yritual" id="ritual-evening">
     <div class="yritual-top" onclick="location.href='log-habits.html'">
       <div class="yritual-badge pm"><i class="ic ic-moon"></i></div>
@@ -305,9 +335,7 @@
       <button class="rnode opt-full" onclick="toggleNode(this,'evening')" title="Save £50 to land fund"><i class="ic ic-sprout"></i></button>
     </div>
   </div>
-  </div><!-- /rituals-group -->
-
-  </div><!-- /focus-band -->
+  </div>
 
   <!-- ══════════ BAND 3 · YOUR DAY ══════════ -->
   <div class="day-band">
@@ -326,23 +354,23 @@
       <i class="ic ic-chev yritual-chev"></i>
     </div>
     <div class="task-row done" onclick="toggleTask(this)">
-      <div class="t-ck done">✓</div>
+      <div class="t-ck done">&#10003;</div>
       <div class="t-name">Research mortgages</div>
       <div class="t-tag tag-money">money</div>
     </div>
     <div class="task-row" onclick="toggleTask(this)">
-      <div class="t-ck">✓</div>
+      <div class="t-ck">&#10003;</div>
       <div class="t-name">Read chapter 3</div>
       <div class="t-tag tag-inner">inner</div>
     </div>
     <div class="task-row" onclick="toggleTask(this)">
-      <div class="t-ck">✓</div>
+      <div class="t-ck">&#10003;</div>
       <div class="t-name">Set aside £200 land fund</div>
       <div class="t-tag tag-money">money</div>
     </div>
     <a class="tc-more" href="plan-month.html">2 more in Plan <i class="ic ic-chev"></i></a>
   </div>
-  </div><!-- /day-band -->
+  </div>
 
   <!-- ══════════ BAND 4 · SIGNALS ══════════ -->
   <div class="signals-band">
@@ -356,7 +384,7 @@
         <div class="yritual-badge signal"><i class="ic ic-spark"></i></div>
         <div class="yritual-head">
           <div class="yritual-name">Weekly check-in is ready</div>
-          <div class="yritual-meta">3 questions · 2 min · due today</div>
+          <div class="yritual-meta">3 questions · 2 min · You &rarr; Discover</div>
         </div>
         <i class="ic ic-chev yritual-chev"></i>
       </div>
@@ -379,23 +407,25 @@
 
   <div class="alldone" id="allDone"><i class="ic ic-moon"></i> You've done enough today.<br/>Rest well.</div>
 
+  <!-- Demo toggle -->
+  <div style="margin-top:10px;text-align:center">
+    <button onclick="toggleWelcomeDemo()" style="background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;font-family:inherit;">▶ Toggle welcome-back demo</button>
+  </div>
+
   <!-- ══════════ SLEEP SHEET ══════════ -->
   <div class="sheet-back" id="sheetBack" onclick="closeSleepSheet()"></div>
   <div class="sleep-sheet" id="sleepSheet">
     <div class="ss-grip"></div>
     <div class="ss-title">How did you sleep?</div>
-
     <div class="dial-card">
       <div class="dial-hint">Drag the bed &amp; wake points to adjust · snaps to 10 min</div>
       <svg id="ssDialSvg" viewBox="0 0 216 216" role="img" aria-label="24-hour sleep clock"></svg>
       <div class="dial-foot"><strong id="durDisplay">5h 40m</strong> sleep</div>
     </div>
-
     <div class="insight">
       <span class="insight-tag">Gentle note</span>
       <p class="insight-p" id="insightText">5h 40m is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span></p>
     </div>
-
     <div class="b-sect">
       <div class="mood-pick" data-name="mood" data-value="7">
         <div class="mp-top">
@@ -403,28 +433,24 @@
           <span class="mp-now"><b>7</b>Good</span>
         </div>
         <div class="mp-track" tabindex="0" role="slider" aria-label="Mood" aria-valuemin="1" aria-valuemax="10" aria-valuenow="7">
-          <div class="mp-rail"></div><div class="mp-fill"></div>
-          <div class="mp-thumb"></div>
+          <div class="mp-rail"></div><div class="mp-fill"></div><div class="mp-thumb"></div>
         </div>
         <div class="mp-ends"><span>Rough</span><span>Great</span></div>
       </div>
-
       <div class="mood-pick" data-name="energy" data-value="6">
         <div class="mp-top">
-          <span class="mp-cap"><i class="ic ic-zap"></i> Energy</span>
+          <span class="mp-cap"><i class="ic ic-zap"></i> Morning energy</span>
           <span class="mp-now"><b>6</b>Steady</span>
         </div>
-        <div class="mp-track" tabindex="0" role="slider" aria-label="Energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
-          <div class="mp-rail"></div><div class="mp-fill"></div>
-          <div class="mp-thumb"></div>
+        <div class="mp-track" tabindex="0" role="slider" aria-label="Morning energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
+          <div class="mp-rail"></div><div class="mp-fill"></div><div class="mp-thumb"></div>
         </div>
-        <div class="mp-ends"><span>Flat</span><span>Buzzing</span></div>
+        <div class="mp-ends"><span>Empty</span><span>Full</span></div>
       </div>
-
+      <div class="dial-hint" style="margin-top:12px">This starts today's energy timeline. Later check-ins add new points.</div>
       <div class="b-label" style="margin-top:16px">Note (optional)</div>
       <textarea class="b-note" placeholder="What's on your mind…"></textarea>
     </div>
-
     <button class="btn-prim" onclick="saveSleep()">Save</button>
   </div>
 
@@ -433,20 +459,20 @@
   <div class="sleep-sheet" id="qualitySheet">
     <div class="ss-grip"></div>
     <div class="ss-title">Today's quality</div>
-    <div class="ss-sub">One to grow today — pick any from your pool. Yesterday's rotates on, so it never turns into a grind.</div>
+    <div class="ss-sub">One to grow today — pick any from your pool. Yesterday's rotates on.</div>
     <div class="q-list" id="qList">
       <button class="q-opt" data-q="stillness" onclick="pickQuality('stillness')">
         <div class="q-opt-main"><div class="q-opt-name">Stillness</div><div class="q-opt-desc">Pause before reacting</div></div>
-        <div class="q-opt-ck">✓</div>
+        <div class="q-opt-ck">&#10003;</div>
       </button>
       <button class="q-opt" data-q="presence" onclick="pickQuality('presence')">
         <div class="q-opt-main"><div class="q-opt-name">Presence</div><div class="q-opt-desc">Be where you are</div></div>
-        <div class="q-opt-ck">✓</div>
+        <div class="q-opt-ck">&#10003;</div>
       </button>
       <button class="q-opt" data-q="patience" onclick="pickQuality('patience')">
         <div class="q-opt-main"><div class="q-opt-name">Patience</div><div class="q-opt-desc">Let things take their time</div></div>
         <span class="q-tag">yesterday</span>
-        <div class="q-opt-ck">✓</div>
+        <div class="q-opt-ck">&#10003;</div>
       </button>
     </div>
     <button class="q-rest" onclick="notToday();closeQualitySheet()">Rest today — no streak lost</button>
@@ -454,9 +480,65 @@
 
 <script src="../shared/dial.js"></script>
 <script>
+/* ── Welcome back ── */
+function dismissWelcome(){
+  var wb=document.getElementById('welcomeBack');
+  wb.style.opacity='0';wb.style.transform='translateY(-10px)';wb.style.transition='all .4s ease';
+  setTimeout(function(){wb.style.display='none';},400);
+}
+function startFromWelcome(){
+  dismissWelcome();
+  setTimeout(function(){document.getElementById('anchorHero').scrollIntoView({behavior:'smooth',block:'start'});},450);
+}
+function toggleWelcomeDemo(){
+  var wb=document.getElementById('welcomeBack');
+  if(wb.style.display==='none'||!wb.style.display){wb.style.display='block';wb.style.opacity='1';wb.style.transform='none';}
+  else{wb.style.display='none';}
+}
+
+/* ── Anchor Hero (merged theme practice) ── */
+var ANCHOR_STEPS={
+  stillness:['When you feel the urge to react \u2014 pause for one breath first.',
+    'Before responding to a difficult message, ask: \u201CWhat am I actually feeling?\u201D',
+    'When pressure rises, say to yourself: \u201CI have time. I can choose.\u201D'],
+  presence:['When your mind races ahead \u2014 name one thing you can see, hear, and feel right now.',
+    'Before entering a room, take one conscious breath and arrive fully.',
+    'When multitasking pulls you \u2014 do this one thing, then the next.'],
+  patience:['When something takes longer than you hoped \u2014 soften your shoulders, unclench your jaw.',
+    'When you want to rush \u2014 remind yourself: \u201CRushing rarely makes it better.\u201D',
+    'Give whatever you are doing one more calm attempt before switching.']
+};
+function getTodayStep(q){var s=ANCHOR_STEPS[q]||ANCHOR_STEPS.stillness;return s[new Date().getDay()%s.length];}
+function renderAnchor(){
+  var q=QUALITIES[currentQuality];
+  document.getElementById('ahPath').textContent=q.src;
+  document.getElementById('ahPractice').textContent=getTodayStep(currentQuality);
+}
+var anchorDone=false;
+function toggleAnchor(){
+  if(anchorDone) return;
+  anchorDone=true;
+  document.getElementById('anchorHero').classList.add('done-state');
+  var dot=document.getElementById('ahDotToday');
+  dot.classList.remove('today');dot.classList.add('on');
+  /* shimmer anticipation \u2014 show immediately */
+  document.getElementById('insightPlaceholder').classList.add('show');
+  /* after 600ms: swap shimmer for reveal \u00b7 haptic: success */
+  setTimeout(function(){
+    document.getElementById('insightPlaceholder').classList.remove('show');
+    var r=document.getElementById('insightReveal');
+    r.style.display='block';r.offsetHeight;r.classList.add('show');
+  },600);
+  updateFocus();
+}
+function dismissInsight(){
+  var r=document.getElementById('insightReveal');
+  r.style.opacity='0';r.style.transform='translateY(8px)';
+  setTimeout(function(){r.style.display='none';r.classList.remove('show');},300);
+}
+
 /* ── Sleep sheet ── */
 function openSleepSheet(){
-  if(document.getElementById('sleepPrompt').style.display === 'none') return; // already logged
   document.getElementById('sleepSheet').classList.add('open');
   document.getElementById('sheetBack').classList.add('open');
 }
@@ -464,261 +546,203 @@ function closeSleepSheet(){
   document.getElementById('sleepSheet').classList.remove('open');
   document.getElementById('sheetBack').classList.remove('open');
 }
-function scoreVal(name){
-  const p = document.querySelector('.mood-pick[data-name="'+name+'"]');
-  return p ? +p.dataset.value : 5;   // 1..10
-}
-// Mood / energy sliders — tap or drag on a 1–10 scale (stored as-is in the DB)
-const MP_MAX = 10;
-const MP_WORDS = {
-  mood:   ['Rough','Low','Okay','Good','Great'],
-  energy: ['Flat','Low','Steady','High','Buzzing']
-};
-const mpWord = (name, v) => MP_WORDS[name][Math.ceil(v/2)-1];
-const mpPct  = v => (v-1)/(MP_MAX-1)*100;
-// gradual, non-judgmental colour that stays alive: soft slate-blue (low) sweeps
-// through teal + green to a lively olive (high) — calm, and never red
-const mpColor = v => {
-  const t=(v-1)/(MP_MAX-1);
-  return { h:Math.round(208+(92-208)*t), s:Math.round(34+(30-34)*t), l:Math.round(44+(38-44)*t) };
-};
+function scoreVal(name){var p=document.querySelector('.mood-pick[data-name="'+name+'"]');return p?+p.dataset.value:5;}
+var MP_MAX=10;
+var MP_WORDS={mood:['Rough','Low','Okay','Good','Great'],energy:['Flat','Low','Steady','Strong','Charged']};
+function mpWord(name,v){return MP_WORDS[name][Math.ceil(v/2)-1];}
+function mpPct(v){return (v-1)/(MP_MAX-1)*100;}
+var mpPalettes={mood:{h0:18,h1:142,s0:42,s1:32,l0:48,l1:38},energy:{h0:32,h1:148,s0:50,s1:30,l0:50,l1:36}};
+function mpColor(v,name){var t=(v-1)/(MP_MAX-1),p=mpPalettes[name||'energy'];return{h:Math.round(p.h0+(p.h1-p.h0)*t),s:Math.round(p.s0+(p.s1-p.s0)*t),l:Math.round(p.l0+(p.l1-p.l0)*t)};}
 function mpPaint(pick){
-  const v = +pick.dataset.value, pct = mpPct(v), c = mpColor(v);
-  const solid = 'hsl('+c.h+','+c.s+'%,'+c.l+'%)', glow = 'hsla('+c.h+','+c.s+'%,'+c.l+'%,.38)';
-  const thumb = pick.querySelector('.mp-thumb'), fill = pick.querySelector('.mp-fill'), now = pick.querySelector('.mp-now');
-  thumb.style.left = pct + '%';
-  thumb.style.borderColor = solid;
-  thumb.style.boxShadow = '0 2px 8px ' + glow;
-  fill.style.width = pct + '%';
-  fill.style.background = solid;
-  now.innerHTML = '<b>'+v+'</b>'+mpWord(pick.dataset.name, v);
-  now.style.color = '#FBFAF8';
-  now.style.background = solid;
-  pick.querySelector('.mp-track').setAttribute('aria-valuenow', v);
+  var v=+pick.dataset.value,pct=mpPct(v),c=mpColor(v,pick.dataset.name);
+  var solid='hsl('+c.h+','+c.s+'%,'+c.l+'%)',soft='hsl('+c.h+','+Math.round(c.s*.6)+'%,94%)',glow='hsla('+c.h+','+c.s+'%,'+c.l+'%,.3)';
+  var p0=mpPalettes[pick.dataset.name||'energy'];
+  var thumb=pick.querySelector('.mp-thumb'),fill=pick.querySelector('.mp-fill'),now=pick.querySelector('.mp-now');
+  thumb.style.left=pct+'%';thumb.style.borderColor=solid;thumb.style.boxShadow='0 0 0 5px '+soft+', 0 2px 8px '+glow;
+  fill.style.width=pct+'%';fill.style.background='linear-gradient(90deg, hsl('+p0.h0+','+c.s+'%,'+Math.round(c.l*1.15)+'%), '+solid+')';
+  now.innerHTML='<b>'+v+'</b>'+mpWord(pick.dataset.name,v);now.style.color='#FBFAF8';now.style.background=solid;now.style.borderRadius='999px';
+  pick.querySelector('.mp-track').setAttribute('aria-valuenow',v);
 }
-function mpSet(pick, clientX){
-  const r = pick.querySelector('.mp-track').getBoundingClientRect();
-  const ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
-  pick.dataset.value = Math.min(MP_MAX, Math.max(1, Math.round(ratio * (MP_MAX-1)) + 1));
-  mpPaint(pick);
+function mpSet(pick,clientX){
+  var r=pick.querySelector('.mp-track').getBoundingClientRect();
+  var ratio=Math.min(1,Math.max(0,(clientX-r.left)/r.width));
+  pick.dataset.value=Math.min(MP_MAX,Math.max(1,Math.round(ratio*(MP_MAX-1))+1));mpPaint(pick);
 }
-document.querySelectorAll('.mood-pick').forEach(pick=>{
-  const t = pick.querySelector('.mp-track'), thumb = pick.querySelector('.mp-thumb');
-  for(let i=1;i<=MP_MAX;i++){ const s=document.createElement('span'); s.className='mp-tick'; s.style.left=mpPct(i)+'%'; t.insertBefore(s, thumb); }
-  mpPaint(pick);
-  let drag = false;
-  const xOf = e => (e.touches ? e.touches[0] : e).clientX;
-  t.addEventListener('mousedown', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); });
-  t.addEventListener('touchstart', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); }, {passive:false});
-  window.addEventListener('mousemove', e=>{ if(drag) mpSet(pick, xOf(e)); });
-  window.addEventListener('touchmove', e=>{ if(drag) mpSet(pick, xOf(e)); }, {passive:false});
-  window.addEventListener('mouseup', ()=> drag=false);
-  window.addEventListener('touchend', ()=> drag=false);
-  t.addEventListener('keydown', e=>{
-    let v=+pick.dataset.value;
-    if(e.key==='ArrowRight'||e.key==='ArrowUp') v=Math.min(MP_MAX,v+1);
-    else if(e.key==='ArrowLeft'||e.key==='ArrowDown') v=Math.max(1,v-1);
-    else return;
-    pick.dataset.value=v; mpPaint(pick); e.preventDefault();
-  });
+document.querySelectorAll('.mood-pick').forEach(function(pick){
+  var t=pick.querySelector('.mp-track'),thumb=pick.querySelector('.mp-thumb');
+  for(var i=1;i<=MP_MAX;i++){var s=document.createElement('span');s.className='mp-tick';s.style.left=mpPct(i)+'%';t.insertBefore(s,thumb);}
+  mpPaint(pick);var drag=false;
+  function xOf(e){return (e.touches?e.touches[0]:e).clientX;}
+  t.addEventListener('mousedown',function(e){drag=true;mpSet(pick,xOf(e));e.preventDefault();});
+  t.addEventListener('touchstart',function(e){drag=true;mpSet(pick,xOf(e));e.preventDefault();},{passive:false});
+  window.addEventListener('mousemove',function(e){if(drag)mpSet(pick,xOf(e));});
+  window.addEventListener('touchmove',function(e){if(drag)mpSet(pick,xOf(e));},{passive:false});
+  window.addEventListener('mouseup',function(){drag=false;});
+  window.addEventListener('touchend',function(){drag=false;});
+  t.addEventListener('keydown',function(e){var v=+pick.dataset.value;
+    if(e.key==='ArrowRight'||e.key==='ArrowUp')v=Math.min(MP_MAX,v+1);
+    else if(e.key==='ArrowLeft'||e.key==='ArrowDown')v=Math.max(1,v-1);else return;
+    pick.dataset.value=v;mpPaint(pick);e.preventDefault();});
 });
-function energyClass(e){ return e>=7 ? 'bat-hi' : e>=5 ? 'bat-mid' : 'bat-lo'; }
+function clampPct(n){return Math.max(0,Math.min(100,Math.round(n)));}
+function setArc(id,pct){var el=document.getElementById(id);if(!el)return;el.style.strokeDashoffset=100-clampPct(pct);}
+function targetSleepMinutes(){
+  var t=window._target||{sleep:23,wake:7};
+  var dur=((Number(t.wake)-Number(t.sleep)+24)%24)*60;
+  return dur||480;
+}
 
-/* ── 24h sleep dial (shared design with Log · Sleep) ── */
-window._target = { sleep: 23, wake: 7 };
-window._ssDial = createSleepDial({
-  svg: 'ssDialSvg', sleep: 50/60, wake: 6.5, showTargetArc: true,
-  onUpdate: ctx => {
-    document.getElementById('durDisplay').textContent = ctx.fmtDur(ctx.sleepH, ctx.wakeH);
-    const durStr = ctx.fmtDur(ctx.sleepH, ctx.wakeH), diff = ctx.durHours - 8;
-    let note;
-    if(diff>=0) note=`${durStr} — at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>`;
-    else if(diff>=-1) note=`${durStr} is close to your 8h goal. <span class="soft">See how your energy feels today — one night off is just one night.</span>`;
-    else note=`${durStr} is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>`;
-    document.getElementById('insightText').innerHTML = note;
+/* ── Sleep dial ── */
+window._target={sleep:23,wake:7};
+window._ssDial=createSleepDial({svg:'ssDialSvg',sleep:50/60,wake:6.5,showTargetArc:true,
+  onUpdate:function(ctx){
+    document.getElementById('durDisplay').textContent=ctx.fmtDur(ctx.sleepH,ctx.wakeH);
+    var durStr=ctx.fmtDur(ctx.sleepH,ctx.wakeH),diff=ctx.durHours-8,note;
+    if(diff>=0)note=durStr+' \u2014 at or above your 8h goal. <span class="soft">Consistent sleep makes a real difference.</span>';
+    else if(diff>=-1)note=durStr+' is close to your 8h goal. <span class="soft">See how your energy feels today.</span>';
+    else note=durStr+' is below your 8h goal. <span class="soft">Shorter sleep can soften focus and mood, so keep today lighter where you can.</span>';
+    document.getElementById('insightText').innerHTML=note;
   }
 });
-
 function saveSleep(){
-  const st = window._ssDial.state();
-  const mood = scoreVal('mood'), energy = scoreVal('energy'), mc = mpColor(mood);
-  document.getElementById('slVal').textContent = st.h + 'h ' + String(st.m).padStart(2,'0') + 'm';
-  document.getElementById('slSub').textContent = 'to bed ' + st.bed + ' · woke ' + st.wake;
-  document.getElementById('moodIcon').style.color = 'hsl(' + mc.h + ',' + mc.s + '%,' + mc.l + '%)';
-  document.getElementById('moodDesc').textContent = mpWord('mood', mood);
-  document.getElementById('batFill').style.width = Math.round(energy/MP_MAX*100) + '%';
-  document.getElementById('batLabel').textContent = mpWord('energy', energy);
-  document.getElementById('batWrap').className = 'battery-wrap ' + energyClass(energy);
-  document.getElementById('sleepPrompt').style.display = 'none';
-  document.getElementById('sleepLogged').style.display = 'grid';
-  document.getElementById('sleepCard').style.cursor = 'default';
+  var st=window._ssDial.state(),mood=scoreVal('mood'),energy=scoreVal('energy');
+  var sleepMinutes=st.h*60+st.m,targetMinutes=targetSleepMinutes(),sleepPct=sleepMinutes/targetMinutes*100;
+  applyVitals(sleepPct,mood,energy);
+  document.getElementById('sleepPrompt').style.display='none';
+  document.getElementById('sleepLogged').style.display='flex';
   closeSleepSheet();
-  // Compass suggests a lighter day when energy is low — you still choose
-  if(energy <= 4){
-    setMode('lighter');
-    const n = document.getElementById('paceNote');
-    n.textContent = 'Your energy is low — Compass suggests a lighter day. You choose.';
-    n.classList.add('show');
-  }
+  var store=readEnergyStore();
+  store.events.push({id:Date.now(),timestamp:new Date().toISOString(),score:energy,tag:'Sleep log',kind:energy>=6?'restore':'cost',source:'sleep'});
+  writeEnergyStore(store);
 }
 
-/* ── Today's pace ── */
+// Populate rings + recommend today's pace from sleep/energy/mood
+var _vitals={sleepPct:70,mood:7,energy:6};
+function applyVitals(sleepPct,mood,energy){
+  _vitals={sleepPct:sleepPct,mood:mood,energy:energy};
+  setArc('arcSleep',sleepPct);
+  setArc('arcMood',mood/MP_MAX*100);
+  setArc('arcEnergy',energy/MP_MAX*100);
+  _suggestPace(null);
+}
+function _suggestPace(latestEvent){
+  var score=latestEvent?latestEvent.score:_vitals.energy;
+  var flow=latestEvent?latestEvent.flow:null;
+  var rec=score<=4?'rest':score<=6?'lighter':'full';
+  document.querySelectorAll('.pace-btn').forEach(function(b){b.classList.toggle('suggested',b.dataset.mode===rec);});
+  var labels={rest:'Rest',lighter:'a Lighter day',full:'a Full day'};
+  var reason='';
+  if(flow==='leak')reason=score<=4?'Low reserve after a leak — protect what remains':'Energy lost here — worth noting the source';
+  else if(flow==='invest')reason=score<=5?'Investment cost real energy — recovery helps it land':'Energy well spent — a short recharge supports it';
+  else if(flow==='recharge')reason=score<=5?'Recharging — keep today light':'Restored — reasonable conditions for meaningful work';
+  else if(flow==='nourish')reason='Well-nourished — good conditions for what matters most';
+  else reason=score<=4?'Low reserves':score<=6?'Running a bit low':'Well charged';
+  document.getElementById('paceNoteText').innerHTML=reason+' — suggested: <b>'+labels[rec]+'</b>.';
+  document.getElementById('paceNote').classList.add('show');
+}
+
+var ENERGY_STORE_KEY='compass.energy.v2';
+function readEnergyStore(){try{return JSON.parse(localStorage.getItem(ENERGY_STORE_KEY))||{events:[]};}catch(error){return{events:[]};}}
+function writeEnergyStore(store){localStorage.setItem(ENERGY_STORE_KEY,JSON.stringify(store));syncEnergyFromStore();}
+function syncEnergyFromStore(){
+  var events=readEnergyStore().events||[];
+  var today=new Date().toDateString();
+  var todayCheckins=events.filter(function(e){return new Date(e.timestamp).toDateString()===today&&e.source==='checkin';});
+  if(todayCheckins.length){
+    var latest=todayCheckins[todayCheckins.length-1];
+    setArc('arcEnergy',latest.score/10*100);
+    document.getElementById('sleepPrompt').style.display='none';
+    document.getElementById('sleepLogged').style.display='flex';
+    _vitals.energy=latest.score;
+    _suggestPace(latest);
+    return;
+  }
+  var latest=events[events.length-1];
+  if(latest&&latest.source==='sleep')return;
+}
+window.addEventListener('storage',function(event){if(event.key===ENERGY_STORE_KEY)syncEnergyFromStore();});
+
+/* ── Pace ── */
 function setMode(mode){
   document.body.classList.remove('mode-full','mode-lighter','mode-rest');
   document.body.classList.add('mode-'+mode);
-  document.querySelectorAll('.pace-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
-  const n = document.getElementById('paceNote');
-  n.classList.remove('show');   // Both lighter & rest use their own banner cards now
-  recomputeCard('morning'); recomputeCard('evening');   // visible nodes changed with pace
-  updateFocus();
+  document.querySelectorAll('.pace-btn').forEach(function(b){b.classList.toggle('on',b.dataset.mode===mode);});
+  document.getElementById('paceNote').classList.remove('show');
+  recomputeCard('morning');recomputeCard('evening');updateFocus();
 }
 
-/* ── Focus tracking ── */
+/* ── Focus tracking (updated for anchor hero) ── */
 function updateFocus(){
-  const mode = document.body.classList.contains('mode-rest') ? 'rest'
-             : document.body.classList.contains('mode-lighter') ? 'lighter' : 'full';
-  const primary = document.getElementById('primary');
-  const rested = primary.classList.contains('rested');
-  const primaryDone = primary.classList.contains('done');
-  // Rest & Lighter use the same focus-band ritual cards (fewer circles show via CSS)
-  const nodes = [...document.querySelectorAll('.focus-band .rnode')].filter(n=>getComputedStyle(n).display!=='none');
-  const nodesDone = nodes.filter(n=>n.classList.contains('done')).length;
-  const themeCounts = (mode==='full' && !rested);        // theme rests on Lighter/Rest
-  const total = nodes.length + (themeCounts?1:0);
-  const done  = nodesDone + (themeCounts && primaryDone ? 1 : 0);
-  const chip = document.getElementById('doneChip');
-  if(mode==='rest'){ chip.textContent = 'resting · ' + done + ' of ' + total; chip.className='done-chip' + (total>0 && done===total?' all':''); }
-  else { chip.textContent = done + ' of ' + total + ' done'; chip.className = 'done-chip' + (total>0 && done===total?' all':''); }
-  document.getElementById('allDone').style.display = (mode!=='rest' && total>0 && done===total) ? 'block' : 'none';
+  var mode=document.body.classList.contains('mode-rest')?'rest':document.body.classList.contains('mode-lighter')?'lighter':'full';
+  var nodes=Array.from(document.querySelectorAll('.rituals-group .rnode')).filter(function(n){return getComputedStyle(n).display!=='none';});
+  var nodesDone=nodes.filter(function(n){return n.classList.contains('done');}).length;
+  var anchorCounts=(mode==='full');
+  var total=nodes.length+(anchorCounts?1:0);
+  var done=nodesDone+(anchorCounts&&anchorDone?1:0);
+  var chip=document.getElementById('doneChip');
+  if(mode==='rest'){chip.textContent='resting \u00b7 '+done+' of '+total;chip.className='done-chip'+(total>0&&done===total?' all':'');}
+  else{chip.textContent=done+' of '+total+' done';chip.className='done-chip'+(total>0&&done===total?' all':'');}
+  document.getElementById('allDone').style.display=(mode!=='rest'&&total>0&&done===total)?'block':'none';
 }
-/* ── Quality dots ── */
-const Q_KEYS = ['stillness','presence','patience'];
-function renderDots(){
-  const dots = document.getElementById('prDots');
-  dots.innerHTML = Q_KEYS.map(k =>
-    '<div class="pr-dot' + (k===currentQuality?' sel':'') + '"></div>'
-  ).join('');
-}
-function swipeQuality(dir){
-  const idx = Q_KEYS.indexOf(currentQuality);
-  const next = Q_KEYS[(idx + dir + Q_KEYS.length) % Q_KEYS.length];
-  renderQuality(next);
-  renderDots();
-}
-/* touch swipe on theme card */
-(function(){
-  let sx=0,sy=0;
-  const card = document.getElementById('primary');
-  card.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
-  card.addEventListener('touchend', e=>{
-    const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
-    if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)*1.5) swipeQuality(dx<0?1:-1);
-  },{passive:true});
-})();
-function togglePrimary(){
-  const p = document.getElementById('primary');
-  if(p.classList.contains('rested')) return;
-  p.classList.toggle('done'); updateFocus();
+
+/* ── Quality data + swap ── */
+var QUALITIES={
+  stillness:{name:'Stillness',src:'Stillness Path \u00b7 Camp 2'},
+  presence:{name:'Presence',src:'Stillness Path \u00b7 Camp 2'},
+  patience:{name:'Patience',src:'Land Path \u00b7 Camp 1'}
+};
+var Q_KEYS=['stillness','presence','patience'];
+var currentQuality='stillness';
+function renderQuality(key){
+  var q=QUALITIES[key];if(!q)return;currentQuality=key;
+  anchorDone=false;
+  document.getElementById('anchorHero').classList.remove('done-state');
+  document.getElementById('insightReveal').style.display='none';
+  document.getElementById('insightReveal').classList.remove('show');
+  document.getElementById('insightPlaceholder').classList.remove('show');
+  var dot=document.getElementById('ahDotToday');dot.classList.add('today');dot.classList.remove('on');
+  renderAnchor();updateFocus();
 }
 function notToday(){
-  document.getElementById('themeRested').querySelector('strong').textContent = 'Resting ' + QUALITIES[currentQuality].name + ' today.';
-  document.getElementById('primary').classList.add('rested');
-  document.getElementById('themeRested').classList.add('show');
+  anchorDone=false;
+  document.getElementById('anchorHero').classList.add('done-state');
+  document.getElementById('ahPractice').textContent='Resting '+QUALITIES[currentQuality].name+' today. No streak lost.';
   updateFocus();
 }
+function markQualitySel(){document.querySelectorAll('.q-opt').forEach(function(o){o.classList.toggle('sel',o.dataset.q===currentQuality);});}
+function openQualitySheet(){markQualitySel();document.getElementById('qualitySheet').classList.add('open');document.getElementById('qualityBack').classList.add('open');}
+function closeQualitySheet(){document.getElementById('qualitySheet').classList.remove('open');document.getElementById('qualityBack').classList.remove('open');}
+function pickQuality(key){if(key!==currentQuality)renderQuality(key);closeQualitySheet();}
 
-/* ── Today's quality (swap from pool; swipe card left/right to cycle) ── */
-const QUALITIES = {
-  stillness:{ name:'Stillness', src:'Stillness Path · Camp 2',
-    trigger:'When you feel the urge to react quickly — to a message, a criticism, or an unexpected demand —',
-    steps:[ 'Pause for one breath before responding',
-      ['Ask yourself:','“What am I actually feeling right now?”'],
-      ['If it helps, say:','“I have time. I can choose how I respond.”'] ] },
-  presence:{ name:'Presence', src:'Stillness Path · Camp 2',
-    trigger:'When you notice your mind racing ahead to the next thing while doing this one —',
-    steps:[ 'Name one thing you can see, hear, and feel right now',
-      ['Come back with:','“This is where I am.”'],
-      'Let the next thing wait its turn' ] },
-  patience:{ name:'Patience', src:'Stillness Path · Camp 2',
-    trigger:'When something takes longer than you hoped it would —',
-    steps:[ 'Soften your shoulders and unclench your jaw',
-      ['Remind yourself:','“Rushing rarely makes it better.”'],
-      'Give it one more calm attempt' ] }
-};
-let currentQuality = 'stillness';
-function renderQuality(key){
-  const q = QUALITIES[key]; if(!q) return;
-  const p = document.getElementById('primary');
-  p.querySelector('.pr-title').textContent = q.name;
-  p.querySelector('.pr-src').textContent = q.src;
-  p.querySelector('.pr-trigger').textContent = q.trigger;
-  p.querySelector('.pr-steps').innerHTML = q.steps.map(s =>
-    Array.isArray(s)
-      ? '<div class="pr-step"><span class="pr-step-arr">→</span> ' + s[0] + ' <em>' + s[1] + '</em></div>'
-      : '<div class="pr-step"><span class="pr-step-arr">→</span> ' + s + '</div>'
-  ).join('');
-  p.classList.remove('done','rested');                 // a fresh quality starts un-done
-  document.getElementById('themeRested').classList.remove('show');
-  currentQuality = key;
-  renderDots();
-  updateFocus();
-}
-function markQualitySel(){
-  document.querySelectorAll('.q-opt').forEach(o => o.classList.toggle('sel', o.dataset.q===currentQuality));
-}
-function openQualitySheet(){
-  markQualitySel();
-  document.getElementById('qualitySheet').classList.add('open');
-  document.getElementById('qualityBack').classList.add('open');
-}
-function closeQualitySheet(){
-  document.getElementById('qualitySheet').classList.remove('open');
-  document.getElementById('qualityBack').classList.remove('open');
-}
-function pickQuality(key){
-  if(key!==currentQuality) renderQuality(key);
-  closeQualitySheet();
-}
-
-/* ── Ritual cards (progress circles) ── */
+/* ── Ritual cards ── */
 function recomputeCard(id){
-  const card = document.getElementById('ritual-'+id);
-  const kids = [...card.querySelector('.yritual-track').children];
-  kids.forEach((el,i)=>{
-    if(el.classList.contains('rlink')){
-      const prev = kids[i-1];
-      el.classList.toggle('done', !!(prev && prev.classList.contains('done')));
-    }
-  });
-  const nodes = kids.filter(el=>el.classList.contains('rnode') && getComputedStyle(el).display!=='none');
-  const done = nodes.filter(n=>n.classList.contains('done')).length;
-  const anchor = id==='morning' ? 'Right after waking' : 'After dinner · 22:00';
-  card.querySelector('.yritual-meta').textContent = anchor + ' · ' + done + ' of ' + nodes.length + ' done';
-  card.querySelector('.yritual-chev').classList.toggle('done', nodes.length>0 && done===nodes.length);
+  var card=document.getElementById('ritual-'+id),kids=Array.from(card.querySelector('.yritual-track').children);
+  kids.forEach(function(el,i){if(el.classList.contains('rlink')){var prev=kids[i-1];el.classList.toggle('done',!!(prev&&prev.classList.contains('done')));}});
+  var nodes=kids.filter(function(el){return el.classList.contains('rnode')&&getComputedStyle(el).display!=='none';});
+  var done=nodes.filter(function(n){return n.classList.contains('done');}).length;
+  var anchor=id==='morning'?'Right after waking':'After dinner \u00b7 22:00';
+  card.querySelector('.yritual-meta').textContent=anchor+' \u00b7 '+done+' of '+nodes.length+' done';
+  card.querySelector('.yritual-chev').classList.toggle('done',nodes.length>0&&done===nodes.length);
 }
-function toggleNode(node,id){
-  node.classList.toggle('done');
-  node.classList.remove('now');
-  recomputeCard(id);
-  updateFocus();
-}
-function toggleCue(el){
-  el.classList.toggle('done');
-  updateFocus();
-}
-let tDone = 1, tTotal = 5;
+function toggleNode(node,id){node.classList.toggle('done');node.classList.remove('now');recomputeCard(id);updateFocus();}
+
+/* ── Tasks ── */
+var tDone=1,tTotal=5;
 function toggleTask(row){
-  const was = row.classList.contains('done');
-  row.classList.toggle('done');
-  const ck = row.querySelector('.t-ck');
-  ck.classList.toggle('done');
-  tDone += was ? -1 : 1;
-  document.getElementById('tCount').textContent = tDone + ' of ' + tTotal + ' done';
+  var was=row.classList.contains('done');row.classList.toggle('done');
+  row.querySelector('.t-ck').classList.toggle('done');
+  tDone+=was?-1:1;document.getElementById('tCount').textContent=tDone+' of '+tTotal+' done';
 }
 
-recomputeCard('morning'); recomputeCard('evening');
-renderDots();
-updateFocus();
+/* ── Init ── */
+renderAnchor();recomputeCard('morning');recomputeCard('evening');updateFocus();syncEnergyFromStore();
+// Demo: show a logged night so the wheel is populated
+(function initDemoVitals(){
+  var sleepPct=6.83/8*100; // 6h50m of 8h target
+  applyVitals(sleepPct,7,6);
+  document.getElementById('sleepPrompt').style.display='none';
+  document.getElementById('sleepLogged').style.display='flex';
+})();
 </script>
 </body>
 </html>

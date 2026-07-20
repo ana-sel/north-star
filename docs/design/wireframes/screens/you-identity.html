@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Compass · You · Identity</title>
+<title>Compass &middot; You &middot; Self</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../shared/tokens.css"/>
@@ -55,8 +55,8 @@
   <div class="ylens">
     <div class="ylens-badge"><i class="ic ic-user"></i></div>
     <div>
-      <div class="ylens-title">Identity</div>
-      <div class="ylens-sub">Who you are — a portrait that changes slowly</div>
+      <div class="ylens-title">Self</div>
+      <div class="ylens-sub">What is already mine</div>
     </div>
   </div>
 
@@ -128,9 +128,8 @@
           <div class="yrow-t">Stillness</div>
           <div class="ybadge live">Practising</div>
         </div>
-        <div class="yrow-s">"Pausing before reacting" — notice the gap between stimulus and response. That gap is yours.</div>
-        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:64%"></div></div>
-        <div class="yrow-s" style="margin-top:5px;font-style:italic">via Stillness Path · Camp 2 of 3</div>
+        <div class="yrow-s">&ldquo;Pausing before reacting&rdquo; — notice the gap between stimulus and response. That gap is yours.</div>
+        <div class="yrow-s" style="margin-top:5px;font-style:italic;color:var(--accent)">Stillness Path · Camp 2 → see Progress for evidence</div>
       </div>
     </div>
     <div class="yrow">
@@ -140,9 +139,8 @@
           <div class="yrow-t">Patience</div>
           <div class="ybadge live">Practising</div>
         </div>
-        <div class="yrow-s">"Trust in the pace of things" — build deliberately without rushing toward the finish.</div>
-        <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:36%"></div></div>
-        <div class="yrow-s" style="margin-top:5px;font-style:italic">via Land Path · Camp 1 of 3</div>
+        <div class="yrow-s">&ldquo;Trust in the pace of things&rdquo; — build deliberately without rushing toward the finish.</div>
+        <div class="yrow-s" style="margin-top:5px;font-style:italic;color:var(--accent)">Land Path · Camp 1 → see Progress for evidence</div>
       </div>
     </div>
   </div>
@@ -155,14 +153,18 @@
   </div>
 
   <div class="ycard">
-    <div class="em-intro">The inner tools of an emotionally grounded adult. Practise each until it becomes how you naturally respond — not a technique you reach for, but who you are.</div>
+    <div class="em-intro">The inner tools of an emotionally grounded adult. Practise each until it becomes how you naturally respond.</div>
     <div class="em-stats">
       <div class="em-stat"><div class="em-num">6</div><div class="em-lbl">Tools</div></div>
       <div class="em-stat"><div class="em-num">2</div><div class="em-lbl">Integrated</div></div>
-      <div class="em-stat"><div class="em-num">3</div><div class="em-lbl">In progress</div></div>
+      <div class="em-stat"><div class="em-num">3</div><div class="em-lbl">In practice</div></div>
+    </div>
+    <div style="padding:10px 16px;border-top:1px solid var(--line)">
+      <button onclick="toggleTools()" id="toolsBtn" style="font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;padding:0">Show all tools</button>
     </div>
   </div>
 
+  <div id="toolsSection" style="display:none">
   <div class="ycard">
     <!-- Emotion vocabulary -->
     <div class="yrow">
@@ -175,8 +177,20 @@
         <div class="yrow-s">Name what you feel with precision — 34 of ~80 emotions recognised</div>
         <div class="meter" style="margin-top:9px"><div class="meter-fill" style="width:42%"></div></div>
       </div>
-    </div>
-    <!-- Self-parenting -->
+    </div>    <!-- Emotion families reference (part of this tool) -->
+    <div style="padding:10px 16px 14px;border-top:1px solid var(--line)">
+      <div class="yrow-s" style="margin:0 0 10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:9px">8 emotion families</div>
+      <div class="emo-fam">
+        <div class="emo-chip"><b>Joy</b> <span class="ct">11</span></div>
+        <div class="emo-chip"><b>Sadness</b> <span class="ct">9</span></div>
+        <div class="emo-chip"><b>Anger</b> <span class="ct">8</span></div>
+        <div class="emo-chip"><b>Fear</b> <span class="ct">10</span></div>
+        <div class="emo-chip"><b>Love</b> <span class="ct">7</span></div>
+        <div class="emo-chip"><b>Shame</b> <span class="ct">6</span></div>
+        <div class="emo-chip"><b>Surprise</b> <span class="ct">5</span></div>
+        <div class="emo-chip"><b>Disgust</b> <span class="ct">4</span></div>
+      </div>
+    </div>    <!-- Self-parenting -->
     <div class="yrow">
       <div class="yrow-ic"><i class="ic ic-shield"></i></div>
       <div class="yrow-main">
@@ -238,34 +252,20 @@
     </div>
     <div class="yrow-add"><i class="ic ic-plus"></i>Add a tool to practise</div>
   </div>
+  </div><!-- /toolsSection -->
 
-  <!-- Emotions reference -->
-  <div class="ycard">
-    <div class="emo-ref">
-      <div class="yrow-s" style="margin:0 0 11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:9px">Emotion families</div>
-      <div class="emo-fam">
-        <div class="emo-chip"><b>Joy</b> <span class="ct">11</span></div>
-        <div class="emo-chip"><b>Sadness</b> <span class="ct">9</span></div>
-        <div class="emo-chip"><b>Anger</b> <span class="ct">8</span></div>
-        <div class="emo-chip"><b>Fear</b> <span class="ct">10</span></div>
-        <div class="emo-chip"><b>Love</b> <span class="ct">7</span></div>
-        <div class="emo-chip"><b>Shame</b> <span class="ct">6</span></div>
-        <div class="emo-chip"><b>Surprise</b> <span class="ct">5</span></div>
-        <div class="emo-chip"><b>Disgust</b> <span class="ct">4</span></div>
-      </div>
-      <div class="emo-foot">
-        <div class="emo-foot-t">Build the vocabulary to feel precisely. The finer the name, the better you can meet it.</div>
-        <div class="emo-explore">Explore wheel <i class="ic ic-chev"></i></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SKILLS ── -->
+  <!-- ── MY LIFE (collapsed — skills, education, people) ── -->
   <div class="yhead">
-    <i class="ic ic-sliders yhead-ic"></i>
-    <div class="yhead-t">Skills</div>
+    <i class="ic ic-users yhead-ic"></i>
+    <div class="yhead-t">My life</div>
     <div class="yhead-rule"></div>
+    <button onclick="toggleMyLife()" id="myLifeBtn" style="font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit">Show</button>
   </div>
+  <div id="myLifeSection" style="display:none">
+
+  <!-- Emotions reference removed (moved to Emotional Maturity tools) -->
+
+  <div class="sect">Skills</div>
   <div class="ychips" style="margin-bottom:4px">
     <div class="ychip">UX design</div>
     <div class="ychip">TypeScript</div>
@@ -275,12 +275,7 @@
     <div class="ychip add"><i class="ic ic-plus"></i>add</div>
   </div>
 
-  <!-- ── EDUCATION ── -->
-  <div class="yhead">
-    <i class="ic ic-cap yhead-ic"></i>
-    <div class="yhead-t">Education</div>
-    <div class="yhead-rule"></div>
-  </div>
+  <div class="sect">Education</div>
   <div class="ycard">
     <div class="yrow">
       <div class="yrow-ic"><i class="ic ic-cap"></i></div>
@@ -299,12 +294,7 @@
     <div class="yrow-add"><i class="ic ic-plus"></i>Add qualification</div>
   </div>
 
-  <!-- ── PEOPLE ── -->
-  <div class="yhead">
-    <i class="ic ic-users yhead-ic"></i>
-    <div class="yhead-t">Family &amp; close people</div>
-    <div class="yhead-rule"></div>
-  </div>
+  <div class="sect">Family &amp; close people</div>
   <div class="ychips" style="margin-bottom:4px">
     <div class="ychip" style="padding-left:5px"><span class="av" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:#80749b">M</span>M. <span class="ct" style="color:var(--muted);font-weight:500">partner</span></div>
     <div class="ychip" style="padding-left:5px"><span class="av" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:#b07f86">E</span>Mum <span class="ct" style="color:var(--muted);font-weight:500">mother</span></div>
@@ -313,5 +303,23 @@
     <div class="ychip add"><i class="ic ic-plus"></i>add</div>
   </div>
 
+  </div><!-- /myLifeSection -->
+
+<script>
+function toggleTools(){
+  const sec = document.getElementById('toolsSection');
+  const btn = document.getElementById('toolsBtn');
+  const open = sec.style.display !== 'none';
+  sec.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? 'Show all tools' : 'Hide tools';
+}
+function toggleMyLife(){
+  const sec = document.getElementById('myLifeSection');
+  const btn = document.getElementById('myLifeBtn');
+  const open = sec.style.display !== 'none';
+  sec.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? 'Show' : 'Hide';
+}
+</script>
 </body>
 </html>

@@ -165,15 +165,15 @@
     <div class="ap-bg" style="background:linear-gradient(155deg,#3a3850,#23202b)">
       <div class="ap-row1">
         <div class="ap-type">Inner path</div>
-        <div class="ap-streak">🔥 9 days</div>
+        <div class="ap-streak" style="background:rgba(255,255,255,.12);font-size:var(--fs-xs);font-weight:700">5 practices this camp</div>
       </div>
       <div class="ap-name">The Stillness Path</div>
       <div class="ap-prog-wrap">
         <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:64%"></div></div>
-        <div class="ap-prog-label">Camp 2 of 3 · Day 9 of 14 · 5 days left</div>
+        <div class="ap-prog-label">Camp 2 of 3 &middot; 5 of 9 practices &middot; reflection soon</div>
       </div>
       <div class="ap-anchor">
-        <div class="ap-ck done" onclick="event.stopPropagation()">✓</div>
+        <div class="ap-ck done" onclick="event.stopPropagation();toggleCk(this)">✓</div>
         <div class="ap-anchor-text">5-min silent sit before first screen</div>
         <div class="ap-anchor-hint">done today</div>
       </div>
@@ -185,12 +185,12 @@
     <div class="ap-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
       <div class="ap-row1">
         <div class="ap-type">Material goal</div>
-        <div class="ap-streak">🔥 5 days</div>
+        <div class="ap-streak" style="background:rgba(255,255,255,.12);font-size:var(--fs-xs);font-weight:700">2 practices this camp</div>
       </div>
       <div class="ap-name">The Land Path</div>
       <div class="ap-prog-wrap">
         <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:36%"></div></div>
-        <div class="ap-prog-label">Camp 1 of 3 · Day 5 of 14 · 9 days left</div>
+        <div class="ap-prog-label">Camp 1 of 3 &middot; 2 of 5 practices &middot; keep returning</div>
       </div>
       <div class="ap-anchor">
         <div class="ap-ck" onclick="event.stopPropagation();toggleCk(this)"></div>
@@ -207,10 +207,9 @@
     <div class="yhead-rule"></div>
   </div>
   <div class="vshelf">
-    <div class="vchip"><div class="vdot" style="background:#768471"></div>Constancy · 5 wks</div>
-    <div class="vchip"><div class="vdot" style="background:#937caf"></div>Noticing · 4 wks</div>
+    <div class="vchip"><div class="vdot" style="background:#768471"></div>Constancy &middot; 5 wks</div>
+    <div class="vchip"><div class="vdot" style="background:#937caf"></div>Noticing &middot; 4 wks</div>
   </div>
-  <div class="vnote">Completed paths become permanent virtues in You → Identity</div>
 
   <!-- Foundations entry — the floor beneath the aspirational paths -->
   <a href="foundations.html" style="text-decoration:none;color:inherit;display:block;margin:14px 0 4px;">
@@ -231,9 +230,14 @@
     <div class="yhead-rule"></div>
     <div class="yhead-act">Browse all</div>
   </div>
-  <div class="yintro" style="margin:-4px 0 10px">Beyond the floor — each journey is a small bundle: it adds a tiny ritual or two to your daily baseline, and grows <b>one quality</b> (your rotating theme, practised a few times a week — never a daily grind).</div>
-  <div class="moved-note">Boundaries, grief and self-regulation now live in <b>Foundations</b> — they're the floor, not aspirational climbs.</div>
 
+  <!-- Suggested next: one curated recommendation -->
+  <div style="background:var(--card);border:1.5px solid var(--olive);border-radius:var(--r-card);padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow-sm)" onclick="openDetail('presence')">
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--olive);margin-bottom:6px">Suggested for you</div>
+    <div style="font-size:var(--fs-md);font-weight:800;margin-bottom:4px">The Presence Path</div>
+    <div style="font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin-bottom:10px">You are building Stillness. Presence is the natural next quality &mdash; it deepens the same attention. 5 weeks, light daily anchor.</div>
+    <div style="font-size:var(--fs-xs);font-weight:700;color:var(--olive)">Preview &rarr;</div>
+  </div>
   <!-- Inner -->
   <div class="dom-label"><span class="dom-dot" style="background:#80749b"></span>Inner</div>
   <div class="path-card" onclick="openDetail('presence')">
@@ -286,8 +290,9 @@
   <div class="moved-note" style="margin-top:0">Material paths grow toward a concrete goal — <b>The Land Path</b> is active above.</div>
 
   <!-- Camp celebration (demo button) -->
-  <div style="margin-top:10px;text-align:center">
+  <div style="margin-top:10px;text-align:center;display:flex;flex-direction:column;gap:8px">
     <button onclick="showCelebrate()" style="background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;font-family:inherit;">▶ Preview camp completion moment</button>
+    <button onclick="showClaim()" style="background:none;border:1px dashed var(--gold);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--gold);cursor:pointer;font-family:inherit;">▶ Preview quality claim moment</button>
   </div>
 
 <!-- ── Camp celebration ── -->
@@ -300,12 +305,24 @@
     <button class="cel-btn" onclick="closeCelebrate()">Continue to Camp 2 →</button>
   </div>
 </div>
-
+<!-- ── Quality claim overlay (shown after final camp) ── -->
+<div class="celebrate" id="claimOverlay">
+  <div class="cel-sheet" style="background:linear-gradient(145deg,#2d2b27,#1b1a17)">
+    <span class="cel-icon">✨</span>
+    <div class="cel-h">Stillness is ready to become part of you.</div>
+    <div class="cel-body">You returned to it 27 times across 3 camps. On most of those days, your evenings were steadier. You’ve changed something quietly.</div>
+    <div class="cel-quote" style="background:rgba(168,132,63,.15);border-left:2px solid var(--gold)">&ldquo;Only you know if this is real yet. There’s no right answer.&rdquo;</div>
+    <div style="font-size:var(--fs-sm);font-weight:700;color:rgba(242,237,227,.7);margin-bottom:12px;text-align:center">Does Stillness feel like part of who you are now?</div>
+    <button class="cel-btn" onclick="claimYes()" style="background:var(--gold);color:#1b1a17;margin-bottom:8px">Yes — this is part of me</button>
+    <button class="cel-btn" onclick="closeClaim()" style="background:rgba(255,255,255,.08);color:rgba(242,237,227,.6)">Not quite yet — keep going</button>
+  </div>
+</div>
 <!-- ── Detail sheet ── -->
 <div class="detail-sheet" id="detailSheet" onclick="maybeClose(event)">
   <div class="d-inner">
     <div class="d-hero" id="dHero">
       <div class="d-handle"></div>
+      <button onclick="closeDetail()" style="position:absolute;top:10px;right:14px;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:#fff;font-size:15px;font-family:inherit">&times;</button>
       <div class="d-type" id="dType"></div>
       <div class="d-name" id="dName"></div>
       <div class="d-virtue" id="dVirtue"></div>
@@ -513,9 +530,21 @@ function openDetail(id){
   document.getElementById('detailSheet').classList.add('open');
 }
 function maybeClose(e){if(e.target===document.getElementById('detailSheet'))document.getElementById('detailSheet').classList.remove('open');}
+function closeDetail(){document.getElementById('detailSheet').classList.remove('open');}
 function toggleCk(el){el.classList.toggle('done');el.textContent=el.classList.contains('done')?'✓':'';}
 function showCelebrate(){document.getElementById('celebrate').classList.add('open');}
 function closeCelebrate(){document.getElementById('celebrate').classList.remove('open');}
+function showClaim(){document.getElementById('claimOverlay').classList.add('open');}
+function closeClaim(){document.getElementById('claimOverlay').classList.remove('open');}
+function claimYes(){
+  closeClaim();
+  // Show a brief confirmation
+  const toast = document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gold);color:#1b1a17;padding:11px 20px;border-radius:12px;font-size:var(--fs-sm);font-weight:700;z-index:300;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25)';
+  toast.textContent='✨ Stillness moved to Self';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),2800);
+}
 </script>
 </body>
 </html>

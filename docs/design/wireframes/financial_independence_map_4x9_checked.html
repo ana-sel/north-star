@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<!-- Checked build: six A4 pages; 4 lanes x 9 milestones; 36 money badges; execution page present. -->
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Financial Independence Map - 4 x 9 - Checked Build</title>
+<style>
+  :root {
+    --ink: #24231f;
+    --muted: #66635d;
+    --paper: #fffdf9;
+    --screen: #eee9e1;
+    --line: #ddd7ce;
+    --soft: #f5f1ea;
+    --shadow: 0 18px 48px rgba(46, 40, 32, .12);
+
+    --property: #587a69;
+    --property-soft: #eaf1ed;
+    --stocks: #526f91;
+    --stocks-soft: #eaf0f7;
+    --compass: #806b91;
+    --compass-soft: #f0ebf4;
+    --business: #a16f43;
+    --business-soft: #f7ede4;
+    --gold: #9a7a39;
+    --gold-soft: #f7f0de;
+    --danger: #995c55;
+    --danger-soft: #f7e9e7;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 12% 6%, rgba(255,255,255,.85), transparent 28%),
+      radial-gradient(circle at 90% 12%, rgba(167,137,94,.16), transparent 30%),
+      linear-gradient(145deg, #f4f0e9, #ded6ca);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    padding: 28px 16px 64px;
+  }
+
+  .toolbar {
+    position: fixed;
+    right: 20px;
+    top: 18px;
+    z-index: 50;
+    display: flex;
+    gap: 9px;
+  }
+  .toolbar button {
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 999px;
+    background: #34312c;
+    color: white;
+    padding: 11px 16px;
+    font: 700 13px/1 inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(30,25,20,.18);
+  }
+  .toolbar button.secondary { background: #6c665d; }
+
+  .document { width: 210mm; max-width: 100%; margin: 0 auto; }
+  .sheet {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    max-width: 100%;
+    margin: 0 auto 22px;
+    padding: 12mm 14mm 11mm;
+    background: var(--paper);
+    border: 1px solid rgba(87,77,64,.15);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .sheet:last-child { margin-bottom: 0; }
+
+  .page-footer {
+    position: absolute;
+    left: 14mm;
+    right: 14mm;
+    bottom: 7mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #8a857d;
+    font-size: 10.5px;
+    letter-spacing: .02em;
+  }
+
+  .eyebrow {
+    margin: 0 0 8px;
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  h1, h2, h3, p { margin-top: 0; }
+  h1 {
+    margin-bottom: 10px;
+    font-size: 38px;
+    line-height: 1.04;
+    letter-spacing: -.045em;
+  }
+  h2 {
+    margin-bottom: 5px;
+    font-size: 27px;
+    line-height: 1.08;
+    letter-spacing: -.035em;
+  }
+  h3 { margin-bottom: 5px; font-size: 17px; line-height: 1.2; }
+  .lead {
+    max-width: 670px;
+    margin-bottom: 18px;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: 24px 26px;
+    border: 1px solid #ded4c4;
+    border-radius: 25px;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(180,145,86,.18), transparent 30%),
+      linear-gradient(135deg, #fffdf9, #f3ecdf);
+  }
+  .hero::after {
+    content: "4 × 9";
+    position: absolute;
+    right: 22px;
+    bottom: -14px;
+    color: rgba(75,66,53,.07);
+    font-weight: 900;
+    font-size: 90px;
+    letter-spacing: -.08em;
+  }
+  .hero-content { position: relative; z-index: 1; }
+  .goal-strip {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .goal {
+    min-height: 75px;
+    padding: 12px 13px;
+    border: 1px solid #ddd2c1;
+    border-radius: 17px;
+    background: rgba(255,255,255,.72);
+  }
+  .goal span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .goal strong { display: block; font-size: 19px; line-height: 1.18; }
+  .goal small { display: block; margin-top: 4px; color: var(--muted); font-size: 11.5px; }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 17px 0 9px;
+    font-size: 16px;
+    font-weight: 850;
+  }
+  .section-title::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+  }
+  .fact {
+    min-height: 77px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+  }
+  .fact b { display: block; margin-bottom: 4px; font-size: 14px; }
+  .fact span { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+  .rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .rule-box {
+    padding: 12px 14px;
+    border-radius: 17px;
+    border: 1px solid var(--line);
+    background: var(--soft);
+  }
+  .rule-box b { display: block; margin-bottom: 5px; font-size: 14px; }
+  .rule-box p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+
+  .lane-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+  }
+  .lane-mini {
+    padding: 12px 11px;
+    border-radius: 17px;
+    border: 1px solid var(--line);
+    background: white;
+  }
+  .lane-mini .mini-icon { font-size: 21px; margin-bottom: 6px; }
+  .lane-mini b { display: block; font-size: 13.5px; line-height: 1.18; }
+  .lane-mini span { display: block; margin-top: 5px; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
+  .lane-mini.property { border-top: 5px solid var(--property); }
+  .lane-mini.stocks { border-top: 5px solid var(--stocks); }
+  .lane-mini.compass { border-top: 5px solid var(--compass); }
+  .lane-mini.business { border-top: 5px solid var(--business); }
+
+  .now-strip {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .now-item {
+    padding: 9px 10px;
+    border-radius: 13px;
+    background: #f7f4ee;
+    border: 1px solid var(--line);
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+  .now-item strong { display: block; margin-bottom: 2px; font-size: 12px; }
+
+  /* Lane pages */
+  .lane-head {
+    display: grid;
+    grid-template-columns: 54px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 9px;
+  }
+  .lane-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 17px;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .lane-kicker {
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .lane-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+  .progress-card {
+    width: 118px;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: white;
+  }
+  .progress-card span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+  .progress-card strong { display: block; margin: 3px 0 5px; font-size: 18px; }
+  .bar-track { height: 6px; overflow: hidden; border-radius: 99px; background: #ebe7e0; }
+  .bar-fill { height: 100%; width: 0%; border-radius: inherit; transition: width .2s ease; }
+
+  .lane-note {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 9px;
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1.38;
+  }
+  .lane-note b { font-size: 12.5px; }
+  .lane-note .chip {
+    white-space: nowrap;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    background: rgba(255,255,255,.72);
+    border: 1px solid rgba(0,0,0,.08);
+  }
+
+  .steps { display: grid; gap: 6px; }
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 36px 1fr 138px 24px;
+    gap: 10px;
+    align-items: center;
+    min-height: 21.8mm;
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: white;
+    break-inside: avoid;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .step-num {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 14px;
+  }
+  .step-copy h3 { margin: 0 0 3px; font-size: 14.5px; line-height: 1.18; }
+  .step-copy p { margin: 0; color: var(--muted); font-size: 11.6px; line-height: 1.34; }
+  .effect {
+    justify-self: stretch;
+    padding: 6px 7px;
+    border-radius: 11px;
+    border: 1px solid var(--line);
+    background: #faf8f4;
+    text-align: left;
+    font-size: 10.5px;
+    line-height: 1.28;
+  }
+  .effect b { display: block; margin-bottom: 2px; color: var(--ink); font-size: 10.5px; }
+  .effect span { color: var(--muted); }
+
+  .done-toggle {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #cfc8bd;
+    border-radius: 7px;
+    background: white;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+  }
+  .step.is-done { opacity: .62; }
+  .step.is-done .step-copy h3 { text-decoration: line-through; }
+  .step.is-done .done-toggle::after { content: "✓"; }
+
+  .property-page .step { min-height: 19.7mm; }
+  .property-page .steps { gap: 4px; }
+  .property-page .lane-icon, .property-page .step-num { background: var(--property-soft); color: var(--property); }
+  .property-page .lane-kicker { color: var(--property); }
+  .property-page .bar-fill, .property-page .done-toggle.is-on { background: var(--property); border-color: var(--property); }
+  .property-page .lane-note { background: var(--property-soft); border: 1px solid #cdded4; }
+
+  .stocks-page .lane-icon, .stocks-page .step-num { background: var(--stocks-soft); color: var(--stocks); }
+  .stocks-page .lane-kicker { color: var(--stocks); }
+  .stocks-page .bar-fill, .stocks-page .done-toggle.is-on { background: var(--stocks); border-color: var(--stocks); }
+  .stocks-page .lane-note { background: var(--stocks-soft); border: 1px solid #cfdaea; }
+
+  .compass-page .lane-icon, .compass-page .step-num { background: var(--compass-soft); color: var(--compass); }
+  .compass-page .lane-kicker { color: var(--compass); }
+  .compass-page .bar-fill, .compass-page .done-toggle.is-on { background: var(--compass); border-color: var(--compass); }
+  .compass-page .lane-note { background: var(--compass-soft); border: 1px solid #ded1e6; }
+
+  .business-page .lane-icon, .business-page .step-num { background: var(--business-soft); color: var(--business); }
+  .business-page .lane-kicker { color: var(--business); }
+  .business-page .bar-fill, .business-page .done-toggle.is-on { background: var(--business); border-color: var(--business); }
+  .business-page .lane-note { background: var(--business-soft); border: 1px solid #ead5c2; }
+
+  .income-ladder {
+    display: flex;
+    gap: 5px;
+    align-items: stretch;
+    margin: 2px 0 8px;
+  }
+  .income-stage {
+    flex: 1;
+    padding: 6px 7px;
+    border: 1px solid #cdded4;
+    border-radius: 11px;
+    background: #f8fbf9;
+    text-align: center;
+  }
+  .income-stage span { display: block; color: var(--muted); font-size: 9.5px; }
+  .income-stage b { display: block; margin-top: 2px; color: var(--property); font-size: 11.5px; }
+  .income-arrow { display: grid; place-items: center; color: #809889; font-weight: 900; font-size: 13px; }
+
+  .never-box {
+    padding: 5px 8px;
+    border-radius: 10px;
+    background: var(--danger-soft);
+    border: 1px solid #e6cac6;
+    color: #75433e;
+    font-size: 10.5px;
+    font-weight: 750;
+    line-height: 1.28;
+  }
+
+  @media screen and (max-width: 850px) {
+    body { padding: 12px 0 50px; }
+    .toolbar { position: sticky; top: 8px; justify-content: flex-end; padding-right: 10px; margin-bottom: 8px; }
+    .document { width: 100%; }
+    .sheet {
+      width: calc(100% - 16px);
+      height: auto;
+      min-height: 0;
+      margin-bottom: 14px;
+      padding: 24px 18px 46px;
+      border-radius: 18px;
+      overflow: visible;
+    }
+    .facts { grid-template-columns: 1fr 1fr; }
+    .lane-overview { grid-template-columns: 1fr 1fr; }
+    .goal-strip { grid-template-columns: 1fr; }
+    .now-strip { grid-template-columns: 1fr 1fr; }
+    .rules-grid { grid-template-columns: 1fr; }
+    .step { grid-template-columns: 36px 1fr 24px; min-height: 0; }
+    .effect { grid-column: 2 / 4; }
+    .lane-head { grid-template-columns: 50px 1fr; }
+    .progress-card { grid-column: 1 / -1; width: 100%; }
+    .income-ladder { flex-wrap: wrap; }
+    .income-stage { min-width: 30%; }
+    .income-arrow { display: none; }
+  }
+
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    html, body { width: 210mm; margin: 0; padding: 0; background: white; }
+    body { font-size: 11pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .toolbar { display: none !important; }
+    .document { width: 210mm; margin: 0; }
+    .sheet {
+      width: 210mm;
+      height: 297mm;
+      margin: 0;
+      border: 0;
+      box-shadow: none;
+      page-break-after: always;
+      break-after: page;
+    }
+    .sheet:last-child { page-break-after: auto; break-after: auto; }
+    .done-toggle { border-color: #aaa; }
+  }
+
+
+  /* 16 July 2026 revisions: money estimates, unsquished callouts and execution page */
+  .estimate-legend {
+    margin-top: 8px;
+    padding: 8px 11px;
+    border: 1px solid #ded4c4;
+    border-radius: 12px;
+    background: #fffaf0;
+    color: #6d6356;
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+
+  .step {
+    grid-template-columns: 36px minmax(0, 1fr) 124px 24px;
+    grid-template-areas:
+      "num copy money check"
+      "num effect effect check";
+    column-gap: 10px;
+    row-gap: 5px;
+    align-items: start;
+    min-height: 20.2mm;
+    padding: 7px 9px;
+  }
+  .step-num { grid-area: num; }
+  .step-copy { grid-area: copy; min-width: 0; }
+  .money-impact {
+    grid-area: money;
+    align-self: start;
+    min-width: 0;
+    padding: 6px 7px;
+    border-radius: 10px;
+    border: 1px solid currentColor;
+    background: #fff;
+    text-align: right;
+    line-height: 1.15;
+  }
+  .money-impact span,
+  .money-impact small { display: block; }
+  .money-impact span {
+    margin-bottom: 2px;
+    opacity: .76;
+    font-size: 8.8px;
+    font-weight: 850;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .money-impact strong {
+    display: block;
+    font-size: 12.5px;
+    line-height: 1.12;
+    white-space: normal;
+  }
+  .money-impact small {
+    margin-top: 2px;
+    opacity: .72;
+    font-size: 8.8px;
+    line-height: 1.15;
+  }
+  .effect {
+    grid-area: effect;
+    padding: 5px 8px;
+    font-size: 10.2px;
+  }
+  .done-toggle { grid-area: check; align-self: center; }
+
+  .property-page .money-impact { color: var(--property); background: var(--property-soft); border-color: #bad1c4; }
+  .stocks-page .money-impact { color: var(--stocks); background: var(--stocks-soft); border-color: #c5d4e5; }
+  .compass-page .money-impact { color: var(--compass); background: var(--compass-soft); border-color: #d6c5df; }
+  .business-page .money-impact { color: var(--business); background: var(--business-soft); border-color: #e5cdb8; }
+
+  .property-page .step { min-height: 18.7mm; }
+  .property-page .steps { gap: 4px; }
+  .stocks-page .step,
+  .compass-page .step,
+  .business-page .step { min-height: 20.1mm; }
+
+  .lane-note {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 245px);
+    gap: 10px;
+  }
+  .lane-note > div:first-child { min-width: 0; }
+  .never-box {
+    width: 100%;
+    max-width: 245px;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+    font-size: 10.3px;
+  }
+
+  .sequence-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 160px;
+    gap: 18px;
+    align-items: end;
+    margin-bottom: 12px;
+  }
+  .sequence-lead { margin: 5px 0 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+  .sequence-badge {
+    padding: 11px 12px;
+    border: 1px solid #d8cfbf;
+    border-radius: 15px;
+    background: #f7f1e7;
+  }
+  .sequence-badge span, .sequence-badge small { display: block; color: var(--muted); }
+  .sequence-badge span { font-size: 9.5px; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+  .sequence-badge strong { display: block; margin: 3px 0; font-size: 16px; }
+  .sequence-badge small { font-size: 10px; line-height: 1.25; }
+  .sequence-layout {
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 12px;
+  }
+  .phase-column { display: grid; gap: 7px; }
+  .phase-card {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 9px;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: white;
+  }
+  .phase-card.current { border-color: #b9cfbf; background: #f1f7f3; }
+  .phase-no {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #eee9e1;
+    font-weight: 900;
+  }
+  .phase-card.current .phase-no { color: var(--property); background: var(--property-soft); }
+  .phase-card b { display: block; margin-bottom: 3px; font-size: 13px; }
+  .phase-card p { margin: 0 0 5px; color: var(--muted); font-size: 10.8px; line-height: 1.32; }
+  .gate {
+    display: inline-block;
+    padding: 3px 6px;
+    border-radius: 8px;
+    background: #f4f0e9;
+    color: #685f53;
+    font-size: 9.5px;
+    font-weight: 750;
+    line-height: 1.25;
+  }
+  .week-column { display: grid; align-content: start; gap: 8px; }
+  .week-card, .minimum-card, .attention-card {
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: white;
+  }
+  .week-card { overflow: hidden; }
+  .week-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 10px;
+    background: #f4efe7;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .week-title span { color: var(--muted); font-size: 10.5px; font-weight: 750; }
+  .day-row {
+    display: grid;
+    grid-template-columns: 58px 48px minmax(0, 1fr);
+    gap: 6px;
+    align-items: start;
+    padding: 7px 9px;
+    border-bottom: 1px solid #ebe6de;
+  }
+  .day-row:last-child { border-bottom: 0; }
+  .day-row b { font-size: 10.5px; }
+  .day-row span { color: var(--gold); font-size: 9.8px; font-weight: 850; }
+  .day-row p { margin: 0; color: var(--muted); font-size: 9.8px; line-height: 1.28; }
+  .day-row.rest { background: #faf8f4; }
+  .day-row.primary { background: #f1f6f3; }
+  .minimum-card, .attention-card { padding: 9px 10px; }
+  .minimum-card { background: var(--compass-soft); border-color: #dacde2; }
+  .attention-card { background: #f7f1e7; border-color: #dfd0b9; }
+  .minimum-card b, .attention-card b { display: block; margin-bottom: 3px; font-size: 11.5px; }
+  .minimum-card p, .attention-card p { margin: 0; color: var(--muted); font-size: 10.3px; line-height: 1.33; }
+
+  @media screen and (max-width: 850px) {
+    .step {
+      grid-template-columns: 38px minmax(0, 1fr) 118px;
+      grid-template-areas:
+        "num copy money"
+        "effect effect effect"
+        "check . .";
+      min-height: 0;
+    }
+    .money-impact { text-align: right; }
+    .done-toggle { align-self: start; }
+    .lane-note { grid-template-columns: minmax(0, 1fr) minmax(170px, 220px); }
+    .never-box { max-width: 220px; }
+    .sequence-head, .sequence-layout { grid-template-columns: 1fr; }
+    .sequence-badge { width: 100%; }
+  }
+
+  @media screen and (max-width: 560px) {
+    .step {
+      grid-template-columns: 38px minmax(0, 1fr);
+      grid-template-areas:
+        "num copy"
+        "money money"
+        "effect effect"
+        "check .";
+    }
+    .money-impact { text-align: left; }
+    .lane-note { grid-template-columns: 1fr; }
+    .never-box { max-width: none; }
+  }
+
+  /* Print-density tuning: keep every 9-step lane on one readable A4 page */
+  .property-page, .stocks-page, .compass-page, .business-page {
+    padding: 8mm 10mm 8mm;
+  }
+  .property-page .page-footer, .stocks-page .page-footer,
+  .compass-page .page-footer, .business-page .page-footer {
+    left: 10mm; right: 10mm; bottom: 4mm;
+  }
+  .property-page .lane-head, .stocks-page .lane-head,
+  .compass-page .lane-head, .business-page .lane-head { margin-bottom: 6px; }
+  .property-page .lane-icon, .stocks-page .lane-icon,
+  .compass-page .lane-icon, .business-page .lane-icon {
+    width: 48px; height: 48px; border-radius: 15px; font-size: 25px;
+  }
+  .property-page .lane-head, .stocks-page .lane-head,
+  .compass-page .lane-head, .business-page .lane-head {
+    grid-template-columns: 48px minmax(0,1fr) 112px; gap: 11px;
+  }
+  .property-page .lane-head h2, .stocks-page .lane-head h2,
+  .compass-page .lane-head h2, .business-page .lane-head h2 { font-size: 25px; }
+  .property-page .lane-head p, .stocks-page .lane-head p,
+  .compass-page .lane-head p, .business-page .lane-head p { font-size: 11.8px; line-height: 1.3; }
+  .property-page .progress-card, .stocks-page .progress-card,
+  .compass-page .progress-card, .business-page .progress-card {
+    width: 112px; padding: 7px 8px;
+  }
+  .property-page .lane-note, .stocks-page .lane-note,
+  .compass-page .lane-note, .business-page .lane-note {
+    min-height: 36px; margin-bottom: 6px; padding: 6px 9px;
+    font-size: 10.7px; line-height: 1.28;
+  }
+  .property-page .lane-note b, .stocks-page .lane-note b,
+  .compass-page .lane-note b, .business-page .lane-note b { font-size: 11px; }
+  .property-page .income-ladder { margin-bottom: 5px; }
+  .property-page .income-stage { padding: 4px 5px; }
+  .property-page .income-stage span { font-size: 8.6px; }
+  .property-page .income-stage b { font-size: 10.5px; }
+  .property-page .steps, .stocks-page .steps, .compass-page .steps, .business-page .steps { gap: 3px; }
+  .property-page .step, .stocks-page .step, .compass-page .step, .business-page .step {
+    min-height: 0; padding: 4px 7px; row-gap: 2px; border-radius: 12px;
+    grid-template-columns: 32px minmax(0,1fr) 116px 22px;
+  }
+  .property-page .step-num, .stocks-page .step-num,
+  .compass-page .step-num, .business-page .step-num {
+    width: 30px; height: 30px; border-radius: 10px; font-size: 12.5px;
+  }
+  .property-page .step-copy h3, .stocks-page .step-copy h3,
+  .compass-page .step-copy h3, .business-page .step-copy h3 {
+    margin-bottom: 1px; font-size: 12.7px; line-height: 1.12;
+  }
+  .property-page .step-copy p, .stocks-page .step-copy p,
+  .compass-page .step-copy p, .business-page .step-copy p {
+    font-size: 9.9px; line-height: 1.22;
+  }
+  .property-page .money-impact, .stocks-page .money-impact,
+  .compass-page .money-impact, .business-page .money-impact {
+    padding: 4px 5px; border-radius: 9px;
+  }
+  .property-page .money-impact span, .stocks-page .money-impact span,
+  .compass-page .money-impact span, .business-page .money-impact span { font-size: 7.8px; }
+  .property-page .money-impact strong, .stocks-page .money-impact strong,
+  .compass-page .money-impact strong, .business-page .money-impact strong { font-size: 11.3px; }
+  .property-page .money-impact small, .stocks-page .money-impact small,
+  .compass-page .money-impact small, .business-page .money-impact small { font-size: 7.8px; }
+  .property-page .effect, .stocks-page .effect, .compass-page .effect, .business-page .effect {
+    padding: 2px 6px; border-radius: 8px; font-size: 9px; line-height: 1.12;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .property-page .effect b, .stocks-page .effect b,
+  .compass-page .effect b, .business-page .effect b {
+    display: inline; margin: 0 4px 0 0; font-size: 9px;
+  }
+  .property-page .effect span, .stocks-page .effect span,
+  .compass-page .effect span, .business-page .effect span { display: inline; }
+  .property-page .done-toggle, .stocks-page .done-toggle,
+  .compass-page .done-toggle, .business-page .done-toggle {
+    width: 20px; height: 20px; border-radius: 6px;
+  }
+
+  @media print {
+    .estimate-legend { font-size: 9.5px; }
+    .sequence-page { page-break-after: auto; break-after: auto; }
+  }
+
+  /* Comfortable on-screen reading at tablet/mobile widths; print keeps the compact A4 density above. */
+  @media screen and (max-width: 850px) {
+    .property-page, .stocks-page, .compass-page, .business-page {
+      padding: 24px 18px 46px;
+    }
+    .property-page .lane-head, .stocks-page .lane-head,
+    .compass-page .lane-head, .business-page .lane-head {
+      grid-template-columns: 50px minmax(0,1fr); gap: 12px;
+    }
+    .property-page .lane-icon, .stocks-page .lane-icon,
+    .compass-page .lane-icon, .business-page .lane-icon {
+      width: 50px; height: 50px; font-size: 27px;
+    }
+    .property-page .progress-card, .stocks-page .progress-card,
+    .compass-page .progress-card, .business-page .progress-card {
+      grid-column: 1 / -1; width: 100%; padding: 9px 10px;
+    }
+    .property-page .lane-head h2, .stocks-page .lane-head h2,
+    .compass-page .lane-head h2, .business-page .lane-head h2 { font-size: 27px; }
+    .property-page .lane-head p, .stocks-page .lane-head p,
+    .compass-page .lane-head p, .business-page .lane-head p { font-size: 13px; line-height: 1.38; }
+    .property-page .lane-note, .stocks-page .lane-note,
+    .compass-page .lane-note, .business-page .lane-note {
+      padding: 9px 12px; margin-bottom: 9px; font-size: 12px; line-height: 1.38;
+    }
+    .property-page .lane-note b, .stocks-page .lane-note b,
+    .compass-page .lane-note b, .business-page .lane-note b { font-size: 12.5px; }
+    .never-box { font-size: 11px; line-height: 1.3; }
+    .property-page .steps, .stocks-page .steps, .compass-page .steps, .business-page .steps { gap: 7px; }
+    .property-page .step, .stocks-page .step, .compass-page .step, .business-page .step {
+      padding: 8px 9px; row-gap: 6px; border-radius: 14px;
+      grid-template-columns: 38px minmax(0,1fr) 126px;
+      grid-template-areas:
+        "num copy money"
+        "effect effect effect"
+        "check . .";
+    }
+    .property-page .step-num, .stocks-page .step-num,
+    .compass-page .step-num, .business-page .step-num {
+      width: 34px; height: 34px; font-size: 14px; border-radius: 12px;
+    }
+    .property-page .step-copy h3, .stocks-page .step-copy h3,
+    .compass-page .step-copy h3, .business-page .step-copy h3 {
+      margin-bottom: 3px; font-size: 14.5px; line-height: 1.18;
+    }
+    .property-page .step-copy p, .stocks-page .step-copy p,
+    .compass-page .step-copy p, .business-page .step-copy p {
+      font-size: 11.6px; line-height: 1.34;
+    }
+    .property-page .money-impact, .stocks-page .money-impact,
+    .compass-page .money-impact, .business-page .money-impact {
+      padding: 6px 7px; border-radius: 10px;
+    }
+    .property-page .money-impact span, .stocks-page .money-impact span,
+    .compass-page .money-impact span, .business-page .money-impact span { font-size: 8.8px; }
+    .property-page .money-impact strong, .stocks-page .money-impact strong,
+    .compass-page .money-impact strong, .business-page .money-impact strong { font-size: 12.5px; }
+    .property-page .money-impact small, .stocks-page .money-impact small,
+    .compass-page .money-impact small, .business-page .money-impact small { font-size: 8.8px; }
+    .property-page .effect, .stocks-page .effect, .compass-page .effect, .business-page .effect {
+      padding: 6px 7px; border-radius: 11px; font-size: 10.5px; line-height: 1.28;
+      white-space: normal; overflow: visible; text-overflow: clip;
+    }
+    .property-page .effect b, .stocks-page .effect b,
+    .compass-page .effect b, .business-page .effect b {
+      display: block; margin: 0 0 2px; font-size: 10.5px;
+    }
+    .property-page .effect span, .stocks-page .effect span,
+    .compass-page .effect span, .business-page .effect span { display: inline; }
+    .property-page .done-toggle, .stocks-page .done-toggle,
+    .compass-page .done-toggle, .business-page .done-toggle { width: 22px; height: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="toolbar">
+<button class="secondary" id="resetBtn" type="button">Reset progress</button>
+<button onclick="window.print()" type="button">Print / Save PDF</button>
+</div>
+<main class="document">
+<!-- PAGE 1: OVERVIEW -->
+<section class="sheet overview-page">
+<div class="hero">
+<div class="hero-content">
+<p class="eyebrow">Anna's practical route out of employment</p>
+<h1>Financial Independence Map</h1>
+<p class="lead">Four real wealth-building lanes. Nine clear milestones in each. Employment is only a temporary funding bridge - it is not a lane and not the destination.</p>
+<div class="goal-strip">
+<div class="goal">
+<span>Freedom target</span>
+<strong>€1,800 net per month</strong>
+<small>From assets and products, without employment.</small>
+</div>
+<div class="goal">
+<span>Available to deploy</span>
+<strong>About £1,400 / month</strong>
+<small>After travel and guilt-free spending.</small>
+</div>
+<div class="goal">
+<span>Attention rule</span>
+<strong>Maximum 3 active things</strong>
+<small>Everything else is automated, maintained or parked.</small>
+</div>
+</div>
+</div>
+</div>
+<div class="section-title">Current situation</div>
+<div class="facts">
+<div class="fact"><b>Assets</b><span>Approximately £76,000 in shares and investments, plus a euro cash reserve to verify after renovation costs.</span></div>
+<div class="fact"><b>Property</b><span>Debt-free Vilnius flat near completion. It becomes the first real rental proof, not just a theoretical asset.</span></div>
+<div class="fact"><b>Employment</b><span>Temporary capital source only. No career-development lane and no requirement to remain employed long term.</span></div>
+<div class="fact"><b>Work style</b><span>Independent, analytical and asynchronous. No networking-heavy or relationship-dependent business model.</span></div>
+<div class="fact"><b>Stock style</b><span>Set the long-term allocation, automate contributions, then review only once or twice per year.</span></div>
+<div class="fact"><b>Product style</b><span>Build Compass for yourself first. Other people's subscriptions are optional upside, not the reason it must exist.</span></div>
+</div>
+<div class="section-title">The four lanes</div>
+<div class="lane-overview">
+<div class="lane-mini property"><div class="mini-icon">⌂</div><b>Property</b><span>Turn the existing flat into income, then add only deals that improve cash flow safely.</span></div>
+<div class="lane-mini stocks"><div class="mini-icon">↗</div><b>Stocks &amp; trading systems</b><span>Passive portfolio on autopilot; trading bot isolated, tested and tightly capped.</span></div>
+<div class="lane-mini compass"><div class="mini-icon">✦</div><b>Compass</b><span>Your own useful Android product first; subscriptions only if real users value it.</span></div>
+<div class="lane-mini business"><div class="mini-icon">⚙</div><b>Automated business experiments</b><span>One low-contact test at a time; scale only what strangers actually pay for.</span></div>
+</div>
+<div class="section-title">How the map operates now</div>
+<div class="now-strip">
+<div class="now-item"><strong>1 · Primary</strong>Property: finish, rent and stabilise the Vilnius flat.</div>
+<div class="now-item"><strong>2 · Secondary</strong>Compass: build the smallest version you personally use.</div>
+<div class="now-item"><strong>3 · Maintenance</strong>Stocks: allocation and automation, not daily monitoring.</div>
+<div class="now-item"><strong>Parked for now</strong>Business experiments begin after the flat is rented or Compass V1 is usable.</div>
+</div><div class="estimate-legend">Money badges show planning scenarios so each milestone has a visible financial purpose. They are not guarantees and must be replaced by actual results.</div>
+<div class="page-footer"><span>Financial Independence Map · 4 lanes × 9 milestones</span><span>Page 1 of 6 · Updated 16 July 2026</span></div>
+</section>
+<!-- PAGE 2: PROPERTY -->
+<section class="sheet property-page" data-lane="property">
+<div class="lane-head">
+<div class="lane-icon">⌂</div>
+<div>
+<div class="lane-kicker">Lane 1 · Primary now</div>
+<h2>Property</h2>
+<p>Each purchase must increase real income, equity or both. No purchase merely to feel progress.</p>
+</div>
+<div class="progress-card"><span>Milestones complete</span><strong class="progress-label">0 / 9</strong><div class="bar-track"><div class="bar-fill"></div></div></div>
+</div>
+<div aria-label="Illustrative rental income ladder" class="income-ladder">
+<div class="income-stage"><span>Before rent</span><b>€0 stable</b></div><div class="income-arrow">→</div>
+<div class="income-stage"><span>Flat 1</span><b>about €376/mo</b></div><div class="income-arrow">→</div>
+<div class="income-stage"><span>+ mortgaged flat</span><b>about €537/mo total</b></div><div class="income-arrow">→</div>
+<div class="income-stage"><span>+ third flat</span><b>about €698/mo total</b></div><div class="income-arrow">→</div>
+<div class="income-stage"><span>5 cash flats</span><b>about €1,880/mo</b></div>
+</div>
+<div class="lane-note"><div><b>Income ladder is illustrative.</b> It uses the previous planning assumptions of about €376 net for a cash flat and about €161 for a mortgaged flat while Lithuanian-resident. Replace these with actual rent, tax, mortgage and repair data.</div><span class="chip">planning scenarios, not promises</span></div>
+<div class="steps">
+<article class="step" data-step="1"><div class="step-num">1</div><div class="step-copy"><h3>Finish the existing Vilnius flat completely</h3><p>Bathroom, kitchen, doors, snagging and final contractor payment. Record the true all-in renovation cost.</p></div><div class="money-impact"><span>Income unlocked</span><strong>+€350–€400/mo</strong><small>after the flat is rented</small></div><div class="effect"><b>Money effect</b><span>Converts a dormant asset into something rentable.</span></div><button aria-label="Mark step 1 complete" class="done-toggle"></button></article>
+<article class="step" data-step="2"><div class="step-num">2</div><div class="step-copy"><h3>Rent flat 1 and create the first income stream</h3><p>Use a strong lease, inventory, deposit process and realistic rent. Prefer an agent if it removes recurring contact.</p></div><div class="money-impact"><span>Estimated net</span><strong>+€350–€400/mo</strong><small>flat 1 after costs</small></div><div class="effect"><b>Cumulative income</b><span>Planning estimate: about €350-€400 net/month.</span></div><button aria-label="Mark step 2 complete" class="done-toggle"></button></article>
+<article class="step" data-step="3"><div class="step-num">3</div><div class="step-copy"><h3>Measure three months of reality</h3><p>Track rent received, tax, insurance, repairs, vacancies, management and time spent. Replace estimates with actual net income.</p></div><div class="money-impact"><span>Income result</span><strong>Replace estimate</strong><small>with 3 months of actuals</small></div><div class="effect"><b>Decision gate</b><span>No second purchase until flat 1 is stable and understood.</span></div><button aria-label="Mark step 3 complete" class="done-toggle"></button></article>
+<article class="step" data-step="4"><div class="step-num">4</div><div class="step-copy"><h3>Create one strict property buy box</h3><p>Define country, area, price ceiling, legal status, minimum net yield, repair limit, tenant demand and exit route.</p></div><div class="money-impact"><span>Deal threshold</span><strong>≥5% net yield</strong><small>or reject the purchase</small></div><div class="effect"><b>Protection</b><span>Stops attractive but financially weak purchases.</span></div><button aria-label="Mark step 4 complete" class="done-toggle"></button></article>
+<article class="step" data-step="5"><div class="step-num">5</div><div class="step-copy"><h3>Build the deposit and emergency reserve separately</h3><p>Never use repair reserves as a deposit. Keep property cash separate from living cash and the long-term stock portfolio.</p></div><div class="money-impact"><span>Direct income</span><strong>€0</strong><small>protects existing cash flow</small></div><div class="effect"><b>Safety</b><span>Prevents one vacancy or repair from forcing a sale.</span></div><button aria-label="Mark step 5 complete" class="done-toggle"></button></article>
+<article class="step" data-step="6"><div class="step-num">6</div><div class="step-copy"><h3>Buy property 2 only when it passes the formula</h3><p>Stress-test mortgage rate, vacancy, repairs and lower rent. The deal must remain positive without optimistic assumptions.</p></div><div class="money-impact"><span>Estimated net</span><strong>+€120–€220/mo</strong><small>mortgaged flat scenario</small></div><div class="effect"><b>Cumulative income</b><span>About €510-€800/month depending on financing.</span></div><button aria-label="Mark step 6 complete" class="done-toggle"></button></article>
+<article class="step" data-step="7"><div class="step-num">7</div><div class="step-copy"><h3>Systemise management before adding another door</h3><p>Standardise tenant screening, repairs, documents, accounting and agent instructions so the portfolio does not become a job.</p></div><div class="money-impact"><span>Portfolio total</span><strong>≈€500–€620/mo</strong><small>after flat 2 stabilises</small></div><div class="effect"><b>Freedom effect</b><span>Income grows without equal growth in daily contact.</span></div><button aria-label="Mark step 7 complete" class="done-toggle"></button></article>
+<article class="step" data-step="8"><div class="step-num">8</div><div class="step-copy"><h3>Add properties 3 and 4 one at a time</h3><p>Repeat only after each previous property has a stable reserve and clean performance record. Keep weak deals out.</p></div><div class="money-impact"><span>Each extra flat</span><strong>+€120–€400/mo</strong><small>depending on financing</small></div><div class="effect"><b>Cumulative income</b><span>Rough range: €700-€1,500/month.</span></div><button aria-label="Mark step 8 complete" class="done-toggle"></button></article>
+<article class="step" data-step="9"><div class="step-num">9</div><div class="step-copy"><h3>Choose the mature portfolio and future home</h3><p>Choose the balance of paid-off rentals, mortgaged rentals and your own home after the income floor is secure.</p></div><div class="money-impact"><span>Property target</span><strong>€1,800/mo net</strong><small>mature portfolio goal</small></div><div class="effect"><b>Finish line</b><span>Property contributes a dependable base toward €1,800+.</span></div><button aria-label="Mark step 9 complete" class="done-toggle"></button></article>
+</div>
+<div class="page-footer"><span>Lane 1 · Property</span><span>Page 2 of 6</span></div>
+</section>
+<!-- PAGE 3: STOCKS -->
+<section class="sheet stocks-page" data-lane="stocks">
+<div class="lane-head">
+<div class="lane-icon">↗</div>
+<div>
+<div class="lane-kicker">Lane 2 · Maintenance system</div>
+<h2>Stocks &amp; Trading Systems</h2>
+<p>The long-term portfolio should be boring. The bot is a separate experiment and may never touch the core portfolio.</p>
+</div>
+<div class="progress-card"><span>Milestones complete</span><strong class="progress-label">0 / 9</strong><div class="bar-track"><div class="bar-fill"></div></div></div>
+</div>
+<div class="lane-note"><div><b>Two completely separate systems:</b> (1) long-term wealth portfolio, reviewed once or twice a year; (2) a small trading-bot laboratory with its own capital, rules and stop conditions.</div><span class="chip">planning scenarios, not promises</span></div>
+<div class="steps">
+<article class="step" data-step="1"><div class="step-num">1</div><div class="step-copy"><h3>Map every account and holding once</h3><p>Create one clean list of ISA, pension, stock-plan, broker, cash, currency, cost basis and account purpose.</p></div><div class="money-impact"><span>Capital baseline</span><strong>≈£76,000</strong><small>verify the live total</small></div><div class="effect"><b>Outcome</b><span>One source of truth; no fog across platforms.</span></div><button aria-label="Mark step 1 complete" class="done-toggle"></button></article>
+<article class="step" data-step="2"><div class="step-num">2</div><div class="step-copy"><h3>Set the permanent target allocation</h3><p>Choose core equities, diversifiers, cash reserve and the maximum single-company exposure. Write the percentages down.</p></div><div class="money-impact"><span>Direct income</span><strong>£0</strong><small>allocation decision only</small></div><div class="effect"><b>Decision</b><span>Allocation changes only for a structural reason, not headlines.</span></div><button aria-label="Mark step 2 complete" class="done-toggle"></button></article>
+<article class="step" data-step="3"><div class="step-num">3</div><div class="step-copy"><h3>Rebalance into the target once</h3><p>Reduce accidental concentration, account for Teledyne exposure and place assets in the most suitable wrappers.</p></div><div class="money-impact"><span>Income scenario</span><strong>≈£190/mo gross</strong><small>if £76k yields 3%</small></div><div class="effect"><b>Risk effect</b><span>Removes dependence on one stock, sector or currency.</span></div><button aria-label="Mark step 3 complete" class="done-toggle"></button></article>
+<article class="step" data-step="4"><div class="step-num">4</div><div class="step-copy"><h3>Automate monthly contributions</h3><p>Direct the chosen amount automatically. Property and business cash are separate; do not raid investments casually.</p></div><div class="money-impact"><span>Income added</span><strong>+£25/mo</strong><small>per extra £10k at 3%</small></div><div class="effect"><b>Wealth effect</b><span>Compounding continues without weekly decisions.</span></div><button aria-label="Mark step 4 complete" class="done-toggle"></button></article>
+<article class="step" data-step="5"><div class="step-num">5</div><div class="step-copy"><h3>Create the twice-yearly review checklist</h3><p>Review allocation, fees, concentration, tax wrappers and rebalancing in January and July - not every market move.</p></div><div class="money-impact"><span>Direct income</span><strong>£0</strong><small>saves attention and mistakes</small></div><div class="effect"><b>Attention effect</b><span>Portfolio monitoring falls to two scheduled sessions.</span></div><button aria-label="Mark step 5 complete" class="done-toggle"></button></article>
+<article class="step" data-step="6"><div class="step-num">6</div><div class="step-copy"><h3>Define one trading-bot hypothesis</h3><p>State the market, signal, holding period, costs, benchmark and reason the edge might exist. No vague “AI predicts stocks”.</p></div><div class="money-impact"><span>Bot income</span><strong>£0</strong><small>until an edge is proven</small></div><div class="effect"><b>Experiment gate</b><span>No code until the rule can be explained in one paragraph.</span></div><button aria-label="Mark step 6 complete" class="done-toggle"></button></article>
+<article class="step" data-step="7"><div class="step-num">7</div><div class="step-copy"><h3>Backtest honestly</h3><p>Include fees, spreads, slippage, survivorship bias and out-of-sample periods. Compare against simply holding an index.</p></div><div class="money-impact"><span>Capital at risk</span><strong>£0</strong><small>backtest only</small></div><div class="effect"><b>Proof required</b><span>Discard the strategy if the edge disappears after costs.</span></div><button aria-label="Mark step 7 complete" class="done-toggle"></button></article>
+<article class="step" data-step="8"><div class="step-num">8</div><div class="step-copy"><h3>Paper trade through different conditions</h3><p>Run automatically for at least six months, including calm and volatile periods. Log every signal and failure.</p></div><div class="money-impact"><span>Capital at risk</span><strong>£0</strong><small>paper trading only</small></div><div class="effect"><b>Capital at risk</b><span>£0 while the system proves reliability.</span></div><button aria-label="Mark step 8 complete" class="done-toggle"></button></article>
+<article class="step" data-step="9"><div class="step-num">9</div><div class="step-copy"><h3>Deploy tiny capital, then earn the right to scale</h3><p>Cap live bot capital at 5% of liquid investments. Increase only after audited live results beat the benchmark.</p></div><div class="money-impact"><span>Maximum live cap</span><strong>≤5%</strong><small>of liquid investments</small></div><div class="effect"><b>Hard boundary</b><span>The bot can never endanger the independence portfolio.</span></div><button aria-label="Mark step 9 complete" class="done-toggle"></button></article>
+</div>
+<div class="page-footer"><span>Lane 2 · Stocks &amp; Trading Systems</span><span>Page 3 of 6</span></div>
+</section>
+<!-- PAGE 4: COMPASS -->
+<section class="sheet compass-page" data-lane="compass">
+<div class="lane-head">
+<div class="lane-icon">✦</div>
+<div>
+<div class="lane-kicker">Lane 3 · Secondary now</div>
+<h2>Compass</h2>
+<p>A product you personally need. It succeeds first by becoming useful in your own life, then optionally by earning subscriptions.</p>
+</div>
+<div class="progress-card"><span>Milestones complete</span><strong class="progress-label">0 / 9</strong><div class="bar-track"><div class="bar-fill"></div></div></div>
+</div>
+<div class="lane-note"><div><b>Product principle:</b> build the calmest useful version, use it yourself and publish it. Do not create a social community, coaching service or customer-access obligation around it.</div><span class="chip">planning scenarios, not promises</span></div>
+<div class="steps">
+<article class="step" data-step="1"><div class="step-num">1</div><div class="step-copy"><h3>Freeze the V1 promise</h3><p>Compass helps you record sleep and gently understand whether today needs action, a lighter pace or rest.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>personal-use phase</small></div><div class="effect"><b>Scope rule</b><span>No World, AI coach or complex planning before the core works.</span></div><button aria-label="Mark step 1 complete" class="done-toggle"></button></article>
+<article class="step" data-step="2"><div class="step-num">2</div><div class="step-copy"><h3>Build the smallest daily flow</h3><p>Sleep dial, saved goal, simple history and one calm Today interpretation. Make it comfortable on your own Android phone.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>build the usable loop</small></div><div class="effect"><b>Deliverable</b><span>A complete usable loop, not a design collection.</span></div><button aria-label="Mark step 2 complete" class="done-toggle"></button></article>
+<article class="step" data-step="3"><div class="step-num">3</div><div class="step-copy"><h3>Use it yourself for 30 consecutive days</h3><p>Log honestly. Record friction, missing context and moments when the app adds pressure instead of clarity.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>prove personal usefulness</small></div><div class="effect"><b>Success measure</b><span>You keep opening it without forcing yourself.</span></div><button aria-label="Mark step 3 complete" class="done-toggle"></button></article>
+<article class="step" data-step="4"><div class="step-num">4</div><div class="step-copy"><h3>Fix only repeated personal friction</h3><p>Prioritise problems that appear several times. Avoid adding features because they are clever or visually impressive.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>improve retention first</small></div><div class="effect"><b>Quality effect</b><span>The app becomes lighter and more trustworthy.</span></div><button aria-label="Mark step 4 complete" class="done-toggle"></button></article>
+<article class="step" data-step="5"><div class="step-num">5</div><div class="step-copy"><h3>Prepare the real Android product</h3><p>Production data storage, privacy copy, crash reporting, backups, app icon, screenshots and a simple support email.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>store-readiness phase</small></div><div class="effect"><b>Learning effect</b><span>You learn the complete build-to-store process.</span></div><button aria-label="Mark step 5 complete" class="done-toggle"></button></article>
+<article class="step" data-step="6"><div class="step-num">6</div><div class="step-copy"><h3>Publish free or low-friction V1</h3><p>Release to Google Play without a dramatic launch. Let a small number of strangers discover and use it.</p></div><div class="money-impact"><span>Early scenario</span><strong>€0–€50/mo</strong><small>small organic discovery</small></div><div class="effect"><b>Milestone</b><span>Your first finished public product exists.</span></div><button aria-label="Mark step 6 complete" class="done-toggle"></button></article>
+<article class="step" data-step="7"><div class="step-num">7</div><div class="step-copy"><h3>Add subscriptions only for genuine extra value</h3><p>Keep basic logging useful. Charge monthly for deeper patterns, backup/sync or later modules people repeatedly use.</p></div><div class="money-impact"><span>100 subscribers</span><strong>≈€300–€500/mo</strong><small>illustrative net range</small></div><div class="effect"><b>Revenue effect</b><span>Optional recurring income without compromising the app.</span></div><button aria-label="Mark step 7 complete" class="done-toggle"></button></article>
+<article class="step" data-step="8"><div class="step-num">8</div><div class="step-copy"><h3>Automate the user relationship</h3><p>In-app onboarding, FAQs, billing, cancellation and written support. No calls, groups, community management or coaching.</p></div><div class="money-impact"><span>Support burden</span><strong>Low / async</strong><small>protects your time</small></div><div class="effect"><b>Freedom effect</b><span>Users can succeed without direct access to you.</span></div><button aria-label="Mark step 8 complete" class="done-toggle"></button></article>
+<article class="step" data-step="9"><div class="step-num">9</div><div class="step-copy"><h3>Expand only after retention proves usefulness</h3><p>Add energy/mood, planning and the World gradually. Continue commercially only if people return and some willingly pay.</p></div><div class="money-impact"><span>500 subscribers</span><strong>≈€1.5k–€2.5k/mo</strong><small>illustrative gross range</small></div><div class="effect"><b>Decision</b><span>Useful personal app regardless; business only if evidence appears.</span></div><button aria-label="Mark step 9 complete" class="done-toggle"></button></article>
+</div>
+<div class="page-footer"><span>Lane 3 · Compass</span><span>Page 4 of 6</span></div>
+</section>
+<!-- PAGE 5: BUSINESS -->
+<section class="sheet business-page" data-lane="business">
+<div class="lane-head">
+<div class="lane-icon">⚙</div>
+<div>
+<div class="lane-kicker">Lane 4 · Parked, then exploratory</div>
+<h2>Automated Business Experiments</h2>
+<p>You do not need to know the winning business today. The purpose is to discover one without creating a people-heavy job.</p>
+</div>
+<div class="progress-card"><span>Milestones complete</span><strong class="progress-label">0 / 9</strong><div class="bar-track"><div class="bar-fill"></div></div></div>
+</div>
+<div class="lane-note"><div><b>Only acceptable models:</b> self-service digital products, automated tools, app-store products, marketplaces, downloadable assets or physical products with outsourced fulfilment and support.</div><div class="never-box">Never: calls · networking · coaching · consulting · bespoke delivery · daily customer contact</div></div>
+<div class="steps">
+<article class="step" data-step="1"><div class="step-num">1</div><div class="step-copy"><h3>Write the no-interaction business constitution</h3><p>Every idea must support asynchronous discovery, purchase, onboarding, delivery and cancellation without speaking to you.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>business filter only</small></div><div class="effect"><b>Filter</b><span>Reject any model that depends on your personality or availability.</span></div><button aria-label="Mark step 1 complete" class="done-toggle"></button></article>
+<article class="step" data-step="2"><div class="step-num">2</div><div class="step-copy"><h3>Create a one-page idea scorecard</h3><p>Score pain, buyer, price, repeatability, automation, competition, start-up cost, legal risk and personal interest.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>idea-selection tool</small></div><div class="effect"><b>Rule</b><span>No idea becomes a project before passing the scorecard.</span></div><button aria-label="Mark step 2 complete" class="done-toggle"></button></article>
+<article class="step" data-step="3"><div class="step-num">3</div><div class="step-copy"><h3>Collect problems without networking</h3><p>Use reviews, search queries, marketplace complaints, forums, support threads and your own repeated frustrations.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>research phase</small></div><div class="effect"><b>Research output</b><span>A ranked list of problems people already try to solve.</span></div><button aria-label="Mark step 3 complete" class="done-toggle"></button></article>
+<article class="step" data-step="4"><div class="step-num">4</div><div class="step-copy"><h3>Select one experiment only</h3><p>Choose the smallest idea that can be tested in two to four weeks. All other ideas remain parked in a backlog.</p></div><div class="money-impact"><span>Expected revenue</span><strong>€0</strong><small>one test selected</small></div><div class="effect"><b>Attention rule</b><span>One experiment at a time; no portfolio of unfinished ideas.</span></div><button aria-label="Mark step 4 complete" class="done-toggle"></button></article>
+<article class="step" data-step="5"><div class="step-num">5</div><div class="step-copy"><h3>Build the cheapest credible offer</h3><p>Use a landing page, small utility, marketplace listing, sample pack, pre-order or manual prototype hidden behind a simple interface.</p></div><div class="money-impact"><span>Test budget</span><strong>≤€100–€300</strong><small>before market proof</small></div><div class="effect"><b>Capital rule</b><span>Spend little until strangers show buying intent.</span></div><button aria-label="Mark step 5 complete" class="done-toggle"></button></article>
+<article class="step" data-step="6"><div class="step-num">6</div><div class="step-copy"><h3>Ask the market for money</h3><p>Use transparent pricing and self-service checkout. Views, likes and compliments do not count as validation.</p></div><div class="money-impact"><span>10-sale test</span><strong>≈€150–€500</strong><small>illustrative revenue</small></div><div class="effect"><b>Proof</b><span>At least 10 real purchases or a clearly defined equivalent.</span></div><button aria-label="Mark step 6 complete" class="done-toggle"></button></article>
+<article class="step" data-step="7"><div class="step-num">7</div><div class="step-copy"><h3>Kill, repair or continue by evidence</h3><p>Stop weak tests quickly. Improve only when data reveals a fixable problem. Do not keep an idea alive from attachment.</p></div><div class="money-impact"><span>Decision</span><strong>Kill or continue</strong><small>no emotional subsidy</small></div><div class="effect"><b>Decision date</b><span>Every experiment ends with a written verdict.</span></div><button aria-label="Mark step 7 complete" class="done-toggle"></button></article>
+<article class="step" data-step="8"><div class="step-num">8</div><div class="step-copy"><h3>Automate the winning transaction</h3><p>Automate billing, delivery, onboarding, emails, refunds, FAQs and analytics; outsource fulfilment or support where needed.</p></div><div class="money-impact"><span>Early profit target</span><strong>€300–€1,000/mo</strong><small>low-contact model</small></div><div class="effect"><b>Freedom test</b><span>The product can sell while you travel or sleep.</span></div><button aria-label="Mark step 8 complete" class="done-toggle"></button></article>
+<article class="step" data-step="9"><div class="step-num">9</div><div class="step-copy"><h3>Scale one proven product into a wealth engine</h3><p>Reinvest profits, improve distribution and add adjacent products only after the original offer has repeatable demand.</p></div><div class="money-impact"><span>Scale target</span><strong>€1.5k–€5k+/mo</strong><small>only after repeatable demand</small></div><div class="effect"><b>Graduation gate</b><span>Meaningful recurring profit with low personal contact.</span></div><button aria-label="Mark step 9 complete" class="done-toggle"></button></article>
+</div>
+<div class="page-footer"><span>Lane 4 · Automated Business Experiments</span><span>Page 5 of 6</span></div>
+</section>
+<section class="sheet sequence-page">
+<div class="sequence-head">
+<div>
+<p class="eyebrow">Execution order</p>
+<h2>What happens first — and what waits</h2>
+<p class="sequence-lead">The map contains four lanes, but no more than three receive attention at once. A lane advances only after its exit gate is met.</p>
+</div>
+<div class="sequence-badge"><span>Default capacity</span><strong>About 7 hours/week</strong><small>Reduce to the minimum week when life is busy.</small></div>
+</div>
+<div class="sequence-layout">
+<div class="phase-column">
+<div class="phase-card current"><div class="phase-no">1</div><div><b>Close the open property loop</b><p>Finish and rent the Vilnius flat. Keep Compass moving in two small weekly sessions. Stocks stay automated; business experiments and the bot stay parked.</p><span class="gate">Exit gate: tenant moved in + all real costs recorded</span></div></div>
+<div class="phase-card"><div class="phase-no">2</div><div><b>Stabilise and publish</b><p>Measure three rental months, publish Compass V1 to Android, and complete the one-time portfolio allocation and automation.</p><span class="gate">Exit gate: 3 months of rental actuals + Compass publicly available</span></div></div>
+<div class="phase-card"><div class="phase-no">3</div><div><b>Test one new income engine</b><p>Run one low-contact business experiment for 2–4 weeks. Add Compass subscriptions only if repeated use appears. The trading bot remains research or paper trading.</p><span class="gate">Exit gate: 10 purchases, meaningful subscriptions, or a written “stop” decision</span></div></div>
+<div class="phase-card"><div class="phase-no">4</div><div><b>Add the next asset only after evidence</b><p>Buy property 2 only if the buy box, reserve and net-yield test pass. Scale the product that shows paid demand; do not scale two experiments together.</p><span class="gate">Exit gate: stable cash flow and one proven growth candidate</span></div></div>
+<div class="phase-card"><div class="phase-no">5</div><div><b>Scale the winner toward independence</b><p>Reinvest profits, add property one door at a time, keep the core portfolio on autopilot and protect the €1,800 net monthly freedom target.</p><span class="gate">Finish line: assets and products reliably replace employment</span></div></div>
+</div>
+<div class="week-column">
+<div class="week-card">
+<div class="week-title"><b>Possible weekly rhythm — current phase</b><span>7 hours total</span></div>
+<div class="day-row"><b>Monday</b><span>30 min</span><p>Choose the single property outcome and two Compass outcomes for the week.</p></div>
+<div class="day-row"><b>Tuesday</b><span>90 min</span><p>Compass focused build session. No business research.</p></div>
+<div class="day-row rest"><b>Wednesday</b><span>Off</span><p>Rest, normal life, study or travel. No guilt.</p></div>
+<div class="day-row"><b>Thursday</b><span>90 min</span><p>Compass second build/test session.</p></div>
+<div class="day-row"><b>Friday</b><span>30 min</span><p>Property messages, invoices, contractor/agent follow-up or rent administration.</p></div>
+<div class="day-row primary"><b>Saturday</b><span>2 h 30</span><p>Primary deep-work block: property until rented; later, the active business experiment.</p></div>
+<div class="day-row"><b>Sunday</b><span>30 min</span><p>Record progress, update the map and prepare the next week.</p></div>
+</div>
+<div class="minimum-card"><b>Minimum week — 2 h 45</b><p>One 60-minute Compass session, one 90-minute primary-lane block and a 15-minute review. Maintenance tasks wait unless genuinely urgent.</p></div>
+<div class="attention-card"><b>Attention rules</b><p><strong>1 primary</strong> receives the long block. <strong>1 secondary</strong> receives two shorter blocks. <strong>1 maintenance lane</strong> receives automation or a brief review. The fourth lane is visibly parked.</p></div>
+</div>
+</div>
+<div class="page-footer"><span>Execution sequence &amp; weekly rhythm</span><span>Page 6 of 6</span></div>
+</section></main>
+<script>
+(() => {
+  const STORAGE_KEY = 'financial-independence-map-4x9-progress-v1';
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (_) { saved = {}; }
+
+  function updateLane(laneEl) {
+    const steps = [...laneEl.querySelectorAll('.step')];
+    const completed = steps.filter(s => s.classList.contains('is-done')).length;
+    const label = laneEl.querySelector('.progress-label');
+    const fill = laneEl.querySelector('.bar-fill');
+    if (label) label.textContent = `${completed} / ${steps.length}`;
+    if (fill) fill.style.width = `${(completed / steps.length) * 100}%`;
+  }
+
+  document.querySelectorAll('[data-lane]').forEach(laneEl => {
+    const lane = laneEl.dataset.lane;
+    laneEl.querySelectorAll('.step').forEach(step => {
+      const key = `${lane}-${step.dataset.step}`;
+      const btn = step.querySelector('.done-toggle');
+      if (saved[key]) {
+        step.classList.add('is-done');
+        btn.classList.add('is-on');
+      }
+      btn.addEventListener('click', () => {
+        const done = step.classList.toggle('is-done');
+        btn.classList.toggle('is-on', done);
+        saved[key] = done;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        updateLane(laneEl);
+      });
+    });
+    updateLane(laneEl);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (!confirm('Reset all milestone checkmarks?')) return;
+    saved = {};
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('is-done'));
+    document.querySelectorAll('.done-toggle').forEach(b => b.classList.remove('is-on'));
+    document.querySelectorAll('[data-lane]').forEach(updateLane);
+  });
+})();
+</script>
+</body>
+</html>
