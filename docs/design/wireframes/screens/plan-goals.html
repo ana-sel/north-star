@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compass · Plan · Goals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<style>
+  /* ── View toggle ── */
+  .view-toggle{display:flex;background:var(--greige);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;margin-bottom:10px;}
+  .vt-btn{flex:1;padding:7px 0;border-radius:9px;border:none;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;}
+  .vt-btn.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+
+  /* ── Pillar filter ── */
+  .pf-row{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;flex-shrink:0;}
+  .pf-row::-webkit-scrollbar{display:none;}
+  .pf-pill{padding:5px 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .1s;}
+  .pf-pill::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pc,var(--line));margin-right:4px;vertical-align:middle;}
+  .pf-pill.all-pill::before{display:none;}
+  .pf-pill.on{border-color:var(--pc,var(--accent));background:color-mix(in srgb,var(--pc,#768471) 14%,transparent);color:var(--ink);}
+
+  /* ── Year filter ── */
+  .yr-filter{display:flex;align-items:center;gap:5px;margin-bottom:12px;overflow-x:auto;}
+  .yr-filter::-webkit-scrollbar{display:none;}
+  .yr-pill{padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .12s;}
+  .yr-pill.on{border-color:var(--accent);background:color-mix(in srgb,#768471 14%,transparent);color:var(--accent);}
+
+  /* ── Time band header ── */
+  .band{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 2px 8px;display:flex;align-items:center;gap:8px;}
+  .band::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  /* ── Goal card (list view) ── */
+  .hrz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;overflow:hidden;position:relative;}
+  .hrz::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:3px 0 0 3px;background:var(--pill,var(--line));}
+  .hrz:active{transform:scale(.99);}
+  .hrz-top{display:flex;align-items:center;gap:12px;}
+  .hrz-ring{width:38px;height:38px;flex-shrink:0;position:relative;}
+  .hrz-ring svg{transform:rotate(-90deg);}
+  .hrz-ring .tk{stroke:var(--line);}
+  .hrz-ring .fl{stroke:var(--pill,var(--accent));}
+  .hrz-ring.full .fl{stroke:#6d9e5c;}
+  .hrz-ring-pct{position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:800;color:var(--muted);}
+  .hrz-main{flex:1;min-width:0;}
+  .hrz-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
+  .hrz-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+  .hrz-branches{margin:10px 0 0 4px;border-left:1.5px solid var(--line);padding-left:11px;display:flex;flex-direction:column;gap:7px;}
+  .hrz-br{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-sm);}
+  .hrz-br-name{font-weight:600;}
+  .hrz-br.done .hrz-br-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .hrz-br-ct{font-size:9px;font-weight:700;color:var(--muted);}
+
+  /* Phase badge */
+  .phase-badge{display:inline-block;font-size:9px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle;letter-spacing:.04em;}
+  .phase-badge.flat{background:var(--greige);color:var(--muted);}
+  .phase-badge.building{background:color-mix(in srgb,#768471 15%,transparent);color:var(--accent);}
+  .phase-badge.compounding{background:color-mix(in srgb,#4a7c40 15%,transparent);color:#4a7c40;}
+
+  /* ── Completed view card ── */
+  .comp-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);}
+  .comp-card-name{font-size:var(--fs-md);font-weight:800;margin-bottom:4px;}
+  .comp-card-meta{font-size:var(--fs-xs);color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .comp-card-pillars{display:flex;gap:4px;flex-wrap:wrap;}
+  .comp-bar-row{margin-top:8px;}
+  .comp-bar-label{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+  .comp-bar{height:5px;background:var(--greige);border-radius:4px;overflow:hidden;}
+  .comp-bar-fill{height:100%;border-radius:4px;}
+
+  /* ── Goal detail ── */
+  #detail{display:none;}
+  .back{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;margin-bottom:10px;}
+  .back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;}
+  .dream{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px 18px 15px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+  .dream-cap{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px;}
+  .dream-name{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--ink);}
+  .dream-prog{height:8px;background:var(--greige);border-radius:999px;margin:12px 0 6px;overflow:hidden;}
+  .dream-prog i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#8fae83,var(--accent));transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .dream-meta{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);}
+  .dream-meta b{color:var(--ink);font-weight:800;font-size:var(--fs-sm);}
+  .dream-complete{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:var(--fs-md);font-weight:800;color:#6d9e5c;display:none;}
+
+  /* Strategy / key factor / leverage */
+  .detail-section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  .detail-section-head{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;}
+  .detail-field{font-size:var(--fs-sm);line-height:1.55;color:var(--ink);outline:none;width:100%;border:none;background:transparent;font-family:inherit;resize:none;}
+  .detail-field:empty::before{content:attr(data-ph);color:var(--muted);font-style:italic;}
+  .detail-field:focus{background:var(--greige);border-radius:8px;padding:4px 6px;margin:-4px -6px;}
+  /* 5-lever checklist */
+  .lever-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .lever-item{display:flex;align-items:center;gap:10px;cursor:pointer;}
+  .lever-ck{width:18px;height:18px;border-radius:5px;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;flex-shrink:0;cursor:pointer;transition:all .15s;}
+  .lever-ck svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;opacity:0;}
+  .lever-item.checked .lever-ck{background:var(--accent);border-color:var(--accent);}
+  .lever-item.checked .lever-ck svg{opacity:1;}
+  .lever-name{font-size:var(--fs-sm);font-weight:600;color:var(--ink);}
+  .lever-item.checked .lever-name{color:var(--muted);}
+
+  /* Stalled nudge */
+  .stalled-card{background:color-mix(in srgb,#b0574a 8%,transparent);border:1px solid #e6b4ae;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:var(--fs-sm);}
+  .stalled-title{font-weight:800;color:#8a3830;margin-bottom:4px;}
+  .stalled-body{color:#6b2e28;line-height:1.5;}
+
+  /* Tree */
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;font-size:var(--fs-xs);color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .tree{margin-left:2px;}
+  .kids{margin-left:15px;border-left:1.5px solid var(--line);}
+  .node{position:relative;}
+  .node-row{display:flex;align-items:center;gap:7px;padding:7px 4px 7px 10px;border-radius:10px;}
+  .node-row:hover{background:var(--greige);}
+  .node-row::before{content:'';position:absolute;left:-15px;top:50%;width:15px;height:1.5px;background:var(--line);}
+  .tree > .node > .node-row::before{display:none;}
+  .chev{width:18px;height:18px;flex-shrink:0;display:grid;place-items:center;cursor:pointer;color:var(--muted);border:none;background:none;padding:0;transition:transform .15s;}
+  .chev.open{transform:rotate(90deg);}
+  .chev.leaf{visibility:hidden;}
+  .chev svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;}
+  .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+  .ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;opacity:0;}
+  .node.done > .node-row > .ck{background:var(--accent);border-color:var(--accent);}
+  .node.done > .node-row > .ck svg{opacity:1;}
+  .name{flex:1;font-size:var(--fs-md);font-weight:600;line-height:1.3;outline:none;border-radius:6px;padding:2px 3px;min-width:0;overflow-wrap:anywhere;}
+  .name:focus{background:var(--card);box-shadow:0 0 0 2px var(--accent);}
+  .node.done > .node-row > .name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
+  .sched{font-size:8px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,#768471 12%,transparent);border-radius:999px;padding:2px 7px;flex-shrink:0;}
+  .depth-count{font-size:9px;font-weight:700;color:var(--muted);background:var(--greige);border-radius:999px;padding:1px 7px;flex-shrink:0;}
+
+  /* Node action sheet */
+  .nsheet-back{position:fixed;inset:0;background:rgba(28,27,24,.35);z-index:40;display:none;}
+  .nsheet-back.open{display:block;}
+  .nsheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 30px rgba(28,27,24,.2);transform:translateY(100%);transition:transform .22s cubic-bezier(.22,1,.36,1);padding:12px 18px 22px;max-height:88vh;overflow-y:auto;}
+  .nsheet.open{transform:translateY(0);}
+  .nsheet-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 14px;}
+  .nsheet-title{font-size:var(--fs-md);font-weight:800;margin-bottom:12px;}
+  .nsheet-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:none;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--ink);cursor:pointer;text-align:left;}
+  .nsheet-btn:active{background:var(--greige);}
+  .nsheet-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;color:var(--muted);}
+  .nsheet-btn.send{color:var(--accent);}
+  .nsheet-btn.send svg{color:var(--accent);}
+  .nsheet-btn.danger{color:#b0574a;}
+  .nsheet-btn.danger svg{color:#b0574a;}
+  .btn-prim{width:100%;padding:13px;border-radius:13px;border:none;background:var(--btn);color:#FBFAF8;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;margin-top:6px;}
+  .hrz-add{border:1px dashed var(--line);background:transparent;color:var(--muted);text-align:center;font-size:var(--fs-sm);font-weight:700;padding:12px;border-radius:14px;width:100%;cursor:pointer;font-family:inherit;margin-top:4px;}
+</style>
+</head>
+<body class="screen-body">
+
+  <!-- List view -->
+  <div id="list">
+    <div class="ylens">
+      <div class="ylens-badge"><i class="ic ic-compass"></i></div>
+      <div>
+        <div class="ylens-title">Goals</div>
+        <div class="ylens-sub">Your directions</div>
+      </div>
+    </div>
+
+    <div class="view-toggle">
+      <button class="vt-btn on" onclick="setView('active')">Active</button>
+      <button class="vt-btn" onclick="setView('completed')">Completed</button>
+    </div>
+
+    <div class="pf-row" id="pillarFilter"></div>
+    <div class="yr-filter" id="yrFilter" style="display:none"></div>
+    <div id="listBody"></div>
+    <button class="hrz-add" onclick="addNewGoal()">+ New goal</button>
+  </div>
+
+  <!-- Detail view -->
+  <div id="detail">
+    <button class="back" onclick="closeDetail()">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+      Back
+    </button>
+    <div class="dream" id="dream"></div>
+    <div id="goalExtra"></div><!-- strategy / stalled / leverage -->
+    <div class="legend">
+      <span>✓ done</span><span>○ in progress</span><span>— not started</span>
+    </div>
+    <div class="tree" id="tree"></div>
+    <button class="hrz-add" id="addBranchBtn">+ Add step</button>
+  </div>
+
+  <!-- Node action sheet -->
+  <div class="nsheet-back" id="nsheetBack" onclick="closeNodeSheet()"></div>
+  <div class="nsheet" id="nsheet">
+    <div class="nsheet-grip"></div>
+    <button onclick="closeNodeSheet()" style="position:absolute;top:10px;right:14px;background:var(--greige);border:none;border-radius:50%;width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:15px;font-family:inherit;z-index:1">&times;</button>
+    <div class="nsheet-title" id="nsheetTitle"></div>
+    <div id="nsheetBtns"></div>
+  </div>
+
+<script src="../shared/plan-data.js"></script>
+<script>
+const P = window.PlanData;
+const PILLARS     = P.PILLARS;
+const PILLAR_VAR  = P.PILLAR_VAR;
+const PILLAR_LABEL= P.PILLAR_LABEL;
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>';
+const CHEV  = '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';
+
+let currentView   = 'active';
+let activePillar  = 'all';
+let yrFilter      = 'all';
+let openGoalId    = null;
+const expanded    = new Set();
+
+// ── Helpers ────────────────────────────────────────────────────
+function pillarsVar(n) {
+  return n.pillars && n.pillars[0] ? `var(${PILLAR_VAR[n.pillars[0]]})` : 'var(--line)';
+}
+function fmtDate(d) {
+  if (!d) return '';
+  const [,m,day] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return +day + ' ' + months[+m-1];
+}
+function ringHtml(pct, pillVar) {
+  const R = 15, C = 2 * Math.PI * R, off = C * (1 - pct);
+  return `<div class="hrz-ring${pct>=1?' full':''}">` +
+    `<svg width="38" height="38" viewBox="0 0 38 38">` +
+    `<circle class="tk" cx="19" cy="19" r="${R}" fill="none" stroke-width="3"/>` +
+    `<circle class="fl" cx="19" cy="19" r="${R}" fill="none" stroke-width="3" stroke-linecap="round" ` +
+    `stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>` +
+    `</svg><div class="hrz-ring-pct">${Math.round(pct*100)}%</div></div>`;
+}
+function phaseBadge(goalId) {
+  const wks = P.consecutiveWeeks(goalId);
+  if (wks < 3) return '';
+  if (wks >= 24) return `<span class="phase-badge compounding">Compounding</span>`;
+  if (wks >= 8)  return `<span class="phase-badge building">Building</span>`;
+  return `<span class="phase-badge flat">Early phase</span>`;
+}
+function matchesPillar(g) {
+  if (activePillar === 'all') return true;
+  return (g.pillars || []).includes(activePillar);
+}
+function matchesYear(g) {
+  if (yrFilter === 'all') return true;
+  return P.timeBand(g.id) === yrFilter;
+}
+
+// ── View toggle ─────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.vt-btn').forEach((b,i) => b.classList.toggle('on', (i===0&&v==='active')||(i===1&&v==='completed')));
+  const yrEl = document.getElementById('yrFilter');
+  yrEl.style.display = v === 'active' ? 'flex' : 'none';
+  renderList();
+}
+
+// ── Filters ────────────────────────────────────────────────────
+function renderPillarFilter() {
+  const el = document.getElementById('pillarFilter');
+  let html = `<button class="pf-pill all-pill${activePillar==='all'?' on':''}" onclick="setPillar('all')">All</button>`;
+  PILLARS.forEach(p => {
+    html += `<button class="pf-pill${activePillar===p?' on':''}" style="--pc:var(${PILLAR_VAR[p]})" onclick="setPillar('${p}')">${PILLAR_LABEL[p]}</button>`;
+  });
+  el.innerHTML = html;
+}
+function setPillar(p) { activePillar = p; renderList(); }
+
+function renderYrFilter() {
+  const el = document.getElementById('yrFilter');
+  const bands = new Set(['all']);
+  P.goals().forEach(g => { const b = P.timeBand(g.id); if (b) bands.add(b); });
+  const sorted = ['all', ...[...bands].filter(b=>b!=='all').sort((a,b)=>{
+    if(a==='this')return -1; if(b==='this')return 1;
+    if(a==='someday')return 1; if(b==='someday')return -1;
+    return a.localeCompare(b);
+  })];
+  el.innerHTML = sorted.map(b => {
+    const label = b==='all'?'All':b==='this'?'This year':b==='someday'?'Someday':b;
+    return `<button class="yr-pill${yrFilter===b?' on':''}" onclick="setYr('${b}')">${label}</button>`;
+  }).join('');
+}
+function setYr(v) { yrFilter = v; renderList(); }
+
+// ── List render ────────────────────────────────────────────────
+function renderList() {
+  renderPillarFilter();
+  if (currentView === 'active') renderYrFilter();
+  const body = document.getElementById('listBody');
+
+  if (currentView === 'completed') {
+    renderCompleted(body); return;
+  }
+
+  // Active goals
+  const allGoals = P.activeGoals().filter(g => matchesPillar(g) && matchesYear(g));
+  if (!allGoals.length) {
+    body.innerHTML = `<div style="font-size:var(--fs-sm);color:var(--muted);text-align:center;padding:24px 0">` +
+      (P.goals().length ? 'No goals match your filters.' : `Your first goal starts with a thought. What direction are you drawn to?`) +
+      `</div>`;
+    return;
+  }
+
+  // Group by time band
+  const groups = {};
+  allGoals.forEach(g => { const b = P.timeBand(g.id); (groups[b]=groups[b]||[]).push(g); });
+  const bandOrder = Object.keys(groups).sort((a,b)=>{
+    if(a==='this')return -1; if(b==='this')return 1;
+    if(a==='someday')return 1; if(b==='someday')return -1;
+    return a.localeCompare(b);
+  });
+
+  let html = '';
+  bandOrder.forEach(band => {
+    const label = band==='this'?'This Year':band==='someday'?'Someday':band;
+    html += `<div class="band">${label}</div>`;
+    groups[band].forEach(g => { html += goalCardHtml(g); });
+  });
+  body.innerHTML = html;
+  body.querySelectorAll('.hrz').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.gid));
+  });
+}
+
+function goalCardHtml(g) {
+  const pr = P.progress(g.id);
+  const pillVar = pillarsVar(g);
+  const latest = P.latestDate(g.id);
+  const kids = P.children(g.id);
+  const badge = phaseBadge(g.id);
+  const pillChips = (g.pillars||[]).map(p=>`<span class="chip pillar" style="--pill:var(${PILLAR_VAR[p]});">${PILLAR_LABEL[p]}</span>`).join('');
+  let html = `<div class="hrz" data-gid="${g.id}" style="--pill:${pillVar}">` +
+    `<div class="hrz-top">${ringHtml(pr.pct, pillVar)}` +
+    `<div class="hrz-main">` +
+    `<div class="hrz-title">${g.name}${badge}</div>` +
+    `<div class="hrz-sub">${pillChips}${latest?' · by '+fmtDate(latest):' · no dates yet'} · ${pr.done}/${pr.total}</div>` +
+    `</div></div>`;
+  if (kids.length) {
+    html += `<div class="hrz-branches">`;
+    kids.forEach(k => {
+      const kp = P.progress(k.id);
+      const isLeaf = P.children(k.id).length === 0;
+      const done = isLeaf ? k.done : (kp.pct===1&&kp.total>0);
+      html += `<div class="hrz-br${done?' done':''}"><span class="hrz-br-name">${k.name}</span><span class="hrz-br-ct">${isLeaf?(done?'done':'—'):kp.done+'/'+kp.total}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  return html + `</div>`;
+}
+
+// ── Completed view ──────────────────────────────────────────────
+function renderCompleted(body) {
+  const goals = P.completedGoals().filter(matchesPillar);
+  if (!goals.length) {
+    body.innerHTML = `<div style="font-size:var(--fs-sm);color:var(--muted);text-align:center;padding:24px 0">Goals you complete will appear here as an achievement archive.</div>`;
+    return;
+  }
+  goals.sort((a,b) => {
+    const dateA = P.leaves(a.id).map(l=>l.completedDate||'').sort().pop() || '';
+    const dateB = P.leaves(b.id).map(l=>l.completedDate||'').sort().pop() || '';
+    return dateB.localeCompare(dateA);
+  });
+  body.innerHTML = goals.map(g => {
+    const pr = P.progress(g.id);
+    const completedDate = P.leaves(g.id).map(l=>l.completedDate||'').sort().pop();
+    const firstDate = P.leaves(g.id).map(l=>l.date||l.completedDate||'').filter(Boolean).sort()[0];
+    const pillChips = (g.pillars||[]).map(p=>`<span class="chip pillar" style="--pill:var(${PILLAR_VAR[p]});">${PILLAR_LABEL[p]}</span>`).join('');
+    return `<div class="comp-card">` +
+      `<div class="comp-card-name">✓ ${g.name}</div>` +
+      `<div class="comp-card-meta"><span>${pillChips}</span>${completedDate?`<span>Completed ${fmtDate(completedDate)}</span>`:''}${pr.total?`<span>${pr.total} steps</span>`:''}</div>` +
+    `</div>`;
+  }).join('');
+}
+
+// ── Add new goal ────────────────────────────────────────────────
+function addNewGoal() {
+  const name = prompt('Name this goal — a direction you\'re drawn to:');
+  if (name && name.trim()) {
+    const id = P.addRoot(name.trim(), {pillars:[]});
+    openDetail(id);
+  }
+}
+
+// ── Detail view ────────────────────────────────────────────────
+function openDetail(goalId) {
+  openGoalId = goalId;
+  document.getElementById('list').style.display   = 'none';
+  document.getElementById('detail').style.display = 'block';
+  renderDetail();
+}
+function closeDetail() {
+  openGoalId = null;
+  document.getElementById('list').style.display   = 'block';
+  document.getElementById('detail').style.display = 'none';
+  render();
+}
+
+function renderDetail() {
+  const g = P.byId(openGoalId); if (!g) { closeDetail(); return; }
+  const pr = P.progress(openGoalId);
+
+  // Dream header
+  const complete = pr.total > 0 && pr.pct === 1;
+  document.getElementById('dream').innerHTML =
+    `<div class="dream-cap">The goal</div>` +
+    `<div class="dream-name">${g.name}</div>` +
+    `<div class="dream-prog"><i style="width:${(pr.pct*100).toFixed(1)}%"></i></div>` +
+    `<div class="dream-meta"><span>${pr.done}/${pr.total} steps done</span><b>${Math.round(pr.pct*100)}%</b></div>` +
+    (complete ? `<div class="dream-complete" style="display:flex">🌟 Accomplished.</div>` : '');
+
+  // Extra sections
+  renderGoalExtra(g);
+
+  // Tree
+  renderTree(openGoalId);
+
+  // Add branch button
+  document.getElementById('addBranchBtn').onclick = () => {
+    const name = prompt('Add a step to "' + g.name + '":');
+    if (name && name.trim()) P.addChild(openGoalId, name.trim(), {pillars: g.pillars || []});
+  };
+}
+
+function renderGoalExtra(g) {
+  const el = document.getElementById('goalExtra');
+  let html = '';
+
+  // Stalled detection
+  const stalled = P.stalledGoals().find(s => s.id === g.id);
+  if (stalled) {
+    html += `<div class="stalled-card">` +
+      `<div class="stalled-title">This has been quiet for a while</div>` +
+      `<div class="stalled-body">What would help it move? Which lever is missing — knowledge, a connection, resources, time, or reputation?</div>` +
+    `</div>`;
+  }
+
+  // Compound phase
+  const wks = P.consecutiveWeeks(g.id);
+  if (wks >= 3) {
+    const phaseMsg = wks >= 24 ? 'Compounding — each step is adding to the last.' :
+                     wks >= 8  ? `${wks} weeks of consistent progress. This is building.` :
+                                 `${wks} weeks in a row. You\'re in the early phase — results are building even if they\'re not visible yet.`;
+    html += `<div class="detail-section"><div class="detail-section-head">Momentum</div><div style="font-size:var(--fs-sm);color:var(--muted)">${phaseMsg}</div></div>`;
+  }
+
+  // Strategy
+  html += `<div class="detail-section">` +
+    `<div class="detail-section-head">Strategy</div>` +
+    `<div class="detail-field" contenteditable="true" spellcheck="false" id="fieldStrategy" ` +
+    `data-ph="What's your line of behavior here? One sentence.">${g.strategy||''}</div>` +
+  `</div>`;
+
+  // Key success factor
+  html += `<div class="detail-section">` +
+    `<div class="detail-section-head">Key success factor</div>` +
+    `<div class="detail-field" contenteditable="true" spellcheck="false" id="fieldKey" ` +
+    `data-ph="What single condition most determines success?">${g.keyFactor||''}</div>` +
+  `</div>`;
+
+  // Leverage
+  const levers = g.leverages || {knowledge:false,network:false,resources:false,time:false,reputation:false};
+  const leverNames = {knowledge:'Knowledge',network:'Network',resources:'Resources',time:'Time',reputation:'Reputation'};
+  let leverHtml = `<div class="lever-list" id="leverList">`;
+  Object.keys(leverNames).forEach(key => {
+    leverHtml += `<label class="lever-item${levers[key]?' checked':''}" data-key="${key}">` +
+      `<div class="lever-ck">${CHECK}</div>` +
+      `<span class="lever-name">${leverNames[key]}</span>` +
+    `</label>`;
+  });
+  leverHtml += `</div>`;
+  leverHtml += `<div style="font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:6px">What would unlock this?</div>` +
+    `<div class="detail-field" contenteditable="true" spellcheck="false" id="fieldLeverage" ` +
+    `data-ph="What single acquisition would most move this forward?">${g.leverageNote||''}</div>`;
+
+  html += `<div class="detail-section">` +
+    `<div class="detail-section-head">Leverage</div>` +
+    leverHtml +
+  `</div>`;
+
+  el.innerHTML = html;
+
+  // Wire auto-save for text fields
+  ['Strategy','Key','Leverage'].forEach(suffix => {
+    const field = document.getElementById('field' + suffix);
+    if (!field) return;
+    field.addEventListener('blur', () => {
+      const patch = {};
+      if (suffix==='Strategy') patch.strategy = field.textContent.trim()||null;
+      if (suffix==='Key')      patch.keyFactor = field.textContent.trim()||null;
+      if (suffix==='Leverage') patch.leverageNote = field.textContent.trim()||null;
+      P.update(g.id, patch);
+    });
+  });
+
+  // Wire lever checkboxes
+  document.querySelectorAll('#leverList .lever-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('checked');
+      const current = g.leverages || {knowledge:false,network:false,resources:false,time:false,reputation:false};
+      const key = item.dataset.key;
+      current[key] = item.classList.contains('checked');
+      P.update(g.id, {leverages: Object.assign({}, current)});
+    });
+  });
+}
+
+// ── Tree render ────────────────────────────────────────────────
+function renderTree(rootId) {
+  const treeEl = document.getElementById('tree');
+  treeEl.innerHTML = '';
+  P.children(rootId).forEach(kid => {
+    treeEl.appendChild(buildNode(kid, true));
+  });
+}
+
+function buildNode(n, isTop) {
+  const kids = P.children(n.id);
+  const isLeaf = kids.length === 0;
+  const pr = isLeaf ? null : P.progress(n.id);
+  const done = isLeaf ? n.done : (pr.pct===1 && pr.total>0);
+
+  const nodeEl = document.createElement('div');
+  nodeEl.className = 'node' + (done ? ' done' : '');
+
+  const row = document.createElement('div'); row.className = 'node-row';
+  // chevron
+  const chev = document.createElement('button'); chev.className = 'chev' + (isLeaf?' leaf':'') + (expanded.has(n.id)?' open':'');
+  chev.innerHTML = CHEV;
+  if (!isLeaf) chev.onclick = () => { expanded.has(n.id) ? expanded.delete(n.id) : expanded.add(n.id); renderDetail(); };
+  row.appendChild(chev);
+  // checkbox (leaves) or progress dot (branches)
+  if (isLeaf) {
+    const ck = document.createElement('div'); ck.className = 'ck';
+    ck.innerHTML = CHECK;
+    ck.onclick = e => { e.stopPropagation(); P.toggleDone(n.id); };
+    row.appendChild(ck);
+  } else {
+    const R=9, C=2*Math.PI*R, off=C*(1-pr.pct);
+    const dot = document.createElement('div'); dot.style.cssText='width:22px;height:22px;flex-shrink:0;';
+    dot.innerHTML=`<svg width="22" height="22" viewBox="0 0 22 22" style="transform:rotate(-90deg)">` +
+      `<circle cx="11" cy="11" r="${R}" fill="none" stroke="var(--line)" stroke-width="2.5"/>` +
+      `<circle cx="11" cy="11" r="${R}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>` +
+    `</svg>`;
+    row.appendChild(dot);
+  }
+  // name
+  const nameEl = document.createElement('div'); nameEl.className = 'name';
+  nameEl.contentEditable = 'true'; nameEl.spellcheck = false; nameEl.textContent = n.name;
+  nameEl.addEventListener('blur', () => { if (nameEl.textContent.trim()) P.rename(n.id, nameEl.textContent.trim()); });
+  nameEl.addEventListener('click', e => e.stopPropagation());
+  row.appendChild(nameEl);
+  // scope badge
+  if (n.bucket && n.bucket !== 'someday') {
+    const s = document.createElement('span'); s.className = 'sched';
+    s.textContent = P.SCOPE_LABEL[n.bucket] || n.bucket; row.appendChild(s);
+  }
+  // child count for branches
+  if (!isLeaf) {
+    const ct = document.createElement('span'); ct.className = 'depth-count';
+    ct.textContent = pr.done + '/' + pr.total; row.appendChild(ct);
+  }
+  // tap row → node action sheet
+  row.addEventListener('click', e => { if (e.target === nameEl || nameEl.contains(e.target)) return; openNodeSheet(n.id); });
+  nodeEl.appendChild(row);
+
+  // children
+  if (!isLeaf && (expanded.has(n.id) || isTop)) {
+    const kidsEl = document.createElement('div'); kidsEl.className = 'kids';
+    kids.forEach(k => kidsEl.appendChild(buildNode(k, false)));
+    nodeEl.appendChild(kidsEl);
+  }
+  return nodeEl;
+}
+
+// ── Node action sheet ──────────────────────────────────────────
+let sheetNodeId = null;
+function openNodeSheet(id) {
+  const n = P.byId(id); if (!n) return;
+  sheetNodeId = id;
+  document.getElementById('nsheetTitle').textContent = n.name;
+  const btns = document.getElementById('nsheetBtns');
+  const SVGS = {
+    send:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  };
+  let html = '';
+  const scopeOpts = P.SCOPES.map(s =>
+    `<option value="${s}"${n.bucket===s?' selected':''}>${P.SCOPE_LABEL[s]}</option>`
+  ).join('');
+  if (P.isLeaf(n)) {
+    html += `<button class="nsheet-btn send" onclick="sendToFlow('${id}')">` +
+      `${SVGS.send}Send to Flow — pick scope:` +
+      `<select onchange="scheduleNode('${id}',this.value)" onclick="event.stopPropagation()" style="margin-left:auto;font-family:inherit;font-size:var(--fs-xs);border:1px solid var(--line);border-radius:7px;padding:3px 6px;background:var(--greige)"><option value="">—</option>${scopeOpts}</select>` +
+    `</button>`;
+  }
+  html += `<button class="nsheet-btn" onclick="addChildNode('${id}')">` +
+    `${SVGS.plus}Add a step inside "${n.name}"` +
+  `</button>`;
+  html += `<button class="nsheet-btn danger" onclick="deleteNode('${id}')">` +
+    `${SVGS.x}Remove` +
+  `</button>`;
+  btns.innerHTML = html;
+  document.getElementById('nsheetBack').classList.add('open');
+  document.getElementById('nsheet').classList.add('open');
+}
+function closeNodeSheet() {
+  sheetNodeId = null;
+  document.getElementById('nsheetBack').classList.remove('open');
+  document.getElementById('nsheet').classList.remove('open');
+}
+function sendToFlow(id) { closeNodeSheet(); }
+function scheduleNode(id, scope) {
+  if (scope) P.update(id, {bucket: scope});
+  closeNodeSheet();
+}
+function addChildNode(id) {
+  const n = P.byId(id);
+  const name = prompt('Add a step:');
+  if (name && name.trim()) {
+    P.addChild(id, name.trim(), {pillars: n ? n.pillars : []});
+    expanded.add(id);
+  }
+  closeNodeSheet();
+}
+function deleteNode(id) {
+  const n = P.byId(id); if (!n) return;
+  const kids = P.leaves(id).length;
+  const msg = kids > 1 ? `Remove "${n.name}" and all ${kids} steps inside?` : `Remove "${n.name}"?`;
+  if (confirm(msg)) { P.remove(id); closeNodeSheet(); }
+}
+
+// ── Main render ────────────────────────────────────────────────
+function render() {
+  if (openGoalId) { renderDetail(); return; }
+  renderList();
+}
+
+P.subscribe(() => { render(); });
+render();
+</script>
+</body>
+</html>
