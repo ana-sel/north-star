@@ -67,7 +67,7 @@
     </p>
   </div>
 
-  <!-- Mood + energy -->
+  <!-- Mood + linked morning energy check-in -->
   <div class="b-sect">
     <div class="mood-pick" data-name="mood" data-value="7">
       <div class="mp-top">
@@ -83,21 +83,23 @@
 
     <div class="mood-pick" data-name="energy" data-value="6">
       <div class="mp-top">
-        <span class="mp-cap"><i class="ic ic-zap"></i> Energy</span>
+        <span class="mp-cap"><i class="ic ic-zap"></i> Morning energy</span>
         <span class="mp-now"><b>6</b>Steady</span>
       </div>
-      <div class="mp-track" tabindex="0" role="slider" aria-label="Energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
+      <div class="mp-track" tabindex="0" role="slider" aria-label="Morning energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
         <div class="mp-rail"></div><div class="mp-fill"></div>
         <div class="mp-thumb"></div>
       </div>
-      <div class="mp-ends"><span>Flat</span><span>Buzzing</span></div>
+      <div class="mp-ends"><span>Empty</span><span>Full</span></div>
     </div>
+
+    <div class="dial-hint" style="margin-top:12px">This starts today's energy timeline. Later check-ins add new points without replacing it.</div>
 
     <div class="b-label" style="margin-top:16px">Note (optional)</div>
     <textarea class="b-note" placeholder="What's on your mind…"></textarea>
   </div>
 
-  <button class="btn-prim">Save night</button>
+  <button class="btn-prim" id="saveNight">Save night</button>
 
   <!-- Target sheet (slides up from the bottom when you tap the target strip) -->
   <div class="sheet-back" id="targetBack" onclick="closeTarget()"></div>
@@ -123,24 +125,29 @@ const MP_WORDS = {
 };
 const mpWord = (name, v) => MP_WORDS[name][Math.ceil(v/2)-1];
 const mpPct  = v => (v-1)/(MP_MAX-1)*100;
-// gradual, non-judgmental colour that stays alive: soft slate-blue (low) sweeps
-// through teal + green to a lively olive (high) — calm, and never red
-const mpColor = v => {
-  const t=(v-1)/(MP_MAX-1);
-  return { h:Math.round(208+(92-208)*t), s:Math.round(34+(30-34)*t), l:Math.round(44+(38-44)*t) };
+// Warm, grounded palette: amber-clay (low) → sage-green (high) — never flat/ugly
+// Mood uses a rosewood→gold→sage sweep; Energy uses amber→olive→forest
+const mpPalettes = {
+  mood:   { h0:18, h1:142, s0:42, s1:32, l0:48, l1:38 },   // clay-rose → sage
+  energy: { h0:32, h1:148, s0:50, s1:30, l0:50, l1:36 }    // warm amber → forest
+};
+const mpColor = (name, v) => {
+  const t=(v-1)/(MP_MAX-1), p=mpPalettes[name]||mpPalettes.energy;
+  return { h:Math.round(p.h0+(p.h1-p.h0)*t), s:Math.round(p.s0+(p.s1-p.s0)*t), l:Math.round(p.l0+(p.l1-p.l0)*t) };
 };
 function mpPaint(pick){
-  const v = +pick.dataset.value, pct = mpPct(v), c = mpColor(v);
-  const solid = 'hsl('+c.h+','+c.s+'%,'+c.l+'%)', glow = 'hsla('+c.h+','+c.s+'%,'+c.l+'%,.38)';
+  const v = +pick.dataset.value, pct = mpPct(v), c = mpColor(pick.dataset.name, v);
+  const solid = 'hsl('+c.h+','+c.s+'%,'+c.l+'%)', soft = 'hsl('+c.h+','+Math.round(c.s*.6)+'%,94%)', glow = 'hsla('+c.h+','+c.s+'%,'+c.l+'%,.3)';
   const thumb = pick.querySelector('.mp-thumb'), fill = pick.querySelector('.mp-fill'), now = pick.querySelector('.mp-now');
   thumb.style.left = pct + '%';
   thumb.style.borderColor = solid;
-  thumb.style.boxShadow = '0 2px 8px ' + glow;
+  thumb.style.boxShadow = '0 0 0 5px '+soft+', 0 2px 8px '+glow;
   fill.style.width = pct + '%';
-  fill.style.background = solid;
+  fill.style.background = 'linear-gradient(90deg, hsl('+mpPalettes[pick.dataset.name||'energy'].h0+','+c.s+'%,'+Math.round(c.l*1.15)+'%), '+solid+')';
   now.innerHTML = '<b>'+v+'</b>'+mpWord(pick.dataset.name, v);
   now.style.color = '#FBFAF8';
   now.style.background = solid;
+  now.style.borderRadius = '999px';
   pick.querySelector('.mp-track').setAttribute('aria-valuenow', v);
 }
 function mpSet(pick, clientX){
@@ -221,6 +228,28 @@ window._targetDial = createSleepDial({
   window.closeTarget = function(){ tMod.classList.remove('open'); tBack.classList.remove('open'); };
 
   strip.addEventListener('click', openSheet);
+
+// ── Save night: write morning energy into the canonical energy store ──
+document.getElementById('saveNight').addEventListener('click', function() {
+  const energyPick = document.querySelector('.mood-pick[data-name="energy"]');
+  if (!energyPick) return;
+  const energyScore = Number(energyPick.dataset.value);
+  const ENERGY_KEY = 'compass.energy.v1';
+  let store;
+  try { store = JSON.parse(localStorage.getItem(ENERGY_KEY)) || {events:[], experiment:null}; }
+  catch(e) { store = {events:[], experiment:null}; }
+  // Only add a morning entry if one hasn't been recorded today already
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadyLogged = store.events.some(ev => ev.source === 'sleep' && ev.timestamp.slice(0, 10) === today);
+  if (!alreadyLogged) {
+    store.events.push({ id: Date.now(), timestamp: new Date().toISOString(), score: energyScore, tag: 'Morning', kind: 'morning', source: 'sleep' });
+    localStorage.setItem(ENERGY_KEY, JSON.stringify(store));
+  }
+  this.textContent = 'Saved ✓';
+  this.style.background = 'var(--olive)';
+  setTimeout(() => { this.textContent = 'Save night'; this.style.background = ''; }, 1400);
+});
+
   save.addEventListener('click', () => {
     document.getElementById('tBed').textContent  = fmtT(window._target.sleep);
     document.getElementById('tWake').textContent = fmtT(window._target.wake);

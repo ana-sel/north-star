@@ -10,546 +10,191 @@
 <link rel="stylesheet" href="../shared/components.css"/>
 <link rel="stylesheet" href="../shared/you.css"/>
 <style>
+.period-tabs{display:flex;gap:5px;background:var(--greige);border:1px solid var(--line);border-radius:11px;padding:4px;margin-bottom:14px;}
+.period-tab{flex:1;border:0;border-radius:8px;background:transparent;color:var(--muted);padding:8px;font:700 var(--fs-xs) inherit;cursor:pointer;}
+.period-tab.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
 
-/* ─────────────────── Period tabs ─────────────────── */
-.period-tabs{display:flex;gap:4px;margin-bottom:14px;}
-.ptab{flex:1;padding:7px 0;border-radius:999px;border:none;font-family:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;background:var(--greige);color:var(--muted);transition:all .15s;}
-.ptab.active{background:var(--btn);color:#fff;}
+/* Proof tiles */
+.proof-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:14px;}
+.proof-tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:11px 11px 10px;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .12s,border-color .15s;}
+.proof-tile:active{transform:scale(.97);}
+.proof-tile.active{border-color:var(--accent);background:var(--accent-soft,#eef1ec);}
+.pt-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:5px;}
+.pt-val{font-size:17px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:3px;}
+.pt-sub{font-size:var(--fs-xs);color:var(--muted);line-height:1.35;}
+.pt-dest{font-size:9px;font-weight:700;color:var(--accent);margin-top:7px;}
 
-/* ─────────────────── Hero week card ─────────────────── */
-.hero{background:linear-gradient(145deg,#2d2b27,#3a3734);border-radius:var(--r-card);padding:18px 16px 16px;margin-bottom:14px;color:#fff;}
-.hero-tag{font-size:var(--fs-xs);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:5px;}
-.hero-headline{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:4px;}
-.hero-sub{font-size:var(--fs-xs);color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.5;}
-.hero-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
-.hs{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 6px;text-align:center;}
-.hs-val{font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1;}
-.hs-lbl{font-size:8px;color:rgba(255,255,255,.4);margin-top:3px;font-weight:500;line-height:1.2;}
-.hs-arrow{font-size:8px;font-weight:700;margin-top:2px;}
-.arr-up{color:#8fc48a;}
-.arr-dn{color:#d98f8f;}
-.arr-eq{color:rgba(255,255,255,.3);}
+.trend-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 15px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+.trend-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.trend-value{font-size:24px;font-weight:800;line-height:1;}.trend-label{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}.coverage{font-size:var(--fs-xs);font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:5px 9px;}
+.chart{height:112px;display:grid;grid-template-columns:repeat(7,1fr);gap:7px;align-items:end;margin-top:15px;padding-top:8px;border-bottom:1px solid var(--line);}
+.day-col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;position:relative;}
+.day-bars{height:82px;display:flex;align-items:flex-end;gap:3px;}.bar{width:7px;border-radius:4px 4px 1px 1px;background:#a9b5a4;}.bar.later{background:#778573;}.day-label{font-size:9px;color:var(--muted);}
+.chart.combined{gap:4px;}.chart.combined .day-bars{gap:2px;}.chart.combined .bar{width:4px;}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:var(--fs-xs);color:var(--muted);}.legend span{display:flex;align-items:center;gap:5px;}.legend i{width:7px;height:7px;border-radius:2px;background:#a9b5a4;}.legend .later{background:#778573;}
+.all-toggle{border:1px solid var(--line);background:var(--card);color:var(--muted);font:700 var(--fs-xs) inherit;padding:5px 12px;border-radius:999px;cursor:pointer;flex-shrink:0;transition:all .12s;}
+.all-toggle.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.dimension-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--line);}.dimension-row:first-of-type{margin-top:9px;}.dimension-name{flex:1;font-size:var(--fs-sm);font-weight:700;}.dimension-count{font-size:var(--fs-xs);color:var(--muted);}.dimension-shift{font-size:var(--fs-sm);font-weight:800;color:var(--accent);}.dimension-shift.down{color:#a06a72;}
+.data-note{font-size:var(--fs-xs);line-height:1.5;color:var(--muted);background:var(--greige);border-radius:10px;padding:10px 11px;margin-bottom:12px;}
 
-/* ─────────────────── Sleep chart ─────────────────── */
-.spark-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
-.spark-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.spark-title{font-size:var(--fs-sm);font-weight:700;}
-.chart-toggle{display:flex;background:var(--greige);border-radius:999px;padding:2px;gap:1px;}
-.ctog{border:none;background:transparent;font-family:inherit;font-size:var(--fs-xs);font-weight:600;color:var(--muted);padding:3px 10px;border-radius:999px;cursor:pointer;transition:all .15s;}
-.ctog.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);}
-.spark-avg{font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;}
-.spark-avg strong{color:var(--ink);}
-.bar-chart svg{width:100%;display:block;}
-.spark-footer{display:flex;justify-content:space-between;margin-top:4px;}
-.spark-day{font-size:var(--fs-xs);color:var(--muted);text-align:center;flex:1;}
-.spark-legend{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
-.leg-it{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);color:var(--muted);}
-.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.times-note{font-size:var(--fs-xs);color:var(--muted);margin-top:6px;font-style:italic;}
-.best-night{display:flex;align-items:center;gap:8px;background:var(--greige);border-radius:8px;padding:8px 10px;margin-top:10px;}
-.best-badge{font-size:var(--fs-xs);font-weight:700;color:var(--olive);}
-.best-detail{font-size:var(--fs-xs);color:var(--muted);}
-
-/* ─────────────────── Mood & Energy ─────────────────── */
-.me-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.me-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:12px 14px;box-shadow:var(--shadow-sm);}
-.me-label{font-size:var(--fs-xs);color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
-.me-score{font-size:32px;font-weight:800;letter-spacing:-.04em;line-height:1;}
-.me-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;margin-bottom:8px;}
-.me-dots{display:flex;gap:4px;margin-bottom:6px;}
-.md{width:11px;height:11px;border-radius:50%;background:var(--greige);}
-.md.hi{background:var(--olive);}
-.md.hi2{background:#4a7a42;}
-.md.lo{background:#7395ad;}
-.md.today{outline:2px solid var(--ink);outline-offset:1px;}
-.me-bar{height:4px;background:var(--greige);border-radius:999px;overflow:hidden;}
-.me-fill{height:100%;border-radius:999px;}
-
-/* ─────────────────── Habit streaks ─────────────────── */
-.streak-wrap{border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow);}
-.streak-hd{display:flex;align-items:center;justify-content:space-between;background:var(--btn);color:#fff;padding:10px 16px;}
-.streak-hd-lbl{font-size:var(--fs-xs);font-weight:600;opacity:.65;}
-.streak-hd-fire{font-size:var(--fs-sm);font-weight:800;}
-.streak-body{background:var(--card);border:1px solid var(--line);border-top:none;}
-.streak-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);position:relative;}
-.streak-row:last-child{border-bottom:none;}
-.streak-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.streak-row.perfect::before{background:var(--olive);}
-.streak-row.good::before{background:#a3b89e;}
-.streak-row.broken::before{background:#dac4c4;}
-.streak-row.perfect{background:#f5f8f5;}
-.streak-emoji{font-size:18px;flex-shrink:0;}
-.streak-name{flex:1;font-size:var(--fs-sm);font-weight:500;}
-.dot-track{display:flex;gap:4px;flex-shrink:0;}
-.td{width:12px;height:12px;border-radius:50%;background:var(--greige);}
-.td.on{background:var(--olive);}
-.td.miss{background:#e0bebe;}
-.streak-fire{font-size:var(--fs-md);font-weight:800;color:var(--p-joy);flex-shrink:0;min-width:34px;text-align:right;}
-.streak-fire.cold{color:var(--muted);font-size:var(--fs-xs);font-weight:600;}
-
-/* ─────────────────── Goal cards ─────────────────── */
-.goal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px 13px;margin-bottom:8px;box-shadow:var(--shadow-sm);}
-.gc-head{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;}
-.gc-name{font-size:var(--fs-md);font-weight:700;}
-.gc-pct{font-size:var(--fs-sm);font-weight:800;color:var(--muted);}
-.gc-meta{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;margin-bottom:4px;}
-.gc-path-tag{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-xs);background:var(--greige);padding:2px 8px;border-radius:999px;color:var(--muted);margin-bottom:10px;}
-.gc-pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.gc-bar-wrap{height:5px;background:var(--greige);border-radius:999px;overflow:hidden;}
-.gc-fill{height:5px;border-radius:999px;}
-
-
-/* ─────────────────── Energy patterns ─────────────────── */
-.ep-note{font-size:var(--fs-xs);color:var(--muted);margin:-4px 0 10px;line-height:1.5;}
-.ep-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.ep-cat{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:12px;box-shadow:var(--shadow-sm);}
-.ep-top{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
-.ep-icon{font-size:15px;display:grid;place-items:center;}
-.ep-name{font-size:var(--fs-xs);font-weight:700;flex:1;}
-.ep-trend{font-size:var(--fs-xs);font-weight:800;}
-.ep-trend.ep-up{color:var(--u-phys);}
-.ep-trend.ep-dn{color:#a06a72;}
-.ep-trend.ep-eq{color:var(--muted);}
-.ep-bar{height:5px;background:var(--greige);border-radius:999px;overflow:hidden;margin-bottom:5px;}
-.ep-fill{height:100%;border-radius:999px;}
-.ep-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
-.ep-level{font-size:var(--fs-xs);font-weight:700;color:var(--ink);}
-.ep-count{font-size:9px;color:var(--muted);}
-.ep-drivers{display:flex;flex-direction:column;gap:3px;padding-top:7px;border-top:1px solid var(--line);}
-.ep-d{font-size:9px;font-weight:600;line-height:1.3;}
-.ep-d.bs{color:#4f6b48;}
-.ep-d.bd{color:#8a5a61;}
-.ep-agg{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 14px 10px;box-shadow:var(--shadow-sm);margin-bottom:10px;}
-.ep-agg-hd{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
-.ep-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.ep-col-hd{font-size:var(--fs-xs);font-weight:700;margin-bottom:6px;}
-.ep-col-hd.bst{color:#4f6b48;}
-.ep-col-hd.drn{color:#8a5a61;}
-.ep-bub-list{display:flex;flex-direction:column;gap:4px;}
-.ep-bub{font-size:var(--fs-xs);padding:4px 10px;border-radius:999px;font-weight:600;}
-.ep-bub.bs{background:#eef3ec;color:#4f6b48;}
-.ep-bub.bd{background:#f6ecee;color:#8a5a61;}
-
-/* ─────────────────── Factual data callout (no interpretation) ─────────────────── */
-.data-callout{background:var(--greige);border-radius:var(--r-card);padding:11px 14px;margin-bottom:4px;}
-.dc-hd{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;}
-.dc-text{font-size:var(--fs-sm);color:var(--ink);line-height:1.55;}
-.dc-text b{font-weight:700;}
-
-/* ─────────────────── Paths momentum (compact, links to Paths) ─────────────────── */
-.paths-mom{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:12px 14px;box-shadow:var(--shadow-sm);margin-bottom:12px;}
-.pm-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.pm-label{font-size:var(--fs-xs);color:var(--muted);font-weight:600;}
-.pm-link{font-size:var(--fs-xs);font-weight:700;color:var(--accent);cursor:pointer;}
-.pm-chips{display:flex;gap:8px;}
-.pm-chip{flex:1;border-radius:12px;padding:10px 12px;color:#F2EDE3;}
-.pm-chip-name{font-size:var(--fs-sm);font-weight:700;line-height:1;}
-.pm-chip-meta{font-size:9px;opacity:.5;margin-top:4px;}
-.pm-chip-streak{font-size:var(--fs-xs);font-weight:700;margin-top:7px;display:inline-block;background:rgba(255,255,255,.12);padding:2px 9px;border-radius:999px;}
-
-/* ─────────────────── Why-link → Discover (interpretation lives there) ─────────────────── */
-.why-link{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-card);padding:13px 16px;box-shadow:var(--shadow-sm);margin-bottom:4px;cursor:pointer;}
-.wl-body{flex:1;}
-.wl-h{font-size:var(--fs-sm);font-weight:700;}
-.wl-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;line-height:1.45;}
-.wl-arrow{font-size:15px;color:var(--accent);}
-
+/* Recent wins */
+.wins-list{margin-bottom:4px;}
+.win-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:var(--fs-sm);color:var(--muted);line-height:1.45;}
+.win-item:last-child{border-bottom:none;}
+.win-dot{width:7px;height:7px;border-radius:50%;background:var(--olive);margin-top:5px;flex-shrink:0;}
 </style>
 </head>
 <body class="screen-body">
 
-  <!-- ── LENS HEADER ── -->
+  <!-- LENS HEADER -->
   <div class="ylens">
     <div class="ylens-badge"><i class="ic ic-activity"></i></div>
     <div>
       <div class="ylens-title">Progress</div>
-      <div class="ylens-sub">What the numbers say — the data, not the story</div>
+      <div class="ylens-sub">What the numbers say</div>
     </div>
   </div>
 
-  <!-- Period tabs -->
-  <div class="period-tabs">
-    <button class="ptab active" onclick="setPeriod(this)">Week</button>
-    <button class="ptab" onclick="setPeriod(this)">Month</button>
-    <button class="ptab" onclick="setPeriod(this)">3 Months</button>
+  <div class="period-tabs" role="tablist" aria-label="Progress period">
+    <button class="period-tab on" role="tab" aria-selected="true">Week</button>
+    <button class="period-tab" role="tab" aria-selected="false">Month</button>
+    <button class="period-tab" role="tab" aria-selected="false">3M</button>
   </div>
 
-  <!-- ── Hero ── -->
-  <div class="hero">
-    <div class="hero-tag">Jun 23 – 29, 2026</div>
-    <div class="hero-headline">Building momentum</div>
-    <div class="hero-sub">4 of 7 sleep nights on target · streak alive · mood climbing</div>
-    <div class="hero-stats">
-      <div class="hs">
-        <div class="hs-val">6h50</div>
-        <div class="hs-lbl">avg sleep</div>
-        <div class="hs-arrow arr-dn">↓ 25m</div>
-      </div>
-      <div class="hs">
-        <div class="hs-val">6.8</div>
-        <div class="hs-lbl">avg mood</div>
-        <div class="hs-arrow arr-up">↑ 0.4</div>
-      </div>
-      <div class="hs">
-        <div class="hs-val">🔥9</div>
-        <div class="hs-lbl">best streak</div>
-        <div class="hs-arrow arr-eq">Stillness</div>
-      </div>
-      <div class="hs">
-        <div class="hs-val">68%</div>
-        <div class="hs-lbl">habits done</div>
-        <div class="hs-arrow arr-up">↑ 12%</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SLEEP ── -->
-  <div class="yhead">
-    <i class="ic ic-moon yhead-ic"></i>
-    <div class="yhead-t">Sleep</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="spark-card">
-    <div class="spark-head">
-      <div class="spark-title">Last 7 nights</div>
-      <div class="chart-toggle">
-        <button class="ctog active" onclick="setSleepView('hours',this)">Hours</button>
-        <button class="ctog" onclick="setSleepView('times',this)">Times</button>
-      </div>
-    </div>
-    <div class="spark-avg">Avg <strong>6h 50m</strong> · target 8h</div>
-
-    <!-- HOURS -->
-    <div id="sv-hours">
-      <div class="bar-chart">
-        <svg viewBox="0 0 280 70" style="height:70px">
-          <line x1="0" y1="13" x2="280" y2="13" stroke="#768471" stroke-width="1" stroke-dasharray="4 3" opacity=".4"/>
-          <text x="276" y="11" text-anchor="end" font-family="Inter" font-size="6.5" fill="#768471" font-weight="600">8h target</text>
-          <rect x="4"   y="24" width="26" height="46" rx="4" fill="#7395ad" opacity=".75"/>
-          <rect x="44"  y="19" width="26" height="51" rx="4" fill="#768471" opacity=".85"/>
-          <rect x="84"  y="29" width="26" height="41" rx="4" fill="#b07070" opacity=".7"/>
-          <rect x="124" y="12" width="26" height="58" rx="4" fill="#768471"/>
-          <text x="137" y="9" text-anchor="middle" font-family="Inter" font-size="7" fill="#768471" font-weight="800">★</text>
-          <rect x="164" y="17" width="26" height="53" rx="4" fill="#768471" opacity=".85"/>
-          <rect x="204" y="28" width="26" height="42" rx="4" fill="#7395ad" opacity=".7"/>
-          <rect x="244" y="30" width="26" height="40" rx="4" fill="#b07070" opacity=".7"/>
-          <text x="257" y="10" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#65645f" font-weight="700">today</text>
-        </svg>
-      </div>
-      <div class="spark-footer">
-        <span class="spark-day">Sun</span><span class="spark-day">Mon</span>
-        <span class="spark-day">Tue</span><span class="spark-day">Wed</span>
-        <span class="spark-day">Thu</span><span class="spark-day">Fri</span>
-        <span class="spark-day">Sat</span>
-      </div>
-      <div class="spark-legend">
-        <div class="leg-it"><div class="leg-dot" style="background:#768471"></div>≥ 7h</div>
-        <div class="leg-it"><div class="leg-dot" style="background:#7395ad"></div>6–7h</div>
-        <div class="leg-it"><div class="leg-dot" style="background:#b07070"></div>&lt; 6h</div>
-        <div class="leg-it"><div style="width:14px;height:1px;border-top:1.5px dashed #768471;opacity:.7"></div>target</div>
-      </div>
-      <div class="best-night">
-        <div class="best-badge">★ Best night</div>
-        <div class="best-detail">Wednesday · 8h 6m · early bed 22:00, wake 06:06</div>
-      </div>
-    </div>
-
-    <!-- TIMES: 21:00–09:00 = 12h, x=30–280=250px, 1h=20.83px -->
-    <div id="sv-times" style="display:none">
-      <svg viewBox="0 0 280 112" width="100%" style="height:112px;display:block">
-        <rect x="61" y="0" width="167" height="93" rx="3" fill="#768471" opacity=".07"/>
-        <line x1="92" y1="0" x2="92" y2="93" stroke="#e2dfd9" stroke-width="1"/>
-        <!-- Sun 23:00→05:30 steel -->
-        <text x="27" y="8" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Sun</text>
-        <rect x="72" y="1" width="135" height="10" rx="3" fill="#7395ad" opacity=".78"/>
-        <text x="74" y="6" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">23:00</text>
-        <text x="206" y="6" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:30</text>
-        <!-- Mon 22:30→05:42 olive -->
-        <text x="27" y="22" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Mon</text>
-        <rect x="61" y="15" width="150" height="10" rx="3" fill="#768471" opacity=".85"/>
-        <text x="63" y="20" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">22:30</text>
-        <text x="210" y="20" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:42</text>
-        <!-- Tue 00:30→06:18 red -->
-        <text x="27" y="36" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Tue</text>
-        <rect x="103" y="29" width="121" height="10" rx="3" fill="#b07070" opacity=".75"/>
-        <text x="105" y="34" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">00:30</text>
-        <text x="223" y="34" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">06:18</text>
-        <!-- Wed 22:00→06:06 olive best -->
-        <text x="27" y="50" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Wed</text>
-        <rect x="51" y="43" width="169" height="10" rx="3" fill="#768471"/>
-        <text x="53" y="48" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">22:00 ★</text>
-        <text x="219" y="48" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">06:06</text>
-        <!-- Thu 22:15→05:45 olive -->
-        <text x="27" y="64" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Thu</text>
-        <rect x="56" y="57" width="156" height="10" rx="3" fill="#768471" opacity=".85"/>
-        <text x="58" y="62" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">22:15</text>
-        <text x="211" y="62" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:45</text>
-        <!-- Fri 23:30→05:30 steel -->
-        <text x="27" y="78" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Fri</text>
-        <rect x="82" y="71" width="125" height="10" rx="3" fill="#7395ad" opacity=".75"/>
-        <text x="84" y="76" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">23:30</text>
-        <text x="206" y="76" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">05:30</text>
-        <!-- Sat 01:00→06:42 red today -->
-        <text x="27" y="91" text-anchor="end" font-family="Inter" font-size="7.5" fill="#65645f" dominant-baseline="middle">Sat</text>
-        <rect x="113" y="84" width="119" height="10" rx="3" fill="#b07070" opacity=".75"/>
-        <text x="115" y="89" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">01:00</text>
-        <text x="231" y="89" text-anchor="end" font-family="Inter" font-size="6" fill="#fff" dominant-baseline="middle">06:42 · today</text>
-        <!-- Axis -->
-        <line x1="30" y1="96" x2="280" y2="96" stroke="#e2dfd9" stroke-width="1"/>
-        <text x="30"  y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">21:00</text>
-        <text x="92"  y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">00:00</text>
-        <text x="155" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">03:00</text>
-        <text x="218" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">06:00</text>
-        <text x="280" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#65645f">09:00</text>
-      </svg>
-      <div class="times-note">Pale green band = target window 22:30 – 06:30</div>
-    </div>
-  </div>
-
-  <!-- ── MOOD & ENERGY ── -->
-  <div class="yhead">
-    <i class="ic ic-heart yhead-ic"></i>
-    <div class="yhead-t">Mood &amp; energy</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="me-grid">
-    <div class="me-card">
-      <div class="me-label">Mood</div>
-      <div class="me-score">6.8</div>
-      <div class="me-sub">↑ 0.4 vs last week</div>
-      <!-- Sun7 Mon7 Tue6 Wed8 Thu7 Fri6 Sat6 -->
-      <div class="me-dots">
-        <div class="md hi"></div><div class="md hi"></div><div class="md lo"></div>
-        <div class="md hi2"></div><div class="md hi"></div><div class="md lo"></div>
-        <div class="md lo today"></div>
-      </div>
-      <div class="me-bar"><div class="me-fill" style="width:68%;background:var(--p-inner)"></div></div>
-    </div>
-    <div class="me-card">
-      <div class="me-label">Energy</div>
-      <div class="me-score">5.9</div>
-      <div class="me-sub">↓ 0.6 vs last week</div>
-      <!-- Sun6 Mon6 Tue5 Wed7 Thu6 Fri5 Sat6 -->
-      <div class="me-dots">
-        <div class="md lo"></div><div class="md lo"></div><div class="md"></div>
-        <div class="md hi"></div><div class="md lo"></div><div class="md"></div>
-        <div class="md lo today"></div>
-      </div>
-      <div class="me-bar"><div class="me-fill" style="width:59%;background:var(--p-joy)"></div></div>
-    </div>
-  </div>
-
-  <!-- ── ENERGY PATTERNS ── -->
-  <div class="yhead">
-    <i class="ic ic-zap yhead-ic"></i>
-    <div class="yhead-t">Energy patterns</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="ep-note">Logged from Energy log — not every day, just when it matters. Shows what's actually driving your overall score.</div>
-
-  <div class="ep-grid">
-    <div class="ep-cat">
-      <div class="ep-top"><div class="ep-icon" style="color:var(--u-phys)"><i class="ic ic-zap"></i></div><div class="ep-name">Physical</div><div class="ep-trend ep-up">↑</div></div>
-      <div class="ep-bar"><div class="ep-fill" style="width:70%;background:var(--u-phys)"></div></div>
-      <div class="ep-meta"><div class="ep-level">Good</div><div class="ep-count">3 logs</div></div>
-      <div class="ep-drivers">
-        <div class="ep-d bs">+ Good sleep · hydrated</div>
-        <div class="ep-d bd">− Sedentary on Tue</div>
-      </div>
-    </div>
-    <div class="ep-cat">
-      <div class="ep-top"><div class="ep-icon" style="color:var(--u-ment)"><i class="ic ic-brain"></i></div><div class="ep-name">Mental</div><div class="ep-trend ep-dn">↓</div></div>
-      <div class="ep-bar"><div class="ep-fill" style="width:40%;background:var(--u-ment)"></div></div>
-      <div class="ep-meta"><div class="ep-level">Slow</div><div class="ep-count">4 logs</div></div>
-      <div class="ep-drivers">
-        <div class="ep-d bs">+ Coffee · creative flow</div>
-        <div class="ep-d bd">− Meetings · context switch</div>
-      </div>
-    </div>
-    <div class="ep-cat">
-      <div class="ep-top"><div class="ep-icon" style="color:var(--u-emot)"><i class="ic ic-heart"></i></div><div class="ep-name">Emotional</div><div class="ep-trend ep-eq">→</div></div>
-      <div class="ep-bar"><div class="ep-fill" style="width:45%;background:var(--u-emot)"></div></div>
-      <div class="ep-meta"><div class="ep-level">Neutral</div><div class="ep-count">2 logs</div></div>
-      <div class="ep-drivers">
-        <div class="ep-d bs">+ Stillness · inner work</div>
-        <div class="ep-d bd">− Conflict · rumination</div>
-      </div>
-    </div>
-    <div class="ep-cat">
-      <div class="ep-top"><div class="ep-icon" style="color:var(--u-spir)"><i class="ic ic-spark"></i></div><div class="ep-name">Spiritual</div><div class="ep-trend ep-up">↑</div></div>
-      <div class="ep-bar"><div class="ep-fill" style="width:65%;background:var(--u-spir)"></div></div>
-      <div class="ep-meta"><div class="ep-level">Present</div><div class="ep-count">3 logs</div></div>
-      <div class="ep-drivers">
-        <div class="ep-d bs">+ Morning ritual · reading</div>
-        <div class="ep-d bd">− Going through motions</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ep-agg">
-    <div class="ep-agg-hd">What moved your energy this week</div>
-    <div class="ep-two">
-      <div>
-        <div class="ep-col-hd bst">Most replenishing</div>
-        <div class="ep-bub-list">
-          <div class="ep-bub bs">Good sleep</div>
-          <div class="ep-bub bs">Stillness</div>
-          <div class="ep-bub bs">Sunlight</div>
-        </div>
-      </div>
-      <div>
-        <div class="ep-col-hd drn">Most draining</div>
-        <div class="ep-bub-list">
-          <div class="ep-bub bd">Long meetings</div>
-          <div class="ep-bub bd">Conflict</div>
-          <div class="ep-bub bd">Context switch</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="data-callout">
-    <div class="dc-hd">By the numbers</div>
-    <div class="dc-text"><b>12</b> energy logs this week. Lowest category: <b>Mental</b> (avg 4.2/10, logged 4×). Highest: <b>Physical</b> (7.0/10). Most-tagged drain: <b>Long meetings</b> (4×).</div>
-  </div>
-
-  <!-- ── HABIT STREAKS ── -->
-  <div class="yhead">
-    <i class="ic ic-flame yhead-ic"></i>
-    <div class="yhead-t">Habit streaks</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="streak-wrap">
-    <div class="streak-hd">
-      <div class="streak-hd-lbl">Last 7 days</div>
-      <div class="streak-hd-fire">Best this week: 🔥 7</div>
-    </div>
-    <div class="streak-body">
-      <div class="streak-row perfect">
-        <div class="streak-emoji">💧</div>
-        <div class="streak-name">Drink water on waking</div>
-        <div class="dot-track">
-          <div class="td on"></div><div class="td on"></div><div class="td on"></div>
-          <div class="td on"></div><div class="td on"></div><div class="td on"></div>
-          <div class="td on"></div>
-        </div>
-        <div class="streak-fire">🔥7</div>
-      </div>
-      <div class="streak-row good">
-        <div class="streak-emoji">🧘</div>
-        <div class="streak-name">5-min silent sit</div>
-        <div class="dot-track">
-          <div class="td on"></div><div class="td on"></div><div class="td miss"></div>
-          <div class="td on"></div><div class="td on"></div><div class="td on"></div>
-          <div class="td on"></div>
-        </div>
-        <div class="streak-fire">🔥5</div>
-      </div>
-      <div class="streak-row good">
-        <div class="streak-emoji">🚶</div>
-        <div class="streak-name">Morning walk</div>
-        <div class="dot-track">
-          <div class="td on"></div><div class="td miss"></div><div class="td on"></div>
-          <div class="td on"></div><div class="td miss"></div><div class="td on"></div>
-          <div class="td"></div>
-        </div>
-        <div class="streak-fire">🔥1</div>
-      </div>
-      <div class="streak-row broken">
-        <div class="streak-emoji">📵</div>
-        <div class="streak-name">No screens after 22:00</div>
-        <div class="dot-track">
-          <div class="td miss"></div><div class="td on"></div><div class="td on"></div>
-          <div class="td miss"></div><div class="td on"></div><div class="td miss"></div>
-          <div class="td"></div>
-        </div>
-        <div class="streak-fire cold">– –</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── PATHS MOMENTUM — compact link to Paths (no duplication) ── -->
-  <div class="yhead">
-    <i class="ic ic-route yhead-ic"></i>
-    <div class="yhead-t">Paths momentum</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="paths-mom">
-    <div class="pm-top">
-      <div class="pm-label">2 active · 1 earned this season</div>
-      <div class="pm-link">Open Paths →</div>
-    </div>
-    <div class="pm-chips">
-      <div class="pm-chip" style="background:linear-gradient(155deg,#3a3850,#23202b)">
-        <div class="pm-chip-name">Stillness</div>
-        <div class="pm-chip-meta">Inner · Camp 2 of 3</div>
-        <div class="pm-chip-streak">🔥 9 days</div>
-      </div>
-      <div class="pm-chip" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
-        <div class="pm-chip-name">Land</div>
-        <div class="pm-chip-meta">Material · Camp 1 of 3</div>
-        <div class="pm-chip-streak">🔥 5 days</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── MATERIAL GOALS ── -->
+  <!-- SUMMARY: factual source metrics -->
   <div class="yhead">
     <i class="ic ic-target yhead-ic"></i>
-    <div class="yhead-t">Material goals</div>
+    <div class="yhead-t">This week</div>
     <div class="yhead-rule"></div>
   </div>
-
-  <div class="goal-card">
-    <div class="gc-head">
-      <div class="gc-name">Buy land</div>
-      <div class="gc-pct">35%</div>
+  <div class="proof-grid">
+    <div class="proof-tile active" data-tile="sleep"
+         role="button"
+         aria-label="Sleep this week">
+      <div class="pt-label">Sleep</div>
+      <div class="pt-val">6h 50m</div>
+      <div class="pt-sub">4 of 7 nights</div>
     </div>
-    <div class="gc-meta">£3,500 of £10,000 saved</div>
-    <div class="gc-path-tag"><div class="gc-pdot" style="background:var(--u-phys)"></div>via The Land Path</div>
-    <div class="gc-bar-wrap"><div class="gc-fill" style="width:35%;background:var(--accent)"></div></div>
+    <div class="proof-tile" data-tile="habits"
+         role="button"
+         aria-label="Habits this week">
+      <div class="pt-label">Habits</div>
+      <div class="pt-val">68%</div>
+      <div class="pt-sub">4 active rituals</div>
+    </div>
+    <div class="proof-tile" data-tile="practices"
+         role="button"
+         aria-label="Practices this week">
+      <div class="pt-label">Practices</div>
+      <div class="pt-val">6</div>
+      <div class="pt-sub">across 2 qualities</div>
+    </div>
+    <div class="proof-tile" data-tile="energy"
+         role="button"
+         aria-label="Energy this week">
+      <div class="pt-label">Energy</div>
+      <div class="pt-val" id="energyTileValue">No data</div>
+      <div class="pt-sub" id="energyTileSub">Start with one check-in</div>
+    </div>
   </div>
 
-  <div class="goal-card">
-    <div class="gc-head">
-      <div class="gc-name">Sleep 7h+ consistently</div>
-      <div class="gc-pct">60%</div>
+  <div class="yhead"><i class="ic ic-zap yhead-ic"></i><div class="yhead-t" id="trendTitle">Energy trend</div><div class="yhead-rule"></div><button class="all-toggle" id="allToggle">All in one</button></div>
+  <div class="trend-card">
+    <div class="trend-top"><div><div class="trend-value" id="energyAverage">No data</div><div class="trend-label" id="trendLabel">Average of recorded check-ins</div></div><div class="coverage" id="energyCoverage">0 of 7 days</div></div>
+    <div class="chart" id="energyChart" aria-label="Recorded energy check-ins by day">
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:50%"></span><span class="bar later" style="height:70%"></span></div><div class="day-label">M</div></div>
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:60%"></span><span class="bar later" style="height:55%"></span></div><div class="day-label">T</div></div>
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:40%"></span><span class="bar later" style="height:65%"></span></div><div class="day-label">W</div></div>
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:70%"></span><span class="bar later" style="height:45%"></span></div><div class="day-label">T</div></div>
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:60%"></span><span class="bar later" style="height:40%"></span></div><div class="day-label">F</div></div>
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:70%"></span><span class="bar later" style="height:75%"></span></div><div class="day-label">S</div></div>
+      <div class="day-col"><div class="day-bars"><span class="bar" style="height:0"></span><span class="bar later" style="height:0"></span></div><div class="day-label">S</div></div>
     </div>
-    <div class="gc-meta">4 of 7 nights this week · avg 6h 50m</div>
-    <div class="gc-path-tag"><div class="gc-pdot" style="background:var(--u-phys)"></div>linked to sleep target</div>
-    <div class="gc-bar-wrap"><div class="gc-fill" style="width:60%;background:var(--accent)"></div></div>
+    <div class="legend" id="chartLegend"><span><i></i>Morning</span><span><i class="later"></i>Later check-ins</span></div>
   </div>
 
-  <div class="goal-card">
-    <div class="gc-head">
-      <div class="gc-name">Read 24 books this year</div>
-      <div class="gc-pct">50%</div>
-    </div>
-    <div class="gc-meta">12 of 24 · on pace for December</div>
-    <div class="gc-path-tag"><div class="gc-pdot" style="background:var(--u-spir)"></div>personal goal</div>
-    <div class="gc-bar-wrap"><div class="gc-fill" style="width:50%;background:var(--accent)"></div></div>
+  <div class="yhead" id="shiftsHead"><i class="ic ic-activity yhead-ic"></i><div class="yhead-t">Recorded shifts</div><div class="yhead-rule"></div></div>
+  <div class="trend-card" id="recordedShifts">
+    <div class="dimension-row"><div class="dimension-name">Walk before focused work</div><div class="dimension-count">5 observations</div><div class="dimension-shift">+1.8</div></div>
+    <div class="dimension-row"><div class="dimension-name">Open-ended afternoons</div><div class="dimension-count">6 observations</div><div class="dimension-shift down">−2.1</div></div>
+    <div class="dimension-row"><div class="dimension-name">Body</div><div class="dimension-count">2 observations</div><div class="dimension-shift">Not enough</div></div>
   </div>
-
-  <!-- ── WHY? → Discover (interpretation lives there, not here) ── -->
-  <div class="why-link">
-    <div class="wl-body">
-      <div class="wl-h">Want to know what this means?</div>
-      <div class="wl-sub">Compass reads these numbers and surfaces the patterns in Discover</div>
-    </div>
-    <div class="wl-arrow">→</div>
-  </div>
-
 <script>
-function setPeriod(btn){
-  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+document.querySelectorAll('.period-tab').forEach(button=>button.addEventListener('click',()=>{
+  document.querySelectorAll('.period-tab').forEach(item=>{const selected=item===button;item.classList.toggle('on',selected);item.setAttribute('aria-selected',String(selected));});
+}));
+function buildSeedEvents(){const now=new Date();const mk=(offset,hour,min,score,tag,kind,source)=>{const d=new Date(now);d.setDate(d.getDate()-offset);d.setHours(hour,min,0,0);return{id:9000+offset*10+(hour>12?1:0),timestamp:d.toISOString(),score,tag,kind,source};};return[mk(6,7,30,7,'Morning','morning','sleep'),mk(6,14,0,8,'Morning ritual','giver','energy'),mk(5,7,30,6,'Morning','morning','sleep'),mk(5,14,0,7,'Good sleep','giver','energy'),mk(4,7,30,7,'Morning','morning','sleep'),mk(4,14,0,7,'Morning ritual','giver','energy'),mk(3,7,30,5,'Morning','morning','sleep'),mk(3,14,0,5,'Meetings','drainer','energy'),mk(2,7,30,7,'Morning','morning','sleep'),mk(2,14,0,8,'Morning ritual','giver','energy'),mk(1,7,30,7,'Morning','morning','sleep'),mk(1,14,0,5,'Stress','drainer','energy'),mk(0,7,30,6,'Morning','morning','sleep')];}
+(function initEnergyStore(){try{if(!localStorage.getItem('compass.energy.v1'))localStorage.setItem('compass.energy.v1',JSON.stringify({events:buildSeedEvents(),experiment:null}));}catch(e){}})();
+function renderEnergyTrend(){
+  let store;
+  try{store=JSON.parse(localStorage.getItem('compass.energy.v1'))||{events:[]};}catch(error){store={events:[]};}
+  const events=store.events||[],recent=events.filter(event=>Date.now()-new Date(event.timestamp).getTime()<=7*86400000);
+  const average=recent.length?recent.reduce((sum,event)=>sum+Number(event.score),0)/recent.length:0;
+  const localDay=dateLike=>{const date=new Date(dateLike);return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');};
+  const dayKeys=[];
+  for(let offset=6;offset>=0;offset--){const date=new Date();date.setHours(12,0,0,0);date.setDate(date.getDate()-offset);dayKeys.push(localDay(date));}
+  const byDay=Object.fromEntries(dayKeys.map(day=>[day,recent.filter(event=>localDay(event.timestamp)===day)]));
+  const covered=dayKeys.filter(day=>byDay[day].length).length;
+  document.getElementById('energyAverage').textContent=recent.length?average.toFixed(1)+' / 10':'No data';
+  document.getElementById('energyCoverage').textContent=covered+' of 7 days';
+  document.getElementById('energyTileValue').textContent=recent.length?average.toFixed(1):'No data';
+  document.getElementById('energyTileSub').textContent=recent.length?recent.length+' check-in'+(recent.length===1?'':'s')+' · '+covered+' day'+(covered===1?'':'s'):'Start with one check-in';
+  document.getElementById('energyChart').innerHTML=dayKeys.map(day=>{const values=byDay[day],dayAverage=values.length?values.reduce((sum,event)=>sum+Number(event.score),0)/values.length:0;const label=new Date(day+'T12:00:00').toLocaleDateString([],{weekday:'narrow'});return '<div class="day-col"><div class="day-bars"><span class="bar later" style="height:'+dayAverage*10+'%"></span></div><div class="day-label">'+label+'</div></div>';}).join('');
+  const groups={};recent.forEach(event=>{const key=event.tag||'Unlabelled';(groups[key]=groups[key]||[]).push(Number(event.score));});
+  const rows=Object.entries(groups).map(([tag,scores])=>({tag,count:scores.length,average:scores.reduce((sum,value)=>sum+value,0)/scores.length})).sort((a,b)=>b.count-a.count).slice(0,3);
+  document.getElementById('recordedShifts').innerHTML=rows.length?rows.map(row=>'<div class="dimension-row"><div class="dimension-name">'+row.tag+'</div><div class="dimension-count">'+row.count+' observation'+(row.count===1?'':'s')+'</div><div class="dimension-shift">'+row.average.toFixed(1)+'</div></div>').join(''):'<div class="dimension-row"><div class="dimension-name">Not enough recorded check-ins yet</div></div>';
 }
-function setSleepView(v,btn){
-  document.querySelectorAll('.ctog').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('sv-hours').style.display = v==='hours'?'block':'none';
-  document.getElementById('sv-times').style.display = v==='times'?'block':'none';
+window.addEventListener('storage',event=>{if(event.key==='compass.energy.v1')renderEnergyTrend();});
+renderEnergyTrend();
+
+// Tile switching — render a graph for every metric without destroying the card
+const trendTitles={sleep:'Sleep trend',habits:'Habits trend',practices:'Practices trend',energy:'Energy trend',all:'All metrics'};
+const dayLabels=['M','T','W','T','F','S','S'];
+const trendData={
+  sleep:{value:'6h 50m',label:'Average sleep this week',coverage:'4 of 7 nights',bars:[85,90,70,80,88,60,75],color:'#937caf'},
+  habits:{value:'68%',label:'Completion this week',coverage:'This week',bars:[70,80,60,90,68,75,50],color:'#6f9068'},
+  practices:{value:'6',label:'Sessions · 2 qualities',coverage:'This week',bars:[40,0,60,0,80,40,0],color:'#a98b5e'},
+  energyBars:{bars:[70,80,50,90,60,70,65],color:'#c9944a'}
+};
+var chart=document.getElementById('energyChart'),legend=document.getElementById('chartLegend');
+function renderTrend(key){
+  document.getElementById('allToggle').classList.remove('on');
+  document.getElementById('trendTitle').textContent=trendTitles[key]||'Energy trend';
+  var isEnergy=key==='energy';
+  document.getElementById('shiftsHead').style.display=isEnergy?'':'none';
+  document.getElementById('recordedShifts').style.display=isEnergy?'':'none';
+  chart.classList.remove('combined');
+  if(isEnergy){legend.innerHTML='<span><i></i>Morning</span><span><i class="later"></i>Later check-ins</span>';renderEnergyTrend();return;}
+  const d=trendData[key];if(!d)return;
+  document.getElementById('energyAverage').textContent=d.value;
+  document.getElementById('trendLabel').textContent=d.label;
+  document.getElementById('energyCoverage').textContent=d.coverage;
+  legend.innerHTML='<span><i style="background:'+d.color+'"></i>'+trendTitles[key].replace(' trend','')+'</span>';
+  chart.innerHTML=d.bars.map((h,i)=>'<div class="day-col"><div class="day-bars"><span class="bar" style="height:'+h+'%;background:'+d.color+'"></span></div><div class="day-label">'+dayLabels[i]+'</div></div>').join('');
 }
+function renderAll(){
+  document.getElementById('allToggle').classList.add('on');
+  document.querySelectorAll('.proof-tile').forEach(t=>t.classList.remove('active'));
+  document.getElementById('trendTitle').textContent='All metrics';
+  document.getElementById('shiftsHead').style.display='none';
+  document.getElementById('recordedShifts').style.display='none';
+  document.getElementById('energyAverage').textContent='This week';
+  document.getElementById('trendLabel').textContent='Sleep · Energy · Habits · Practices';
+  document.getElementById('energyCoverage').textContent='All';
+  var series=[{k:'sleep',n:'Sleep',c:'#937caf'},{k:'energyBars',n:'Energy',c:'#c9944a'},{k:'habits',n:'Habits',c:'#6f9068'},{k:'practices',n:'Practices',c:'#a98b5e'}];
+  legend.innerHTML=series.map(s=>'<span><i style="background:'+s.c+'"></i>'+s.n+'</span>').join('');
+  chart.classList.add('combined');
+  chart.innerHTML=dayLabels.map((lbl,i)=>'<div class="day-col"><div class="day-bars">'+series.map(s=>'<span class="bar" style="height:'+trendData[s.k].bars[i]+'%;background:'+s.c+'"></span>').join('')+'</div><div class="day-label">'+lbl+'</div></div>').join('');
+}
+document.getElementById('allToggle').addEventListener('click',renderAll);
+document.querySelectorAll('.proof-tile').forEach(tile=>{
+  tile.addEventListener('click',()=>{
+    document.querySelectorAll('.proof-tile').forEach(t=>t.classList.remove('active'));
+    tile.classList.add('active');
+    renderTrend(tile.dataset.tile);
+  });
+});
+renderTrend('sleep');
 </script>
 </body>
 </html>

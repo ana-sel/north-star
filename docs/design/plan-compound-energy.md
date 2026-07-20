@@ -3,6 +3,8 @@
 > Design reference spec for the Compass **Plan** tab.  
 > Sources: *What Successful People Do Every Day — The Compound Effect (Superposition ep. 7)* · *How to Get Everything Done: An Immediately Usable Power-Management Method*
 
+> **First energy redesign scope:** This document contains source models, not mandatory UI. The first pass uses a 1–10 timestamped check-in, optional dimensions, before/after shift observations, a personal energy map, one experiment, and an optional recovery menu. The 0–100 battery, five daily readings, mandatory four-reservoir scoring, task H/M/L costs, calendar warnings, and automatic capacity budgeting are deferred. See `spec-you.md` §1.5 for the canonical product contract.
+
 ---
 
 ## 1. Core Teachings (distilled)

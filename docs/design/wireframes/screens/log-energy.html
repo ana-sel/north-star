@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -10,608 +10,1025 @@
 <link rel="stylesheet" href="../shared/components.css"/>
 <link rel="stylesheet" href="../shared/you.css"/>
 <style>
-
-/* ── Header ── */
-.log-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.log-date{font-size:var(--fs-xs);color:var(--muted);font-weight:500;}
-.progress-link{font-size:var(--fs-xs);font-weight:600;color:var(--p-inner);text-decoration:none;background:#ede8f6;padding:3px 10px;border-radius:999px;}
-
-/* ── 2×2 battery overview ── */
-.overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-.ov-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .15s;}
-.ov-card.active{border-color:var(--cat);background:color-mix(in srgb, var(--cat) 12%, transparent);}
-.ov-card.active .ov-icon{background:#fff;}
-.ov-top{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
-.ov-icon{width:30px;height:30px;border-radius:9px;background:color-mix(in srgb, currentColor 15%, transparent);display:grid;place-items:center;flex-shrink:0;}
-.ov-icon .ic{width:15px;height:15px;}
-.ov-name{font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
-.ov-card.active .ov-name{color:var(--cat);}
-.ov-chev{font-size:11px;color:var(--line);flex-shrink:0;margin-left:auto;transition:color .15s;}
-.ov-card.active .ov-chev{color:var(--cat);}
-/* mini battery */
-.mini-bat{height:8px;background:var(--greige);border-radius:999px;overflow:hidden;position:relative;}
-.ov-card.active .mini-bat{background:rgba(0,0,0,.06);}
-.mini-fill{height:100%;border-radius:999px;transition:width .3s;background:var(--accent);}
-.ov-level{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;font-weight:500;}
-.ov-card.active .ov-level{color:var(--muted);}
-
-/* ── Category panel ── */
-.cat-panel{display:none;}
-.cat-panel.active{display:block;}
-.cat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:10px;}
-
-/* Level selector — reuse Today's slider (mood-pick) */
-.level-wrap{padding:14px 14px 10px;}
-.level-hint{font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;}
-
-/* Bubbles — single accent for selected, no colour coding */
-.sect-hd{font-size:var(--fs-sm);font-weight:700;color:var(--muted);padding:12px 14px 6px;border-top:1px solid var(--line);}
-.bubble-pad{padding:6px 14px 13px;}
-.bubble-row{display:flex;flex-wrap:wrap;gap:7px;}
-.bub{font-size:var(--fs-sm);font-weight:600;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;user-select:none;}
-.bub.bs,.bub.bd{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
-.bub-add{border-style:dashed;}
-
-/* Save row */
-.save-row{padding:12px 16px 16px;border-top:1px solid var(--line);}
-.save-btn{display:block;width:100%;border:none;border-radius:14px;background:var(--btn);color:#FBFAF8;font:700 var(--fs-md) inherit;padding:14px;cursor:pointer;text-align:center;box-shadow:0 6px 18px rgba(60,58,52,.2);transition:opacity .15s,transform .12s;}
-.save-btn:active{opacity:.88;transform:scale(.984);}
-.save-confirm{display:none;align-items:center;justify-content:center;gap:7px;padding:8px;}
-.save-row.saved .save-btn{display:none;}
-.save-row.saved .save-confirm{display:flex;}
-.save-row.saved{background:#f5fbf4;}
-.save-ok{width:18px;height:18px;border-radius:50%;background:#5d9e56;display:grid;place-items:center;color:#fff;font-size:9px;}
-.save-txt{font-size:var(--fs-xs);font-weight:600;color:#3d6e37;}
-.save-time{font-size:var(--fs-xs);color:var(--muted);margin-left:auto;}
-
-/* ── Section label ── */
-.sect-label{display:flex;align-items:center;gap:7px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);margin:16px 0 8px;}
-.sect-label::before{content:'';display:block;width:3px;height:13px;border-radius:99px;background:var(--accent);flex-shrink:0;}
-
-/* ── Today signal card ── */
-.signal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:13px 14px 11px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
-.sig-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
-.sig-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin-bottom:12px;}
-.sig-panel{display:block;}
-.sig-panel .mood-pick + .mood-pick{margin-top:16px;}
-.sig-save{width:100%;padding:11px;border-radius:999px;border:none;background:var(--accent);color:#fff;font-size:var(--fs-sm);font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;}
-
-/* ── Experiments ── */
-.exp-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow-sm);}
-.exp-intro{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;padding:12px 16px;border-bottom:1px solid var(--line);}
-.exp-scroll{max-height:330px;overflow-y:auto;overscroll-behavior:contain;}
-.exp-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);}
-.exp-row:last-child{border-bottom:none;}
-.exp-left{flex:1;}
-.exp-name{font-size:var(--fs-md);font-weight:600;}
-.exp-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
-.exp-cat-tag{display:inline-block;font-size:var(--fs-xs);font-weight:700;padding:2px 8px;border-radius:999px;margin-top:4px;background:var(--greige);color:var(--muted);}
-.exp-rate{display:flex;gap:7px;flex-shrink:0;}
-.exp-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;font-family:inherit;transition:all .15s;}
-.exp-btn svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-.exp-btn.boost{border-color:var(--accent);background:var(--accent-soft,#eef1ec);}
-.exp-btn.boost svg{stroke:var(--accent);}
-.exp-btn.neut{border-color:#c3bdb2;background:var(--greige);}
-.exp-btn.neut svg{stroke:var(--ink);}
-.exp-btn.drain{border-color:#c67b6b;background:#fdf2f0;}
-.exp-btn.drain svg{stroke:#b0574a;}
-
-/* Patterns footer */
-.patterns-link{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-card);padding:13px 16px;margin-top:12px;cursor:pointer;box-shadow:var(--shadow-sm);}
-.pl-col{flex:1;}
-.pl-h{font-size:var(--fs-sm);font-weight:700;}
-.pl-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
-.pl-arrow{font-size:14px;color:var(--muted);}
-
+.screen-body{
+  --accent:#5f6b5a;--accent-soft:#eef1ec;
+  --restore:#6f9068;--restore-soft:#e9f0e6;
+  --cost:#b8795f;--cost-soft:#f4ebe4;
+  --leak:#b8795f;--leak-soft:#f4ebe4;
+  --invest:#c99554;--invest-soft:#fdf3e2;
+  --recharge:#7395ad;--recharge-soft:#e8f0f7;
+  --nourish:#6f9068;--nourish-soft:#e9f0e6;
+  --emo-tense:#b8795f;--emo-tense-soft:#f4ebe4;
+  --emo-alive:#c99554;--emo-alive-soft:#fdf3e2;
+  --emo-heavy:#7395ad;--emo-heavy-soft:#e8f0f7;
+  --emo-calm:#6f9068;--emo-calm-soft:#e9f0e6;
+}
+/* tabs */
+#viewTabs{display:flex;gap:6px;margin-bottom:12px}
+#viewTabs .pill{flex:1;padding:8px 6px;font-family:inherit}
+main>section[hidden]{display:none}
+/* slider */
+#formCard .mood-pick{margin-bottom:4px}
+#formCard .mp-fill{background:linear-gradient(90deg,#c9a24a 0%,#8fae6b 55%,var(--restore))}
+#formCard .mp-thumb{border-color:var(--restore);box-shadow:0 0 0 5px var(--restore-soft),0 2px 8px rgba(36,35,31,.18)}
+.divider{height:1px;background:var(--line);margin:14px -16px 16px}
+/* flow section */
+.flow-prompt{font-size:var(--fs-sm);font-weight:700;color:var(--ink);margin:0 0 10px}
+.flow-prompt span{font-weight:500;color:var(--muted)}
+.flow-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.flow-tile{
+  position:relative;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:5px;padding:14px 10px;min-height:88px;
+  border-radius:14px;border:1.5px solid var(--line);
+  background:var(--greige);cursor:pointer;font-family:inherit;
+  transition:background .16s,border-color .16s,transform .1s;text-align:center;
+}
+.flow-tile:active{transform:scale(.96)}
+.flow-tile.sel{border-width:2px}
+.flow-tile[data-flow="leak"].sel{background:var(--leak-soft);border-color:var(--leak)}
+.flow-tile[data-flow="invest"].sel{background:var(--invest-soft);border-color:var(--invest)}
+.flow-tile[data-flow="recharge"].sel{background:var(--recharge-soft);border-color:var(--recharge)}
+.flow-tile[data-flow="nourish"].sel{background:var(--nourish-soft);border-color:var(--nourish)}
+.flow-badge{
+  width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.6);font-size:15px;
+  transition:background .16s;flex-shrink:0;
+}
+.flow-tile[data-flow="leak"] .flow-badge{color:var(--leak)}
+.flow-tile[data-flow="invest"] .flow-badge{color:var(--invest)}
+.flow-tile[data-flow="recharge"] .flow-badge{color:var(--recharge)}
+.flow-tile[data-flow="nourish"] .flow-badge{color:var(--nourish)}
+.flow-tile.sel .flow-badge{background:rgba(255,255,255,.75)}
+.flow-name{font-size:var(--fs-xs);font-weight:700;color:var(--muted);line-height:1.2;transition:color .16s}
+.flow-tile.sel .flow-name{color:var(--ink)}
+.flow-desc{font-size:9px;color:var(--muted);line-height:1.3;opacity:.75}
+.flow-check{
+  position:absolute;top:7px;right:8px;
+  width:16px;height:16px;border-radius:50%;
+  display:none;place-items:center;
+  background:var(--accent);color:#fff;opacity:0;
+  transition:opacity .14s;
+}
+.flow-tile.sel .flow-check{display:grid;opacity:1}
+/* source reveal */
+#sourceReveal{
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .2s ease,opacity .18s ease,margin .18s ease;
+  margin-top:0;
+}
+#sourceReveal.open{max-height:240px;opacity:1;margin-top:14px}
+.src-prompt{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:8px}
+.src-chips{display:flex;flex-wrap:wrap;gap:6px}
+.src-chip{
+  padding:9px 13px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--card);
+  font-size:var(--fs-xs);font-weight:700;color:var(--muted);
+  cursor:pointer;font-family:inherit;min-height:40px;
+  display:inline-flex;align-items:center;gap:4px;
+  transition:all .14s;
+}
+.src-chip.on{background:var(--btn);border-color:var(--btn);color:#fff}
+.src-chip.more-btn{color:var(--accent);border-style:dashed}
+/* save zone */
+.save-divider{height:1px;background:var(--line);margin:14px -16px 14px}
+#saveButton{width:100%;transition:transform .12s,opacity .2s;opacity:.4;pointer-events:none}
+#saveButton.enabled{opacity:1;pointer-events:auto}
+#saveButton:active{transform:scale(.98)}
+/* pattern card */
+.pattern-banner{
+  display:none;position:relative;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:13px 14px 13px 18px;margin-top:10px;
+}
+.pattern-banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.pattern-banner.show{display:block;animation:slide-up .3s cubic-bezier(.22,1,.36,1)}
+@keyframes slide-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pat-eyebrow{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.pat-evidence{font-size:var(--fs-sm);color:var(--ink);line-height:1.5;margin-bottom:8px}
+.pat-actions{display:flex;gap:8px}
+.pat-btn{padding:7px 13px;border-radius:999px;font-family:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer}
+.pat-try{background:var(--accent-soft);border:1.5px solid var(--accent);color:var(--accent)}
+.pat-skip{background:var(--card);border:1.5px solid var(--line);color:var(--muted)}
+/* completion card */
+#doneCard{padding:18px 16px;display:none}
+#doneCard.visible{display:block}
+.done-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.done-check-badge{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-size:18px;
+  flex-shrink:0;
+  animation:badge-in .28s cubic-bezier(.22,1,.36,1);
+}
+@keyframes badge-in{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.done-title{font-size:var(--fs-md);font-weight:700;color:var(--ink);margin-bottom:2px}
+.done-meta{font-size:var(--fs-xs);color:var(--muted);margin-bottom:6px}
+.done-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:999px;
+  font-size:9px;font-weight:700;
+}
+.done-reflection{
+  display:flex;align-items:flex-start;gap:9px;
+  background:var(--greige);border-radius:12px;
+  padding:12px 13px;margin-bottom:12px;
+}
+.done-reflection-ic{font-size:14px;color:var(--accent);flex-shrink:0;margin-top:1px}
+.done-reflection-txt{font-size:var(--fs-sm);color:var(--ink);line-height:1.55}
+.done-btn-feel{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:13px 15px;border-radius:12px;
+  background:var(--card);border:1.5px solid var(--line);
+  font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--ink);
+  cursor:pointer;transition:background .15s;margin-bottom:8px;
+}
+.done-btn-feel:hover{background:var(--greige)}
+.done-btn-feel-l{display:flex;align-items:center;gap:8px}
+.done-btn-done{
+  background:none;border:none;font-family:inherit;
+  font-size:var(--fs-xs);font-weight:700;color:var(--muted);
+  cursor:pointer;padding:6px;text-align:center;width:100%;
+}
+.milestone-strip{
+  display:none;align-items:center;gap:9px;
+  padding:11px 13px;border-radius:12px;
+  background:var(--greige);margin-top:8px;
+}
+.milestone-strip.show{display:flex;animation:slide-up .3s cubic-bezier(.22,1,.36,1)}
+.ms-txt{font-size:var(--fs-xs);color:var(--muted);line-height:1.45;flex:1}
+/* latest today */
+#recentState{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#recentState strong{font-size:20px}
+.flow-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 9px;border-radius:999px;
+  font-size:9px;font-weight:700;
+}
+/* history */
+#historyList .row{padding:6px 0;border-bottom:1px solid var(--line);gap:10px}
+#historyList .row:last-child{border-bottom:none}
+#historyList .row .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.hist-emotion{font-size:var(--fs-xs);color:var(--muted);margin-top:1px}
+#emptyHistory{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;padding:4px 0}
+/* source sheet pills */
+.sheet-count{font-size:var(--fs-xs);color:var(--muted);min-height:18px;margin-bottom:12px}
+.sheet-tag-input{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sheet-tag-input input{flex:1;padding:9px 14px;border:1.5px solid var(--line);border-radius:999px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none}
+.sheet-tag-input input:focus{border-color:var(--accent)}
+.sheet-tag-input .add-btn{padding:9px 16px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-xs);font-weight:700;cursor:pointer;flex-shrink:0}
+@keyframes deselect-flash{0%,100%{opacity:1;transform:scale(1)}40%{opacity:.3;transform:scale(.88)}}
+.pill.deselect-anim{animation:deselect-flash .35s ease}
+/* emotion sheet */
+#emotionSheet{z-index:120}
+#emotionSheet .sheet-inner{max-height:91vh;padding:16px 20px 32px}
+.emo-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.emo-close-btn{background:none;border:none;cursor:pointer;padding:4px;color:var(--muted)}
+.emo-back-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:none;border:none;cursor:pointer;font-family:inherit;
+  font-size:var(--fs-xs);font-weight:700;color:var(--muted);padding:0 0 12px;
+}
+.emo-back-btn .ic{transform:scaleX(-1)}
+.emo-step{display:none}
+.emo-step.active{display:block}
+.emo-axis-h{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);opacity:.65;padding:0 4px;margin-bottom:6px;margin-top:10px}
+.emo-grid-wrap{display:flex;gap:6px;margin:0 0 12px}
+.emo-axis-v{display:flex;flex-direction:column;justify-content:space-between;font-size:9px;color:var(--muted);opacity:.65;padding:14px 0}
+.emo-axis-v span{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);line-height:1}
+.emo-family-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1}
+.emo-family-tile{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:14px 8px;min-height:90px;
+  border-radius:14px;border:1.5px solid var(--line);
+  background:var(--greige);cursor:pointer;font-family:inherit;
+  transition:all .16s;text-align:center;
+}
+.emo-family-tile:active{transform:scale(.96)}
+.emo-family-tile[data-family="tense"].sel{background:var(--emo-tense-soft);border-color:var(--emo-tense)}
+.emo-family-tile[data-family="alive"].sel{background:var(--emo-alive-soft);border-color:var(--emo-alive)}
+.emo-family-tile[data-family="heavy"].sel{background:var(--emo-heavy-soft);border-color:var(--emo-heavy)}
+.emo-family-tile[data-family="calm"].sel{background:var(--emo-calm-soft);border-color:var(--emo-calm)}
+.emo-fam-ic{font-size:22px;transition:color .16s}
+.emo-family-tile[data-family="tense"] .emo-fam-ic{color:var(--emo-tense)}
+.emo-family-tile[data-family="alive"] .emo-fam-ic{color:var(--emo-alive)}
+.emo-family-tile[data-family="heavy"] .emo-fam-ic{color:var(--emo-heavy)}
+.emo-family-tile[data-family="calm"] .emo-fam-ic{color:var(--emo-calm)}
+.emo-fam-name{font-size:12px;font-weight:700;color:var(--muted);transition:color .16s}
+.emo-family-tile.sel .emo-fam-name{color:var(--ink)}
+.emo-fam-ex{font-size:9px;color:var(--muted);opacity:.75;line-height:1.3}
+.emo-cluster{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;justify-content:flex-start}
+.emo-bubble{
+  padding:10px 14px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--card);
+  font-size:var(--fs-sm);font-weight:600;color:var(--muted);
+  cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;
+  transition:all .14s;
+}
+.emo-bubble.primary{font-weight:700;border-color:var(--muted)}
+.emo-bubble:hover,.emo-bubble.sel{background:var(--greige);border-color:var(--ink);color:var(--ink)}
+.emo-word-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:999px;
+  margin-bottom:14px;font-size:var(--fs-md);font-weight:700;
+  border:1.5px solid;
+}
+.emo-section{margin-bottom:14px}
+.emo-section-h{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.emo-what-txt{font-size:var(--fs-sm);color:var(--ink);line-height:1.55}
+.body-chips{display:flex;flex-wrap:wrap;gap:6px}
+.body-chip{
+  padding:8px 12px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--card);
+  font-size:var(--fs-xs);font-weight:600;color:var(--muted);
+  cursor:pointer;font-family:inherit;transition:all .14s;
+}
+.body-chip.sel{background:var(--greige);border-color:var(--muted);color:var(--ink)}
+.need-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;border-radius:12px;
+  background:var(--greige);margin-bottom:6px;
+}
+.need-row .ic{font-size:14px;color:var(--accent);flex-shrink:0;margin-top:1px}
+.need-row-body{flex:1}
+.need-row-title{font-size:var(--fs-sm);font-weight:700;color:var(--ink)}
+.need-row-desc{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;line-height:1.4}
+.emo-apply-btn{width:100%;margin-top:6px}
+.emo-skip-btn{
+  background:none;border:none;font-family:inherit;
+  font-size:var(--fs-xs);font-weight:700;color:var(--muted);
+  cursor:pointer;padding:10px;text-align:center;width:100%;
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
 </style>
 </head>
 <body class="screen-body">
+<div class="ylens">
+  <div class="ylens-badge" id="headerBadge"><i class="ic ic-zap"></i></div>
+  <div>
+    <div class="ylens-title">Energy</div>
+    <div class="ylens-sub">Notice your reserve and what changes it.</div>
+  </div>
+</div>
+<nav id="viewTabs" role="tablist" aria-label="Energy views">
+  <button class="pill on" role="tab" aria-selected="true" data-view="checkin">Check in</button>
+  <button class="pill" role="tab" aria-selected="false" data-view="history">Recent</button>
+</nav>
+<main>
 
-  <div class="ylens">
-    <div class="ylens-badge"><i class="ic ic-zap"></i></div>
-    <div>
-      <div class="ylens-title">Energy</div>
-      <div class="ylens-sub">How you feel right now</div>
+<!-- CHECK IN SECTION -->
+<section id="checkin" role="tabpanel">
+
+  <!-- Form card (visible before save) -->
+  <div class="card" id="formCard">
+    <!-- Reserve slider -->
+    <div class="mood-pick" id="pick" data-value="6">
+      <div class="mp-top">
+        <span class="mp-cap"><i class="ic ic-zap" style="font-size:11px;vertical-align:-.15em"></i> Energy right now</span>
+        <span class="mp-now"><b id="scoreVal">6</b><span id="scoreWord">Steady</span></span>
+      </div>
+      <div class="mp-track" id="sliderTrack" tabindex="0" role="slider"
+           aria-label="Energy right now" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
+        <div class="mp-rail"></div>
+        <div class="mp-fill" id="sliderFill"></div>
+        <div class="mp-thumb" id="sliderThumb"></div>
+      </div>
+      <div class="mp-ends"><span>Empty</span><span>Full</span></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Flow picker -->
+    <div class="flow-prompt">What happened to your energy? <span id="flowHint">choose one</span></div>
+    <div class="flow-grid" id="flowGrid">
+      <button class="flow-tile" data-flow="leak" type="button">
+        <div class="flow-badge"><i class="ic ic-drop"></i></div>
+        <span class="flow-name">Leak</span>
+        <span class="flow-desc">Lost without return.</span>
+        <span class="flow-check"><i class="ic ic-check" style="font-size:8px"></i></span>
+      </button>
+      <button class="flow-tile" data-flow="invest" type="button">
+        <div class="flow-badge"><i class="ic ic-target"></i></div>
+        <span class="flow-name">Investment</span>
+        <span class="flow-desc">Spent on what matters.</span>
+        <span class="flow-check"><i class="ic ic-check" style="font-size:8px"></i></span>
+      </button>
+      <button class="flow-tile" data-flow="recharge" type="button">
+        <div class="flow-badge"><i class="ic ic-wind"></i></div>
+        <span class="flow-name">Recharge</span>
+        <span class="flow-desc">Restored for now.</span>
+        <span class="flow-check"><i class="ic ic-check" style="font-size:8px"></i></span>
+      </button>
+      <button class="flow-tile" data-flow="nourish" type="button">
+        <div class="flow-badge"><i class="ic ic-sprout"></i></div>
+        <span class="flow-name">Nourishment</span>
+        <span class="flow-desc">Builds lasting capacity.</span>
+        <span class="flow-check"><i class="ic ic-check" style="font-size:8px"></i></span>
+      </button>
+    </div>
+
+    <!-- Source reveal -->
+    <div id="sourceReveal">
+      <div class="src-prompt">What contributed? <span style="font-weight:500;opacity:.7">Optional</span></div>
+      <div class="src-chips" id="srcChips"></div>
+    </div>
+
+    <!-- Save -->
+    <div class="save-divider"></div>
+    <button class="btn-prim" id="saveButton" type="button" aria-disabled="true">Save check-in</button>
+  </div>
+
+  <!-- Completion card (shown after save, persistent) -->
+  <div class="card" id="doneCard">
+    <div class="done-header">
+      <div class="done-check-badge"><i class="ic ic-check" style="font-size:18px"></i></div>
+      <div>
+        <div class="done-title">Energy logged</div>
+        <div class="done-meta" id="doneTime"></div>
+        <span class="done-pill" id="donePill"></span>
+      </div>
+    </div>
+    <div class="done-reflection">
+      <i class="ic ic-compass done-reflection-ic"></i>
+      <div class="done-reflection-txt" id="doneReflection"></div>
+    </div>
+    <button class="done-btn-feel" id="doneFeelingBtn" onclick="openEmotionSheet()">
+      <span class="done-btn-feel-l"><i class="ic ic-heart" style="font-size:14px;color:var(--emo-tense)"></i> Name how this feels</span>
+      <i class="ic ic-chev" style="font-size:11px;color:var(--muted)"></i>
+    </button>
+    <button class="done-btn-done" onclick="resetToForm()">Done</button>
+    <!-- Pattern card -->
+    <div class="pattern-banner" id="patternCard" role="status" aria-live="polite" style="margin-top:10px">
+      <div class="pat-eyebrow"><i class="ic ic-spark" style="font-size:10px"></i> Pattern noticed</div>
+      <div class="pat-evidence" id="patternText"></div>
+      <div class="pat-actions">
+        <button class="pat-btn pat-try" onclick="patternAction('try')">Try this</button>
+        <button class="pat-btn pat-skip" onclick="patternAction('skip')">Not relevant</button>
+      </div>
+    </div>
+    <div class="milestone-strip" id="milestoneStrip" role="status" aria-live="polite">
+      <i class="ic ic-award" style="font-size:14px;color:var(--gold)"></i>
+      <span class="ms-txt" id="milestoneTxt"></span>
     </div>
   </div>
 
-  <!-- Today's signal -->
-  <div class="signal-card">
-    <div class="sig-label">Today's overall signal</div>
-    <div class="sig-note">From this morning's sleep log — nudge it if the day's shifted</div>
-    <div class="sig-panel">
-      <div class="mood-pick" data-name="sig-mood" data-value="6">
-        <div class="mp-top">
-          <span class="mp-cap"><i class="ic ic-heart"></i> Mood</span>
-          <span class="mp-now"><b>6</b>Okay</span>
-        </div>
-        <div class="mp-track" tabindex="0" role="slider" aria-label="Mood" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
-          <div class="mp-rail"></div><div class="mp-fill"></div>
-          <div class="mp-thumb"></div>
-        </div>
-        <div class="mp-ends"><span>Rough</span><span>Great</span></div>
+  <!-- Latest today -->
+  <div class="card" id="latestCard">
+    <div class="card-h">Latest today</div>
+    <div id="recentState">
+      <div>
+        <strong id="latestValue">No check-in yet</strong><br/>
+        <span id="latestMeta" style="font-size:var(--fs-xs);color:var(--muted)">Takes about 15 seconds</span>
       </div>
-      <div class="mood-pick" data-name="sig-energy" data-value="5">
-        <div class="mp-top">
-          <span class="mp-cap"><i class="ic ic-zap"></i> Energy</span>
-          <span class="mp-now"><b>5</b>Okay</span>
-        </div>
-        <div class="mp-track" tabindex="0" role="slider" aria-label="Energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="5">
-          <div class="mp-rail"></div><div class="mp-fill"></div>
-          <div class="mp-thumb"></div>
-        </div>
-        <div class="mp-ends"><span>Flat</span><span>Buzzing</span></div>
-      </div>
-      <button class="sig-save" onclick="saveSig()">Save signal</button>
+      <span id="latestFlow"></span>
     </div>
   </div>
 
-  <!-- ══════════ 2×2 OVERVIEW ══════════ -->
-  <div class="overview">
-    <div class="ov-card active" id="ov-physical" style="--cat:#6dab5e" onclick="switchCat('physical')">
-      <div class="ov-top"><div class="ov-icon" style="color:#6dab5e"><i class="ic ic-activity"></i></div><div class="ov-name">Physical</div><i class="ic ic-chev ov-chev"></i></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-physical" style="width:70%;background:#6dab5e"></div></div>
-      <div class="ov-level" id="ol-physical">Good · 7/10</div>
-    </div>
-    <div class="ov-card" id="ov-mental" style="--cat:#937caf" onclick="switchCat('mental')">
-      <div class="ov-top"><div class="ov-icon" style="color:#937caf"><i class="ic ic-brain"></i></div><div class="ov-name">Mental</div><i class="ic ic-chev ov-chev"></i></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-mental" style="width:50%;background:#937caf"></div></div>
-      <div class="ov-level" id="ol-mental">Okay · 5/10</div>
-    </div>
-    <div class="ov-card" id="ov-emotional" style="--cat:#b77980" onclick="switchCat('emotional')">
-      <div class="ov-top"><div class="ov-icon" style="color:#b77980"><i class="ic ic-heart"></i></div><div class="ov-name">Emotional</div><i class="ic ic-chev ov-chev"></i></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-emotional" style="width:40%;background:#b77980"></div></div>
-      <div class="ov-level" id="ol-emotional">Low · 4/10</div>
-    </div>
-    <div class="ov-card" id="ov-spiritual" style="--cat:#c99554" onclick="switchCat('spiritual')">
-      <div class="ov-top"><div class="ov-icon" style="color:#c99554"><i class="ic ic-spark"></i></div><div class="ov-name">Spiritual</div><i class="ic ic-chev ov-chev"></i></div>
-      <div class="mini-bat"><div class="mini-fill" id="mf-spiritual" style="width:65%;background:#c99554"></div></div>
-      <div class="ov-level" id="ol-spiritual">Good · 6/10</div>
-    </div>
+</section>
+
+<!-- HISTORY SECTION -->
+<section id="history" role="tabpanel" hidden>
+  <div class="card">
+    <div class="card-h">Recent observations</div>
+    <div id="historyList"></div>
+    <div id="emptyHistory">Your observations will gather here.</div>
   </div>
+</section>
 
-  <!-- ══════════ PHYSICAL ══════════ -->
-  <div class="cat-panel active" id="panel-physical" data-cat="physical">
-    <div class="cat-card">
-      <div class="level-wrap">
-        <div class="level-hint">How is your physical body feeling today?</div>
-        <div class="mood-pick" data-name="physical" data-value="7">
-          <div class="mp-top">
-            <span class="mp-cap"><i class="ic ic-activity"></i> Physical</span>
-            <span class="mp-now"><b>7</b>Good</span>
-          </div>
-          <div class="mp-track" tabindex="0" role="slider" aria-label="Physical energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="7">
-            <div class="mp-rail"></div><div class="mp-fill"></div>
-            <div class="mp-thumb"></div>
-          </div>
-          <div class="mp-ends"><span>Empty</span><span>Charged</span></div>
-        </div>
-      </div>
-      <div class="sect-hd">What gave physical energy</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub bs" onclick="tb(this,'bs')">Good sleep</button>
-        <button class="bub bs" onclick="tb(this,'bs')">Hydrated</button>
-        <button class="bub" onclick="tb(this,'bs')">Exercise</button>
-        <button class="bub" onclick="tb(this,'bs')">Sunlight</button>
-        <button class="bub" onclick="tb(this,'bs')">Ate well</button>
-        <button class="bub" onclick="tb(this,'bs')">Protein</button>
-        <button class="bub" onclick="tb(this,'bs')">Rest day</button>
-        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
-      </div></div>
-      <div class="sect-hd">What drained physical energy</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub" onclick="tb(this,'bd')">Junk food</button>
-        <button class="bub" onclick="tb(this,'bd')">Alcohol</button>
-        <button class="bub bd" onclick="tb(this,'bd')">Sedentary</button>
-        <button class="bub" onclick="tb(this,'bd')">Under-slept</button>
-        <button class="bub" onclick="tb(this,'bd')">Sugar</button>
-        <button class="bub" onclick="tb(this,'bd')">Unwell</button>
-        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
-      </div></div>
-      <div class="save-row" id="sv-physical">
-        <button class="save-btn" onclick="saveSection('sv-physical')">Save physical</button>
-        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-physical"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ MENTAL ══════════ -->
-  <div class="cat-panel" id="panel-mental" data-cat="mental">
-    <div class="cat-card">
-      <div class="level-wrap">
-        <div class="level-hint">How sharp and focused does your mind feel?</div>
-        <div class="mood-pick" data-name="mental" data-value="5">
-          <div class="mp-top">
-            <span class="mp-cap"><i class="ic ic-brain"></i> Mental</span>
-            <span class="mp-now"><b>5</b>Okay</span>
-          </div>
-          <div class="mp-track" tabindex="0" role="slider" aria-label="Mental energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="5">
-            <div class="mp-rail"></div><div class="mp-fill"></div>
-            <div class="mp-thumb"></div>
-          </div>
-          <div class="mp-ends"><span>Foggy</span><span>Flow</span></div>
-        </div>
-      </div>
-      <div class="sect-hd">What replenished mental energy</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub" onclick="tb(this,'bs')">Deep work</button>
-        <button class="bub" onclick="tb(this,'bs')">Learning</button>
-        <button class="bub" onclick="tb(this,'bs')">Nature walk</button>
-        <button class="bub" onclick="tb(this,'bs')">Music</button>
-        <button class="bub" onclick="tb(this,'bs')">Nap</button>
-        <button class="bub bs" onclick="tb(this,'bs')">Coffee</button>
-        <button class="bub" onclick="tb(this,'bs')">Creative flow</button>
-        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
-      </div></div>
-      <div class="sect-hd">What drained mental energy</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub bd" onclick="tb(this,'bd')">Long meetings</button>
-        <button class="bub bd" onclick="tb(this,'bd')">Context switching</button>
-        <button class="bub" onclick="tb(this,'bd')">Social media</button>
-        <button class="bub" onclick="tb(this,'bd')">Email overload</button>
-        <button class="bub" onclick="tb(this,'bd')">Interruptions</button>
-        <button class="bub" onclick="tb(this,'bd')">Multitasking</button>
-        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
-      </div></div>
-      <div class="save-row" id="sv-mental">
-        <button class="save-btn" onclick="saveSection('sv-mental')">Save mental</button>
-        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-mental"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ EMOTIONAL ══════════ -->
-  <div class="cat-panel" id="panel-emotional" data-cat="emotional">
-    <div class="cat-card">
-      <div class="level-wrap">
-        <div class="level-hint">How connected, motivated, and emotionally alive do you feel?</div>
-        <div class="mood-pick" data-name="emotional" data-value="4">
-          <div class="mp-top">
-            <span class="mp-cap"><i class="ic ic-heart"></i> Emotional</span>
-            <span class="mp-now"><b>4</b>Low</span>
-          </div>
-          <div class="mp-track" tabindex="0" role="slider" aria-label="Emotional energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="4">
-            <div class="mp-rail"></div><div class="mp-fill"></div>
-            <div class="mp-thumb"></div>
-          </div>
-          <div class="mp-ends"><span>Numb</span><span>Full</span></div>
-        </div>
-      </div>
-      <div class="sect-hd">What filled emotional energy</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub" onclick="tb(this,'bs')">Real connection</button>
-        <button class="bub" onclick="tb(this,'bs')">Laughter</button>
-        <button class="bub" onclick="tb(this,'bs')">Inner work</button>
-        <button class="bub" onclick="tb(this,'bs')">Creative expression</button>
-        <button class="bub" onclick="tb(this,'bs')">Act of kindness</button>
-        <button class="bub" onclick="tb(this,'bs')">Felt understood</button>
-        <button class="bub" onclick="tb(this,'bs')">Celebration</button>
-        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
-      </div></div>
-      <div class="sect-hd">What drained emotional energy</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub bd" onclick="tb(this,'bd')">Conflict</button>
-        <button class="bub" onclick="tb(this,'bd')">People-pleasing</button>
-        <button class="bub bd" onclick="tb(this,'bd')">Rumination</button>
-        <button class="bub" onclick="tb(this,'bd')">Comparison</button>
-        <button class="bub" onclick="tb(this,'bd')">Feeling unseen</button>
-        <button class="bub" onclick="tb(this,'bd')">Suppressed feelings</button>
-        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
-      </div></div>
-      <div class="save-row" id="sv-emotional">
-        <button class="save-btn" onclick="saveSection('sv-emotional')">Save emotional</button>
-        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-emotional"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ SPIRITUAL ══════════ -->
-  <div class="cat-panel" id="panel-spiritual" data-cat="spiritual">
-    <div class="cat-card">
-      <div class="level-wrap">
-        <div class="level-hint">How aligned with purpose and meaning do you feel today?</div>
-        <div class="mood-pick" data-name="spiritual" data-value="6">
-          <div class="mp-top">
-            <span class="mp-cap"><i class="ic ic-spark"></i> Spiritual</span>
-            <span class="mp-now"><b>6</b>Present</span>
-          </div>
-          <div class="mp-track" tabindex="0" role="slider" aria-label="Spiritual energy" aria-valuemin="1" aria-valuemax="10" aria-valuenow="6">
-            <div class="mp-rail"></div><div class="mp-fill"></div>
-            <div class="mp-thumb"></div>
-          </div>
-          <div class="mp-ends"><span>Lost</span><span>Purpose</span></div>
-        </div>
-      </div>
-      <div class="sect-hd">What fed the spirit today</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub bs" onclick="tb(this,'bs')">Stillness</button>
-        <button class="bub" onclick="tb(this,'bs')">Meaningful work</button>
-        <button class="bub" onclick="tb(this,'bs')">Helped someone</button>
-        <button class="bub" onclick="tb(this,'bs')">Morning ritual</button>
-        <button class="bub" onclick="tb(this,'bs')">Deep reading</button>
-        <button class="bub" onclick="tb(this,'bs')">In nature</button>
-        <button class="bub" onclick="tb(this,'bs')">Path practice</button>
-        <button class="bub bub-add" onclick="addBub(this,'bs')">＋</button>
-      </div></div>
-      <div class="sect-hd">What disconnected you today</div>
-      <div class="bubble-pad"><div class="bubble-row">
-        <button class="bub" onclick="tb(this,'bd')">Meaningless tasks</button>
-        <button class="bub bd" onclick="tb(this,'bd')">Going through motions</button>
-        <button class="bub" onclick="tb(this,'bd')">Routine without why</button>
-        <button class="bub" onclick="tb(this,'bd')">No quiet time</button>
-        <button class="bub" onclick="tb(this,'bd')">Values mismatch</button>
-        <button class="bub bub-add" onclick="addBub(this,'bd')">＋</button>
-      </div></div>
-      <div class="save-row" id="sv-spiritual">
-        <button class="save-btn" onclick="saveSection('sv-spiritual')">Save spiritual</button>
-        <div class="save-confirm"><div class="save-ok">✓</div><div class="save-txt">Saved</div><div class="save-time" id="st-spiritual"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ EXPERIMENTS ══════════ -->
-  <div class="yhead">
-    <i class="ic ic-flask yhead-ic"></i>
-    <div class="yhead-t">Energy experiments</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="exp-card">
-    <div class="exp-intro">Test what actually works for your body and mind. Rate each as you try it — patterns surface over time in You → Progress.</div>
-
-    <div class="exp-scroll">
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">Cold shower</div>
-        <div class="exp-sub">Morning · 2 min · observe energy after</div>
-        <div class="exp-cat-tag">physical</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn boost" onclick="rateExp(this,'boost')" title="Gives energy">↑</button>
-        <button class="exp-btn"       onclick="rateExp(this,'neut')"  title="Neutral">—</button>
-        <button class="exp-btn"       onclick="rateExp(this,'drain')" title="Drains">↓</button>
-      </div>
-    </div>
-
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">No coffee before 10am</div>
-        <div class="exp-sub">Try 3 days · watch afternoon crash</div>
-        <div class="exp-cat-tag">physical</div>
-        <div class="exp-cat-tag">mental</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
-        <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
-        <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
-      </div>
-    </div>
-
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">Walk after lunch</div>
-        <div class="exp-sub">10 min · combats afternoon slump</div>
-        <div class="exp-cat-tag">physical</div>
-        <div class="exp-cat-tag">mental</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn boost" onclick="rateExp(this,'boost')">↑</button>
-        <button class="exp-btn"       onclick="rateExp(this,'neut')">—</button>
-        <button class="exp-btn"       onclick="rateExp(this,'drain')">↓</button>
-      </div>
-    </div>
-
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">No screens 1hr before bed</div>
-        <div class="exp-sub">Try a week · log morning energy next day</div>
-        <div class="exp-cat-tag">physical</div>
-        <div class="exp-cat-tag">mental</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn"       onclick="rateExp(this,'boost')">↑</button>
-        <button class="exp-btn"       onclick="rateExp(this,'neut')">—</button>
-        <button class="exp-btn drain" onclick="rateExp(this,'drain')">↓</button>
-      </div>
-    </div>
-
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">Reach out to someone</div>
-        <div class="exp-sub">Real connection · not just chat</div>
-        <div class="exp-cat-tag">emotional</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
-        <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
-        <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
-      </div>
-    </div>
-
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">5-min breathwork</div>
-        <div class="exp-sub">Before a big task · box breathing</div>
-        <div class="exp-cat-tag">mental</div>
-        <div class="exp-cat-tag">spiritual</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
-        <button class="exp-btn neut" onclick="rateExp(this,'neut')">—</button>
-        <button class="exp-btn"      onclick="rateExp(this,'drain')">↓</button>
-      </div>
-    </div>
-
-    <div class="exp-row">
-      <div class="exp-left">
-        <div class="exp-name">Gratitude · 3 things</div>
-        <div class="exp-sub">Evening · handwritten or spoken aloud</div>
-        <div class="exp-cat-tag">emotional</div>
-        <div class="exp-cat-tag">spiritual</div>
-      </div>
-      <div class="exp-rate">
-        <button class="exp-btn" onclick="rateExp(this,'boost')">↑</button>
-        <button class="exp-btn" onclick="rateExp(this,'neut')">—</button>
-        <button class="exp-btn" onclick="rateExp(this,'drain')">↓</button>
-      </div>
-    </div>
-    </div>
-
-  </div>
-
-  <!-- Patterns nudge -->
-  <div class="patterns-link" onclick="">
-    <div class="pl-col">
-      <div class="pl-h">See your energy patterns</div>
-      <div class="pl-sub">Trends and correlations · You → Progress</div>
-    </div>
-    <div class="pl-arrow">→</div>
-  </div>
+</main>
 
 <script>
-// Word maps for each category's 1–10 slider (same pattern as Today's mood/energy)
-const MP_MAX = 10;
-const MP_WORDS = {
-  physical: ['Depleted','Empty','Heavy','Low','Okay','Steady','Good','Strong','Vibrant','Charged'],
-  mental:   ['Blank','Foggy','Hazy','Slow','Okay','Clear','Sharp','Focused','Bright','Flow'],
-  emotional:['Numb','Flat','Low','Guarded','Neutral','Open','Warm','Bright','Full','Alive'],
-  spiritual:['Lost','Hollow','Drifting','Distant','Present','Grounded','Aligned','Connected','Purpose','Whole'],
-  'sig-mood':   ['Rough','Low','Down','Flat','Okay','Fine','Good','Bright','Great','Radiant'],
-  'sig-energy': ['Flat','Depleted','Low','Sluggish','Okay','Steady','Good','High','Strong','Buzzing'],
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
+var STORE_KEY='compass.energy.v2';
+var WORDS=['Empty','Depleted','Low','Reduced','Okay','Steady','Good','Strong','High','Full'];
+var FLOW_META={
+  leak:    {label:'Leak',       color:'var(--leak)',     soft:'var(--leak-soft)'},
+  invest:  {label:'Investment', color:'var(--invest)',   soft:'var(--invest-soft)'},
+  recharge:{label:'Recharge',   color:'var(--recharge)', soft:'var(--recharge-soft)'},
+  nourish: {label:'Nourishment',color:'var(--nourish)',  soft:'var(--nourish-soft)'}
 };
-const mpWord = (name, v) => MP_WORDS[name][v-1];
-const mpPct  = v => (v-1)/(MP_MAX-1)*100;
-// each slider ramps from a muted low to its dimension's own colour at the top
-const MP_COLORS = {
-  physical:'#6dab5e', mental:'#937caf', emotional:'#b77980', spiritual:'#c99554',
+var FLOW_SOURCES={
+  leak:    ['Open loops','Worry','Scrolling','Conflict','Noise','Overcommitment','Poor sleep','Difficult interaction'],
+  invest:  ['Deep work','Exercise','Caregiving','Learning','Difficult conversation','Planning','Creative work','Studying'],
+  recharge:['Short rest','Walk','Music','Food & water','Sunlight','Breathing','Solitude','Shower'],
+  nourish: ['Good sleep','Movement','Nature','Close connection','Meaningful work','Play','Consistent meals','Stillness']
 };
-function hexToHsl(hex){
-  hex = hex.replace('#','');
-  const r=parseInt(hex.slice(0,2),16)/255, g=parseInt(hex.slice(2,4),16)/255, b=parseInt(hex.slice(4,6),16)/255;
-  const max=Math.max(r,g,b), min=Math.min(r,g,b); let h=0, s=0, l=(max+min)/2;
-  if(max!==min){
-    const d=max-min; s = l>.5 ? d/(2-max-min) : d/(max+min);
-    if(max===r) h=(g-b)/d+(g<b?6:0); else if(max===g) h=(b-r)/d+2; else h=(r-g)/d+4;
-    h/=6;
-  }
-  return { h:h*360, s:s*100, l:l*100 };
-}
-const mpColor = (name, v) => {
-  const t = (v-1)/(MP_MAX-1);
-  // signal card (mood + energy): calm slate-blue → teal/green → olive, same as the Sleep log
-  if(name === 'sig-mood' || name === 'sig-energy'){
-    return { h:Math.round(208+(92-208)*t), s:Math.round(34+(30-34)*t), l:Math.round(44+(38-44)*t) };
-  }
-  const base = hexToHsl(MP_COLORS[name] || '#5f6b5a');
-  return { h:Math.round(base.h), s:Math.round(base.s*(0.32+0.68*t)), l:Math.round(base.l + 15*(1-t)) };
+var FLOW_REFLECTIONS={
+  leak:    function(s){return s<=4?'Your reserve is low and this felt like a leak. Identifying what drained it and closing one open loop may be the smallest useful move.':'Something drained energy without giving much back. Worth noting what it was.';},
+  invest:  function(s){return s<=5?'This cost real energy. Consider protecting some recovery time before the next demand.':'You put energy into something that matters. A short recharge helps it settle.';},
+  recharge:function(s){return s<=4?'Something restored energy on a low day. Protecting more of this kind of space may help.':'Something worked. More of this is worth protecting.';},
+  nourish: function(s){return s>=7?'This appears to sustain you at a deeper level. Protecting it consistently may support your energy for longer.':'Something that builds lasting capacity. Consistent access is worth noticing.';}
 };
-function mpPaint(pick){
-  const v = +pick.dataset.value, name = pick.dataset.name, pct = mpPct(v), c = mpColor(name, v);
-  const solid = 'hsl('+c.h+','+c.s+'%,'+c.l+'%)', glow = 'hsla('+c.h+','+c.s+'%,'+c.l+'%,.38)';
-  const thumb = pick.querySelector('.mp-thumb'), fill = pick.querySelector('.mp-fill'), now = pick.querySelector('.mp-now');
-  thumb.style.left = pct + '%';
-  thumb.style.borderColor = solid;
-  thumb.style.boxShadow = '0 2px 8px ' + glow;
-  fill.style.width = pct + '%';
-  fill.style.background = solid;
-  now.innerHTML = '<b>'+v+'</b>'+mpWord(name, v);
-  now.style.color = '#FBFAF8';
-  now.style.background = solid;
-  pick.querySelector('.mp-track').setAttribute('aria-valuenow', v);
-  // sync overview card (only for category sliders)
-  const mf = document.getElementById('mf-'+name);
-  if(mf){
-    mf.style.width = Math.round(v/MP_MAX*100)+'%';
-    document.getElementById('ol-'+name).textContent = mpWord(name, v) + ' \u00b7 ' + v + '/10';
-  }
+var MILESTONES={
+  3:'Three observations recorded. The picture is beginning.',
+  7:'Seven observations. Your first weekly shape is visible.',
+  14:'Two weeks of noticing. Real patterns take time — you are building them.',
+  21:'21 observations. Energy awareness is shaping your days.',
+  30:'A month of self-knowledge. You know your patterns better than before.'
+};
+var EMO_FAMILIES={
+  tense:{label:'Tense',words:['Anxious','Stressed','Overwhelmed','Irritated','Restless','Guarded','Frustrated','Afraid']},
+  alive:{label:'Alive', words:['Excited','Motivated','Joyful','Curious','Confident','Inspired','Playful','Hopeful']},
+  heavy:{label:'Heavy', words:['Tired','Flat','Sad','Lonely','Discouraged','Bored','Disconnected','Numb']},
+  calm: {label:'Calm',  words:['Peaceful','Grounded','Content','Relieved','Safe','Grateful','Tender','Reflective']}
+};
+var EMO_DETAIL={
+  Anxious:{what:'A sense of unease or worry, often about something uncertain or anticipated.',body:['Racing thoughts','Tight chest','Shallow breath','Restlessness','Jaw tension'],needs:[{ic:'ic-wind',t:'Slow your breath',d:'A few slower exhales may calm the nervous system.'},{ic:'ic-route',t:'Name one next step',d:'Uncertainty often fuels anxiety. One concrete action helps.'}]},
+  Stressed:{what:'Feeling pushed beyond a comfortable limit, often by demands or time pressure.',body:['Tight shoulders','Headache','Short breath','Irritability'],needs:[{ic:'ic-wind',t:'One breath break',d:'Pause and take 3 slow breaths before continuing.'},{ic:'ic-route',t:'Reduce one demand',d:'Even removing the smallest item creates breathing room.'}]},
+  Overwhelmed:{what:'A sense of having more to handle than feels manageable right now.',body:['Mental fog','Tightness','Paralysis'],needs:[{ic:'ic-route',t:'Name one thing only',d:'Overwhelm often shrinks when attention narrows to one action.'},{ic:'ic-leaf',t:'Short quiet pause',d:'A few minutes of quiet space can help the system reset.'}]},
+  Irritated:{what:'A low-level frustration, often triggered by a specific person or situation.',body:['Tension in face','Impatience','Flushed warmth'],needs:[{ic:'ic-wind',t:'Create a small gap',d:'Brief distance from the trigger often reduces intensity.'},{ic:'ic-pen',t:'Note what bothered you',d:'Writing it out separates the feeling from the event.'}]},
+  Restless:{what:'A difficulty settling or feeling at ease, even when still.',body:['Urge to move','Distraction','Mild agitation'],needs:[{ic:'ic-activity',t:'Move your body',d:'Even a short walk may satisfy the restless impulse.'},{ic:'ic-moon',t:'Give yourself permission to rest',d:'Restlessness sometimes indicates tiredness in disguise.'}]},
+  Guarded:{what:'A cautious, protective state, often when trust or safety feels uncertain.',body:['Watchfulness','Quiet tension','Withdrawn energy'],needs:[{ic:'ic-shield',t:'Stay with what is certain',d:'Focus on what you know rather than what is unknown.'},{ic:'ic-leaf',t:'Choose a safe space',d:'Time in a trusted environment can ease guardedness.'}]},
+  Frustrated:{what:'Feeling blocked from what you wanted or expected.',body:['Clenched jaw','Impatience','Heat in face'],needs:[{ic:'ic-route',t:'Identify the block',d:'Naming the obstacle often reduces the emotional charge.'},{ic:'ic-activity',t:'Move the energy',d:'Physical movement can shift frustration.'}]},
+  Afraid:{what:'A strong sense of danger or threat, real or anticipated.',body:['Rapid heart','Cold hands','Hypervigilance'],needs:[{ic:'ic-shield',t:'Name what you can control',d:'Fear often responds to identifying one safe action.'},{ic:'ic-users',t:'Connect with someone trusted',d:'A safe person can reduce fear\'s intensity.'}]},
+  Excited:{what:'A high-energy state of anticipation and openness, often before something new.',body:['Quick energy','Wide attention','Physical aliveness'],needs:[{ic:'ic-route',t:'Channel into an action',d:'Directing excitement into a concrete step deepens its value.'},{ic:'ic-target',t:'Anchor the intention',d:'Naming what you want from this moment helps it land.'}]},
+  Motivated:{what:'A clear sense of readiness and desire to move toward something.',body:['Physical readiness','Mental sharpness','Forward pull'],needs:[{ic:'ic-target',t:'Define the next action',d:'Motivation converts most effectively through a clear step.'},{ic:'ic-shield',t:'Remove one obstacle',d:'Clearing even a small distraction protects this state.'}]},
+  Joyful:{what:'A warm, expansive sense of wellbeing and pleasure in the present moment.',body:['Lightness','Easy breath','Open posture'],needs:[{ic:'ic-leaf',t:'Stay with it',d:'Joy is worth experiencing fully, not rushing past.'},{ic:'ic-heart',t:'Share it',d:'Connection deepens joy.'}]},
+  Curious:{what:'An engaged, exploratory state drawn toward something interesting.',body:['Forward lean','Mental alertness','Sense of opening'],needs:[{ic:'ic-compass',t:'Follow the thread',d:'Curiosity is most satisfying when given time to unfold.'},{ic:'ic-pen',t:'Capture the question',d:'Writing the question keeps it alive for later.'}]},
+  Confident:{what:'A stable sense of trust in your own capacity.',body:['Open posture','Clear voice','Settled attention'],needs:[{ic:'ic-target',t:'Take the harder action',d:'Confidence is best used on challenges that stretch you.'},{ic:'ic-shield',t:'Protect this state',d:'Guard your attention and energy while feeling this way.'}]},
+  Inspired:{what:'A lifted state in which new ideas or directions feel possible.',body:['Mental expansion','Eagerness','Quickened thought'],needs:[{ic:'ic-pen',t:'Write it now',d:'Inspiration is ephemeral. Capture what arrived before it fades.'},{ic:'ic-route',t:'Turn one idea into a step',d:'Even a small commitment makes inspiration more real.'}]},
+  Playful:{what:'A light, spontaneous state in which enjoyment and creativity come easily.',body:['Easy laughter','Physical looseness','Open attention'],needs:[{ic:'ic-leaf',t:'Give it space',d:'Playfulness is its own form of restoration.'},{ic:'ic-users',t:'Share it',d:'Playfulness often deepens in the presence of others.'}]},
+  Hopeful:{what:'An orientation toward a better outcome, even when the present is difficult.',body:['Slight lift','Quieter worry','Forward focus'],needs:[{ic:'ic-route',t:'Name one small evidence',d:'Hope strengthens when you notice what is already moving forward.'},{ic:'ic-sprout',t:'Tend one seed',d:'Any small positive action in the direction you hope for matters.'}]},
+  Tired:{what:'Physical or mental depletion — a genuine need to rest rather than push.',body:['Heavy limbs','Slow thinking','Dry eyes','Low motivation'],needs:[{ic:'ic-moon',t:'Rest without guilt',d:'Tiredness is a signal the body is trying to repair. It deserves space.'},{ic:'ic-drop',t:'Hydrate and step away',d:'Basic physical care often improves tired states noticeably.'}]},
+  Flat:{what:'A low, muted state where things feel colorless or effortful without clear reason.',body:['Slow movement','Dull mood','Low appetite'],needs:[{ic:'ic-sun',t:'Sunlight and fresh air',d:'Even a few minutes outside may shift a flat state.'},{ic:'ic-users',t:'Gentle connection',d:'A brief exchange with someone safe can restore aliveness.'}]},
+  Sad:{what:'A softer, often tender form of pain — a sense of loss, longing, or gentle grief.',body:['Heaviness in chest','Quiet tears','Low energy','Need for warmth'],needs:[{ic:'ic-heart',t:'Allow it fully',d:'Sadness that is not resisted tends to move more easily.'},{ic:'ic-users',t:'Be near someone kind',d:'Sadness is often eased by gentle human presence.'}]},
+  Lonely:{what:'A sense of disconnection or lack of closeness, even when others are nearby.',body:['Hollow feeling','Quietness','Aching for contact'],needs:[{ic:'ic-users',t:'Reach toward one person',d:'Even a short message to someone safe can reduce loneliness.'},{ic:'ic-heart',t:'Be compassionate with yourself',d:'Loneliness signals your need for connection, not a failure.'}]},
+  Discouraged:{what:'A deflated feeling after effort that has not produced expected results.',body:['Drooped posture','Heavy thoughts','Reluctance'],needs:[{ic:'ic-spark',t:'Name what did work',d:'Discouragement narrows attention. Noticing any progress matters.'},{ic:'ic-users',t:'Talk to someone trusted',d:'External perspective often restores what feels impossible alone.'}]},
+  Bored:{what:'A state of low engagement and restlessness when nothing feels stimulating.',body:['Fidgeting','Wandering attention'],needs:[{ic:'ic-activity',t:'Change the physical context',d:'Moving to a different space often breaks boredom.'},{ic:'ic-compass',t:'Go deeper on one thing',d:'Boredom sometimes signals the surface level has been exhausted.'}]},
+  Disconnected:{what:'A sense of not quite being present, as though behind glass.',body:['Detachment','Dull senses','Slow reactions'],needs:[{ic:'ic-wind',t:'Ground through breath and senses',d:'Name five things you can see, then breathe deliberately.'},{ic:'ic-activity',t:'Physical movement',d:'Movement often restores a sense of embodiment.'}]},
+  Numb:{what:'An absence of feeling — often a natural protection response after stress or difficulty.',body:['Flatness','Reduced response','Mechanical movement'],needs:[{ic:'ic-leaf',t:'Be gentle with yourself',d:'Numbness often follows extended stress. Rest and time are primary needs.'},{ic:'ic-sun',t:'Warmth and mild sensory experience',d:'A warm drink or slow movement may begin restoring sensation.'}]},
+  Peaceful:{what:'A quiet, settled state with no significant internal resistance.',body:['Relaxed muscles','Slow breath','Soft focus'],needs:[{ic:'ic-leaf',t:'Protect this space',d:'Peaceful states are worth guarding from unnecessary disturbance.'},{ic:'ic-moon',t:'Rest deeply',d:'Peace is an ideal state for sleep or deep rest.'}]},
+  Grounded:{what:'A stable, anchored sense of being connected to yourself and the present moment.',body:['Feet solidly placed','Steady breath','Clear attention'],needs:[{ic:'ic-target',t:'Proceed from here',d:'Groundedness is ideal for difficult decisions or meaningful actions.'},{ic:'ic-leaf',t:'Anchor a practice',d:'Noting what created this state helps you return to it.'}]},
+  Content:{what:'A quiet satisfaction — a gentle sense that things are enough as they are.',body:['Softness','Easy breath','Relaxed jaw'],needs:[{ic:'ic-leaf',t:'Simply be with it',d:'Contentment benefits from attention rather than action.'},{ic:'ic-heart',t:'Notice what produced it',d:'Understanding conditions of contentment helps recreate them.'}]},
+  Relieved:{what:'A release of tension after something difficult or uncertain resolved.',body:['Long exhale','Physical lightness','Unclenching'],needs:[{ic:'ic-wind',t:'Take a full breath',d:'Let the relief land fully before moving to the next thing.'},{ic:'ic-moon',t:'Rest if needed',d:'Relief is often followed by tiredness that was being held at bay.'}]},
+  Safe:{what:'A felt sense of protection and freedom from threat.',body:['Open posture','Slow breathing','Ease'],needs:[{ic:'ic-leaf',t:'Restore from here',d:'Safety is the foundation of genuine recovery.'},{ic:'ic-users',t:'Connect with what makes you feel safe',d:'Recognising this helps protect it.'}]},
+  Grateful:{what:'A warm recognition of something valuable that is present or given.',body:['Open chest','Slight warmth','Soft energy'],needs:[{ic:'ic-pen',t:'Write it down',d:'A single sentence of gratitude deepens its effect.'},{ic:'ic-heart',t:'Express it where possible',d:'Gratitude shared with others often benefits both.'}]},
+  Tender:{what:'A soft, open, slightly vulnerable state — a kind of emotional openness.',body:['Gentleness','Warmth','Ease'],needs:[{ic:'ic-leaf',t:'Stay with the softness',d:'Tenderness is a sign of emotional openness. It is safe.'},{ic:'ic-heart',t:'Move toward care or beauty',d:'Tenderness is nourished by what is gentle and meaningful.'}]},
+  Reflective:{what:'A thoughtful, inward state drawn toward meaning and understanding.',body:['Quiet body','Inward attention','Steady breath'],needs:[{ic:'ic-pen',t:'Write or journal',d:'Reflection becomes clearer and more useful when put into words.'},{ic:'ic-leaf',t:'Give it uninterrupted time',d:'Reflection requires freedom from distraction.'}]}
+};
+
+// ── STORE ──────────────────────────────────────────────────────────────────
+function buildSeedEvents(){
+  var now=new Date();
+  var mk=function(offset,hour,min,score,flow,tag,emotion){
+    var d=new Date(now);d.setDate(d.getDate()-offset);d.setHours(hour,min,0,0);
+    var kind=(flow==='leak'||flow==='invest')?'cost':'restore';
+    return{id:9000+offset*100+hour,timestamp:d.toISOString(),score:score,scoreWord:WORDS[score-1],flow:flow,tag:tag,kind:kind,source:'checkin',_seed:true,influences:[tag],emotion:emotion||null};
+  };
+  return[
+    mk(9,7,30,5,'leak','Open loops','Overwhelmed'),
+    mk(9,13,15,6,'recharge','Walk','Relieved'),
+    mk(8,9,20,8,'nourish','Good sleep','Motivated'),
+    mk(8,16,30,5,'invest','Deep work','Tired'),
+    mk(7,14,10,4,'leak','Scrolling','Flat'),
+    mk(6,12,30,7,'nourish','Close connection','Content'),
+    mk(5,15,0,6,'recharge','Music','Hopeful'),
+    mk(4,11,10,5,'invest','Difficult conversation','Guarded'),
+    mk(3,14,25,3,'leak','Open loops','Overwhelmed'),
+    mk(2,9,0,7,'nourish','Nature','Peaceful'),
+    mk(1,15,10,4,'leak','Open loops','Anxious'),
+    mk(0,8,15,6,'recharge','Good sleep','Grounded')
+  ];
 }
-function mpSet(pick, clientX){
-  const r = pick.querySelector('.mp-track').getBoundingClientRect();
-  const ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
-  pick.dataset.value = Math.min(MP_MAX, Math.max(1, Math.round(ratio * (MP_MAX-1)) + 1));
-  mpPaint(pick);
+function readStore(){
+  try{
+    var raw=localStorage.getItem(STORE_KEY);
+    if(raw){
+      var store=JSON.parse(raw);
+      // v3 migration: remove stale seed events from old schema, keep new ones and real checkins
+      var hasMigrated=store._v4;
+      if(!hasMigrated){
+        store.events=store.events.filter(function(e){
+          // keep new-format events (have flow) or genuine checkins that have a score
+          return e.flow||(e.source!=='seed'&&e.score);
+        });
+        // replace old seeds with new deterministic ones
+        store.events=store.events.filter(function(e){return !e._seed;});
+        store.events=buildSeedEvents().concat(store.events);
+        store._v4=true;
+        localStorage.setItem(STORE_KEY,JSON.stringify(store));
+      }
+      return store;
+    }
+    var store={events:buildSeedEvents(),_v4:true};
+    localStorage.setItem(STORE_KEY,JSON.stringify(store));
+    return store;
+  }catch(e){return{events:buildSeedEvents(),_v4:true};}
 }
-document.querySelectorAll('.mood-pick').forEach(pick=>{
-  const t = pick.querySelector('.mp-track'), thumb = pick.querySelector('.mp-thumb');
-  for(let i=1;i<=MP_MAX;i++){ const s=document.createElement('span'); s.className='mp-tick'; s.style.left=mpPct(i)+'%'; t.insertBefore(s, thumb); }
-  mpPaint(pick);
-  let drag = false;
-  const xOf = e => (e.touches ? e.touches[0] : e).clientX;
-  t.addEventListener('mousedown', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); });
-  t.addEventListener('touchstart', e=>{ drag=true; mpSet(pick, xOf(e)); e.preventDefault(); }, {passive:false});
-  window.addEventListener('mousemove', e=>{ if(drag) mpSet(pick, xOf(e)); });
-  window.addEventListener('touchmove', e=>{ if(drag) mpSet(pick, xOf(e)); }, {passive:false});
-  window.addEventListener('mouseup', ()=> drag=false);
-  window.addEventListener('touchend', ()=> drag=false);
-  t.addEventListener('keydown', e=>{
-    let v=+pick.dataset.value;
-    if(e.key==='ArrowRight'||e.key==='ArrowUp') v=Math.min(MP_MAX,v+1);
-    else if(e.key==='ArrowLeft'||e.key==='ArrowDown') v=Math.max(1,v-1);
-    else return;
-    pick.dataset.value=v; mpPaint(pick); e.preventDefault();
+function writeStore(store){
+  localStorage.setItem(STORE_KEY,JSON.stringify(store));
+  window.dispatchEvent(new CustomEvent('compass-energy-updated',{detail:store}));
+}
+
+// ── SLIDER ─────────────────────────────────────────────────────────────────
+var pick=document.getElementById('pick');
+var track=document.getElementById('sliderTrack');
+for(var i=1;i<=10;i++){var tick=document.createElement('span');tick.className='mp-tick';tick.style.left=(i-1)/9*100+'%';track.insertBefore(tick,document.getElementById('sliderThumb'));}
+function paintSlider(){
+  var v=Number(pick.dataset.value);
+  var pct=(v-1)/9*100;
+  document.getElementById('sliderFill').style.width=pct+'%';
+  document.getElementById('sliderThumb').style.left=pct+'%';
+  document.getElementById('scoreVal').textContent=v;
+  document.getElementById('scoreWord').textContent=WORDS[v-1];
+  track.setAttribute('aria-valuenow',String(v));
+}
+function setSlider(cx){
+  var rect=track.getBoundingClientRect();
+  var ratio=Math.min(1,Math.max(0,(cx-rect.left)/rect.width));
+  pick.dataset.value=String(Math.round(ratio*9)+1);
+  paintSlider();
+}
+var dragging=false;
+track.addEventListener('pointerdown',function(e){dragging=true;track.setPointerCapture(e.pointerId);setSlider(e.clientX);});
+track.addEventListener('pointermove',function(e){if(dragging)setSlider(e.clientX);});
+track.addEventListener('pointerup',function(){dragging=false;});
+track.addEventListener('keydown',function(e){
+  var v=Number(pick.dataset.value);
+  if(e.key==='ArrowRight'||e.key==='ArrowUp')v=Math.min(10,v+1);
+  else if(e.key==='ArrowLeft'||e.key==='ArrowDown')v=Math.max(1,v-1);
+  else return;
+  pick.dataset.value=String(v);paintSlider();e.preventDefault();
+});
+paintSlider();
+
+// ── FLOW SELECTION ─────────────────────────────────────────────────────────
+var selectedFlow=null;
+document.querySelectorAll('.flow-tile').forEach(function(tile){
+  tile.addEventListener('click',function(){
+    var flow=tile.dataset.flow;
+    if(selectedFlow===flow){
+      // deselect
+      tile.classList.remove('sel');
+      selectedFlow=null;
+      document.getElementById('sourceReveal').classList.remove('open');
+      document.getElementById('saveButton').classList.remove('enabled');
+      document.getElementById('saveButton').setAttribute('aria-disabled','true');
+      document.getElementById('flowHint').textContent='choose one';
+    } else {
+      document.querySelectorAll('.flow-tile').forEach(function(t){t.classList.remove('sel');});
+      tile.classList.add('sel');
+      selectedFlow=flow;
+      renderSrcChips(flow);
+      document.getElementById('sourceReveal').classList.add('open');
+      document.getElementById('saveButton').classList.add('enabled');
+      document.getElementById('saveButton').setAttribute('aria-disabled','false');
+      document.getElementById('flowHint').textContent=FLOW_META[flow].label+' selected';
+    }
   });
 });
 
-function switchCat(cat){
-  document.querySelectorAll('.ov-card').forEach(c=>c.classList.remove('active'));
-  document.querySelectorAll('.cat-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('ov-'+cat).classList.add('active');
-  document.getElementById('panel-'+cat).classList.add('active');
+// ── SOURCE CHIPS ───────────────────────────────────────────────────────────
+var selectedSources=[];
+function renderSrcChips(flow){
+  var sources=FLOW_SOURCES[flow];
+  var chips=document.getElementById('srcChips');
+  chips.innerHTML='';
+  selectedSources=[];
+  sources.slice(0,4).forEach(function(src){
+    var btn=document.createElement('button');
+    btn.className='src-chip';btn.type='button';btn.textContent=src;
+    btn.addEventListener('click',function(){toggleSrcChip(btn,src);});
+    chips.appendChild(btn);
+  });
+  var more=document.createElement('button');
+  more.className='src-chip more-btn';more.type='button';
+  more.innerHTML='<i class="ic ic-chev" style="font-size:11px"></i> More';
+  more.addEventListener('click',function(){openSrcSheet(flow);});
+  chips.appendChild(more);
 }
-
-// color-code experiment category tags to match the 4 energy dimensions
-const CAT_COLORS = {physical:'#6dab5e', mental:'#937caf', emotional:'#b77980', spiritual:'#c99554'};
-document.querySelectorAll('.exp-cat-tag').forEach(t=>{
-  const c = CAT_COLORS[t.textContent.trim()];
-  if(c){ t.style.color = c; t.style.background = 'color-mix(in srgb, '+c+' 15%, transparent)'; }
-});
-
-function tb(btn, cls){
-  const other = cls === 'bs' ? 'bd' : 'bs';
-  if(btn.classList.contains(cls)){
-    btn.className='bub' + (btn.classList.contains('bub-add')?' bub-add':'');
+function toggleSrcChip(btn,src){
+  if(btn.classList.contains('on')){
+    btn.classList.remove('on');
+    selectedSources=selectedSources.filter(function(s){return s!==src;});
   } else {
-    btn.classList.remove(other);
-    btn.classList.add(cls);
+    if(selectedSources.length>=2){
+      var first=document.querySelector('.src-chip.on');
+      if(first){first.classList.remove('on');selectedSources.shift();}
+    }
+    btn.classList.add('on');
+    selectedSources.push(src);
   }
 }
 
-function addBub(addBtn, cls){
-  const label = prompt('Add tag:');
-  if(!label || !label.trim()) return;
-  const newBub = document.createElement('button');
-  newBub.className = 'bub ' + cls;
-  newBub.textContent = label.trim();
-  newBub.onclick = function(){ tb(this, cls); };
-  addBtn.parentElement.insertBefore(newBub, addBtn);
+// ── SAVE ──────────────────────────────────────────────────────────────────
+var lastSavedEventId=null;
+document.getElementById('saveButton').addEventListener('click',saveCheckin);
+function saveCheckin(){
+  if(!selectedFlow)return;
+  var store=readStore();
+  var score=Number(pick.dataset.value);
+  var influences=selectedSources.slice();
+  var tag=influences.length?influences[0]:null;
+  var kind=(selectedFlow==='leak'||selectedFlow==='invest')?'cost':'restore';
+  var event={
+    id:Date.now(),timestamp:new Date().toISOString(),
+    score:score,scoreWord:WORDS[score-1],
+    flow:selectedFlow,tag:tag,kind:kind,source:'checkin',
+    influences:influences,
+    emotionFamily:null,emotion:null,bodySignal:null
+  };
+  store.events.push(event);
+  writeStore(store);
+  lastSavedEventId=event.id;
+  // header bounce
+  var badge=document.getElementById('headerBadge');
+  badge.style.transform='scale(1.15)';
+  setTimeout(function(){badge.style.transform='';},400);
+  // transition to completion
+  var form=document.getElementById('formCard');
+  form.style.transition='opacity .09s';
+  form.style.opacity='0';
+  setTimeout(function(){
+    form.style.display='none';
+    showCompletion(event,store);
+  },90);
+  renderLatest();
 }
 
-function rateExp(btn, type){
-  const group = btn.closest('.exp-rate');
-  group.querySelectorAll('.exp-btn').forEach(b=>b.className='exp-btn');
-  btn.classList.add(type);
+function showCompletion(ev,store){
+  var done=document.getElementById('doneCard');
+  done.classList.add('visible');
+  done.style.opacity='0';
+  done.style.transition='opacity .18s';
+  setTimeout(function(){done.style.opacity='1';},20);
+  // time
+  document.getElementById('doneTime').textContent=new Date(ev.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  // summary pill
+  var meta=FLOW_META[ev.flow];
+  var firstInfl=ev.influences&&ev.influences.length?(typeof ev.influences[0]==='string'?ev.influences[0]:(ev.influences[0].tag||'')):null;
+  var pillParts=[ev.score+'/10','·',meta.label];
+  if(firstInfl)pillParts.push('·',firstInfl);
+  var pill=document.getElementById('donePill');
+  pill.textContent=pillParts.join(' ');
+  pill.style.background=meta.soft;pill.style.color=meta.color;pill.style.border='1px solid '+meta.color;
+  // reflection
+  document.getElementById('doneReflection').textContent=FLOW_REFLECTIONS[ev.flow](ev.score);
+  // milestone (only real user checkins, not seeded demos)
+  var checkins=store.events.filter(function(e){return e.source==='checkin'&&!e._seed;});
+  var count=checkins.length;
+  if(MILESTONES[count]){
+    var ms=document.getElementById('milestoneStrip');
+    document.getElementById('milestoneTxt').textContent=MILESTONES[count];
+    ms.classList.add('show');
+  }
+  // pattern
+  detectAndShowPattern(store.events);
 }
 
-// Replace text arrows with SVG icons
-const SVG_UP='<svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>';
-const SVG_DASH='<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>';
-const SVG_DOWN='<svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>';
-document.querySelectorAll('.exp-btn').forEach(btn=>{
-  const t=btn.textContent.trim();
-  if(t==='↑') btn.innerHTML=SVG_UP;
-  else if(t==='—') btn.innerHTML=SVG_DASH;
-  else if(t==='↓') btn.innerHTML=SVG_DOWN;
+function resetToForm(){
+  var done=document.getElementById('doneCard');
+  done.classList.remove('visible');
+  done.style.opacity='0';
+  // hide milestone + pattern
+  document.getElementById('milestoneStrip').classList.remove('show');
+  document.getElementById('patternCard').classList.remove('show');
+  var form=document.getElementById('formCard');
+  form.style.display='';
+  form.style.transition='opacity .18s';
+  form.style.opacity='0';
+  // reset form state
+  selectedFlow=null;
+  selectedSources=[];
+  document.querySelectorAll('.flow-tile').forEach(function(t){t.classList.remove('sel');});
+  document.getElementById('sourceReveal').classList.remove('open');
+  document.getElementById('saveButton').classList.remove('enabled');
+  document.getElementById('saveButton').setAttribute('aria-disabled','true');
+  document.getElementById('flowHint').textContent='choose one';
+  pick.dataset.value='6';paintSlider();
+  setTimeout(function(){form.style.opacity='1';},20);
+  done.style.transition='';
+}
+
+// ── PATTERN DETECTION ─────────────────────────────────────────────────────
+function detectAndShowPattern(events){
+  var checkins=events.filter(function(e){return e.source==='checkin'&&e.flow;});
+  if(checkins.length<4)return;
+  var recent=checkins.slice(-14);
+  // count leak sources
+  var srcCount={};
+  recent.forEach(function(e){
+    if(e.flow==='leak'&&e.influences){
+      e.influences.forEach(function(src){srcCount[src]=(srcCount[src]||0)+1;});
+    }
+  });
+  var top=Object.entries(srcCount).sort(function(a,b){return b[1]-a[1];})[0];
+  if(!top||top[1]<3)return;
+  var src=top[0],cnt=top[1];
+  // calc average score on those days vs others
+  var leakDays=recent.filter(function(e){return e.flow==='leak'&&e.influences&&e.influences.indexOf(src)>-1;});
+  var otherCheckins=recent.filter(function(e){return!(e.flow==='leak'&&e.influences&&e.influences.indexOf(src)>-1);});
+  var leakAvg=leakDays.reduce(function(a,e){return a+e.score;},0)/leakDays.length;
+  var otherAvg=otherCheckins.length?otherCheckins.reduce(function(a,e){return a+e.score;},0)/otherCheckins.length:null;
+  var txt='"'+src+'" appeared in '+cnt+' of your recent leaks.';
+  if(otherAvg&&otherAvg-leakAvg>0.8)txt+=' On those entries, energy averaged '+(otherAvg-leakAvg).toFixed(1)+' points lower.';
+  txt+=' Addressing this one source may have an outsized effect.';
+  var card=document.getElementById('patternCard');
+  document.getElementById('patternText').textContent=txt;
+  card.classList.remove('show');
+  void card.offsetWidth;
+  card.classList.add('show');
+}
+function patternAction(action){
+  document.getElementById('patternCard').classList.remove('show');
+}
+
+// ── LATEST TODAY ──────────────────────────────────────────────────────────
+function renderLatest(){
+  var events=readStore().events;
+  var today=new Date().toDateString();
+  var ev=[].concat(events).reverse().find(function(e){return new Date(e.timestamp).toDateString()===today;});
+  if(!ev){
+    document.getElementById('latestValue').textContent='No check-in yet';
+    document.getElementById('latestMeta').textContent='Takes about 15 seconds';
+    document.getElementById('latestFlow').innerHTML='';
+    return;
+  }
+  document.getElementById('latestValue').textContent=ev.score+' · '+WORDS[ev.score-1];
+  document.getElementById('latestMeta').textContent=new Date(ev.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(ev.flow&&FLOW_META[ev.flow]){
+    var meta=FLOW_META[ev.flow];
+    document.getElementById('latestFlow').innerHTML='<span class="flow-tag" style="background:'+meta.soft+';color:'+meta.color+';border:1px solid '+meta.color+'">'+meta.label+'</span>';
+  } else {
+    document.getElementById('latestFlow').innerHTML='';
+  }
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────
+function flowColor(flow){
+  if(!flow||!FLOW_META[flow])return'var(--muted)';
+  return FLOW_META[flow].color;
+}
+function inflLabel(inf){
+  // handles both string[] (new format) and {tag,kind,leak}[] (legacy format)
+  if(!inf||!inf.length)return'';
+  return inf.map(function(x){return typeof x==='string'?x:(x&&x.tag?x.tag:'');}).filter(Boolean).join(', ');
+}
+function renderHistory(){
+  var events=readStore().events.slice(-14).reverse();
+  document.getElementById('emptyHistory').style.display=events.length?'none':'';
+  document.getElementById('historyList').innerHTML=events.map(function(ev){
+    var flowLabel=ev.flow&&FLOW_META[ev.flow]?FLOW_META[ev.flow].label:(ev.kind==='restore'?'Recharge':'Leak');
+    var emoTxt=ev.emotion?'<div class="hist-emotion">'+ev.emotion+'</div>':'';
+    var inflTxt=inflLabel(ev.influences)||(ev.tag&&ev.tag!==ev.flow?ev.tag:null)||'';
+    return'<div class="row"><div class="dot" style="background:'+flowColor(ev.flow||ev.kind)+'"></div><div class="label"><strong>'+ev.score+'/10</strong> · '+flowLabel+(inflTxt?' · <span style="color:var(--muted)">'+inflTxt+'</span>':'')+'<br/><span style="font-size:var(--fs-xs);color:var(--muted)">'+new Date(ev.timestamp).toLocaleString()+'</span>'+emoTxt+'</div></div>';
+  }).join('');
+}
+renderLatest();
+
+// ── TABS ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('#viewTabs .pill').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('#viewTabs .pill').forEach(function(t){
+      var sel=t===tab;t.classList.toggle('on',sel);t.setAttribute('aria-selected',String(sel));
+    });
+    document.querySelectorAll('main>section').forEach(function(s){s.hidden=s.id!==tab.dataset.view;});
+    if(tab.dataset.view==='history')renderHistory();
+  });
 });
 
-function saveSection(id){
-  const row = document.getElementById(id);
-  row.classList.add('saved');
-  const now = new Date();
-  row.querySelector('.save-time').textContent =
-    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+// ── SOURCE SHEET ──────────────────────────────────────────────────────────
+var activeSrcFlow=null;
+function openSrcSheet(flow){
+  activeSrcFlow=flow;
+  var meta=FLOW_META[flow];
+  document.getElementById('srcSheetTitle').textContent='What contributed?';
+  var pills=document.getElementById('srcSheetPills');
+  pills.innerHTML='';
+  FLOW_SOURCES[flow].forEach(function(src){
+    var btn=document.createElement('button');
+    btn.className='pill';btn.type='button';btn.textContent=src;
+    btn.dataset.kind=flow;
+    if(selectedSources.indexOf(src)>-1)btn.classList.add('on');
+    btn.addEventListener('click',function(){toggleSrcSheetPill(btn,src);});
+    pills.appendChild(btn);
+  });
+  updateSrcSheetCount();
+  document.getElementById('srcSheet').classList.add('open');
 }
-function saveSig(){
-  // wireframe stub — signal captured from the two sliders above
+function closeSrcSheet(){
+  if(!activeSrcFlow)return;
+  var flow=activeSrcFlow;
+  var pills=document.querySelectorAll('#srcSheetPills .pill');
+  var newSelected=[];
+  pills.forEach(function(p){if(p.classList.contains('on'))newSelected.push(p.textContent.trim());});
+  // update quick chips
+  selectedSources=newSelected;
+  // re-render quick chips to reflect selection
+  renderSrcChips(flow);
+  // re-apply selections to quick chips
+  document.querySelectorAll('#srcChips .src-chip:not(.more-btn)').forEach(function(chip){
+    if(selectedSources.indexOf(chip.textContent.trim())>-1)chip.classList.add('on');
+  });
+  // add dynamic chips for anything not in quick list
+  var quickTexts=[].map.call(document.querySelectorAll('#srcChips .src-chip:not(.more-btn)'),function(c){return c.textContent.trim();});
+  newSelected.forEach(function(src){
+    if(quickTexts.indexOf(src)===-1){
+      var btn=document.createElement('button');
+      btn.className='src-chip on';btn.type='button';btn.textContent=src;
+      btn.addEventListener('click',function(){toggleSrcChip(btn,src);});
+      document.getElementById('srcChips').insertBefore(btn,document.querySelector('.more-btn'));
+    }
+  });
+  document.getElementById('srcSheet').classList.remove('open');
+  activeSrcFlow=null;
+}
+function toggleSrcSheetPill(btn,src){
+  var onCount=document.querySelectorAll('#srcSheetPills .pill.on').length;
+  if(!btn.classList.contains('on')&&onCount>=2){
+    var first=document.querySelector('#srcSheetPills .pill.on');
+    if(first){first.classList.remove('on');first.classList.add('deselect-anim');setTimeout(function(){first.classList.remove('deselect-anim');},350);}
+  }
+  btn.classList.toggle('on');
+  updateSrcSheetCount();
+}
+function updateSrcSheetCount(){
+  var n=document.querySelectorAll('#srcSheetPills .pill.on').length;
+  document.getElementById('srcSheetCount').textContent=n===0?'Select up to 2 influences':n+' selected · tap Done to apply';
+}
+function addSrcCustom(){
+  var input=document.getElementById('srcSheetInput');
+  var name=input.value.trim();if(!name)return;
+  var btn=document.createElement('button');
+  btn.className='pill';btn.type='button';btn.textContent=name;
+  btn.addEventListener('click',function(){toggleSrcSheetPill(btn,name);});
+  document.getElementById('srcSheetPills').appendChild(btn);
+  input.value='';
+}
+
+// ── EMOTION SHEET ─────────────────────────────────────────────────────────
+var emoFamily=null,emoWord=null;
+function openEmotionSheet(){
+  emoFamily=null;emoWord=null;
+  document.querySelectorAll('.emo-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('emoStep1').classList.add('active');
+  document.querySelectorAll('.emo-family-tile').forEach(function(t){t.classList.remove('sel');});
+  document.getElementById('emotionSheet').classList.add('open');
+}
+function closeEmotionSheet(){
+  document.getElementById('emotionSheet').classList.remove('open');
+}
+function selectFamily(family){
+  emoFamily=family;
+  var fam=EMO_FAMILIES[family];
+  document.querySelectorAll('.emo-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('emoStep2').classList.add('active');
+  document.getElementById('emoStep2Title').textContent=fam.label;
+  var cluster=document.getElementById('emoCluster');
+  cluster.innerHTML='';
+  fam.words.forEach(function(word,i){
+    var btn=document.createElement('button');
+    btn.className='emo-bubble'+(i===0?' primary':'');
+    btn.type='button';btn.textContent=word;
+    btn.addEventListener('click',function(){selectWord(word);});
+    cluster.appendChild(btn);
+  });
+}
+function emoGoBack(step){
+  document.querySelectorAll('.emo-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('emoStep'+step).classList.add('active');
+}
+function selectWord(word){
+  emoWord=word;
+  document.querySelectorAll('.emo-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('emoStep3').classList.add('active');
+  var detail=EMO_DETAIL[word]||{what:'',body:[],needs:[]};
+  var famMeta={tense:{color:'var(--emo-tense)',soft:'var(--emo-tense-soft)'},alive:{color:'var(--emo-alive)',soft:'var(--emo-alive-soft)'},heavy:{color:'var(--emo-heavy)',soft:'var(--emo-heavy-soft)'},calm:{color:'var(--emo-calm)',soft:'var(--emo-calm-soft)'}};
+  var fc=famMeta[emoFamily]||{color:'var(--muted)',soft:'var(--greige)'};
+  var badge=document.getElementById('emoWordBadge');
+  badge.textContent=word;
+  badge.style.background=fc.soft;badge.style.color=fc.color;badge.style.borderColor=fc.color;
+  document.getElementById('emoWhatTxt').textContent=detail.what;
+  // body chips
+  var bc=document.getElementById('emoBodyChips');bc.innerHTML='';
+  detail.body.forEach(function(b){
+    var chip=document.createElement('button');
+    chip.className='body-chip';chip.type='button';chip.textContent=b;
+    chip.addEventListener('click',function(){chip.classList.toggle('sel');});
+    bc.appendChild(chip);
+  });
+  // needs
+  var nr=document.getElementById('emoNeedRows');nr.innerHTML='';
+  detail.needs.forEach(function(n){
+    var row=document.createElement('div');row.className='need-row';
+    row.innerHTML='<i class="ic '+n.ic+'"></i><div class="need-row-body"><div class="need-row-title">'+n.t+'</div><div class="need-row-desc">'+n.d+'</div></div>';
+    nr.appendChild(row);
+  });
+}
+function applyEmotion(){
+  if(!emoWord||!lastSavedEventId)return;
+  var store=readStore();
+  var ev=store.events.find(function(e){return e.id===lastSavedEventId;});
+  if(ev){
+    ev.emotionFamily=emoFamily;
+    ev.emotion=emoWord;
+    // body signals
+    var sigs=[].filter.call(document.querySelectorAll('.body-chip.sel'),function(c){return true;}).map(function(c){return c.textContent;});
+    ev.bodySignal=sigs.join(', ')||null;
+    writeStore(store);
+  }
+  // update done card feeling button to show applied
+  var btn=document.getElementById('doneFeelingBtn');
+  btn.innerHTML='<span class="done-btn-feel-l"><i class="ic ic-check" style="font-size:14px;color:var(--accent)"></i> '+emoWord+' noted</span>';
+  btn.style.background='var(--accent-soft)';btn.style.borderColor='var(--accent)';
+  btn.onclick=null;
+  closeEmotionSheet();
+  renderLatest();
 }
 </script>
+
+<!-- SOURCE SHEET -->
+<div class="sheet" id="srcSheet" onclick="if(event.target===this)closeSrcSheet()">
+  <div class="sheet-inner" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="srcSheetTitle">What contributed?</div>
+    <div class="sheet-count" id="srcSheetCount">Select up to 2 influences</div>
+    <div class="pill-row" id="srcSheetPills" style="gap:8px;flex-wrap:wrap"></div>
+    <div class="sheet-tag-input">
+      <input type="text" id="srcSheetInput" placeholder="Add your own…" maxlength="30"/>
+      <button class="add-btn" onclick="addSrcCustom()">Add</button>
+    </div>
+    <button class="btn-prim" style="margin-top:14px" onclick="closeSrcSheet()">Done</button>
+  </div>
+</div>
+
+<!-- EMOTION SHEET -->
+<div class="sheet" id="emotionSheet" role="dialog" aria-modal="true" aria-label="Name how this feels" onclick="if(event.target===this)closeEmotionSheet()">
+  <div class="sheet-inner" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+
+    <!-- Step 1: Family -->
+    <div class="emo-step active" id="emoStep1">
+      <div class="emo-sheet-head">
+        <div class="sheet-title">How does it feel?</div>
+        <button class="emo-close-btn" onclick="closeEmotionSheet()"><i class="ic ic-x" style="font-size:16px"></i></button>
+      </div>
+      <div class="sheet-sub">Choose the closest family.</div>
+      <div class="emo-axis-h"><span>Unpleasant</span><span>Pleasant</span></div>
+      <div class="emo-grid-wrap">
+        <div class="emo-axis-v">
+          <span>High</span>
+          <span>Low</span>
+        </div>
+        <div class="emo-family-grid">
+          <button class="emo-family-tile" data-family="tense" onclick="selectFamily('tense')">
+            <i class="ic ic-zap emo-fam-ic"></i>
+            <span class="emo-fam-name">Tense</span>
+            <span class="emo-fam-ex">anxious · stressed</span>
+          </button>
+          <button class="emo-family-tile" data-family="alive" onclick="selectFamily('alive')">
+            <i class="ic ic-spark emo-fam-ic"></i>
+            <span class="emo-fam-name">Alive</span>
+            <span class="emo-fam-ex">excited · motivated</span>
+          </button>
+          <button class="emo-family-tile" data-family="heavy" onclick="selectFamily('heavy')">
+            <i class="ic ic-moon emo-fam-ic"></i>
+            <span class="emo-fam-name">Heavy</span>
+            <span class="emo-fam-ex">tired · flat · sad</span>
+          </button>
+          <button class="emo-family-tile" data-family="calm" onclick="selectFamily('calm')">
+            <i class="ic ic-leaf emo-fam-ic"></i>
+            <span class="emo-fam-name">Calm</span>
+            <span class="emo-fam-ex">peaceful · grounded</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Word cluster -->
+    <div class="emo-step" id="emoStep2">
+      <button class="emo-back-btn" onclick="emoGoBack(1)"><i class="ic ic-chev"></i> Back</button>
+      <div class="sheet-title" id="emoStep2Title">Choose a word</div>
+      <div class="sheet-sub">Which fits best right now?</div>
+      <div class="emo-cluster" id="emoCluster"></div>
+    </div>
+
+    <!-- Step 3: Detail -->
+    <div class="emo-step" id="emoStep3">
+      <button class="emo-back-btn" onclick="emoGoBack(2)"><i class="ic ic-chev"></i> Back</button>
+      <div class="emo-word-badge" id="emoWordBadge"></div>
+      <div class="emo-section">
+        <div class="emo-section-h">What it can feel like</div>
+        <div class="emo-what-txt" id="emoWhatTxt"></div>
+      </div>
+      <div class="emo-section">
+        <div class="emo-section-h"><i class="ic ic-activity" style="font-size:11px"></i> You might notice</div>
+        <div class="body-chips" id="emoBodyChips"></div>
+      </div>
+      <div class="emo-section">
+        <div class="emo-section-h"><i class="ic ic-compass" style="font-size:11px"></i> What might help</div>
+        <div id="emoNeedRows"></div>
+      </div>
+      <button class="btn-prim emo-apply-btn" onclick="applyEmotion()">Add to check-in</button>
+      <button class="emo-skip-btn" onclick="closeEmotionSheet()">Skip</button>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>

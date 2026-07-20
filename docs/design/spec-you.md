@@ -116,6 +116,51 @@ The real constraint isn't how many things you've *chosen* — it's **how many da
 ### 1.4 Lens header (every You screen)
 Read-only orientation: icon badge + tab name + purpose line. **Not** interactive.
 
+### 1.5 Energy contract (one stream, different lenses)
+
+Energy is one stream of timestamped observations, not a separate score owned by every screen.
+
+| Concept | Lives in | Appears in | Meaning |
+|---|---|---|---|
+| **Energy check-in** | **Log · Energy** | Sleep, Today, Progress | Usable energy now, 1–10, with timestamp and source |
+| **Morning energy** | **Log · Sleep** | Today, Energy timeline, Progress | The first check-in of the day, linked to the sleep entry |
+| **Energy shift** | **Log · Energy** | Discover, Progress | Before/after observation around an activity, person, or context |
+| **Suggested pattern** | **Discover** | — | A repeated association Compass offers for review, never a causal claim |
+| **Confirmed energy knowledge** | **Discover** | Energy map (read-only) | A pattern the user explicitly accepts as true for them |
+| **Energy trend** | **Progress** | — | Factual history and coverage, without interpretation |
+| **Pace response** | **Today** | — | Optional Lighter/Rest suggestion based on the latest state |
+
+#### Check-ins and shifts
+
+- A check-in records `value (1–10) · timestamp · source · optional context`.
+- Saving sleep with morning energy creates or updates that sleep entry's linked morning check-in. It does **not** create a duplicate Energy record.
+- A later check-in adds a new point to the day. It never overwrites the morning observation.
+- Optional dimensions are **Body · Emotional · Mental clarity · Meaning**. They describe context; they are not four mandatory scores and are never averaged into an authoritative composite.
+- A shift may record `before · after · activity/person/context · optional dimensions · judgment`.
+- Shift judgments are **Restores me · Costs energy but matters · Costs too much · Neutral**. Meaningful effort must not be classified as a harmful drain merely because it costs energy.
+
+#### Pattern lifecycle
+
+```
+Observed → Suggested pattern → Seems true → Confirmed self-knowledge
+                           ↘ More evidence → keep observing
+                           ↘ Not true for me → dismiss
+```
+
+- Suggested patterns show the observation count, typical shift, date range, contexts, and known exceptions.
+- Correlation is described as association: “often followed by”, “may”, or “seems”. Compass does not claim that an activity caused a state.
+- A pattern enters **Confirmed self-knowledge** only after explicit confirmation. Evidence alone never promotes it automatically.
+- Confirmed `Restores me` and `Costs energy` sets remain capped at **8 each**. A custom item may be confirmed directly, but is labelled **Noted by you** rather than evidence-backed.
+- `More evidence` keeps the candidate quiet until meaningfully new observations exist. `Not true for me` dismisses it without penalty.
+
+#### Response and recovery
+
+- Low energy may prompt Today to offer **Lighter** or **Rest**, with the current state as context. The user chooses; Compass never changes pace automatically.
+- Dismissing the suggestion or keeping **Full** produces no warning, penalty, or repeated prompt for the unchanged state.
+- Recovery suggestions are invitations matched to available time and the user's context. They do not diagnose a cause or prescribe treatment.
+- Only one energy experiment may be active at a time. An experiment has a hypothesis, observation condition, duration, and explicit finish/stop action.
+- Task-level H/M/L costs, calendar capacity warnings, and automatic energy budgeting are deferred beyond the first design pass.
+
 ---
 
 ## 2. PATHS  (`plan-trails.html`) — "What am I walking?"
@@ -201,8 +246,11 @@ Subjective reflection + the **only** home of AI interpretation.
 | `Doesn't seem right` | Dismisses pattern | inline; next pattern queued | — | — | removes from view |
 | **This month's question** textarea | Type → autosaves draft | inline | the question + your answer | 1 question / month | clearing text = no entry |
 | `Save` | Saves the month's answer | inline; into self-portrait history | confirmation | — | editable until month ends |
-| **Energy: gives** chip / `+ add` | add → Energy library | library sheet | curated energisers + custom (§5.6) | max **8** | long-press remove |
-| **Energy: drains** chip / `+ add` | add → Energy library | library sheet | curated drains + custom (§5.6) | max **8** | long-press remove |
+| **Suggested energy pattern** | Review evidence | inline decision card | association, count, typical shift, range, exceptions | one surfaced at a time | `Not true for me` dismisses interpretation only |
+| `Seems true` | Confirms the pattern | Confirmed self-knowledge | full evidence and confirmation date | gives/costs max **8** each | reconsider or hide; observations remain |
+| `More evidence` | Keeps observing | inline quiet state | waits for meaningfully new observations | — | — |
+| `Not true for me` | Dismisses candidate | next candidate when available | source observations remain in Progress | — | removes interpretation |
+| **Confirmed energy item** | Opens detail | detail sheet | contexts, evidence, exceptions, confirmation source/date | gives/costs max **8** each | reconsider or hide |
 | `Progress →` link | Jumps to Progress | Progress tab | — | — | — |
 | **Past check-in** row | Tap → full reflection | reflection detail | full answers + mood tag | — | from detail: Delete (confirm) |
 
@@ -216,11 +264,13 @@ Data only. No AI narrative (that's Discover). No editing (it reflects logged dat
 | Element | On click | Opens / goes to | Shows | Limit | On delete |
 |---|---|---|---|---|---|
 | **Period tabs** (Week/Month/3M) | Switches range | re-renders all data | selected range | 3 fixed | — |
-| Hero stat tile | Tap → that metric's detail | metric detail/section scroll | value + trend | — | — |
+| Summary tile | Tap → canonical source | Log / Paths | value + source coverage | — | — |
 | **Sleep** Hours/Times toggle | Swaps chart view | inline | bar chart ↔ timeline | — | — |
 | Sleep chart bar/row | Tap → that night's log | Log → Sleep entry (read) | that night's detail | — | edit lives in Log |
-| **Mood & energy** cards | Tap → trend detail | metric detail | score, 7-day dots, trend | — | — |
-| **Energy pattern** category card | Tap → category detail | category breakdown | logs, drivers, history | — | — |
+| **Energy summary** | Tap → Energy log | Log · Energy | average/latest value, check-in count, day coverage | — | — |
+| **Energy trend** | Switches with period | inline | morning and later readings, kept visually distinct | Week/Month/3M | — |
+| **Recorded shift** row | Tap → source observations | Log · Energy | context, count, typical before/after difference | needs sufficient observations | — |
+| Insufficient-data row | — | — | count and “Not enough” without inferred trend | — | — |
 | `By the numbers` callout | — (display) | — | factual weekly stats | — | — |
 | **Habit streak** row | Tap → habit detail | Log → that habit | streak, 7-day dots | — | manage in Log |
 | **Paths momentum** `Open Paths →` | Jumps to Paths | Paths tab | — | — | — |
@@ -332,11 +382,11 @@ For the vocabulary tool + emotion wheel. Families → sample members:
 
 *(Real wheel: 8 cores → ~3 nuance rings each. "Recognised" count tracks how many you've correctly identified over time.)*
 
-## 5.6 Energy library  (gives ≤ 8 · drains ≤ 8)
-Curated suggestions; custom add.
+## 5.6 Energy reference library  (confirmed restores ≤ 8 · costs ≤ 8)
+Curated vocabulary for optional context and direct user-noted knowledge. Suggestions do not become confirmed merely because they appear in this list.
 
-- **Gives:** good sleep · morning walk · sunlight · deep work · nature · real connection · creative flow · movement · stillness · learning · music · cold water · hydration · purposeful work
-- **Drains:** rushed mornings · long meetings · context switching · social media · open-ended days · too many decisions · conflict · people-pleasing · poor sleep · clutter · doom-scrolling · saying yes when you mean no
+- **May restore:** good sleep · morning walk · sunlight · deep work · nature · real connection · creative flow · movement · stillness · learning · music · hydration · purposeful work
+- **May cost energy:** rushed mornings · long meetings · context switching · social media · open-ended days · too many decisions · conflict · people-pleasing · poor sleep · clutter · doom-scrolling · saying yes when you mean no
 
 ## 5.7 Small reference lists
 - **Skill categories:** Craft/trade · Creative · Technical · Physical · Communication · Domestic · Intellectual

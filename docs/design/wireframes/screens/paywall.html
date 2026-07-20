@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compass · Plus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<style>
+.plus-hero{background:linear-gradient(145deg,#34322e,#1e1d1a);color:#f7f3eb;border-radius:var(--r-card);padding:20px 18px;margin-bottom:13px;}.plus-kicker{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#d7c18c;margin-bottom:9px;}.plus-title{font-size:25px;font-weight:800;letter-spacing:-.03em;line-height:1.14;}.plus-copy{font-size:var(--fs-sm);line-height:1.55;opacity:.72;margin-top:9px;}.plan{width:100%;display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:15px;background:var(--card);padding:13px 14px;margin-bottom:8px;text-align:left;font:inherit;cursor:pointer;}.plan.sel{border-color:var(--olive);background:#eef1ec;}.plan-main{flex:1;}.plan-name{font-size:var(--fs-sm);font-weight:800;}.plan-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}.plan-price{font-size:var(--fs-md);font-weight:800;text-align:right;}.plan-price small{font-size:var(--fs-xs);font-weight:600;color:var(--muted);}.plan-save{font-size:9px;font-weight:800;color:#61715d;background:#dce5d9;border-radius:999px;padding:3px 6px;white-space:nowrap;}.value-row{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--fs-sm);line-height:1.4;}.value-row:last-child{border-bottom:0;}.value-tick{width:18px;height:18px;border-radius:50%;background:#e1e9de;color:var(--olive);display:grid;place-items:center;font-size:10px;flex-shrink:0;}.legal{font-size:10px;line-height:1.5;color:var(--muted);text-align:center;margin:12px 6px 0;}.restore{display:block;margin:12px auto 0;border:0;background:none;color:var(--muted);font:700 var(--fs-xs) inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+</style>
+</head>
+<body class="screen-body">
+<div class="plus-hero"><div class="plus-kicker">Compass Plus</div><div class="plus-title">More room for the life you are building.</div><div class="plus-copy">Keep the calm daily rhythm. Add deeper paths, thoughtful patterns and room to grow at your own pace.</div></div>
+<div class="card"><div class="card-h">Choose a plan</div><button class="plan sel" data-plan="yearly"><div class="plan-main"><div class="plan-name">Yearly</div><div class="plan-meta">Billed annually</div></div><div class="plan-save">Best value</div><div class="plan-price">£39.99<br/><small>£3.33/mo</small></div></button><button class="plan" data-plan="monthly"><div class="plan-main"><div class="plan-name">Monthly</div><div class="plan-meta">Billed each month</div></div><div class="plan-price">£5.99<br/><small>/ month</small></div></button></div>
+<div class="card"><div class="card-h">With Plus</div><div class="value-row"><span class="value-tick">✓</span><span>More active Paths, foundations and gentle practice options.</span></div><div class="value-row"><span class="value-tick">✓</span><span>Deeper private reflections and longer-term pattern views.</span></div><div class="value-row"><span class="value-tick">✓</span><span>More ways to shape Compass around your life.</span></div></div>
+<button class="btn-prim" id="continueBtn">Continue with Yearly</button><div class="legal">Payment is charged to your Google Play account at confirmation. Your subscription renews automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in Google Play subscriptions.</div><button class="restore" onclick="alert('Prototype: purchases are restored through Google Play in the app.')">Restore purchases</button>
+<script>
+let selected='yearly';const labels={yearly:'Continue with Yearly',monthly:'Continue with Monthly'};document.querySelectorAll('.plan').forEach(plan=>plan.onclick=()=>{selected=plan.dataset.plan;document.querySelectorAll('.plan').forEach(item=>item.classList.toggle('sel',item===plan));document.getElementById('continueBtn').textContent=labels[selected];});document.getElementById('continueBtn').onclick=()=>alert('Prototype: Google Play billing opens for the '+selected+' plan.');
+</script>
+</body>
+</html>

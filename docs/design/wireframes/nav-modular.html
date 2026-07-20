@@ -83,6 +83,65 @@ p.sub{margin:0 0 24px;font-size:13px;color:var(--muted);text-align:center;max-wi
 .chat-pill:active{transform:scale(.92);}
 .chat-pill svg{width:21px;height:21px;}
 
+/* ── Plan FAB ── */
+.plan-fab{
+  position:absolute;right:14px;bottom:56px;z-index:62;
+  width:46px;height:46px;border-radius:50%;
+  background:var(--btn);color:#FBFAF8;
+  border:none;box-shadow:0 4px 16px rgba(36,35,31,.28);
+  display:grid;place-items:center;cursor:pointer;
+  transition:transform .12s ease,box-shadow .15s;
+}
+.plan-fab:hover{box-shadow:0 6px 20px rgba(36,35,31,.38);}
+.plan-fab:active{transform:scale(.91);}
+
+/* ── Triage backdrop ── */
+.triage-back{
+  position:absolute;inset:0;background:rgba(28,27,24,.38);
+  z-index:70;display:none;
+}
+.triage-back.open{display:block;}
+
+/* ── Triage sheet ── */
+.triage-sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:80;
+  background:var(--bg);border-radius:18px 18px 0 0;
+  box-shadow:0 -6px 30px rgba(28,27,24,.18);
+  transform:translateY(100%);
+  transition:transform .22s cubic-bezier(.22,1,.36,1);
+  padding:10px 16px 24px;max-height:88%;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.triage-sheet.open{transform:translateY(0);}
+.ts-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 14px;}
+.ts-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ts-title{font-size:15px;font-weight:800;}
+.ts-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--greige);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:15px;font-family:inherit;}
+.ts-input{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:13px;background:var(--card);color:var(--ink);outline:none;box-sizing:border-box;margin-bottom:12px;}
+.ts-input:focus{border-color:var(--accent,#768471);}
+.ts-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.ts-opt{text-transform:none;font-weight:600;letter-spacing:0;opacity:.6;}
+.ts-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.ts-pill{padding:5px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .1s;}
+.ts-pill::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pc,var(--line));margin-right:5px;vertical-align:middle;}
+.ts-pill.sel{border-color:var(--pc,var(--accent,#768471));background:color-mix(in srgb,var(--pc,#768471) 14%,transparent);color:var(--ink);}
+.ts-pill.scope-pill::before{display:none;}
+.ts-date-row{display:flex;gap:8px;margin-bottom:12px;}
+.ts-date,.ts-time{margin-bottom:0;}
+.ts-time{width:110px;flex-shrink:0;}
+.ts-date{flex:1;}
+.ts-goals{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.ts-goal-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;text-align:left;transition:all .1s;}
+.ts-goal-btn.sel{border-color:var(--accent,#768471);background:color-mix(in srgb,#768471 12%,transparent);color:var(--ink);}
+.ts-goal-dot{width:8px;height:8px;border-radius:50%;background:var(--gpc,var(--line));flex-shrink:0;}
+.ts-submit{width:100%;padding:13px;border-radius:13px;border:none;background:var(--btn);color:#FBFAF8;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:2px;}
+.ts-submit:active{opacity:.85;}
+
+/* ── Review badge ── */
+.tab-btn{position:relative;}
+.review-dot{position:absolute;top:5px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--p-inner);display:none;}
+.review-dot.show{display:block;}
+
 /* ── Sidebar (dev panel) ── */
 .sidebar{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow-sm);}
 .sidebar h3{margin:0 0 14px;font-size:14px;font-weight:800;letter-spacing:-.01em;}
@@ -110,10 +169,35 @@ p.sub{margin:0 0 24px;font-size:13px;color:var(--muted);text-align:center;max-wi
     <iframe id="screen" src="screens/today.html" title="screen"></iframe>
   </div>
   <div class="chat-pill" title="Chat" role="button" aria-label="Chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+  <!-- Plan FAB — visible when Plan tab is active -->
+  <button class="plan-fab" id="planFab" style="display:none" title="Add" aria-label="Add task or goal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <!-- Triage sheet backdrop + sheet (overlays phone frame) -->
+  <div class="triage-back" id="triageBack"></div>
+  <div class="triage-sheet" id="triageSheet">
+    <div class="ts-grip"></div>
+    <div class="ts-hdr">
+      <div class="ts-title">What's on your mind?</div>
+      <button class="ts-close" id="triageClose" aria-label="Close">✕</button>
+    </div>
+    <input id="triageName" class="ts-input" placeholder="Name it…" autocomplete="off"/>
+    <div class="ts-label">Life area <span class="ts-opt">— optional</span></div>
+    <div class="ts-pills" id="triagePillars"></div>
+    <div class="ts-label">When?</div>
+    <div class="ts-pills" id="triageScopes"></div>
+    <div class="ts-date-row">
+      <input type="date" id="triageDate" class="ts-input ts-date"/>
+      <input type="time" id="triageTime" class="ts-input ts-time"/>
+    </div>
+    <div class="ts-label">Part of a goal? <span class="ts-opt">— optional</span></div>
+    <div class="ts-goals" id="triageGoals"></div>
+    <button class="ts-submit" id="triageSubmit">Add card</button>
+  </div>
   <nav class="tabs">
     <button class="tab-btn active" data-tab="today"><i class="ic ic-sun"></i>Today</button>
     <button class="tab-btn" data-tab="log"><i class="ic ic-activity"></i>Log</button>
-    <button class="tab-btn" data-tab="plan"><i class="ic ic-target"></i>Plan</button>
+    <button class="tab-btn" data-tab="plan"><i class="ic ic-target"></i>Plan<span class="review-dot" id="reviewDot"></span></button>
     <button class="tab-btn" data-tab="money"><i class="ic ic-shield"></i>Money</button>
     <button class="tab-btn" data-tab="you"><i class="ic ic-user"></i>You</button>
   </nav>
@@ -133,9 +217,9 @@ p.sub{margin:0 0 24px;font-size:13px;color:var(--muted);text-align:center;max-wi
     <span class="t-sub" data-screen="log-energy.html">log-energy.html</span>
 
     <div class="t-head"><div class="t-dot" style="background:var(--p-admin)"></div>Plan</div>
-    <span class="t-sub" data-screen="plan-month.html">plan-month.html</span>
-    <span class="t-sub" data-screen="plan-horizon.html">plan-horizon.html</span>
-    <span class="t-sub" data-screen="plan-map.html">plan-map.html</span>
+    <span class="t-sub" data-screen="plan-flow.html">plan-flow.html (Flow)</span>
+    <span class="t-sub" data-screen="plan-goals.html">plan-goals.html (Goals)</span>
+    <span class="t-sub" data-screen="plan-map.html">plan-map.html (Map)</span>
 
     <div class="t-head"><div class="t-dot" style="background:var(--p-money)"></div>Money</div>
     <span class="t-sub" data-screen="money-add.html">money-add.html</span>
@@ -145,14 +229,21 @@ p.sub{margin:0 0 24px;font-size:13px;color:var(--muted);text-align:center;max-wi
     <span class="t-sub" data-screen="money-worth.html">money-worth.html</span>
 
     <div class="t-head"><div class="t-dot" style="background:var(--p-joy)"></div>You</div>
+    <span class="t-sub" data-screen="you-progress.html">you-progress.html (Progress)</span>
     <span class="t-sub" data-screen="plan-trails.html">plan-trails.html (Paths)</span>
     <span class="t-sub" data-screen="foundations.html">foundations.html (from Paths)</span>
-    <span class="t-sub" data-screen="you-identity.html">you-identity.html</span>
-    <span class="t-sub" data-screen="you-discover.html">you-discover.html</span>
-    <span class="t-sub" data-screen="you-progress.html">you-progress.html</span>
+    <span class="t-sub" data-screen="you-discover.html">you-discover.html (Discover)</span>
+    <span class="t-sub" data-screen="you-identity.html">you-identity.html (Self)</span>
 
     <div class="t-head"><div class="t-dot" style="background:var(--muted)"></div>⚙ Settings</div>
     <span class="t-sub" data-screen="settings.html">settings.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--p-joy)"></div>Retention</div>
+    <span class="t-sub" data-screen="widget-concepts.html">widget-concepts.html</span>
+
+    <div class="t-head"><div class="t-dot" style="background:var(--olive)"></div>Membership</div>
+    <span class="t-sub" data-screen="onboarding-flow.html">onboarding-flow.html</span>
+    <span class="t-sub" data-screen="paywall.html">paywall.html</span>
   </div>
   <div class="note">
     Click any screen in the tree to load it. Each <code>screens/*.html</code> also opens standalone — useful for hand-tweaking one screen without scrolling through everything.
@@ -161,6 +252,7 @@ p.sub{margin:0 0 24px;font-size:13px;color:var(--muted);text-align:center;max-wi
 </div>
 </div>
 
+<script src="shared/plan-data.js"></script>
 <script>
 // Screen registry — title shown in topbar + sub-tabs per top tab
 const tabs = {
@@ -182,9 +274,9 @@ const tabs = {
   plan: {
     title:'Plan',
     subs:[
-      {label:'Month',   src:'plan-month.html'},
-      {label:'Horizon', src:'plan-horizon.html'},
-      {label:'Map',     src:'plan-map.html'}
+      {label:'Flow',  src:'plan-flow.html'},
+      {label:'Goals', src:'plan-goals.html'},
+      {label:'Map',   src:'plan-map.html'}
     ],
     def:0
   },
@@ -202,10 +294,10 @@ const tabs = {
   you: {
     title:'You',
     subs:[
-      {label:'Paths',    src:'plan-trails.html'},
-      {label:'Identity', src:'you-identity.html'},
+      {label:'Progress', src:'you-progress.html'},
+      {label:'Paths',   src:'plan-trails.html'},
       {label:'Discover', src:'you-discover.html'},
-      {label:'Progress', src:'you-progress.html'}
+      {label:'Self',    src:'you-identity.html'}
     ],
     def:0
   }
@@ -226,6 +318,9 @@ function activateTab(tabKey){
   if (!td) return;
   tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabKey));
   titleEl.textContent = td.title;
+  // Plan FAB + review badge
+  document.getElementById('planFab').style.display = tabKey === 'plan' ? 'grid' : 'none';
+  if (window.checkReviewBadge) window.checkReviewBadge();
 
   // Sub-nav
   if (td.subs.length <= 1){
@@ -262,6 +357,114 @@ cog.addEventListener('click', () => {
 document.querySelectorAll('#navTree .t-sub').forEach(el => {
   el.addEventListener('click', () => loadScreen(el.dataset.screen));
 });
+
+// ── Capture triage sheet ─────────────────────────────────────────────────
+(function(){
+  const P = window.PlanData;
+  if (!P) return;
+
+  const fab        = document.getElementById('planFab');
+  const back       = document.getElementById('triageBack');
+  const sheet      = document.getElementById('triageSheet');
+  const closeBtn   = document.getElementById('triageClose');
+  const nameInput  = document.getElementById('triageName');
+  const pillarsEl  = document.getElementById('triagePillars');
+  const scopesEl   = document.getElementById('triageScopes');
+  const goalsEl    = document.getElementById('triageGoals');
+  const submitBtn  = document.getElementById('triageSubmit');
+  const dateInput  = document.getElementById('triageDate');
+  const timeInput  = document.getElementById('triageTime');
+
+  let selPillars = [], selScope = 'today', selGoalId = null;
+
+  function openTriage() {
+    selPillars = []; selScope = 'today'; selGoalId = null;
+    nameInput.value = ''; dateInput.value = ''; timeInput.value = '';
+    buildPillars(); buildScopes(); buildGoals();
+    back.classList.add('open');
+    sheet.classList.add('open');
+    setTimeout(() => nameInput.focus(), 250);
+  }
+  function closeTriage() {
+    back.classList.remove('open');
+    sheet.classList.remove('open');
+  }
+
+  function buildPillars() {
+    pillarsEl.innerHTML = P.PILLARS.map(p =>
+      `<button class="ts-pill" data-p="${p}" style="--pc:var(${P.PILLAR_VAR[p]})">${P.PILLAR_LABEL[p]}</button>`
+    ).join('');
+    pillarsEl.querySelectorAll('.ts-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.p;
+        if (selPillars.includes(p)) { selPillars = selPillars.filter(x => x !== p); btn.classList.remove('sel'); }
+        else { selPillars.push(p); btn.classList.add('sel'); }
+      });
+    });
+  }
+
+  function buildScopes() {
+    scopesEl.innerHTML = P.SCOPES.map(s =>
+      `<button class="ts-pill scope-pill${s === selScope ? ' sel' : ''}" data-s="${s}">${P.SCOPE_LABEL[s]}</button>`
+    ).join('');
+    scopesEl.querySelectorAll('.ts-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selScope = btn.dataset.s;
+        scopesEl.querySelectorAll('.ts-pill').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+      });
+    });
+  }
+
+  function buildGoals() {
+    const gs = P.activeGoals ? P.activeGoals() : [];
+    let html = '<button class="ts-goal-btn sel" data-gid="standalone"><div class="ts-goal-dot" style="background:var(--line)"></div>Standalone</button>';
+    gs.forEach(g => {
+      const col = g.pillars && g.pillars[0] ? `var(${P.PILLAR_VAR[g.pillars[0]] || '--muted'})` : 'var(--muted)';
+      html += `<button class="ts-goal-btn" data-gid="${g.id}"><div class="ts-goal-dot" style="background:${col}"></div>${g.name}</button>`;
+    });
+    goalsEl.innerHTML = html;
+    goalsEl.querySelectorAll('.ts-goal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selGoalId = btn.dataset.gid === 'standalone' ? null : btn.dataset.gid;
+        goalsEl.querySelectorAll('.ts-goal-btn').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+      });
+    });
+  }
+
+  submitBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    const extra = {
+      pillars: selPillars.length ? selPillars : [],
+      bucket:  selScope,
+      date:    dateInput.value || null,
+      time:    timeInput.value || null,
+    };
+    if (selGoalId) P.addChild(selGoalId, name, extra);
+    else           P.addRoot(name, extra);
+    closeTriage();
+  });
+
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
+  fab.addEventListener('click', openTriage);
+  back.addEventListener('click', closeTriage);
+  closeBtn.addEventListener('click', closeTriage);
+})();
+
+// ── Review badge ─────────────────────────────────────────────────
+window.checkReviewBadge = function() {
+  try {
+    const dot = document.getElementById('reviewDot');
+    if (!dot || !window.PlanData) return;
+    dot.classList.toggle('show', window.PlanData.reviewDue('weekly'));
+  } catch(e) {}
+};
+window.addEventListener('load', window.checkReviewBadge);
+if ('BroadcastChannel' in window) {
+  new BroadcastChannel('compass-plan').onmessage = window.checkReviewBadge;
+}
 </script>
 </body>
 </html>
