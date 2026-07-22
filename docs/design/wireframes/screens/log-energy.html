@@ -168,10 +168,16 @@ main>section[hidden]{display:none}
 }
 /* history */
 #historyList .row{padding:6px 0;border-bottom:1px solid var(--line);gap:10px}
+#historyList .row{cursor:pointer;border-radius:10px;transition:background .15s}
+#historyList .row:hover{background:var(--greige)}
 #historyList .row:last-child{border-bottom:none}
 #historyList .row .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .hist-emotion{font-size:var(--fs-xs);color:var(--muted);margin-top:1px}
 #emptyHistory{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;padding:4px 0}
+.edit-field{display:block;width:100%;box-sizing:border-box;margin:5px 0 12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:var(--fs-sm) inherit;outline:none;}
+.edit-field:focus{border-color:var(--accent)}
+.edit-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.edit-actions{display:flex;gap:8px;margin-top:16px}.edit-actions .btn-prim{flex:1}.edit-delete{border:1.5px solid var(--cost);border-radius:12px;background:var(--card);color:var(--cost);padding:10px 13px;font:700 var(--fs-xs) inherit;cursor:pointer}
 /* source sheet pills */
 .sheet-count{font-size:var(--fs-xs);color:var(--muted);min-height:18px;margin-bottom:12px}
 .sheet-tag-input{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
@@ -775,8 +781,30 @@ function renderHistory(){
     var flowLabel=ev.flow&&FLOW_META[ev.flow]?FLOW_META[ev.flow].label:(ev.kind==='restore'?'Recharge':'Leak');
     var emoTxt=ev.emotion?'<div class="hist-emotion">'+ev.emotion+'</div>':'';
     var inflTxt=inflLabel(ev.influences)||(ev.tag&&ev.tag!==ev.flow?ev.tag:null)||'';
-    return'<div class="row"><div class="dot" style="background:'+flowColor(ev.flow||ev.kind)+'"></div><div class="label"><strong>'+ev.score+'/10</strong> · '+flowLabel+(inflTxt?' · <span style="color:var(--muted)">'+inflTxt+'</span>':'')+'<br/><span style="font-size:var(--fs-xs);color:var(--muted)">'+new Date(ev.timestamp).toLocaleString()+'</span>'+emoTxt+'</div></div>';
+    return'<div class="row" role="button" tabindex="0" onclick="openEnergyEdit(\''+ev.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openEnergyEdit(\''+ev.id+'\')}"><div class="dot" style="background:'+flowColor(ev.flow||ev.kind)+'"></div><div class="label"><strong>'+ev.score+'/10</strong> · '+flowLabel+(inflTxt?' · <span style="color:var(--muted)">'+inflTxt+'</span>':'')+'<br/><span style="font-size:var(--fs-xs);color:var(--muted)">'+new Date(ev.timestamp).toLocaleString()+'</span>'+emoTxt+'</div><i class="ic ic-chev" style="color:var(--muted)"></i></div>';
   }).join('');
+}
+var editingEnergyId=null;
+function dateTimeLocal(timestamp){var d=new Date(timestamp),off=d.getTimezoneOffset();return new Date(d.getTime()-off*60000).toISOString().slice(0,16);}
+function openEnergyEdit(id){
+  var ev=readStore().events.find(function(item){return String(item.id)===String(id);});if(!ev)return;
+  editingEnergyId=ev.id;document.getElementById('energyEditScore').value=ev.score;document.getElementById('energyEditScoreValue').textContent=ev.score+'/10';
+  document.getElementById('energyEditFlow').value=ev.flow||((ev.kind==='restore')?'recharge':'leak');document.getElementById('energyEditInfluences').value=inflLabel(ev.influences)||(ev.tag||'');
+  document.getElementById('energyEditEmotion').value=ev.emotion||'';document.getElementById('energyEditTime').value=dateTimeLocal(ev.timestamp);
+  document.getElementById('energyEditSheet').classList.add('open');
+}
+function closeEnergyEdit(){editingEnergyId=null;document.getElementById('energyEditSheet').classList.remove('open');}
+function saveEnergyEdit(){
+  var store=readStore(),ev=store.events.find(function(item){return String(item.id)===String(editingEnergyId);});if(!ev)return;
+  var score=Number(document.getElementById('energyEditScore').value),flow=document.getElementById('energyEditFlow').value,influences=document.getElementById('energyEditInfluences').value.split(',').map(function(value){return value.trim();}).filter(Boolean);
+  ev.score=score;ev.scoreWord=WORDS[score-1];ev.flow=flow;ev.kind=(flow==='leak'||flow==='invest')?'cost':'restore';ev.influences=influences;ev.tag=influences[0]||null;ev.emotion=document.getElementById('energyEditEmotion').value.trim()||null;ev.timestamp=new Date(document.getElementById('energyEditTime').value).toISOString();ev.updatedAt=new Date().toISOString();
+  writeStore(store);
+  if(ev.sleepEntryId){try{var sleep=JSON.parse(localStorage.getItem('compass.sleep.v1'));var night=sleep&&sleep.entries&&sleep.entries.find(function(item){return String(item.id)===String(ev.sleepEntryId);});if(night){night.energy=score;night.updatedAt=ev.updatedAt;localStorage.setItem('compass.sleep.v1',JSON.stringify(sleep));}}catch(error){}}
+  closeEnergyEdit();renderLatest();renderHistory();
+}
+function deleteEnergyEdit(){
+  if(!confirm('Remove this observation? This cannot be undone.'))return;
+  var store=readStore();store.events=store.events.filter(function(item){return String(item.id)!==String(editingEnergyId);});writeStore(store);closeEnergyEdit();renderLatest();renderHistory();
 }
 renderLatest();
 
@@ -1027,6 +1055,25 @@ function applyEmotion(){
       <button class="emo-skip-btn" onclick="closeEmotionSheet()">Skip</button>
     </div>
 
+  </div>
+</div>
+
+<div class="sheet" id="energyEditSheet" role="dialog" aria-modal="true" aria-label="Edit energy observation" onclick="if(event.target===this)closeEnergyEdit()">
+  <div class="sheet-inner" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit observation</div>
+    <div class="sheet-sub">Adjust what you recorded without losing the rest of your history.</div>
+    <label class="edit-label" for="energyEditScore">Energy <span id="energyEditScoreValue">5/10</span></label>
+    <input class="edit-field" id="energyEditScore" type="range" min="1" max="10" oninput="document.getElementById('energyEditScoreValue').textContent=this.value+'/10'"/>
+    <label class="edit-label" for="energyEditFlow">Flow</label>
+    <select class="edit-field" id="energyEditFlow"><option value="leak">Leak</option><option value="invest">Investment</option><option value="recharge">Recharge</option><option value="nourish">Nourishment</option></select>
+    <label class="edit-label" for="energyEditInfluences">Influences</label>
+    <input class="edit-field" id="energyEditInfluences" placeholder="Sleep, work, movement"/>
+    <label class="edit-label" for="energyEditEmotion">Emotion</label>
+    <input class="edit-field" id="energyEditEmotion" placeholder="Optional"/>
+    <label class="edit-label" for="energyEditTime">Time</label>
+    <input class="edit-field" id="energyEditTime" type="datetime-local"/>
+    <div class="edit-actions"><button class="edit-delete" onclick="deleteEnergyEdit()">Delete</button><button class="btn-prim" onclick="saveEnergyEdit()">Save changes</button></div>
   </div>
 </div>
 

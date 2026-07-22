@@ -29,7 +29,7 @@
 .anchor-hero{
   background:linear-gradient(155deg,#2d2b27,#3a3734);color:#f1ede6;
   border-radius:20px;padding:20px;margin-bottom:14px;
-  box-shadow:0 6px 24px rgba(28,27,24,.22);
+  box-shadow:0 6px 24px rgba(28,27,24,.22);cursor:pointer;
 }
 .anchor-hero.done-state{opacity:.75;}
 .ah-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
@@ -54,6 +54,14 @@
 .ah-dot.today{background:transparent;border:2px solid rgba(255,255,255,.4);width:5px;height:5px;}
 .ah-dot.skip{background:rgba(255,255,255,.08);}
 .ah-freq{font-size:var(--fs-xs);color:rgba(241,237,230,.4);font-weight:500;}
+.ah-expand{display:inline-flex;align-items:center;gap:5px;margin-top:14px;padding:0;border:0;background:none;font-family:inherit;font-size:var(--fs-xs);font-weight:600;color:rgba(241,237,230,.55);cursor:pointer;}
+.ah-expand:focus-visible{outline:2px solid rgba(241,237,230,.65);outline-offset:4px;border-radius:3px;}
+.ah-expand .ic{font-size:11px;transition:transform .2s ease;}
+.anchor-hero.expanded .ah-expand .ic{transform:rotate(180deg);}
+.ah-details{max-height:0;overflow:hidden;opacity:0;transition:max-height .25s ease,opacity .2s ease,margin-top .25s ease;border-top:1px solid transparent;}
+.anchor-hero.expanded .ah-details{max-height:180px;opacity:1;margin-top:14px;padding-top:14px;border-top-color:rgba(255,255,255,.12);}
+.ah-details-title{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(241,237,230,.55);margin-bottom:6px;}
+.ah-details-copy{font-size:var(--fs-sm);line-height:1.6;color:rgba(241,237,230,.78);}
 /* Rest/Lighter: hide practice, show rest message */
 .mode-rest .anchor-hero .ah-practice,.mode-rest .anchor-hero .ah-bottom,
 .mode-lighter .anchor-hero .ah-practice,.mode-lighter .anchor-hero .ah-bottom{display:none;}
@@ -152,7 +160,6 @@
 .rest-banner-txt strong,.lighter-banner-txt strong{color:var(--ink);font-weight:700;}
 
 /* ══════════ BAND 3 · YOUR DAY ══════════ */
-.mode-lighter .day-band .tasks-card{opacity:.5;}
 .tasks-card{margin-bottom:10px;}
 .tasks-card .yritual-top{padding-bottom:12px;border-bottom:1px solid var(--line);}
 .task-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;}
@@ -205,16 +212,16 @@
 
   <!-- ══════════ BAND 0 · ANCHOR HERO (IS the theme practice) ══════════ -->
   <!-- Dark, dominant. ONE rotating step. The day's single focus. -->
-  <div class="anchor-hero" id="anchorHero">
+  <div class="anchor-hero" id="anchorHero" onclick="toggleAnchorDetails()">
     <div class="ah-top">
-      <div class="ah-path" id="ahPath" onclick="openQualitySheet()">Stillness Path · Camp 2</div>
+      <div class="ah-path" id="ahPath" onclick="event.stopPropagation();openQualitySheet()">Stillness Path · Camp 2</div>
       <div class="ah-badge">Theme</div>
     </div>
     <div class="ah-practice" id="ahPractice">When you feel the urge to react — pause for one breath first.</div>
     <div class="ah-rest-msg"><i class="ic ic-shield"></i> Today is for rest. The theme holds — nothing is lost.</div>
     <div class="ah-bottom">
       <!-- haptic: light impact · scale(.88)->scale(1) spring 150ms · fill olive on done -->
-      <button class="ah-tick" id="ahTick" onclick="toggleAnchor()" title="I practised this">&#10003;</button>
+      <button class="ah-tick" id="ahTick" onclick="event.stopPropagation();toggleAnchor()" title="I practised this">&#10003;</button>
       <div class="ah-pulse">
         <div class="ah-dots">
           <span class="ah-dot on"></span>
@@ -227,6 +234,11 @@
         </div>
         <div class="ah-freq">4th session this week · spacing is working</div>
       </div>
+    </div>
+    <button class="ah-expand" type="button" aria-expanded="false" aria-controls="anchorDetails" onclick="event.stopPropagation();toggleAnchorDetails()"><span id="ahExpandLabel">Read more</span> <i class="ic ic-chev"></i></button>
+    <div class="ah-details" id="anchorDetails" aria-hidden="true">
+      <div class="ah-details-title">Why this matters</div>
+      <div class="ah-details-copy" id="ahDetailsCopy">The pause creates a little space between the trigger and your response, making it easier to act with intention.</div>
     </div>
   </div>
 
@@ -264,9 +276,9 @@
         <svg class="tr-mood"  viewBox="0 0 100 100"><circle class="tr-bg" cx="50" cy="50" r="25" pathLength="100"/><circle class="tr-arc" id="arcMood"  cx="50" cy="50" r="25" pathLength="100" stroke-dashoffset="100"/></svg>
       </div>
       <div class="tri-legend">
-        <div class="lg-row"><div class="lg-dot sleep"></div><div class="lg-name">Sleep</div></div>
-        <div class="lg-row"><div class="lg-dot energy"></div><div class="lg-name">Energy</div></div>
-        <div class="lg-row"><div class="lg-dot mood"></div><div class="lg-name">Mood</div></div>
+        <div class="lg-row"><div class="lg-dot sleep"></div><div class="lg-name" id="lgSleep">0% Sleep</div></div>
+        <div class="lg-row"><div class="lg-dot energy"></div><div class="lg-name" id="lgEnergy">0% Energy</div></div>
+        <div class="lg-row"><div class="lg-dot mood"></div><div class="lg-name" id="lgMood">0% Mood</div></div>
       </div>
     </div>
   </div>
@@ -407,11 +419,6 @@
 
   <div class="alldone" id="allDone"><i class="ic ic-moon"></i> You've done enough today.<br/>Rest well.</div>
 
-  <!-- Demo toggle -->
-  <div style="margin-top:10px;text-align:center">
-    <button onclick="toggleWelcomeDemo()" style="background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;font-family:inherit;">▶ Toggle welcome-back demo</button>
-  </div>
-
   <!-- ══════════ SLEEP SHEET ══════════ -->
   <div class="sheet-back" id="sheetBack" onclick="closeSleepSheet()"></div>
   <div class="sleep-sheet" id="sleepSheet">
@@ -490,12 +497,6 @@ function startFromWelcome(){
   dismissWelcome();
   setTimeout(function(){document.getElementById('anchorHero').scrollIntoView({behavior:'smooth',block:'start'});},450);
 }
-function toggleWelcomeDemo(){
-  var wb=document.getElementById('welcomeBack');
-  if(wb.style.display==='none'||!wb.style.display){wb.style.display='block';wb.style.opacity='1';wb.style.transform='none';}
-  else{wb.style.display='none';}
-}
-
 /* ── Anchor Hero (merged theme practice) ── */
 var ANCHOR_STEPS={
   stillness:['When you feel the urge to react \u2014 pause for one breath first.',
@@ -508,11 +509,23 @@ var ANCHOR_STEPS={
     'When you want to rush \u2014 remind yourself: \u201CRushing rarely makes it better.\u201D',
     'Give whatever you are doing one more calm attempt before switching.']
 };
+var ANCHOR_DETAILS={
+  stillness:'The pause creates a little space between the trigger and your response, making it easier to act with intention.',
+  presence:'Using your senses brings attention back to what is actually happening, instead of what your mind is predicting.',
+  patience:'Softening physical tension interrupts the urge to rush and gives you room for one more considered response.'
+};
+function toggleAnchorDetails(){
+  var hero=document.getElementById('anchorHero'),expanded=!hero.classList.contains('expanded');
+  hero.classList.toggle('expanded',expanded);hero.querySelector('.ah-expand').setAttribute('aria-expanded',expanded);
+  document.getElementById('anchorDetails').setAttribute('aria-hidden',!expanded);
+  document.getElementById('ahExpandLabel').textContent=expanded?'Show less':'Read more';
+}
 function getTodayStep(q){var s=ANCHOR_STEPS[q]||ANCHOR_STEPS.stillness;return s[new Date().getDay()%s.length];}
 function renderAnchor(){
   var q=QUALITIES[currentQuality];
   document.getElementById('ahPath').textContent=q.src;
   document.getElementById('ahPractice').textContent=getTodayStep(currentQuality);
+  document.getElementById('ahDetailsCopy').textContent=ANCHOR_DETAILS[currentQuality]||ANCHOR_DETAILS.stillness;
 }
 var anchorDone=false;
 function toggleAnchor(){
@@ -623,6 +636,9 @@ function applyVitals(sleepPct,mood,energy){
   setArc('arcSleep',sleepPct);
   setArc('arcMood',mood/MP_MAX*100);
   setArc('arcEnergy',energy/MP_MAX*100);
+  document.getElementById('lgSleep').textContent=clampPct(sleepPct)+'% Sleep';
+  document.getElementById('lgEnergy').textContent=clampPct(energy/MP_MAX*100)+'% Energy';
+  document.getElementById('lgMood').textContent=clampPct(mood/MP_MAX*100)+'% Mood';
   _suggestPace(null);
 }
 function _suggestPace(latestEvent){
@@ -651,6 +667,7 @@ function syncEnergyFromStore(){
   if(todayCheckins.length){
     var latest=todayCheckins[todayCheckins.length-1];
     setArc('arcEnergy',latest.score/10*100);
+    document.getElementById('lgEnergy').textContent=clampPct(latest.score/10*100)+'% Energy';
     document.getElementById('sleepPrompt').style.display='none';
     document.getElementById('sleepLogged').style.display='flex';
     _vitals.energy=latest.score;

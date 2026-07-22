@@ -27,6 +27,19 @@
 
 /* ── Lede ── */
 .lede{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.015em;margin:12px 0;}
+#sleepTabs{display:flex;gap:6px;margin-bottom:12px;}
+#sleepTabs .pill{flex:1;padding:8px 6px;font-family:inherit;}
+.sleep-view[hidden]{display:none;}
+.saved-night{display:none;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+.saved-night.show{display:block;}
+.saved-top{display:flex;align-items:flex-start;gap:12px;}
+.saved-copy{flex:1;}.saved-title{font-size:var(--fs-md);font-weight:800;}.saved-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;line-height:1.5;}
+.edit-btn{border:1.5px solid var(--line);border-radius:999px;background:var(--card);padding:7px 12px;font:700 var(--fs-xs) inherit;color:var(--accent);cursor:pointer;}
+.sleep-history{display:flex;flex-direction:column;gap:8px;}
+.sleep-entry{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-family:inherit;cursor:pointer;}
+.sleep-entry-main{flex:1;min-width:0;}.sleep-entry-main strong{display:block;font-size:var(--fs-sm);color:var(--ink);}.sleep-entry-main span{font-size:var(--fs-xs);color:var(--muted);}
+.sleep-score{font-size:var(--fs-md);font-weight:800;color:var(--p-inner);}
+.empty-state{font-size:var(--fs-sm);color:var(--muted);padding:18px 4px;line-height:1.55;}
 
 /* btn-prim · b-label · b-note · sheet-back · sleep-sheet · ss-* → components.css */
 </style>
@@ -41,6 +54,17 @@
       <div class="ylens-sub">How did you rest last night?</div>
     </div>
   </div>
+
+  <div class="pill-row" id="sleepTabs" role="tablist">
+    <button class="pill on" role="tab" aria-selected="true" data-view="sleepLog">Log</button>
+    <button class="pill" role="tab" aria-selected="false" data-view="sleepRecent">Recent</button>
+  </div>
+
+  <section class="sleep-view" id="sleepLog" role="tabpanel">
+  <div class="saved-night" id="savedNight">
+    <div class="saved-top"><div class="saved-copy"><div class="saved-title">Last night is logged</div><div class="saved-meta" id="savedNightMeta"></div></div><button class="edit-btn" onclick="editTodayNight()">Edit</button></div>
+  </div>
+  <div id="sleepEditor">
 
   <!-- Target strip (tap to edit goal) -->
   <div class="target-strip" id="targetStrip">
@@ -96,10 +120,17 @@
     <div class="dial-hint" style="margin-top:12px">This starts today's energy timeline. Later check-ins add new points without replacing it.</div>
 
     <div class="b-label" style="margin-top:16px">Note (optional)</div>
-    <textarea class="b-note" placeholder="What's on your mind…"></textarea>
+    <textarea class="b-note" id="sleepNote" placeholder="What's on your mind…"></textarea>
   </div>
 
   <button class="btn-prim" id="saveNight">Save night</button>
+  </div>
+  </section>
+
+  <section class="sleep-view" id="sleepRecent" role="tabpanel" hidden>
+    <div class="sleep-history" id="sleepHistory"></div>
+    <div class="empty-state" id="sleepEmpty">Your logged nights will gather here.</div>
+  </section>
 
   <!-- Target sheet (slides up from the bottom when you tap the target strip) -->
   <div class="sheet-back" id="targetBack" onclick="closeTarget()"></div>
@@ -229,25 +260,48 @@ window._targetDial = createSleepDial({
 
   strip.addEventListener('click', openSheet);
 
-// ── Save night: write morning energy into the canonical energy store ──
+// ── Persisted nights + linked morning energy (v2 is canonical) ──
+const SLEEP_KEY='compass.sleep.v1',ENERGY_KEY='compass.energy.v2';
+let editingSleepId=null;
+localStorage.removeItem('compass.energy.v1');
+function readSleep(){try{const value=JSON.parse(localStorage.getItem(SLEEP_KEY));return value&&Array.isArray(value.entries)?value:{entries:[]};}catch(error){return{entries:[]};}}
+function writeSleep(store){localStorage.setItem(SLEEP_KEY,JSON.stringify(store));}
+function readEnergy(){try{return JSON.parse(localStorage.getItem(ENERGY_KEY))||{events:[],experiment:null};}catch(error){return{events:[],experiment:null};}}
+function timeToHour(value){const parts=value.split(':').map(Number);return parts[0]+parts[1]/60;}
+function localDate(timestamp){const date=new Date(timestamp);return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');}
+function todayKey(){return localDate(new Date().toISOString());}
+function currentNight(){return readSleep().entries.slice().reverse().find(entry=>entry.date===todayKey())||null;}
+function renderSavedNight(){
+  const entry=currentNight(),saved=document.getElementById('savedNight'),editor=document.getElementById('sleepEditor');
+  saved.classList.toggle('show',!!entry);editor.style.display=entry&&!editingSleepId?'none':'';
+  if(entry)document.getElementById('savedNightMeta').textContent=entry.bed+' → '+entry.wake+' · '+entry.durationLabel+' · Mood '+entry.mood+'/10 · Energy '+entry.energy+'/10';
+}
+function renderSleepHistory(){
+  const entries=readSleep().entries.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('sleepEmpty').style.display=entries.length?'none':'';
+  document.getElementById('sleepHistory').innerHTML=entries.map(entry=>'<button class="sleep-entry" onclick="editSleepEntry(\''+entry.id+'\')"><div class="sleep-entry-main"><strong>'+new Date(entry.date+'T12:00:00').toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' · '+entry.durationLabel+'</strong><span>'+entry.bed+' → '+entry.wake+(entry.note?' · '+entry.note:'')+'</span></div><div class="sleep-score">'+entry.energy+'/10</div></button>').join('');
+}
+function setPick(name,value){const pick=document.querySelector('.mood-pick[data-name="'+name+'"]');pick.dataset.value=value;mpPaint(pick);}
+window.editSleepEntry=function(id){
+  const entry=readSleep().entries.find(item=>String(item.id)===String(id));if(!entry)return;
+  editingSleepId=entry.id;window._mainDial.set(entry.sleepHour,entry.wakeHour);setPick('mood',entry.mood);setPick('energy',entry.energy);document.getElementById('sleepNote').value=entry.note||'';
+  document.getElementById('saveNight').textContent='Update night';document.getElementById('savedNight').classList.remove('show');document.getElementById('sleepEditor').style.display='';showSleepView('sleepLog');
+};
+window.editTodayNight=function(){const entry=currentNight();if(entry)editSleepEntry(entry.id);};
+function showSleepView(id){document.querySelectorAll('.sleep-view').forEach(section=>section.hidden=section.id!==id);document.querySelectorAll('#sleepTabs .pill').forEach(tab=>{const on=tab.dataset.view===id;tab.classList.toggle('on',on);tab.setAttribute('aria-selected',String(on));});if(id==='sleepRecent')renderSleepHistory();}
+document.querySelectorAll('#sleepTabs .pill').forEach(tab=>tab.addEventListener('click',()=>showSleepView(tab.dataset.view)));
 document.getElementById('saveNight').addEventListener('click', function() {
-  const energyPick = document.querySelector('.mood-pick[data-name="energy"]');
-  if (!energyPick) return;
-  const energyScore = Number(energyPick.dataset.value);
-  const ENERGY_KEY = 'compass.energy.v1';
-  let store;
-  try { store = JSON.parse(localStorage.getItem(ENERGY_KEY)) || {events:[], experiment:null}; }
-  catch(e) { store = {events:[], experiment:null}; }
-  // Only add a morning entry if one hasn't been recorded today already
-  const today = new Date().toISOString().slice(0, 10);
-  const alreadyLogged = store.events.some(ev => ev.source === 'sleep' && ev.timestamp.slice(0, 10) === today);
-  if (!alreadyLogged) {
-    store.events.push({ id: Date.now(), timestamp: new Date().toISOString(), score: energyScore, tag: 'Morning', kind: 'morning', source: 'sleep' });
-    localStorage.setItem(ENERGY_KEY, JSON.stringify(store));
-  }
-  this.textContent = 'Saved ✓';
-  this.style.background = 'var(--olive)';
-  setTimeout(() => { this.textContent = 'Save night'; this.style.background = ''; }, 1400);
+  const state=window._mainDial.state(),sleepHour=timeToHour(state.bed),wakeHour=timeToHour(state.wake),mood=Number(document.querySelector('.mood-pick[data-name="mood"]').dataset.value),energy=Number(document.querySelector('.mood-pick[data-name="energy"]').dataset.value);
+  const sleepStore=readSleep(),now=new Date().toISOString(),existing=editingSleepId&&sleepStore.entries.find(entry=>String(entry.id)===String(editingSleepId));
+  const entry=existing||{id:Date.now(),createdAt:now};
+  Object.assign(entry,{date:existing?existing.date:todayKey(),timestamp:existing?existing.timestamp:now,updatedAt:now,sleepHour,wakeHour,bed:state.bed,wake:state.wake,durationMinutes:state.h*60+state.m,durationLabel:state.h+'h '+String(state.m).padStart(2,'0')+'m',mood,energy,note:document.getElementById('sleepNote').value.trim()});
+  if(!existing)sleepStore.entries.push(entry);writeSleep(sleepStore);
+  const energyStore=readEnergy();energyStore.events=energyStore.events||[];
+  let energyEvent=energyStore.events.find(event=>String(event.sleepEntryId)===String(entry.id));
+  if(!energyEvent){energyEvent={id:Date.now()+1,source:'sleep',sleepEntryId:entry.id};energyStore.events.push(energyEvent);}
+  Object.assign(energyEvent,{timestamp:entry.timestamp,updatedAt:now,score:energy,scoreWord:MP_WORDS.energy[Math.ceil(energy/2)-1],tag:'Morning',kind:'morning',flow:'recharge',influences:['Sleep'],emotion:null});
+  localStorage.setItem(ENERGY_KEY,JSON.stringify(energyStore));
+  editingSleepId=null;this.textContent='Save night';renderSavedNight();renderSleepHistory();
 });
 
   save.addEventListener('click', () => {
@@ -257,6 +311,7 @@ document.getElementById('saveNight').addEventListener('click', function() {
     window._mainDial.refreshTarget();
     window.closeTarget();
   });
+  renderSavedNight();renderSleepHistory();
 })();
 </script>
 </body>

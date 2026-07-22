@@ -7,7 +7,7 @@
 //   arcColor      colour of the sleep arc (default slate)
 //   sectorColor   fill of the sleep sector
 //   onUpdate(ctx) called on every change with {sleepH,wakeH,durHours,fmtTime,fmtDur}
-// Returns { state(), refreshTarget() }.
+// Returns { state(), set(sleep,wake), refreshTarget() }.
 function createSleepDial(opts) {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = typeof opts.svg === 'string' ? document.getElementById(opts.svg) : opts.svg;
@@ -112,6 +112,7 @@ function createSleepDial(opts) {
 
   return {
     state() { const dur = ((wakeH - sleepH) + 24) % 24, h = Math.floor(dur); return { h, m: Math.round((dur - h) * 60), bed: fmtTime(sleepH), wake: fmtTime(wakeH) }; },
+    set(sleep, wake) { sleepH = snap10(Number(sleep)); wakeH = snap10(Number(wake)); update(); },
     refreshTarget() { if (targetArc) targetArc.setAttribute('d', arcD(window._target.sleep, window._target.wake, R)); }
   };
 }
