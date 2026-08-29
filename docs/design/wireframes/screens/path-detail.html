@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Compass · Path detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../shared/tokens.css"/>
+<link rel="stylesheet" href="../shared/components.css"/>
+<link rel="stylesheet" href="../shared/you.css"/>
+<link rel="stylesheet" href="../shared/path-detail.css"/>
+<style>
+  /* Standalone page framing — no floating sheet, this IS the page. */
+  body.screen-body{padding:0;background:var(--bg);}
+  .pd-back{
+    display:inline-flex;align-items:center;gap:6px;background:none;border:none;
+    padding:14px 16px 6px;font-family:inherit;font-size:var(--fs-sm);font-weight:600;
+    color:var(--muted);cursor:pointer;
+  }
+  .pd-back .ic{width:14px;height:14px;transform:rotate(180deg);}
+  .pd-wrap{max-width:640px;margin:0 auto;}
+  .pd-empty{padding:28px 20px;color:var(--muted);font-size:var(--fs-sm);text-align:center;}
+  /* Overrides so the shared .d-hero/.d-body look native as a page, not a sheet. */
+  .d-hero{border-radius:0;padding:22px 20px 20px;}
+  .d-handle{display:none;}
+  .d-body{padding:18px 20px 40px;}
+  .sect{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
+</style>
+</head>
+<body class="screen-body">
+  <div class="pd-wrap">
+    <button class="pd-back" type="button" onclick="goBack()"><i class="ic ic-chev"></i> Back</button>
+    <div id="pdRoot"></div>
+  </div>
+
+<script src="../shared/paths-data.js"></script>
+<script>
+function goBack(){
+  if(history.length > 1) history.back();
+  else location.href = 'today.html';
+}
+
+const params = new URLSearchParams(location.search);
+const qualityId = params.get('quality');
+const root = document.getElementById('pdRoot');
+
+if(!qualityId || !DATA[qualityId]){
+  root.innerHTML = '<div class="pd-empty">This path is not available.</div>';
+} else {
+  root.innerHTML = `
+    <div class="d-hero" id="dHero">
+      <div class="d-type" id="dDomain"></div>
+      <div class="d-name" id="dName"></div>
+      <div class="d-virtue" id="dIdentity"></div>
+      <div class="d-tags" id="dTags"></div>
+    </div>
+    <div class="d-body">
+      <div class="sect" id="dShiftHead" style="margin-top:0">Recent returns</div>
+      <div class="d-shift" id="dShift"></div>
+      <div class="sect" id="dPracHead">The practice</div>
+      <div class="d-prac" id="dPractice"></div>
+      <div class="sect">What this quality is</div>
+      <div id="dMeaning"></div>
+      <div class="sect">How it unfolds</div>
+      <div class="d-camps-note" id="dCampsNote"></div>
+      <div id="dCamps"></div>
+    </div>`;
+  renderDetail(qualityId);
+}
+
+function renderShift(p){
+  const head = document.getElementById('dShiftHead');
+  const box  = document.getElementById('dShift');
+  const c = p.card;
+  if(!c){ head.style.display='none'; box.style.display='none'; return; }
+  head.style.display=''; box.style.display='';
+  const last = Math.max(...c.returns);
+  const dots = c.returns.map(d => {
+    const pct = 4 + (d/(WINDOW_DAYS-1))*92;
+    return `<span class="d-ret${d===last?' last':''}" style="left:${pct}%"></span>`;
+  }).join('');
+  box.innerHTML = `
+    <div class="d-returns">${dots}</div>
+    <div class="d-ret-scale"><span>2 weeks ago</span><span>today</span></div>`;
+}
+
+function row(l,v){
+  return `<div class="d-stack-row"><div class="d-sk-lbl">${l}</div><div class="d-sk-val">${v}</div></div>`;
+}
+
+let tryCat = null;
+function tryPoolHTML(id, p, dom){
+  if(!p.tryPool) return '';
+  const cats = Object.keys(p.tryPool.cats);
+  if(!cats.includes(tryCat)) tryCat = cats[0];
+  return `<div class="d-try" style="--dom:${dom.colour}">
+    <div class="d-prac-lbl">Nothing in mind? Pick one</div>
+    <div class="d-try-note">${p.tryPool.note}</div>
+    <div class="d-try-cats">${cats.map(c =>
+      `<button class="d-try-cat${c===tryCat?' on':''}" onclick="pickTryCat('${id}','${c}')">${c}</button>`).join('')}</div>
+    <div class="d-try-list">${p.tryPool.cats[tryCat].map(t => `<div class="d-try-item">${t}</div>`).join('')}</div>
+    <div class="d-try-foot">Book it into <a href="plan-horizon.html">Plan</a> only if it needs time set aside. Afterwards, record what you found in <a href="you-discover.html">Discover</a> &mdash; liking it and not liking it are equally useful.</div>
+  </div>`;
+}
+function pickTryCat(id, c){ tryCat = c; renderPractice(id); }
+
+function renderPractice(id){
+  const p = DATA[id], dom = DOMAINS[p.domain];
+  const ritual = p.ritual
+    ? `<div class="d-prac-ritual"><span class="d-prac-rk">Ritual</span><span>Also adds a daily habit &mdash; <b>${p.ritual.v}</b> &mdash; which lives in Log &middot; Habits.</span></div>`
+    : `<div class="d-prac-ritual"><span class="d-prac-rk">Ritual</span><span>None. This one adds nothing to your daily list.</span></div>`;
+  document.getElementById('dPractice').innerHTML = `
+    <div class="d-prac-head">
+      <div class="d-prac-what">${p.practice.what}</div>
+      <div class="d-prac-freq">${p.practice.freq}</div>
+    </div>
+    <div class="d-prac-lbl">Do this</div>
+    <div class="d-prac-do">${p.practice.do}</div>
+    <div class="d-prac-counts">${p.practice.counts}</div>
+    ${tryPoolHTML(id, p, dom)}
+    <div class="sect">The sentence</div>
+    <div class="d-voice" style="--dom:${dom.colour}">
+      <div class="d-vrow d-vrow-tight">
+        <div class="d-vlbl">When it's tight</div>
+        <div class="d-vtxt">${p.voice.tight}</div>
+      </div>
+      <div class="d-vrow d-vrow-open">
+        <div class="d-vlbl">The one you're practising</div>
+        <div class="d-vtxt">${p.voice.open}</div>
+      </div>
+    </div>
+    ${ritual}`;
+}
+
+function stateBadge(id){
+  const p = DATA[id];
+  if(typeof INTEGRATED !== 'undefined' && INTEGRATED.has(id)) return 'Integrated';
+  if(p.active && p.card) return `Practising &middot; Camp ${p.card.campNow} of ${p.card.campTotal}`;
+  if(p.active) return 'Practising';
+  return 'Not started';
+}
+
+function renderDetail(id){
+  const p = DATA[id], dom = DOMAINS[p.domain];
+  document.getElementById('dDomain').innerHTML = `<i class="ic ${dom.icon}"></i> ${p.domain} &middot; ${dom.q.toLowerCase()}`;
+  document.getElementById('dName').textContent = p.quality;
+  document.getElementById('dIdentity').textContent = p.identity;
+  document.getElementById('dHero').style.background = p.bg;
+  document.getElementById('dTags').innerHTML =
+    `<span class="d-state">${stateBadge(id)}</span>` +
+    p.values.map(v => `<span class="d-tag">${v}</span>`).join('');
+  renderShift(p);
+  renderPractice(id);
+  document.getElementById('dMeaning').innerHTML =
+    row('Where it helps',
+      p.situations && p.situations.length
+        ? `<ul class="d-list">${p.situations.map(s => `<li>${s}</li>`).join('')}</ul>`
+        : p.shows) +
+    row('What it buys you',
+      `<b>${DOMAIN_AIM[p.domain]}</b> <span style="color:var(--muted)">&mdash; ${AIM_NOTE[DOMAIN_AIM[p.domain]]}, which every ${p.domain} quality serves</span>` +
+      extraAims(id).map(a => `<br><b>${a}</b> <span style="color:var(--muted)">&mdash; ${AIM_NOTE[a]}</span>`).join('')) +
+    row('Inner work', p.innerWork);
+  document.getElementById('dCampsNote').innerHTML =
+    `Three camps, ${p.span} at this rhythm. There's no clock &mdash; camps open on returns, not dates.`;
+  document.getElementById('dCamps').innerHTML = p.camps.map((c,i) => {
+    const sc = c.state==='done' ? 'done' : c.state==='active' ? 'active' : '';
+    const icon = c.state==='done' ? '&check;' : c.state==='active' ? '&#9654;' : (i+1);
+    const last = i === p.camps.length - 1;
+    return `<div class="d-camp ${c.state==='locked'?'d-locked':''}">
+      <div class="d-camp-left">
+        <div class="d-camp-c ${sc}">${icon}</div>
+        ${!last ? `<div class="d-camp-vl ${c.state==='done'?'done':''}"></div>` : ''}
+      </div>
+      <div class="d-camp-r">
+        <div class="d-camp-name">Camp ${i+1} &middot; ${STAGES[i]}</div>
+        <div class="d-camp-meta">${c.dur}</div>
+        ${c.layers.map(l => `<div class="d-layer"><div class="d-ldot ${c.state==='active'?'on':''}"></div><div class="d-ltext">${l.s}${l.r}</div></div>`).join('')}
+        <div class="d-effort-pill">${c.effort}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

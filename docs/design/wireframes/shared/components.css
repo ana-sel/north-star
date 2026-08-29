@@ -295,12 +295,14 @@
 /* ── Form inputs ── */
 .b-label{font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;font-weight:500;}
 .b-note{
-  width:100%;min-height:60px;background:var(--greige);border:1.5px solid var(--line);
-  border-radius:12px;padding:9px 11px;font-family:'Inter',sans-serif;font-size:var(--fs-md);font-weight:500;color:var(--ink);
+  width:100%;box-sizing:border-box;min-height:60px;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:11px 13px;
+  font-family:'Inter',sans-serif;font-size:var(--fs-sm);font-weight:400;color:var(--ink);
   resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s;
 }
-.b-note::placeholder{color:var(--muted);opacity:1;}
-.b-note:focus{border-color:var(--accent,#768471);box-shadow:0 0 0 3px rgba(118,132,113,.12);}
+.b-note::placeholder{color:var(--muted);opacity:.7;}
+.b-note:focus{border-color:var(--accent,#768471);box-shadow:0 0 0 3px rgba(118,132,113,.10);}
 
 /* ── Bottom sheet overlay + slide-up panel (shared: Today + Log·Sleep) ── */
 .sheet-back{position:fixed;inset:0;background:rgba(28,27,24,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;}

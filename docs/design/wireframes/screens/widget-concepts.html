@@ -44,7 +44,7 @@
   font-size:14px;font-weight:700;line-height:1.4;flex:1;
   display:flex;align-items:center;padding:8px 0;
 }
-.wa-streak{font-size:9px;color:rgba(241,237,230,.3);}
+.wa-streak{font-size:9px;color:rgba(241,237,230,.62);font-style:italic;line-height:1.4;}
 .wa-right{
   width:76px;background:rgba(0,0,0,.18);border-left:1px solid rgba(255,255,255,.06);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
@@ -136,14 +136,14 @@
       <div class="wc-section-head">
         <div class="wc-widget-label">Widget A &mdash; Daily Anchor</div>
         <div class="wc-dims">4&times;2 grid &middot; 320&times;160dp &middot; Home screen</div>
-        <div class="wc-desc">The primary external trigger. Shows the single day's anchor + one-tap completion. Tapping the circle marks the anchor done in-app and updates the widget.</div>
+        <div class="wc-desc">The primary external trigger. Shows the day&rsquo;s cue, <b>the sentence you&rsquo;re practising</b>, and one-tap completion. The lock screen is exactly where you need the sentence — mid-day, mid-task. Tapping the circle marks it done in-app and updates the widget.</div>
       </div>
 
       <div class="widget-a" id="widgetA">
         <div class="wa-left">
-          <div class="wa-path">Stillness Path &middot; Camp 2</div>
-          <div class="wa-practice">Pause for one breath before reacting.</div>
-          <div class="wa-streak">&#128293; 4-day streak</div>
+          <div class="wa-path">Inward &middot; Camp 2 &middot; Doing</div>
+          <div class="wa-practice">Pause for one breath before you speak.</div>
+          <div class="wa-streak">&ldquo;This is the thing I&rsquo;m doing. It can take as long as it takes.&rdquo;</div>
         </div>
         <div class="wa-right">
           <!-- haptic: light impact · completion animates via RemoteViews in real widget -->
@@ -164,9 +164,9 @@
     <!-- ══════════ WIDGET B · 2x2 Streak ══════════ -->
     <div class="wc-section">
       <div class="wc-section-head">
-        <div class="wc-widget-label">Widget B &mdash; Streak / Path Progress</div>
+        <div class="wc-widget-label">Widget B &mdash; Where you are on the path</div>
         <div class="wc-dims">2&times;2 grid &middot; 160&times;160dp &middot; Home screen</div>
-        <div class="wc-desc">Motivational identity reinforcement. The ring fills as you progress through the camp. The streak count is the dopamine number. Tap opens the Paths tab.</div>
+        <div class="wc-desc">Quiet identity reinforcement. The ring shows your position across the three camps, and the number below is a plain count of returns — <b>not a streak</b>, so a rest day costs nothing. Tap opens the Paths tab.</div>
       </div>
 
       <div class="widget-b">
@@ -184,14 +184,14 @@
           </svg>
           <!-- Percentage inside ring -->
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-            font-size:13px;font-weight:800;color:var(--ink);">64%</div>
+            font-size:13px;font-weight:800;color:var(--ink);">2 / 3</div>
         </div>
-        <div class="wb-streak-text">&#128293; 9 days</div>
-        <div class="wb-path-name">Stillness Path</div>
+        <div class="wb-streak-text">27 returns</div>
+        <div class="wb-path-name">Stillness &middot; Doing</div>
       </div>
 
       <div class="wc-annotation">
-        <b>Real implementation:</b> Canvas drawn in Glance widget. Streak and % come from local Room DB — no network call needed for display. Tap intent opens app to Paths tab.
+        <b>Real implementation:</b> Canvas drawn in Glance widget. Position and returns come from local Room DB — no network call needed for display. Tap intent opens app to Paths tab.
       </div>
     </div>
 

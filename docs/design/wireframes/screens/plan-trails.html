@@ -12,58 +12,174 @@
 <style>
 .sect{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 8px;}
 
-/* ── Active path card — status only ── */
+/* ══ Active path card ══════════════════════════════════════════
+   A path has no name of its own — it is the structure that grows
+   ONE quality, so the quality is the item. Name it once.
+   The supporting line says how it shows up in your life; it is
+   never a synonym of the quality.
+   One surface, one tap → detail sheet. No inline expand.
+   No habit checkbox — habits live in Log · Habits, may be shared
+   between paths, and some paths have none.
+   ─────────────────────────────────────────────────────────── */
 .ap{
-  border-radius:var(--r-card);overflow:hidden;margin-bottom:10px;
+  border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;
   box-shadow:var(--shadow);cursor:pointer;
+  transition:transform .14s,box-shadow .14s;
 }
-.ap-bg{padding:18px 18px 0;color:#F2EDE3;}
-.ap-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.ap-type{font-size:var(--fs-xs);opacity:.45;text-transform:uppercase;letter-spacing:.08em;}
-.ap-streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);padding:4px 11px;border-radius:999px;font-size:var(--fs-sm);font-weight:700;}
-.ap-name{font-size:20px;font-weight:800;margin-bottom:12px;line-height:1.2;}
-/* Progress bar — thin, simple */
-.ap-prog-wrap{margin-bottom:6px;}
-.ap-prog-bar{height:4px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
-.ap-prog-fill{height:100%;border-radius:999px;background:#768471;transition:width .4s;}
-.ap-prog-label{font-size:var(--fs-xs);opacity:.45;margin-top:5px;margin-bottom:14px;}
-/* Anchor row */
-.ap-anchor{
-  background:rgba(255,255,255,.07);margin:0 -18px;
-  padding:12px 18px;display:flex;align-items:center;gap:12px;
+.ap:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(36,35,31,.06),0 16px 36px rgba(36,35,31,.14);}
+.ap:active{transform:translateY(0) scale(.995);}
+.ap:focus-visible{outline:2px solid var(--btn);outline-offset:3px;}
+.ap-bg{padding:16px 18px;color:#F2EDE3;position:relative;overflow:hidden;}
+/* Accent bloom — gives each quality its own colour identity */
+.ap-bg::before{
+  content:'';position:absolute;top:-55%;right:-30%;width:115%;height:150%;pointer-events:none;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--ap-accent) 42%,transparent),transparent 72%);
+  opacity:.5;
 }
-.ap-ck{
-  width:24px;height:24px;border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.3);
-  display:grid;place-items:center;font-size:12px;
-  color:transparent;flex-shrink:0;cursor:pointer;transition:all .15s;
+.ap-bg > *{position:relative;}
+/* News ribbon — only rendered when something actually happened */
+.ap-news{
+  display:flex;align-items:center;gap:7px;
+  background:color-mix(in srgb,var(--ap-accent) 26%,transparent);
+  margin:-16px -18px 15px;padding:9px 18px;
+  font-size:var(--fs-xs);font-weight:700;
 }
-.ap-ck.done{background:#768471;border-color:#768471;color:#fff;}
-.ap-anchor-text{flex:1;font-size:var(--fs-sm);}
-.ap-anchor-hint{font-size:var(--fs-xs);opacity:.4;}
+.ap-news .ic{font-size:12px;opacity:.8;}
 
-/* ── Browse cards — minimal ── */
+.ap-domain{
+  display:inline-flex;align-items:center;gap:5px;margin-bottom:13px;
+  font-size:9px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;opacity:.62;
+}
+.ap-domain .ic{font-size:12px;}
+
+/* Hero — the quality, then who it makes you */
+.ap-quality{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.025em;line-height:1.06;}
+.ap-identity{font-size:var(--fs-sm);opacity:.72;line-height:1.5;margin:8px 0 20px;font-style:italic;}
+
+/* ── The route ────────────────────────────────────────────────
+   Three camps and a claim node you reach yourself. The walker
+   sits at (camps closed + progress in this camp) ÷ total, so it
+   only ever moves forward, and only on real returns. */
+.ap-route{position:relative;height:16px;margin-bottom:11px;}
+.ap-route-bed,.ap-route-walked{position:absolute;top:7px;height:2px;border-radius:2px;}
+.ap-route-bed{left:6px;right:6px;background:rgba(255,255,255,.16);}
+.ap-route-walked{left:6px;background:var(--ap-accent);}
+.ap-node{
+  position:absolute;top:4px;width:8px;height:8px;border-radius:50%;
+  transform:translateX(-50%);box-sizing:border-box;
+  border:1.5px solid rgba(255,255,255,.28);background:rgba(0,0,0,.35);
+}
+.ap-node.done{background:var(--ap-accent);border-color:var(--ap-accent);}
+.ap-node.claim{width:11px;height:11px;top:2.5px;border-color:var(--gold);border-style:dashed;}
+.ap-walker{
+  position:absolute;top:1px;width:13px;height:13px;border-radius:50%;
+  transform:translateX(-50%);background:var(--ap-accent);
+  border:3px solid #1f1d22;box-shadow:0 0 0 1.5px var(--ap-accent);
+}
+.ap-meta{display:flex;justify-content:space-between;gap:12px;font-size:var(--fs-xs);opacity:.66;}
+.ap-meta .chev{opacity:.55;}
+.ap-next{
+  font-size:var(--fs-xs);font-weight:700;margin-top:9px;
+  color:color-mix(in srgb,var(--ap-accent) 40%,#fff);
+}
+/* Ritual line — present only when the path carries a daily habit */
+.ap-ritual{
+  display:flex;align-items:baseline;gap:9px;font-size:var(--fs-xs);
+  margin-top:15px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);
+}
+.ap-ritual-k{font-size:9px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;opacity:.55;}
+.ap-ritual-v{flex:1;opacity:.85;}
+.ap-ritual-n{opacity:.5;white-space:nowrap;}
+
+/* ── Browse cards ─────────────────────────────────────────────
+   Light, with a domain-coloured spine. Dark cards are the paths
+   you're walking; these are possibilities. Reading them should
+   feel like recognising something, not shopping. */
 .path-card{
-  border-radius:var(--r-card);overflow:hidden;margin-bottom:8px;
-  cursor:pointer;box-shadow:var(--shadow-sm);
-  transition:transform .12s;position:relative;
+  position:relative;display:flex;overflow:hidden;
+  border-radius:var(--r-card);margin-bottom:8px;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-sm);
+  transition:transform .14s,box-shadow .14s,border-color .14s;
 }
-.path-card:active{transform:scale(.98);}
-.pc-bg{
-  padding:16px;color:#F2EDE3;min-height:80px;
-  display:flex;flex-direction:column;justify-content:flex-end;
-  position:relative;
+.path-card:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--pcd) 45%,var(--line));box-shadow:var(--shadow);}
+.path-card:active{transform:translateY(0);}
+.path-card:focus-visible{outline:2px solid var(--btn);outline-offset:3px;}
+.pc-spine{width:4px;flex-shrink:0;background:var(--pcd);}
+.pc-bg{flex:1;min-width:0;padding:14px 16px;}
+.pc-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px;}
+.pc-dom{
+  display:flex;align-items:center;gap:6px;
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--pcd);
 }
-.pc-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,rgba(0,0,0,.45));}
-.pc-badge{
-  position:absolute;top:12px;right:12px;z-index:1;
-  font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;
-  letter-spacing:.06em;background:rgba(255,255,255,.14);
-  padding:3px 10px;border-radius:999px;color:rgba(255,255,255,.8);
+.pc-dom .ic{font-size:12px;}
+.pc-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;}
+/* Core — marked by you, for reasons you never have to state */
+.pc-core{background:var(--btn);color:#F6F5F2;padding:2px 7px;border-radius:999px;letter-spacing:.08em;}
+.pc-name{font-size:var(--fs-md);font-weight:800;color:var(--ink);}
+.pc-line{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;line-height:1.5;}
+/* What the quality buys you — three or more marks means it is a leverage point */
+.pc-aims{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:9px;}
+.pc-aims-k{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);opacity:.7;}
+.pc-aim{font-size:9px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:999px;background:var(--greige);color:var(--muted);}
+.pc-aim.hi{background:color-mix(in srgb,var(--pcd) 16%,var(--greige));color:color-mix(in srgb,var(--pcd) 55%,var(--ink));}
+
+/* ── Domain filter chips ── */
+.fchips{display:flex;gap:6px;overflow-x:auto;padding:1px 0 4px;margin-bottom:12px;scrollbar-width:none;}
+.fchips::-webkit-scrollbar{display:none;}
+.fchip{
+  display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line);
+  background:var(--card);font-family:inherit;font-size:var(--fs-xs);font-weight:700;
+  color:var(--muted);cursor:pointer;transition:background .14s,color .14s,border-color .14s;
+  box-shadow:var(--shadow-sm);
+}
+.fchip .ic{font-size:13px;}
+.fchip:hover{color:var(--ink);}
+.fchip.on{background:var(--btn);border-color:var(--btn);color:#F6F5F2;}
+.browse-empty{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;background:var(--greige);border-radius:var(--r-card);padding:16px;}
+.browse-empty b{color:var(--ink);font-weight:700;}
+
+/* ── Seed picker sheet ── */
+.seed-back{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:110;opacity:0;pointer-events:none;transition:opacity .22s;}
+.seed-back.open{opacity:1;pointer-events:auto;}
+.seed-sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:120;
+  background:var(--bg);border-radius:20px 20px 0 0;
+  padding:10px 18px 26px;max-height:86vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .24s cubic-bezier(.22,1,.36,1);
+}
+.seed-sheet.open{transform:translateY(0);}
+.seed-grip{width:36px;height:4px;border-radius:99px;background:var(--line);margin:2px auto 15px;}
+.seed-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;}
+.seed-title{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.01em;}
+.seed-count{font-size:var(--fs-xs);font-weight:700;color:var(--muted);white-space:nowrap;}
+.seed-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;margin:6px 0 16px;}
+.seed-dom{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:14px 0 7px;}
+.seed-dom .ic{font-size:12px;}
+.seed-row{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;margin-bottom:7px;font-family:inherit;cursor:pointer;
+  box-shadow:var(--shadow-sm);transition:border-color .14s;
+}
+.seed-row.on{border-color:var(--sd);background:color-mix(in srgb,var(--sd) 9%,var(--card));}
+.seed-row-b{flex:1;min-width:0;}
+.seed-n{font-size:var(--fs-md);font-weight:700;color:var(--ink);}
+.seed-s{font-size:var(--fs-xs);color:var(--muted);line-height:1.45;margin-top:2px;}
+.seed-tick{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid var(--line);display:grid;place-items:center;
+  font-size:12px;color:transparent;
+}
+.seed-row.on .seed-tick{background:var(--sd);border-color:var(--sd);color:#fff;}
+.seed-full{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;background:var(--greige);border-radius:12px;padding:11px 13px;margin-top:12px;}
+.seed-done{
+  width:100%;margin-top:16px;padding:14px;border-radius:999px;border:none;
+  background:var(--btn);color:#F6F5F2;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;
 }
 .pc-lock{position:absolute;top:12px;left:12px;z-index:1;font-size:12px;background:rgba(0,0,0,.3);padding:2px 8px;border-radius:999px;color:rgba(255,255,255,.4);}
 .pc-name{font-size:var(--fs-md);font-weight:800;position:relative;z-index:1;}
-.pc-line{font-size:var(--fs-xs);opacity:.6;margin-top:2px;position:relative;z-index:1;}
+.pc-line{font-size:var(--fs-xs);opacity:.82;margin-top:3px;position:relative;z-index:1;line-height:1.45;}
 
 /* ── Retired virtue chips ── */
 .vshelf{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
@@ -74,7 +190,6 @@
 /* ── Growth paths — domain grouping ── */
 .dom-label{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:700;letter-spacing:.02em;color:var(--muted);margin:15px 0 8px;}
 .dom-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.pc-grows{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.62);position:relative;z-index:1;margin-bottom:3px;}
 .moved-note{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:10px;padding:9px 12px;line-height:1.55;margin:2px 0 6px;}
 .moved-note b{color:var(--ink);font-weight:700;}
 
@@ -88,58 +203,85 @@
 .cel-body{font-size:var(--fs-sm);opacity:.72;line-height:1.65;margin-bottom:20px;}
 .cel-quote{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;font-size:var(--fs-sm);font-style:italic;margin-bottom:20px;text-align:left;opacity:.85;}
 .cel-btn{width:100%;padding:14px;border-radius:999px;border:none;background:#fff;color:var(--btn);font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;}
+/* Claim checks — read, not ticked. Nothing counts them. */
+.claim-checks{background:rgba(255,255,255,.06);border-radius:14px;padding:14px 15px;margin-bottom:18px;text-align:left;}
+.claim-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.11em;font-weight:700;opacity:.45;margin-bottom:11px;}
+.claim-row{display:flex;gap:10px;align-items:flex-start;font-size:var(--fs-sm);line-height:1.5;padding:5px 0;opacity:.82;}
+.claim-row.key{opacity:1;font-weight:600;}
+.claim-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:7px;}
+.claim-note{font-size:var(--fs-xs);opacity:.55;line-height:1.6;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.1);}
 
-/* ── Detail sheet ── */
-.detail-sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;flex-direction:column;justify-content:flex-end;}
-.detail-sheet.open{opacity:1;pointer-events:auto;}
-.d-inner{background:var(--bg);border-radius:22px 22px 0 0;max-height:88vh;overflow-y:auto;transform:translateY(28px);transition:transform .25s;}
-.detail-sheet.open .d-inner{transform:translateY(0);}
-/* Hero */
-.d-hero{padding:20px 20px 16px;border-radius:22px 22px 0 0;color:#F2EDE3;}
-.d-handle{width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:999px;margin:0 auto 14px;}
-.d-type{font-size:var(--fs-xs);opacity:.4;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
-.d-name{font-size:20px;font-weight:800;margin-bottom:4px;}
-.d-virtue{font-size:var(--fs-sm);opacity:.65;font-style:italic;margin-bottom:10px;line-height:1.5;}
-.d-tags{display:flex;flex-wrap:wrap;gap:6px;}
-.d-tag{font-size:var(--fs-xs);font-weight:600;background:rgba(255,255,255,.12);padding:3px 10px;border-radius:999px;}
-/* Body */
-.d-body{padding:16px 20px 36px;}
-/* Effort summary */
-.d-effort{display:flex;gap:0;background:var(--greige);border-radius:var(--r-card);overflow:hidden;margin-bottom:18px;}
-.d-ef-col{flex:1;padding:12px 0;text-align:center;border-right:1px solid var(--line);}
-.d-ef-col:last-child{border-right:none;}
-.d-ef-val{font-size:var(--fs-lg);font-weight:800;}
-.d-ef-lbl{font-size:var(--fs-xs);color:var(--muted);margin-top:1px;}
-/* Stack */
-.d-stack-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:flex-start;}
-.d-stack-row:last-child{border-bottom:none;}
-.d-sk-lbl{width:70px;font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);flex-shrink:0;padding-top:2px;}
-.d-sk-val{flex:1;font-size:var(--fs-sm);line-height:1.55;color:var(--ink);}
-/* Bundle note — how a path splits across the two engines */
-.d-bundle-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;background:var(--greige);border-radius:10px;padding:10px 12px;margin:2px 0 12px;}
-.d-bundle-note b{color:var(--ink);font-weight:700;}
-/* Camp timeline */
-.d-camp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
-.d-camp:last-child{border-bottom:none;}
-.d-camp-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
-.d-camp-c{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--muted);}
-.d-camp-c.done{background:var(--olive);border-color:var(--olive);color:#fff;}
-.d-camp-c.active{background:var(--btn);border-color:var(--btn);color:#fff;}
-.d-camp-vl{flex:1;width:2px;background:var(--line);min-height:10px;}
-.d-camp-vl.done{background:var(--olive);}
-.d-camp-r{flex:1;}
-.d-camp-name{font-size:var(--fs-md);font-weight:700;}
-.d-camp-meta{font-size:var(--fs-xs);color:var(--muted);margin-bottom:5px;}
-.d-layer{display:flex;align-items:flex-start;gap:5px;margin-bottom:2px;}
-.d-ldot{width:5px;height:5px;border-radius:50%;background:var(--line);margin-top:5px;flex-shrink:0;}
-.d-ldot.on{background:var(--olive);}
-.d-ltext{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;}
-.d-ltext strong{color:var(--ink);}
-.d-locked{opacity:.38;}
-.d-effort-pill{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-xs);background:var(--greige);padding:2px 8px;border-radius:999px;color:var(--muted);margin-top:5px;}
-/* CTAs */
-.d-cta{width:100%;padding:14px;border-radius:999px;border:none;background:var(--btn);color:#fff;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;margin-top:16px;}
-.d-sec{width:100%;padding:13px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:inherit;font-size:var(--fs-md);font-weight:500;color:var(--muted);cursor:pointer;margin-top:8px;}
+
+/* ── Paths sub-tabs ── */
+.p-tabs{display:flex;background:var(--greige);border:1px solid var(--line);border-radius:14px;padding:3px;gap:2px;margin:6px 0 14px;}
+.p-tab{flex:1;background:none;border:none;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);padding:8px 10px;border-radius:11px;cursor:pointer;}
+.p-tab.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
+.p-panel{display:none;}
+.p-panel.active{display:block;}
+
+/* ── Active paths header meta ── */
+.yhead.first{margin-top:4px;}
+.yhead-meta{font-size:var(--fs-xs);font-weight:700;color:var(--muted);white-space:nowrap;}
+.paths-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin:-4px 0 12px;}
+.ap-add{
+  width:100%;border:1.5px dashed var(--line);background:transparent;
+  border-radius:var(--r-card);padding:14px;margin-bottom:10px;
+  font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--muted);
+  cursor:pointer;transition:border-color .12s,color .12s;
+}
+.ap-add:hover{border-color:var(--muted);color:var(--ink);}
+
+/* ── Empty state — the first screen a new user meets ── */
+.ap-empty{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:30px 22px 24px;text-align:center;box-shadow:var(--shadow-sm);
+}
+.ap-empty-ic{font-size:30px;color:var(--line);margin-bottom:14px;}
+.ap-empty-h{font-size:var(--fs-lg);font-weight:800;letter-spacing:-.015em;margin-bottom:8px;}
+.ap-empty-b{font-size:var(--fs-sm);color:var(--muted);line-height:1.65;margin-bottom:20px;}
+.ap-empty-cta{
+  width:100%;padding:14px;border-radius:999px;border:none;background:var(--btn);
+  color:#F6F5F2;font-family:inherit;font-size:var(--fs-md);font-weight:700;cursor:pointer;
+}
+.ap-empty-alt{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;margin-top:14px;}
+.ap-empty-alt a{color:var(--ink);font-weight:700;}
+
+/* At capacity — asks with care, never blocks (spec §1.2) */
+.ap-full{
+  border:1.5px dashed var(--line);border-radius:var(--r-card);
+  padding:14px 16px;margin-bottom:10px;
+  font-size:var(--fs-xs);color:var(--muted);line-height:1.6;
+}
+.ap-full b{color:var(--ink);font-weight:700;}
+
+/* ── Qualities block ── */
+.qsect-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:12px 0 6px;}
+.vchip.growing{background:color-mix(in srgb,var(--olive) 8%,var(--card));border-color:color-mix(in srgb,var(--olive) 25%,var(--line));}
+.vchip.desired{background:transparent;border:1.5px dashed var(--line);color:var(--muted);}
+.vchip.desired .vdot{background:var(--line);}
+/* Gold means earned, and only earned */
+.vchip.earned{background:color-mix(in srgb,var(--gold) 10%,var(--card));border-color:color-mix(in srgb,var(--gold) 32%,var(--line));}
+.vchip.add{border:1.5px dashed var(--line);color:var(--muted);font-family:inherit;cursor:pointer;padding:5px 12px;border-radius:999px;font-size:var(--fs-xs);font-weight:600;background:none;}
+.qnote{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin-top:12px;}
+
+/* ── Foundations card (Browse) ── */
+.found-card{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+.found-icon{width:38px;height:38px;border-radius:11px;background:var(--greige);display:grid;place-items:center;color:var(--muted);flex-shrink:0;font-size:18px;}
+.found-body{flex:1;min-width:0;}
+.found-eyebrow{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;}
+.found-title{font-size:var(--fs-md);font-weight:800;}
+.found-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;line-height:1.4;}
+.found-chev{font-size:15px;color:var(--line);}
+
+/* ── Suggested card (Communication-path pattern) ── */
+.sug-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px;margin-bottom:14px;box-shadow:var(--shadow-sm);cursor:pointer;display:flex;gap:12px;}
+.sug-avatar{width:44px;height:44px;border-radius:12px;background:#5c3a34;color:#F2EDE3;display:grid;place-items:center;font-size:var(--fs-sm);font-weight:800;flex-shrink:0;}
+.sug-body{flex:1;min-width:0;}
+.sug-eyebrow{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;}
+.sug-title{font-size:var(--fs-md);font-weight:800;margin-bottom:6px;line-height:1.25;}
+.sug-reason{font-size:var(--fs-xs);color:var(--muted);line-height:1.55;margin-bottom:8px;}
+.sug-reason b{color:var(--ink);font-weight:700;}
+.sug-cta{font-size:var(--fs-xs);font-weight:700;color:var(--olive);}
 </style>
 </head>
 <body class="screen-body">
@@ -149,399 +291,437 @@
     <div class="ylens-badge"><i class="ic ic-route"></i></div>
     <div>
       <div class="ylens-title">Paths</div>
-      <div class="ylens-sub">The journeys you're walking right now</div>
+      <div class="ylens-sub">Build capacities that support the life you plan</div>
     </div>
   </div>
 
-  <div class="yhead">
-    <i class="ic ic-route yhead-ic"></i>
-    <div class="yhead-t">Active paths</div>
-    <div class="yhead-rule"></div>
-    <div class="yhead-act">2 of 3</div>
+  <!-- ── SUB-TABS ── -->
+  <div class="p-tabs" role="tablist">
+    <button class="p-tab active" data-panel="walking" onclick="switchPanel('walking')">Walking now</button>
+    <button class="p-tab" data-panel="browse" onclick="switchPanel('browse')">Browse</button>
   </div>
 
-  <!-- Active: Stillness -->
-  <div class="ap" onclick="openDetail('stillness')">
-    <div class="ap-bg" style="background:linear-gradient(155deg,#3a3850,#23202b)">
-      <div class="ap-row1">
-        <div class="ap-type">Inner path</div>
-        <div class="ap-streak" style="background:rgba(255,255,255,.12);font-size:var(--fs-xs);font-weight:700">5 practices this camp</div>
+  <!-- ================= WALKING NOW ================= -->
+  <section class="p-panel active" id="panel-walking">
+
+    <!-- Active paths -->
+    <div class="yhead first">
+      <i class="ic ic-route yhead-ic"></i>
+      <div class="yhead-t">Active paths</div>
+      <div class="yhead-rule"></div>
+      <div class="yhead-meta" id="pathCount">2 of 3</div>
+    </div>
+    <div class="paths-note">Three at a time, so this stays a life and not another project.</div>
+
+    <div id="activePaths"></div>
+    <div id="addPath"></div>
+
+    <!-- Cultivating -->
+    <div class="yhead">
+      <i class="ic ic-award yhead-ic"></i>
+      <div class="yhead-t">Cultivating</div>
+      <div class="yhead-rule"></div>
+    </div>
+
+    <div class="qsect-lbl">Integrated</div>
+    <div class="vshelf">
+      <div class="vchip earned"><div class="vdot" style="background:var(--gold)"></div>Constancy</div>
+      <div class="vchip earned"><div class="vdot" style="background:var(--gold)"></div>Attention</div>
+    </div>
+    <div class="qnote" style="margin:6px 0 0">Claimed by you, not awarded by Compass. Nothing left to practise — these are read-only now.</div>
+
+    <div class="qsect-lbl">Curious about</div>
+    <div class="vshelf" id="seedShelf"></div>
+    <div class="qnote">Seeds are qualities you&rsquo;ve noticed in yourself, not commitments.</div>
+  </section>
+
+  <!-- ================= BROWSE ================= -->
+  <section class="p-panel" id="panel-browse">
+
+    <!-- Foundations lives here -->
+    <a href="foundations.html" style="text-decoration:none;color:inherit;display:block;">
+      <div class="found-card">
+        <div class="found-icon"><i class="ic ic-layers"></i></div>
+        <div class="found-body">
+          <div class="found-eyebrow">Foundations</div>
+          <div class="found-title">Start with the ground beneath</div>
+          <div class="found-sub">Boundaries, self-talk, handling hard things &mdash; the floor everything else stands on.</div>
+        </div>
+        <i class="ic ic-chev found-chev"></i>
       </div>
-      <div class="ap-name">The Stillness Path</div>
-      <div class="ap-prog-wrap">
-        <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:64%"></div></div>
-        <div class="ap-prog-label">Camp 2 of 3 &middot; 5 of 9 practices &middot; reflection soon</div>
-      </div>
-      <div class="ap-anchor">
-        <div class="ap-ck done" onclick="event.stopPropagation();toggleCk(this)">✓</div>
-        <div class="ap-anchor-text">5-min silent sit before first screen</div>
-        <div class="ap-anchor-hint">done today</div>
-      </div>
-    </div>
-  </div>
+    </a>
 
-  <!-- Active: Land -->
-  <div class="ap" onclick="openDetail('land')">
-    <div class="ap-bg" style="background:linear-gradient(145deg,#2e4a3e,#1a3028)">
-      <div class="ap-row1">
-        <div class="ap-type">Material goal</div>
-        <div class="ap-streak" style="background:rgba(255,255,255,.12);font-size:var(--fs-xs);font-weight:700">2 practices this camp</div>
-      </div>
-      <div class="ap-name">The Land Path</div>
-      <div class="ap-prog-wrap">
-        <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:36%"></div></div>
-        <div class="ap-prog-label">Camp 1 of 3 &middot; 2 of 5 practices &middot; keep returning</div>
-      </div>
-      <div class="ap-anchor">
-        <div class="ap-ck" onclick="event.stopPropagation();toggleCk(this)"></div>
-        <div class="ap-anchor-text">Save £50 to the land fund this week</div>
-        <div class="ap-anchor-hint">tap when done</div>
+    <!-- Suggested for you (Communication-path pattern) -->
+    <div class="yhead">
+      <div class="yhead-t">Suggested for you</div>
+      <div class="yhead-rule"></div>
+    </div>
+    <div class="sug-card" role="button" tabindex="0" onclick="openDetail('presence')" onkeydown="activate(event,'presence')">
+      <div class="sug-avatar" style="background:#9b8fd6;color:#241f2e"><i class="ic ic-moon" style="font-size:20px"></i></div>
+      <div class="sug-body">
+        <div class="sug-eyebrow">Inward</div>
+        <div class="sug-title">Presence</div>
+        <div class="sug-reason"><b>Why Compass suggested it:</b> You are practising Stillness. Presence works the same attention from the other side &mdash; staying, rather than slowing.</div>
+        <div class="sug-cta">See what it changes &rarr;</div>
       </div>
     </div>
-  </div>
 
-  <!-- Retired -->
-  <div class="yhead">
-    <i class="ic ic-award yhead-ic"></i>
-    <div class="yhead-t">Earned</div>
-    <div class="yhead-rule"></div>
-  </div>
-  <div class="vshelf">
-    <div class="vchip"><div class="vdot" style="background:#768471"></div>Constancy &middot; 5 wks</div>
-    <div class="vchip"><div class="vdot" style="background:#937caf"></div>Noticing &middot; 4 wks</div>
-  </div>
-
-  <!-- Foundations entry — the floor beneath the aspirational paths -->
-  <a href="foundations.html" style="text-decoration:none;color:inherit;display:block;margin:14px 0 4px;">
-    <div style="display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-sm);">
-      <div style="width:38px;height:38px;border-radius:11px;background:var(--greige);display:grid;place-items:center;color:var(--muted);flex-shrink:0;"><i class="ic ic-layers" style="font-size:18px;"></i></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:var(--fs-md);font-weight:700;">Start with the Foundations</div>
-        <div style="font-size:var(--fs-xs);color:var(--muted);margin-top:2px;line-height:1.4;">The ground beneath the mountain — the basic tools for being a person.</div>
-      </div>
-      <i class="ic ic-chev" style="font-size:15px;color:var(--line);"></i>
+    <!-- Growth paths — grouped by domain -->
+    <div class="yhead">
+      <i class="ic ic-route yhead-ic"></i>
+      <div class="yhead-t">Which of these do you recognise?</div>
+      <div class="yhead-rule"></div>
     </div>
-  </a>
 
-  <!-- Growth paths — grouped by domain, each grows a quality -->
-  <div class="yhead">
-    <i class="ic ic-route yhead-ic"></i>
-    <div class="yhead-t">Growth paths</div>
-    <div class="yhead-rule"></div>
-    <div class="yhead-act">Browse all</div>
-  </div>
+    <div class="fchips" id="domChips" role="tablist"></div>
+    <div id="browseList"></div>
+  </section>
 
-  <!-- Suggested next: one curated recommendation -->
-  <div style="background:var(--card);border:1.5px solid var(--olive);border-radius:var(--r-card);padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow-sm)" onclick="openDetail('presence')">
-    <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--olive);margin-bottom:6px">Suggested for you</div>
-    <div style="font-size:var(--fs-md);font-weight:800;margin-bottom:4px">The Presence Path</div>
-    <div style="font-size:var(--fs-xs);color:var(--muted);line-height:1.5;margin-bottom:10px">You are building Stillness. Presence is the natural next quality &mdash; it deepens the same attention. 5 weeks, light daily anchor.</div>
-    <div style="font-size:var(--fs-xs);font-weight:700;color:var(--olive)">Preview &rarr;</div>
-  </div>
-  <!-- Inner -->
-  <div class="dom-label"><span class="dom-dot" style="background:#80749b"></span>Inner</div>
-  <div class="path-card" onclick="openDetail('presence')">
-    <div class="pc-bg" style="background:linear-gradient(155deg,#33384a,#20242f)">
-      <div class="pc-grows">Grows Presence</div>
-      <div class="pc-name">The Presence Path</div>
-      <div class="pc-line">Fully here, not half-elsewhere · 5 wks</div>
-    </div>
-  </div>
-  <div class="path-card" onclick="openDetail('authority')">
-    <div class="pc-bg" style="background:linear-gradient(155deg,#2f3340,#1c1f28)">
-      <div class="pc-grows">Grows Quiet authority</div>
-      <div class="pc-name">The Quiet Authority Path</div>
-      <div class="pc-line">Calm, clear, hard to shake · 6 wks</div>
-    </div>
-  </div>
-
-  <!-- Relational -->
-  <div class="dom-label"><span class="dom-dot" style="background:#b07f86"></span>Relational</div>
-  <div class="path-card" onclick="openDetail('warmth')">
-    <div class="pc-bg" style="background:linear-gradient(145deg,#4a3630,#2c1f1c)">
-      <div class="pc-grows">Grows Warmth</div>
-      <div class="pc-name">The Warmth Path</div>
-      <div class="pc-line">Others feel safe and seen around you · 5 wks</div>
-    </div>
-  </div>
-
-  <!-- Craft & Mastery -->
-  <div class="dom-label"><span class="dom-dot" style="background:#a98b5e"></span>Craft &amp; mastery</div>
-  <div class="path-card" onclick="openDetail('craft')">
-    <div class="pc-bg" style="background:linear-gradient(145deg,#3a3420,#241f12)">
-      <div class="pc-grows">Grows Craftsmanship</div>
-      <div class="pc-name">The Craft Path</div>
-      <div class="pc-line">Do things well, with care · 8 wks</div>
-    </div>
-  </div>
-
-  <!-- Spirit -->
-  <div class="dom-label"><span class="dom-dot" style="background:#6f8a66"></span>Spirit</div>
-  <div class="path-card" onclick="openDetail('discovery')">
-    <div class="pc-bg" style="background:linear-gradient(145deg,#2e3a44,#1a242c)">
-      <div class="pc-grows">Grows Spirit of discovery</div>
-      <div class="pc-name">The Discovery Path</div>
-      <div class="pc-line">Move toward the unknown with wonder · 6 wks</div>
-    </div>
-  </div>
-
-  <!-- Material -->
-  <div class="dom-label"><span class="dom-dot" style="background:#7395ad"></span>Material</div>
-  <div class="moved-note" style="margin-top:0">Material paths grow toward a concrete goal — <b>The Land Path</b> is active above.</div>
-
-  <!-- Camp celebration (demo button) -->
+  <!-- Demo triggers — testing only, not part of the design -->
   <div style="margin-top:10px;text-align:center;display:flex;flex-direction:column;gap:8px">
-    <button onclick="showCelebrate()" style="background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;font-family:inherit;">▶ Preview camp completion moment</button>
-    <button onclick="showClaim()" style="background:none;border:1px dashed var(--gold);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--gold);cursor:pointer;font-family:inherit;">▶ Preview quality claim moment</button>
+    <div class="fchips" id="viewSwitch" style="justify-content:center;margin-bottom:0">
+      <button class="fchip on" type="button" data-v="normal"  onclick="setView('normal')">Normal</button>
+      <button class="fchip"    type="button" data-v="empty"   onclick="setView('empty')">Empty</button>
+      <button class="fchip"    type="button" data-v="full"    onclick="setView('full')">At capacity</button>
+      <button class="fchip"    type="button" data-v="resting" onclick="setView('resting')">Resting</button>
+    </div>
+    <button onclick="showCelebrate('stillness')" style="background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--muted);cursor:pointer;font-family:inherit;">▶ Preview camp completion moment</button>
+    <button onclick="showClaim('stillness')" style="background:none;border:1px dashed var(--gold);border-radius:999px;padding:6px 16px;font-size:var(--fs-xs);color:var(--gold);cursor:pointer;font-family:inherit;">▶ Preview quality claim moment</button>
   </div>
 
 <!-- ── Camp celebration ── -->
 <div class="celebrate" id="celebrate">
-  <div class="cel-sheet">
-    <span class="cel-icon">🌿</span>
-    <div class="cel-h">Camp 1 complete</div>
-    <div class="cel-body">You spent 7 days just noticing. You didn't fix anything. That was the whole point.</div>
-    <div class="cel-quote">"I notice when I rush. I don't always stop it yet — but I see it."</div>
-    <button class="cel-btn" onclick="closeCelebrate()">Continue to Camp 2 →</button>
-  </div>
+  <div class="cel-sheet" id="celSheet"></div>
 </div>
-<!-- ── Quality claim overlay (shown after final camp) ── -->
+<!-- ── Quality claim overlay (shown after the last camp) ── -->
 <div class="celebrate" id="claimOverlay">
-  <div class="cel-sheet" style="background:linear-gradient(145deg,#2d2b27,#1b1a17)">
-    <span class="cel-icon">✨</span>
-    <div class="cel-h">Stillness is ready to become part of you.</div>
-    <div class="cel-body">You returned to it 27 times across 3 camps. On most of those days, your evenings were steadier. You’ve changed something quietly.</div>
-    <div class="cel-quote" style="background:rgba(168,132,63,.15);border-left:2px solid var(--gold)">&ldquo;Only you know if this is real yet. There’s no right answer.&rdquo;</div>
-    <div style="font-size:var(--fs-sm);font-weight:700;color:rgba(242,237,227,.7);margin-bottom:12px;text-align:center">Does Stillness feel like part of who you are now?</div>
-    <button class="cel-btn" onclick="claimYes()" style="background:var(--gold);color:#1b1a17;margin-bottom:8px">Yes — this is part of me</button>
-    <button class="cel-btn" onclick="closeClaim()" style="background:rgba(255,255,255,.08);color:rgba(242,237,227,.6)">Not quite yet — keep going</button>
-  </div>
+  <div class="cel-sheet" id="claimSheet" style="background:linear-gradient(145deg,#2d2b27,#1b1a17)"></div>
 </div>
+<!-- ── Seed picker ── -->
+<div class="seed-back" id="seedBack" onclick="closeSeeds()"></div>
+<div class="seed-sheet" id="seedSheet">
+  <div class="seed-grip"></div>
+  <div class="seed-h">
+    <div class="seed-title">Qualities you&rsquo;re drawn to</div>
+    <div class="seed-count" id="seedCount"></div>
+  </div>
+  <div class="seed-note">A seed is something you&rsquo;ve already noticed in yourself &mdash; not a promise, not a to-do. Three at a time keeps it from becoming a wishlist.</div>
+  <div id="seedList"></div>
+  <button class="seed-done" type="button" onclick="closeSeeds()">Done</button>
+</div>
+
 <!-- ── Detail sheet ── -->
-<div class="detail-sheet" id="detailSheet" onclick="maybeClose(event)">
-  <div class="d-inner">
-    <div class="d-hero" id="dHero">
-      <div class="d-handle"></div>
-      <button onclick="closeDetail()" style="position:absolute;top:10px;right:14px;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:28px;height:28px;display:grid;place-items:center;cursor:pointer;color:#fff;font-size:15px;font-family:inherit">&times;</button>
-      <div class="d-type" id="dType"></div>
-      <div class="d-name" id="dName"></div>
-      <div class="d-virtue" id="dVirtue"></div>
-      <div class="d-tags" id="dTags"></div>
-    </div>
-    <div class="d-body">
-      <div class="d-effort" id="dEffort"></div>
-      <div class="sect" style="margin-top:4px">What this path adds to your days</div>
-      <div class="d-bundle-note">A path is a <b>bundle</b>. Its <b>habits</b> join your daily rituals in <b>Log · Habits</b> (small, done every day). Its <b>one quality</b> joins your practice pool as a <b>theme</b> — rotated onto <b>Today</b> a few times a week, never two days running.</div>
-      <div id="dStack"></div>
-      <div class="sect">How it unfolds</div>
-      <div id="dCamps"></div>
-      <button class="d-cta" id="dCta"></button>
-      <button class="d-sec" id="dSec" style="display:none"></button>
-    </div>
-  </div>
-</div>
+<script src="../shared/paths-data.js"></script>
 
 <script>
-const DATA = {
-  stillness:{
-    type:'Inner path',name:'The Stillness Path',
-    virtue:'"I am becoming someone who rests without guilt and meets silence without fear"',
-    bg:'linear-gradient(155deg,#3a3850,#23202b)',
-    values:['Peace','Presence'],active:true,
-    effort:[{v:'2',l:'actions/day'},{v:'7 min',l:'daily effort'},{v:'6 wks',l:'total'}],
-    stack:[
-      {l:'Value',v:'Peace · Presence — being, not doing, has worth'},
-      {l:'Virtue',v:'Calm, unhurried, at home in silence'},
-      {l:'Quality',v:'Stillness this week — "Notice the moment before you react"'},
-      {l:'Practice',v:'5-min silent sit before any screen (added in Camp 2)'},
-      {l:'Habit',v:'1 min silence on waking — your anchor across all 3 camps'},
-    ],
-    camps:[
-      {name:'First Contact',dur:'7 days · complete',state:'done',effort:'1 action · 2 min/day',
-        layers:[{s:'Quality:',r:' Quiet — notice 3 moments of rushing'},{s:'Habit:',r:' 1 min silence on waking'},{s:'Note:',r:' No practice yet. Just noticing.'}]},
-      {name:'Deepening',dur:'14 days · in progress',state:'active',effort:'2 actions · 7 min/day',
-        layers:[{s:'Quality:',r:' Stillness — notice the moment before reacting'},{s:'Habit:',r:' Same 1 min anchor — unchanged'},{s:'Practice:',r:' 5-min sit before screens (new in Camp 2)'},{s:'Inner work:',r:' Journal once this week — where did I rush and why?'}]},
-      {name:'Embodied',dur:'21 days · locked',state:'locked',effort:'2 actions · 10 min/day',
-        layers:[{s:'Virtue test:',r:' Stillness under real pressure'},{s:'Integration:',r:' 3 logins before reminder fires → Camp 3 closes'}]},
-    ],
-    cta:'View today\'s anchor',
-  },
-  land:{
-    type:'Material goal',name:'The Land Path',
-    virtue:'"I am becoming someone who builds deliberately toward what they love"',
-    bg:'linear-gradient(145deg,#2e4a3e,#1a3028)',
-    values:['Security','Freedom'],active:true,
-    effort:[{v:'1–2',l:'actions/day'},{v:'2–12 min',l:'daily effort'},{v:'10 wks',l:'total'}],
-    stack:[
-      {l:'Value',v:'Security · Freedom — a piece of ground that is yours'},
-      {l:'Virtue',v:'Patient, deliberate, financially grounded'},
-      {l:'Quality',v:'Patience — "One action toward the goal is enough today"'},
-      {l:'Habit',v:'Weekly savings transfer — the only Camp 1 action'},
-      {l:'Practice',v:'10 min/day research — added in Camp 2 only'},
-      {l:'Goal',v:'Buy land — target + timeline set on Camp 1 Day 3'},
-    ],
-    camps:[
-      {name:'Groundwork',dur:'14 days · in progress',state:'active',effort:'1 action · 2 min/day',
-        layers:[{s:'Day 3:',r:' Set your target amount and timeline'},{s:'Quality:',r:' Patience — one action is enough'},{s:'Habit:',r:' Weekly savings transfer (Camp 1\'s only action)'},{s:'No research yet:',r:' Premature research before clarity creates paralysis'}]},
-      {name:'Research',dur:'21 days · locked',state:'locked',effort:'2 actions · 12 min/day',
-        layers:[{s:'Practice added:',r:' 10 min/day — mortgages, plots, legal steps'},{s:'Quality:',r:' Clarity — "What do I actually need to decide?"'}]},
-      {name:'Action',dur:'21 days · locked',state:'locked',effort:'2 actions · 10 min/day',
-        layers:[{s:'Virtue tested:',r:' First real steps — viewing, agents, applying'},{s:'Inner work:',r:' What fears come up when the goal gets real?'}]},
-    ],
-    cta:'View today\'s anchor',
-  },
-  presence:{
-    type:'Inner path',name:'The Presence Path',grows:'Presence',
-    virtue:'"I am becoming someone who is fully here"',
-    bg:'linear-gradient(155deg,#33384a,#20242f)',
-    values:['Presence'],active:false,
-    effort:[{v:'1',l:'action/day'},{v:'3 min',l:'daily'},{v:'5 wks',l:'total'}],
-    stack:[
-      {l:'Grows',v:'Presence — fully here, not half-elsewhere'},
-      {l:'Habit',v:'3 conscious breaths before entering a room'},
-      {l:'Inner work',v:'Where do I leave the moment — and why?'},
-    ],
-    camps:[
-      {name:'Noticing',dur:'7 days',state:'locked',effort:'1 min/day',
-        layers:[{s:'Notice:',r:' the moments you go half-absent'}]},
-      {name:'Returning',dur:'14 days',state:'locked',effort:'3 min/day',
-        layers:[{s:'Practice:',r:' single-task one block a day'}]},
-      {name:'Embodied',dur:'14 days',state:'locked',effort:'3 min/day',
-        layers:[{s:'Test:',r:' stay fully present in a hard conversation'}]},
-    ],
-    cta:'Start this path',sec:'Add as another path (3 max)',
-  },
-  authority:{
-    type:'Inner path',name:'The Quiet Authority Path',grows:'Quiet authority',
-    virtue:'"I am becoming someone who is calm, clear, and hard to shake"',
-    bg:'linear-gradient(155deg,#2f3340,#1c1f28)',
-    values:['Self-respect','Composure'],active:false,
-    effort:[{v:'1–2',l:'actions/day'},{v:'6 min',l:'daily'},{v:'6 wks',l:'total'}],
-    stack:[
-      {l:'Grows',v:'Quiet authority — respect without raising your voice'},
-      {l:'Habit',v:"Slow your speech; state, don't justify"},
-      {l:'Inner work',v:'Where do I over-explain to be liked?'},
-    ],
-    camps:[
-      {name:'Grounding',dur:'10 days',state:'locked',effort:'2 min/day',
-        layers:[{s:'Notice:',r:' when you rush or over-justify'}]},
-      {name:'Practising',dur:'21 days',state:'locked',effort:'6 min/day',
-        layers:[{s:'Practice:',r:' one calm, unhurried statement a day'}]},
-      {name:'Embodied',dur:'14 days',state:'locked',effort:'6 min/day',
-        layers:[{s:'Test:',r:' stay steady in a moment of conflict'}]},
-    ],
-    cta:'Start this path',sec:'Add as another path (3 max)',
-  },
-  warmth:{
-    type:'Relational path',name:'The Warmth Path',grows:'Warmth',
-    virtue:'"I am becoming someone others feel safe and seen around"',
-    bg:'linear-gradient(145deg,#4a3630,#2c1f1c)',
-    values:['Kindness','Connection'],active:false,
-    effort:[{v:'1',l:'action/day'},{v:'4 min',l:'daily'},{v:'5 wks',l:'total'}],
-    stack:[
-      {l:'Grows',v:'Warmth — makes others feel safe and seen'},
-      {l:'Habit',v:'One genuine, specific kindness a day'},
-      {l:'Inner work',v:'What makes me withhold warmth?'},
-    ],
-    camps:[
-      {name:'Noticing',dur:'7 days',state:'locked',effort:'1 min/day',
-        layers:[{s:'Notice:',r:" moments you could soften and don't"}]},
-      {name:'Offering',dur:'14 days',state:'locked',effort:'4 min/day',
-        layers:[{s:'Practice:',r:' remember one small detail about someone'}]},
-      {name:'Embodied',dur:'14 days',state:'locked',effort:'4 min/day',
-        layers:[{s:'Test:',r:' stay warm with someone difficult'}]},
-    ],
-    cta:'Start this path',sec:'Add as another path (3 max)',
-  },
-  craft:{
-    type:'Craft & mastery path',name:'The Craft Path',grows:'Craftsmanship',
-    virtue:'"I am becoming someone who does things well, with care"',
-    bg:'linear-gradient(145deg,#3a3420,#241f12)',
-    values:['Excellence','Discipline'],active:false,
-    effort:[{v:'1',l:'action/day'},{v:'15 min',l:'daily'},{v:'8 wks',l:'total'}],
-    stack:[
-      {l:'Grows',v:'Craftsmanship — care to the last detail'},
-      {l:'Habit',v:'Finish one thing properly each day'},
-      {l:'Inner work',v:'Where do I settle for half-done?'},
-    ],
-    camps:[
-      {name:'Attention',dur:'14 days',state:'locked',effort:'15 min/day',
-        layers:[{s:'Practice:',r:' one small thing done with full care'}]},
-      {name:'Consistency',dur:'21 days',state:'locked',effort:'15 min/day',
-        layers:[{s:'Practice:',r:' show up for the craft daily'}]},
-      {name:'Mastery',dur:'21 days',state:'locked',effort:'20 min/day',
-        layers:[{s:'Test:',r:" finish something you're proud of"}]},
-    ],
-    cta:'Start this path',sec:'Add as another path (3 max)',
-  },
-  discovery:{
-    type:'Spirit path',name:'The Discovery Path',grows:'Spirit of discovery',
-    virtue:'"I am becoming someone who moves toward the unknown with wonder"',
-    bg:'linear-gradient(145deg,#2e3a44,#1a242c)',
-    values:['Curiosity','Adventure'],active:false,
-    effort:[{v:'1',l:'action/week'},{v:'20 min',l:'weekly'},{v:'6 wks',l:'total'}],
-    stack:[
-      {l:'Grows',v:'Spirit of discovery — go toward the new'},
-      {l:'Habit',v:'One new thing, route, or idea each week'},
-      {l:'Inner work',v:'What keeps me small and safe?'},
-    ],
-    camps:[
-      {name:'Curiosity',dur:'14 days',state:'locked',effort:'20 min/wk',
-        layers:[{s:'Practice:',r:' follow one curiosity a week'}]},
-      {name:'Venturing',dur:'21 days',state:'locked',effort:'20 min/wk',
-        layers:[{s:'Practice:',r:' do something slightly outside your edge'}]},
-      {name:'Wonder',dur:'14 days',state:'locked',effort:'20 min/wk',
-        layers:[{s:'Test:',r:' let yourself be genuinely amazed'}]},
-    ],
-    cta:'Start this path',sec:'Add as another path (3 max)',
-  },
-};
+function switchPanel(name){
+  document.querySelectorAll('.p-tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));
+  document.querySelectorAll('.p-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));
+  window.scrollTo({top:0,behavior:'instant'});
+}
 
-function openDetail(id){
-  const p=DATA[id];
-  document.getElementById('dType').textContent=p.type;
-  document.getElementById('dName').textContent=p.name;
-  document.getElementById('dVirtue').textContent=p.virtue;
-  document.getElementById('dHero').style.background=p.bg;
-  document.getElementById('dTags').innerHTML=p.values.map(v=>`<span class="d-tag">${v}</span>`).join('');
-  document.getElementById('dEffort').innerHTML=p.effort.map(e=>`<div class="d-ef-col"><div class="d-ef-val">${e.v}</div><div class="d-ef-lbl">${e.l}</div></div>`).join('');
-  document.getElementById('dStack').innerHTML=p.stack.map(s=>`<div class="d-stack-row"><div class="d-sk-lbl">${s.l}</div><div class="d-sk-val">${s.v}</div></div>`).join('');
-  document.getElementById('dCamps').innerHTML=p.camps.map((c,i)=>{
-    const sc=c.state==='done'?'done':c.state==='active'?'active':'';
-    const icon=c.state==='done'?'✓':c.state==='active'?'▶':(i+1);
-    const last=i===p.camps.length-1;
-    return `<div class="d-camp ${c.state==='locked'?'d-locked':''}">
-      <div class="d-camp-left">
-        <div class="d-camp-c ${sc}">${icon}</div>
-        ${!last?`<div class="d-camp-vl ${c.state==='done'?'done':''}"></div>`:''}
+/* Detail lives on its own page — Today and Paths both link here. */
+function openDetail(id){ location.href = "path-detail.html?quality=" + encodeURIComponent(id); }
+
+
+/* ── Active path cards ─────────────────────────────────────────
+   Rendered from DATA[id].card so the two levels never drift apart. */
+const ACTIVE = ['stillness','craft','warmth'];
+const CAP = 3;
+let VIEW = 'normal';
+
+function activeIds(){
+  if(VIEW === 'empty') return [];
+  if(VIEW === 'full')  return [...ACTIVE,'warmth'];
+  return ACTIVE;
+}
+
+/* Position along the whole route, 0–1. Only ever moves forward. */
+const walkedFrac = c => ((c.campNow - 1) + c.reps / c.repsTotal) / c.campTotal;
+
+function nextLine(c){
+  const left = Math.max(0, c.repsTotal - c.reps);
+  const unit = left === 1 ? 'practice opens' : 'practices open';
+  const next = STAGES[c.campNow];
+  if(c.campNow === 1) return 'No practice yet \u2014 this camp only asks you to notice';
+  if(left === 0) return next
+    ? `\u201c${next}\u201d is open \u2014 step in when you\u2019re ready`
+    : 'The last camp is done \u2014 a reflection is waiting';
+  return next
+    ? `${left} more ${unit} \u201c${next}\u201d`
+    : `${left} more ${left === 1 ? 'practice completes' : 'practices complete'} the path`;
+}
+
+/* Warm, non-quantified. After a week away the tone softens instead of counting. */
+function lastLine(c){
+  if(c.daysSince === 0) return 'Practised today';
+  if(c.daysSince === 1) return 'Last practised yesterday';
+  if(c.daysSince < 7)   return `Last practised ${c.daysSince} days ago`;
+  return 'Resting \u2014 nothing\u2019s lost';
+}
+
+function newsLine(c){
+  const n = c.news?.returns ?? 0;
+  if(!n) return '';
+  const came = n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`;
+  return `You came back ${came} since you were last here${c.news.campClosed ? ' \u2014 and a camp closed' : ''}.`;
+}
+
+function cardHTML(id){
+  const p = DATA[id], c = p.card;
+  const walked = walkedFrac(c);
+  const at = f => `calc(6px + ${f} * (100% - 12px))`;
+
+  const nodes = Array.from({length:c.campTotal},(_,i)=>
+    `<span class="ap-node${i < c.campNow-1 ? ' done' : ''}" style="left:${at(i/c.campTotal)}"></span>`).join('')
+    + `<span class="ap-node claim" style="left:${at(1)}" title="You claim this one yourself"></span>`;
+
+  const news = newsLine(c);
+  const ritual = p.ritual ? `
+        <div class="ap-ritual">
+          <span class="ap-ritual-k">Ritual</span>
+          <span class="ap-ritual-v">${p.ritual.v}</span>
+          <span class="ap-ritual-n">in Log \u00b7 Habits</span>
+        </div>` : '';
+
+  return `
+    <article class="ap" id="ap-${id}" style="--ap-accent:${DOMAINS[p.domain].colour}"
+             role="button" tabindex="0" onclick="openDetail('${id}')" onkeydown="activate(event,'${id}')">
+      <div class="ap-bg" style="background:${p.bg}">
+        ${news ? `<div class="ap-news"><i class="ic ic-sprout"></i>${news}</div>` : ''}
+        <div class="ap-domain"><i class="ic ${DOMAINS[p.domain].icon}"></i> ${p.domain}</div>
+
+        <div class="ap-quality">${p.quality}</div>
+        <div class="ap-identity">${p.identity.replace(/^"|"$/g,'')}</div>
+
+        <div class="ap-route">
+          <span class="ap-route-bed"></span>
+          <span class="ap-route-walked" style="width:calc(${walked} * (100% - 12px))"></span>
+          ${nodes}
+          <span class="ap-walker" style="left:${at(walked)}"></span>
+        </div>
+        <div class="ap-meta">
+          <span>Camp ${c.campNow} of ${c.campTotal} \u00b7 ${STAGES[c.campNow-1]} <span class="chev">\u203a</span></span>
+          <span>${lastLine(c)}</span>
+        </div>
+        <div class="ap-next">${nextLine(c)}</div>
+        ${ritual}
       </div>
-      <div class="d-camp-r">
-        <div class="d-camp-name">${c.name}</div>
-        <div class="d-camp-meta">${c.dur}</div>
-        ${c.layers.map(l=>`<div class="d-layer"><div class="d-ldot ${c.state==='active'?'on':''}"></div><div class="d-ltext"><strong>${l.s}</strong>${l.r}</div></div>`).join('')}
-        <div class="d-effort-pill">⏱ ${c.effort}</div>
+    </article>`;
+}
+
+/* role="button" without this is a keyboard trap for anyone not using a mouse. */
+function activate(e,id){
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openDetail(id); }
+}
+
+const EMPTY_STATE = `
+  <div class="ap-empty">
+    <div class="ap-empty-ic"><i class="ic ic-compass"></i></div>
+    <div class="ap-empty-h">You&rsquo;re not walking anything yet.</div>
+    <div class="ap-empty-b">A path grows one quality &mdash; stillness, warmth, patience &mdash; across three camps.
+      The first camp asks nothing of you but attention.</div>
+    <button class="ap-empty-cta" type="button" onclick="switchPanel('browse')">Find a quality to grow</button>
+    <div class="ap-empty-alt">Not sure where to start? <a href="foundations.html">Foundations</a> is the ground everything else stands on.</div>
+  </div>`;
+
+function renderActive(){
+  const ids = activeIds();
+  document.getElementById('activePaths').innerHTML = ids.length ? ids.map(cardHTML).join('') : EMPTY_STATE;
+  document.getElementById('pathCount').textContent = `${ids.length} of ${CAP}`;
+  document.getElementById('addPath').innerHTML = !ids.length ? ''
+    : ids.length >= CAP
+      ? `<div class="ap-full">Your hands are full. <b>Let one settle or finish</b> before adding another &mdash; three at a time is the point, not a limit to beat.</div>`
+      : `<button class="ap-add" type="button" onclick="switchPanel('browse')">+ Add path</button>`;
+}
+
+function setView(v){
+  VIEW = v;
+  DATA.stillness.card.daysSince = v === 'resting' ? 19 : 1;
+  DATA.stillness.card.news.returns = v === 'resting' ? 0 : 2;
+  document.querySelectorAll('#viewSwitch button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  renderActive();
+  if(document.getElementById('seedShelf')) renderSeedShelf();
+  if(document.getElementById('browseList')) renderBrowse();
+}
+renderActive();
+
+/* ── Browse ───────────────────────────────────────────────────
+   Domain chips replace section headers. Every domain always gets a
+   chip — an empty one explains why rather than disappearing, so the
+   domain on a card always has a matching chip here. */
+let domFilter = 'All';
+const SUGGESTED = 'presence';
+
+function browseIds(){
+  return Object.keys(DATA).filter(id =>
+    !activeIds().includes(id) && !INTEGRATED.has(id) && id !== SUGGESTED);
+}
+
+function renderChips(){
+  const chips = ['All','Core to you','Highest leverage', ...Object.keys(DOMAINS)];
+  document.getElementById('domChips').innerHTML = chips.map(d => {
+    const ic = d === 'All' ? 'ic-layers'
+             : d === 'Core to you' ? 'ic-spark'
+             : d === 'Highest leverage' ? 'ic-zap' : DOMAINS[d].icon;
+    return `<button class="fchip${d===domFilter?' on':''}" type="button" role="tab"
+              aria-selected="${d===domFilter}" onclick="setDomain('${d}')">
+              <i class="ic ${ic}"></i>${d}</button>`;
+  }).join('');
+}
+
+const leverageOf = id => (SERVES[id] || []).length;
+
+function renderBrowse(){
+  const list = document.getElementById('browseList');
+  const ids = browseIds()
+    .filter(id => domFilter === 'All'
+               || (domFilter === 'Core to you'      ? CORE.has(id)
+                 : domFilter === 'Highest leverage' ? leverageOf(id) >= 3
+                 : DATA[id].domain === domFilter))
+    .sort((a,b) => domFilter === 'Highest leverage' ? leverageOf(b) - leverageOf(a) : 0);
+
+  if(!ids.length){
+    const walking = Object.keys(DATA).filter(id => activeIds().includes(id) && DATA[id].domain === domFilter)
+                          .map(id => DATA[id].quality);
+    list.innerHTML = `<div class="browse-empty">${
+      domFilter === 'Highest leverage'
+        ? `You&rsquo;re already practising the qualities that carry the most at once.`
+        : walking.length
+          ? `You&rsquo;re already practising <b>${walking.join(' and ')}</b> here. More ${domFilter} qualities arrive as that settles.`
+          : `Nothing open in <b>${domFilter}</b> yet.`
+    }</div>`;
+    return;
+  }
+
+  list.innerHTML = ids.map(id => {
+    const p = DATA[id];
+    const extra = extraAims(id);
+    const hi = leverageOf(id) >= 3;
+    return `
+    <div class="path-card" style="--pcd:${DOMAINS[p.domain].colour}"
+         role="button" tabindex="0" onclick="openDetail('${id}')" onkeydown="activate(event,'${id}')">
+      <div class="pc-spine"></div>
+      <div class="pc-bg">
+        <div class="pc-head">
+          <div class="pc-dom"><i class="ic ${DOMAINS[p.domain].icon}"></i>${p.domain}</div>
+          <div class="pc-badge">${CORE.has(id) ? '<span class="pc-core">Core</span> ' : ''}3 camps</div>
+        </div>
+        <div class="pc-name">${p.quality}</div>
+        <div class="pc-line">${p.shows}</div>
+        ${extra.length ? `<div class="pc-aims"><span class="pc-aims-k">also pays into</span>${
+          extra.map(a => `<span class="pc-aim${hi?' hi':''}">${a}</span>`).join('')}</div>` : ''}
       </div>
     </div>`;
   }).join('');
-  document.getElementById('dCta').textContent=p.cta;
-  const sec=document.getElementById('dSec');
-  if(p.sec&&!p.active){sec.style.display='';sec.textContent=p.sec;}
-  else{sec.style.display='none';}
-  document.getElementById('detailSheet').classList.add('open');
 }
-function maybeClose(e){if(e.target===document.getElementById('detailSheet'))document.getElementById('detailSheet').classList.remove('open');}
-function closeDetail(){document.getElementById('detailSheet').classList.remove('open');}
-function toggleCk(el){el.classList.toggle('done');el.textContent=el.classList.contains('done')?'✓':'';}
-function showCelebrate(){document.getElementById('celebrate').classList.add('open');}
+
+function setDomain(d){ domFilter = d; renderChips(); renderBrowse(); }
+setDomain('All');
+
+/* ── Seeds — qualities you've noticed, capped at 3 ── */
+let SEEDS = ['warmth'];
+const SEED_CAP = 3;
+
+function renderSeedShelf(){
+  const shown = SEEDS.filter(id => !activeIds().includes(id));
+  document.getElementById('seedShelf').innerHTML =
+    shown.map(id => `<div class="vchip desired"><div class="vdot" style="background:${DOMAINS[DATA[id].domain].colour}"></div>${DATA[id].quality}</div>`).join('') +
+    `<button class="vchip add" type="button" onclick="openSeeds()">+ Add a seed</button>`;
+}
+
+function renderSeedList(){
+  document.getElementById('seedCount').textContent = `${SEEDS.length} of ${SEED_CAP}`;
+  const full = SEEDS.length >= SEED_CAP;
+  let html = '';
+  for(const d of Object.keys(DOMAINS)){
+    const ids = Object.keys(DATA).filter(id => DATA[id].domain === d && !activeIds().includes(id));
+    if(!ids.length) continue;
+    html += `<div class="seed-dom"><i class="ic ${DOMAINS[d].icon}"></i>${d} &middot; ${DOMAINS[d].q.toLowerCase()}</div>`;
+    html += ids.map(id => {
+      const p = DATA[id], on = SEEDS.includes(id);
+      return `<button class="seed-row${on?' on':''}" type="button" style="--sd:${DOMAINS[d].colour}" onclick="toggleSeed('${id}')">
+        <div class="seed-row-b"><div class="seed-n">${p.quality}</div><div class="seed-s">${p.shows}</div></div>
+        <div class="seed-tick">\u2713</div>
+      </button>`;
+    }).join('');
+  }
+  if(full) html += `<div class="seed-full">Three is the limit \u2014 a seed shelf that grows without end becomes a list of things you haven\u2019t done. Let one go if something new is calling.</div>`;
+  document.getElementById('seedList').innerHTML = html;
+}
+
+function toggleSeed(id){
+  if(SEEDS.includes(id)) SEEDS = SEEDS.filter(s => s !== id);
+  else if(SEEDS.length < SEED_CAP) SEEDS = [...SEEDS, id];
+  renderSeedList(); renderSeedShelf();
+}
+function openSeeds(){ renderSeedList(); document.getElementById('seedBack').classList.add('open'); document.getElementById('seedSheet').classList.add('open'); }
+function closeSeeds(){ document.getElementById('seedBack').classList.remove('open'); document.getElementById('seedSheet').classList.remove('open'); }
+renderSeedShelf();
+
+
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") closeSeeds();
+});
+
+
+/* ── Moments ──────────────────────────────────────────────────
+   Both overlays render from DATA. Hand-typed numbers here would
+   drift out of step with the card the moment either changed. */
+function showCelebrate(id){
+  const p = DATA[id], c = p.card;
+  const done = c.campNow - 1;
+  const body = done === 1
+    ? `You spent that camp only watching. You didn\u2019t fix anything \u2014 that was the whole point.`
+    : `You came back to it ${plural(c.reps,'time')}. Not perfectly, not every day. That is what practice looks like.`;
+  document.getElementById('celSheet').innerHTML = `
+    <span class="cel-icon"><i class="ic ic-leaf"></i></span>
+    <div class="cel-h">Camp ${done} \u00b7 ${STAGES[done-1]} complete</div>
+    <div class="cel-body">${body}</div>
+    <div class="cel-quote">${c.reflection}</div>
+    <button class="cel-btn" onclick="closeCelebrate()">Continue to \u201c${STAGES[done]}\u201d \u2192</button>`;
+  document.getElementById('celebrate').classList.add('open');
+}
 function closeCelebrate(){document.getElementById('celebrate').classList.remove('open');}
-function showClaim(){document.getElementById('claimOverlay').classList.add('open');}
+
+/* A quality is not a habit. A habit is cue-triggered; a disposition shows up
+   across varied situations. So the claim asks about breadth of context and
+   unplanned occurrence — the markers the research actually supports — rather
+   than a repetition count, which self-determination theory says would
+   undermine the motivation it is meant to support. */
+const CLAIM_CHECKS = [
+  'It has shown up when you were tired or stretched.',
+  'It has cost you something, and you did it anyway.',
+  'It has happened when nobody would ever have known.',
+  'It has happened <b>without you planning it</b>.',
+];
+
+function showClaim(id){
+  const p = DATA[id], c = p.card;
+  document.getElementById('claimSheet').innerHTML = `
+    <span class="cel-icon"><i class="ic ic-spark"></i></span>
+    <div class="cel-h">${p.quality} \u2014 is this yours now?</div>
+    <div class="cel-body">There is no number that settles this, and only you can answer it.
+      A quality isn\u2019t a habit that fires at a cue \u2014 it\u2019s a disposition. What matters is whether
+      it turns up <b>across different situations</b>, not how many times it turned up.</div>
+    <div class="claim-checks">
+      <div class="claim-lbl">Read these honestly. Nothing depends on all four being true.</div>
+      ${CLAIM_CHECKS.map((t,i)=>`<div class="claim-row${i===3?' key':''}"><span class="claim-dot"></span><span>${t}</span></div>`).join('')}
+      <div class="claim-note">The last one is the one that matters. Doing it on purpose is practice.
+        Finding that you have already done it is the quality.</div>
+    </div>
+    <div class="cel-quote" style="background:rgba(168,132,63,.15);border-left:2px solid var(--gold)">${plural(c.returnsTotal,'return')} \u00b7 ${plural(c.weeks,'week')} \u00b7 ${c.campTotal} camps \u2014 context, not count.</div>
+    <button class="cel-btn" onclick="claimYes('${id}')" style="background:var(--gold);color:#1b1a17;margin-bottom:8px">Yes \u2014 this is part of me</button>
+    <button class="cel-btn" onclick="closeClaim()" style="background:rgba(255,255,255,.08);color:rgba(242,237,227,.6)">Not yet \u2014 keep going</button>`;
+  document.getElementById('claimOverlay').classList.add('open');
+}
 function closeClaim(){document.getElementById('claimOverlay').classList.remove('open');}
-function claimYes(){
+
+function claimYes(id){
   closeClaim();
-  // Show a brief confirmation
   const toast = document.createElement('div');
   toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gold);color:#1b1a17;padding:11px 20px;border-radius:12px;font-size:var(--fs-sm);font-weight:700;z-index:300;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25)';
-  toast.textContent='✨ Stillness moved to Self';
+  toast.textContent=`${DATA[id].quality} is yours`;
   document.body.appendChild(toast);
   setTimeout(()=>toast.remove(),2800);
 }

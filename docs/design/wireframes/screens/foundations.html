@@ -184,6 +184,18 @@
 <script>
 // ── Foundation data (mirrors spec-foundations.md §4) ──
 const DOMAINS = {
+  attention:{ ic:'ic-target', name:'Steady your attention', one:'Where your attention goes, and whether you choose it.',
+    what:'Noticing where attention has gone, and being able to bring it back on purpose.',
+    why:'Attention is the substrate under everything else — rumination, distraction and deep work all run on it. An unsteady attention makes every other foundation harder.',
+    tools:['One-thing blocks','Noting distraction','Rumination interrupt','Phone out of reach','Return without self-criticism'],
+    camps:['Notice where it went — without judging it','Bring it back, one time','Choose where it goes before the day does'],
+    present:'You can finish the thought you started.', missing:'Looping thoughts, scattered days, hours lost without deciding to spend them.' },
+  clear:{ ic:'ic-compass', name:'See clearly', one:'What happened, versus the story about what happened.',
+    what:'Separating observation from interpretation — and noticing when you are filling gaps with a story that flatters or frightens you.',
+    why:'Almost every painful spiral is built on an interpretation held as a fact. Idealisation, projection and dread all live in the gap between the two.',
+    tools:['Fact / story split','“What did I actually observe?”','Checking evidence both ways','Naming the gap you filled'],
+    camps:['Catch one story you were treating as a fact','Write the observation beside the story','Hold the not-knowing without filling it'],
+    present:'You can say what you saw, and separately what you concluded.', missing:'Certainty about other people’s motives; conclusions that arrive before evidence.' },
   regulate:{ ic:'ic-wind', name:'Regulate', one:'Settle your own nervous system on purpose.',
     what:'The ability to bring yourself back toward calm — and to know your window of tolerance.',
     why:'Unregulated, you react from survival and everything else floods you. This is the gateway to the rest.',
@@ -228,10 +240,16 @@ const DOMAINS = {
     present:'Your body is resourced.', missing:'Running on empty, ignoring signals.' },
   hard:{ ic:'ic-shield', name:'Handle hard things', one:'Grief, failure, uncertainty, endings.', gated:true,
     what:'Being with difficulty — without collapsing or numbing — and coming through.',
-    why:'Pain is unavoidable. The skill is being with it, not avoiding it.',
+    why:'Pain is unavoidable. The skill is being with it, not avoiding it. (Coming <em>back</em> afterwards is a different thing — that’s the Resilience path.)',
     tools:['Allow-the-wave','Grief basics','Self-compassion in failure','Tolerating uncertainty'],
     camps:['Let it be here — allow, don\u2019t fix','Comfort yourself through it','Find the meaning after'],
     present:'You can sit with pain.', missing:'Numb, avoid, or spiral.' },
+  word:{ ic:'ic-shield', name:'Keep your word', one:'Being someone whose word means something.',
+    what:'Doing what you said you’d do — to other people, and to yourself — and saying so plainly when you can’t. Including the promises you never said out loud: the ones your own values already made for you.',
+    why:'Accountability, reliability and integrity are one skill, not three virtues. Without it trust never accumulates — in other people, or in yourself. Most broken promises are made honestly and then quietly abandoned. And the hardest version isn’t breaking a promise: it’s never making one, so nothing can be held against you.',
+    tools:['Promise smaller','Say the no at the time','Renegotiate early, not late','Write it down or don’t agree to it','Repair the ones you drop','Ask: does this match what I said I value?'],
+    camps:['Notice what you agree to before you’ve thought','Promise less, and keep it','Act on the promise nobody heard you make'],
+    present:'People believe you, and so do you.', missing:'A slow build-up of small dropped things, and a quiet gap between what you value and what you actually did.' },
   practical:{ ic:'ic-sliders', name:'Live practically', one:'Money, decisions, admin, planning.',
     what:'Keeping real life running — money basics, decisions, systems.',
     why:'Logistics overwhelm bleeds into everything; avoidance here becomes background dread.',
@@ -246,20 +264,21 @@ const DOMAINS = {
     present:'Life has direction.', missing:'Emptiness despite comfort; going through motions.' },
 };
 
-const ORDER = ['regulate','feel','self','communicate','relate','know','body','hard','practical','meaning'];
+const ORDER = ['regulate','attention','feel','clear','self','communicate','relate','know','body','hard','word','practical','meaning'];
 // Built ground-up: body → inner world → others → life → meaning (Maslow-echo, framed as building not ranking)
 const TIERS = [
-  {n:1,title:'The ground',       why:'Your body and nervous system. You can’t think your way out of an exhausted, flooded body.', ids:['body','regulate']},
-  {n:2,title:'Your inner world', why:'How you meet your own feelings, needs, and self.',                                    ids:['feel','self','know']},
+  {n:1,title:'The ground',       why:'Your body, your nervous system and your attention. You can’t think your way out of an exhausted, flooded body — or a scattered mind.', ids:['body','regulate','attention']},
+  {n:2,title:'Your inner world', why:'How you meet your own feelings, needs, and self — and how you tell what happened from the story about it.',              ids:['feel','clear','self','know']},
   {n:3,title:'Other people',     why:'We’re built for connection — and secure relating is learnable.',                    ids:['communicate','relate']},
-  {n:4,title:'Meeting life',     why:'What adulthood actually asks of us.',                                                ids:['hard','practical']},
+  {n:4,title:'Meeting life',     why:'What adulthood actually asks of us.',                                                ids:['hard','word','practical']},
   {n:5,title:'Meaning',          why:'What makes the whole thing worth it.',                                               ids:['meaning']},
 ];
 const COV_STATES = [['notyet','Not yet'],['exploring','Exploring'],['practising','Practising'],['steady','Steady']];
 
 // coverage state per domain (demo defaults)
-const coverage = { regulate:'exploring', feel:'exploring', self:'practising', communicate:'notyet',
-  relate:'notyet', know:'practising', body:'practising', hard:'notyet', practical:'exploring', meaning:'notyet' };
+const coverage = { regulate:'exploring', attention:'practising', feel:'exploring', clear:'exploring',
+  self:'practising', communicate:'notyet', relate:'notyet', know:'practising', body:'practising',
+  hard:'notyet', word:'exploring', practical:'exploring', meaning:'notyet' };
 
 let currentId = null;
 

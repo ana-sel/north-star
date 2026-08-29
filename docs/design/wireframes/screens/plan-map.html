@@ -46,8 +46,9 @@
   .checkin-auto{font-size:var(--fs-xs);color:var(--muted);background:var(--greige);border-radius:10px;padding:9px 12px;margin-bottom:14px;line-height:1.55;}
   .checkin-q{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:5px;margin-top:10px;}
   .checkin-q:first-of-type{margin-top:0;}
-  .checkin-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:var(--fs-sm);background:var(--bg);color:var(--ink);outline:none;resize:vertical;box-sizing:border-box;min-height:60px;}
-  .checkin-textarea:focus{border-color:var(--accent);}
+  .checkin-textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);font-weight:400;background:var(--card);color:var(--ink);outline:none;resize:vertical;box-sizing:border-box;min-height:60px;transition:border-color .15s,box-shadow .15s;}
+  .checkin-textarea::placeholder{color:var(--muted);opacity:.7;}
+  .checkin-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(118,132,113,.10);}
   .energy-row{display:flex;gap:6px;margin-top:10px;margin-bottom:14px;}
   .en-emoji{flex:1;padding:8px 0;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font-size:14px;text-align:center;cursor:pointer;transition:all .12s;}
   .en-emoji.sel{border-color:var(--accent);background:color-mix(in srgb,#768471 14%,transparent);}

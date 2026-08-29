@@ -1,4 +1,4 @@
-// SettingsScreen — profile info + sign out.
+// SettingsScreen — v1: delete-my-data flow, no auth.
 
 import { useState } from 'react';
 import {
@@ -12,39 +12,39 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { theme } from '@styles/theme';
-import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
-import { supabase } from '@lib/supabase';
+import { wipeAll } from '@lib/db';
 
 interface SettingsScreenProps {
   onClose?: () => void;
 }
 
 export function SettingsScreen({ onClose }: SettingsScreenProps) {
-  const user = useAuthStore((s: AuthStore) => s.user);
-  const profile = useAuthStore((s: AuthStore) => s.profile);
-  const reset = useAuthStore((s: AuthStore) => s.reset);
+  const [isWiping, setIsWiping] = useState(false);
 
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const handleSignOut = async () => {
-    Alert.alert('Sign out', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign out',
-        style: 'destructive',
-        onPress: async () => {
-          setIsSigningOut(true);
-          try {
-            await supabase.auth.signOut();
-            reset();
-          } catch (err) {
-            console.error('Sign out error:', err);
-          } finally {
-            setIsSigningOut(false);
-          }
+  const handleDeleteMyData = () => {
+    Alert.alert(
+      'Delete all data?',
+      'This removes every sleep entry, habit, path return and preference from this device. It cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete everything',
+          style: 'destructive',
+          onPress: async () => {
+            setIsWiping(true);
+            try {
+              await wipeAll();
+              Alert.alert('Done', 'Your data has been erased from this device.');
+            } catch (err) {
+              console.error('Wipe error:', err);
+              Alert.alert('Something went wrong', 'Could not fully erase — please try again.');
+            } finally {
+              setIsWiping(false);
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   return (
@@ -53,7 +53,6 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Settings</Text>
           {onClose && (
@@ -63,48 +62,31 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
           )}
         </View>
 
-        {/* Profile section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Profile</Text>
-          <View style={styles.card}>
-            {!!profile?.display_name && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Name</Text>
-                <Text style={styles.infoValue}>{profile.display_name}</Text>
-              </View>
-            )}
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{user?.email ?? '—'}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Privacy section */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Privacy</Text>
           <View style={styles.card}>
             <Text style={styles.privacyText}>
-              Compass stores only your sleep times.{'\n\n'}
-              We never share your data. Only anonymous duration numbers are
-              sent to generate your weekly note — never your identity.
+              Compass v1 is fully local. Nothing leaves this device — no account,
+              no server, no analytics.
             </Text>
           </View>
         </View>
 
-        {/* Sign out */}
-        <TouchableOpacity
-          style={[styles.signOutBtn, isSigningOut && styles.signOutBtnDisabled]}
-          onPress={handleSignOut}
-          disabled={isSigningOut}
-          activeOpacity={0.7}
-        >
-          {isSigningOut ? (
-            <ActivityIndicator color={theme.colors.error} size="small" />
-          ) : (
-            <Text style={styles.signOutBtnText}>Sign out</Text>
-          )}
-        </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Your data</Text>
+          <TouchableOpacity
+            style={[styles.destructiveBtn, isWiping && styles.destructiveBtnDisabled]}
+            onPress={handleDeleteMyData}
+            disabled={isWiping}
+            activeOpacity={0.7}
+          >
+            {isWiping ? (
+              <ActivityIndicator color={theme.colors.error} size="small" />
+            ) : (
+              <Text style={styles.destructiveBtnText}>Delete all my data</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -150,21 +132,6 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     gap: theme.spacing.md,
   },
-  infoRow: {
-    gap: 4,
-  },
-  infoLabel: {
-    fontSize: theme.typography.xs,
-    color: theme.colors.muted,
-    fontWeight: '500',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  infoValue: {
-    fontSize: theme.typography.md,
-    color: theme.colors.ink,
-    fontWeight: '600',
-  },
   privacyText: {
     fontSize: theme.typography.sm,
     color: theme.colors.muted,
@@ -179,7 +146,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: theme.colors.olive,
   },
-  signOutBtn: {
+  destructiveBtn: {
     borderWidth: 1,
     borderColor: theme.colors.error,
     borderRadius: theme.radii.input,
@@ -187,10 +154,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: theme.spacing.md,
   },
-  signOutBtnDisabled: {
+  destructiveBtnDisabled: {
     opacity: 0.5,
   },
-  signOutBtnText: {
+  destructiveBtnText: {
     fontSize: theme.typography.md,
     fontWeight: '600',
     color: theme.colors.error,
