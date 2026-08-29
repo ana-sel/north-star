@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '@styles/theme';
-import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { SleepForm } from '../components/SleepForm';
 import { calculateDuration, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime, utcToLocal } from '@lib/time';
 import { saveSleepEntry } from '@data/sleep';
@@ -24,11 +23,7 @@ interface TodayScreenProps {
 }
 
 export function TodayScreen({ onSaved }: TodayScreenProps) {
-  const user = useAuthStore((s: AuthStore) => s.user);
-  const profile = useAuthStore((s: AuthStore) => s.profile);
-
-  const timezone = profile?.active_timezone ?? getDeviceTimezone();
-  const isHome = timezone === profile?.home_timezone;
+  const timezone = getDeviceTimezone();
   const offsetLabel = getTimezoneOffset(timezone);
 
   const [bedTime, setBedTime] = useState(() => smartBedTime((() => { const d = new Date(); d.setHours(23, 0, 0, 0); return d; })()));
@@ -106,18 +101,16 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
   const { formatted: durationLabel } = calculateDuration(bedTime, wakeTime);
 
   const handleSave = useCallback(async () => {
-    if (!user?.id) return;
     setErrorMsg(null);
 
     if (wakeTime <= bedTime) {
-      setErrorMsg('Wake time should be after bed time — check your times.');
+      setErrorMsg('Wake time should be after bed time \u2014 check your times.');
       return;
     }
 
     setIsSaving(true);
     try {
       await saveSleepEntry({
-        user_id: user.id,
         sleep_start_utc: bedTime.toISOString(),
         sleep_end_utc: wakeTime.toISOString(),
         timezone,
@@ -128,12 +121,12 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
       });
       onSaved?.();
     } catch (err) {
-      setErrorMsg('Could not save — please check your connection and try again.');
+      setErrorMsg('Could not save \u2014 please try again.');
       console.error('Save sleep entry error:', err);
     } finally {
       setIsSaving(false);
     }
-  }, [user, bedTime, wakeTime, timezone, onSaved]);
+  }, [bedTime, wakeTime, timezone, onSaved]);
 
   const handleBedChange = useCallback((date: Date) => {
     const smart = smartBedTime(date);
@@ -167,7 +160,7 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
         <View style={styles.tzPill}>
           <View style={styles.tzDot} />
           <Text style={styles.tzText}>
-            {timezone} · {offsetLabel}{isHome ? ' · home' : ''}
+            {timezone} · {offsetLabel}
           </Text>
         </View>
 

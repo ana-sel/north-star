@@ -17,19 +17,14 @@ import {
   ListRenderItemInfo,
 } from 'react-native';
 import { theme } from '@styles/theme';
-import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { getSleepHistory, deleteSleepEntry } from '@data/sleep';
 import { utcToLocal, calculateDuration, getDeviceTimezone } from '@lib/time';
 import { SleepEntry } from '../../../types/index';
-import { supabaseConfigured } from '@lib/env';
 
 const PAGE_SIZE = 20;
 
 export function HistoryScreen() {
-  const user = useAuthStore((s: AuthStore) => s.user);
-  const profile = useAuthStore((s: AuthStore) => s.profile);
-
-  const timezone = profile?.active_timezone ?? getDeviceTimezone();
+  const timezone = getDeviceTimezone();
 
   const [entries, setEntries] = useState<SleepEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,8 +34,6 @@ export function HistoryScreen() {
 
   const loadData = useCallback(
     async (reset = false) => {
-      if (!user?.id || !supabaseConfigured) { setIsLoading(false); setIsRefreshing(false); return; }
-
       const currentOffset = reset ? 0 : offset;
 
       if (reset) {
@@ -50,7 +43,7 @@ export function HistoryScreen() {
       }
 
       try {
-        const data = await getSleepHistory(user.id, PAGE_SIZE, currentOffset);
+        const data = await getSleepHistory(PAGE_SIZE, currentOffset);
 
         if (reset) {
           setEntries(data);
@@ -68,13 +61,13 @@ export function HistoryScreen() {
         setIsRefreshing(false);
       }
     },
-    [user, offset]
+    [offset]
   );
 
   useEffect(() => {
     loadData(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, []);
 
   const handleDelete = useCallback(
     (entry: SleepEntry) => {

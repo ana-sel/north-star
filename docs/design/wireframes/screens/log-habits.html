@@ -71,8 +71,9 @@
 .hrow.done .hrow-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
 .hrow-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
 .hpill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;margin-top:5px;line-height:1;}
-.hpill.stillness{background:#ede8f6;color:#7a679c;}
-.hpill.land{background:#e4efe6;color:#4e7d5a;}
+/* Source of a habit: a quality you're growing, or a goal you're building toward */
+.hpill.quality{background:#ede8f6;color:#7a679c;}
+.hpill.goal{background:#e2ecf3;color:#4c718c;}
 .hrow-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
 .hdots{display:flex;gap:4px;}
 .hd{width:9px;height:9px;border-radius:50%;background:var(--line);}
@@ -137,8 +138,9 @@ html,body{height:100%;position:relative;}
 .sform.open{display:flex;flex:1;min-height:0;}
 .sf-field{display:flex;flex-direction:column;gap:5px;}
 .sf-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
-.sf-input{border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:inherit;font-size:var(--fs-sm);color:var(--ink);background:var(--bg);outline:none;}
-.sf-input:focus{border-color:var(--accent);}
+.sf-input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-family:inherit;font-size:var(--fs-sm);font-weight:400;color:var(--ink);background:var(--card);outline:none;transition:border-color .15s,box-shadow .15s;}
+.sf-input::placeholder{color:var(--muted);opacity:.7;}
+.sf-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(118,132,113,.10);}
 .sf-seg{display:flex;background:var(--greige);border-radius:11px;padding:3px;gap:2px;}
 .sf-seg button{flex:1;padding:7px 0;border:none;border-radius:9px;font-family:inherit;font-size:var(--fs-xs);font-weight:700;color:var(--muted);background:none;cursor:pointer;transition:all .12s;}
 .sf-seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm);}
@@ -266,13 +268,13 @@ html,body{height:100%;position:relative;}
   <!-- compact rest reassurance (shows only on Rest pace) -->
   <div class="rest-banner">
     <span class="rest-banner-em"><i class="ic ic-shield"></i></span>
-    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Just the bare-minimum ritual to get through — streaks are held, nothing is lost.</div>
+    <div class="rest-banner-txt"><strong>Today is for rest.</strong> Just the bare-minimum ritual to get through — nothing is lost.</div>
   </div>
 
   <!-- lighter-day reassurance (shows only on Lighter pace) -->
   <div class="lighter-banner">
     <span class="lighter-banner-em"><i class="ic ic-wind"></i></span>
-    <div class="lighter-banner-txt"><strong>A lighter day.</strong> A shorter ritual — streaks are held, nothing is lost.</div>
+    <div class="lighter-banner-txt"><strong>A lighter day.</strong> A shorter ritual — nothing is lost.</div>
   </div>
 
   <!-- ══════════════ MORNING RITUAL ══════════════ -->
@@ -343,17 +345,17 @@ html,body{height:100%;position:relative;}
       <button class="hnudge-b" onclick="event.stopPropagation();upgradeFreq(this)">Try 5×</button>
     </div>
 
-    <div class="hrow opt-full" data-reps="4" data-min="5">
+    <div class="hrow opt-full" data-reps="4" data-min="1">
       <div class="hrow-ck">✓</div>
-      <div class="hrow-ic"><i class="ic ic-brain"></i></div>
+      <div class="hrow-ic"><i class="ic ic-moon"></i></div>
       <div class="hrow-main">
-        <div class="hrow-name">5-min silent sit</div>
-        <div class="hrow-meta">Before first screen</div>
-        <div class="hpill stillness"><i class="ic ic-route"></i> Stillness Path</div>
+        <div class="hrow-name">1 min silence on waking</div>
+        <div class="hrow-meta">Before anything else</div>
+        <div class="hpill quality"><i class="ic ic-moon"></i> Stillness</div>
       </div>
       <div class="hrow-right">
-        <div class="hdots"><span class="hd miss"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
-        <div class="hfreq">3×/wk</div>
+        <div class="hdots"><span class="hd miss"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
+        <div class="hfreq">Daily</div>
       </div>
     </div>
 
@@ -400,7 +402,6 @@ html,body{height:100%;position:relative;}
       <div class="hrow-main">
         <div class="hrow-name">No screens after 22:00</div>
         <div class="hrow-meta">Grows 15 → 30 → 45 → 60 min</div>
-        <div class="hpill stillness"><i class="ic ic-route"></i> Stillness Path</div>
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
@@ -414,7 +415,6 @@ html,body{height:100%;position:relative;}
       <div class="hrow-main">
         <div class="hrow-name">Journal · one line</div>
         <div class="hrow-meta">5 min · one true sentence</div>
-        <div class="hpill stillness"><i class="ic ic-route"></i> Stillness Path</div>
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd miss"></span><span class="hd on"></span><span class="hd miss"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>
@@ -428,7 +428,7 @@ html,body{height:100%;position:relative;}
       <div class="hrow-main">
         <div class="hrow-name">Save £50 to land fund</div>
         <div class="hrow-meta">Any time · 5×/wk</div>
-        <div class="hpill land"><i class="ic ic-route"></i> Land Path</div>
+        <div class="hpill goal"><i class="ic ic-target"></i> Buy land · goal</div>
       </div>
       <div class="hrow-right">
         <div class="hdots"><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd on"></span><span class="hd today"></span><span class="hd"></span><span class="hd"></span></div>

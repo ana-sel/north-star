@@ -4,6 +4,12 @@ Compass is a private personal navigation app: a compass, not a map. It helps use
 
 Keep agent context lean. Do not read long docs unless the task requires them.
 
+## The docs are guidelines, not rules
+
+Everything in `docs/` records current best thinking — treat it as strong suggestion,
+not law. When a doc and a good design disagree, **fix the design first**, then update
+the doc to match. Never ship a confusing screen because a spec said so.
+
 ## Read deeper docs only when needed
 
 - For emotional UX, identity, habits, paths, qualities, AI guidance, or gamification:

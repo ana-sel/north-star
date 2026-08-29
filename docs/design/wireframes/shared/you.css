@@ -62,8 +62,8 @@
 .yritual-head{flex:1;min-width:0;}
 .yritual-name{font-size:var(--fs-md);font-weight:800;letter-spacing:-.01em;}
 .yritual-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
-.yritual-chev{color:var(--line);font-size:15px;flex-shrink:0;}
-.yritual-chev.done{color:var(--accent);}
+.yritual-chev{color:var(--muted);font-size:18px;flex-shrink:0;opacity:.7;}
+.yritual-chev.done{color:var(--accent);opacity:1;}
 /* connected completion circles */
 .yritual-track{display:flex;align-items:center;padding:0 16px 15px;}
 .rnode{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--muted);font-size:14px;flex-shrink:0;cursor:pointer;transition:all .15s;position:relative;z-index:1;}

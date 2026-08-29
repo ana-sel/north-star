@@ -26,12 +26,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F6F5F2"
-      },
-      "permissions": [
-        "android.permission.READ_CALENDAR",
-        "android.permission.WRITE_CALENDAR",
-        "android.permission.ACCESS_FINE_LOCATION"
-      ]
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8bde6453-f498-403e-ad39-442651347139"
+      }
     }
   }
 }

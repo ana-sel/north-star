@@ -35,9 +35,10 @@
 .ci-q-skip{font-size:var(--fs-xs);color:var(--muted);cursor:pointer;}
 .ci-q-body{padding:18px;}
 .ci-q-text{font-size:var(--fs-lg);font-weight:800;line-height:1.35;margin-bottom:14px;color:var(--ink);letter-spacing:-.01em;}
-.ci-textarea{width:100%;min-height:84px;border:1.5px solid var(--line);border-radius:13px;padding:13px;
-  font-family:inherit;font-size:var(--fs-sm);background:var(--bg);color:var(--ink);resize:none;outline:none;transition:border-color .15s;box-sizing:border-box;}
-.ci-textarea:focus{border-color:var(--accent);}
+.ci-textarea{width:100%;min-height:84px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+  font-family:inherit;font-size:var(--fs-sm);font-weight:400;background:var(--card);color:var(--ink);resize:none;outline:none;transition:border-color .15s,box-shadow .15s;box-sizing:border-box;}
+.ci-textarea::placeholder{color:var(--muted);opacity:.7;}
+.ci-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(118,132,113,.10);}
 .ci-next{margin-top:10px;width:100%;padding:13px;border-radius:13px;border:none;background:var(--btn);color:#fff;
   font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
 /* State 2 — done */
@@ -113,6 +114,44 @@
 .eg-head.energy{color:#5d7a55;}.eg-head.drain{color:#a06a72;}
 .knowledge-item{padding:8px 0;border-top:1px solid var(--line);}.knowledge-item:first-of-type{border-top:0;padding-top:0;}
 .knowledge-name{font-size:var(--fs-sm);font-weight:700;}.knowledge-meta{font-size:9px;color:var(--muted);line-height:1.4;margin-top:2px;}
+
+/* ── Admiration: turning what you admire into something you can do ── */
+.adm{border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 6px 24px rgba(28,27,24,.18);}
+.adm-bg{padding:19px 18px 18px;background:linear-gradient(150deg,#2c2a3a,#1b1a26);color:#ece9f2;}
+.adm-meta{font-size:9px;opacity:.4;text-transform:uppercase;letter-spacing:.12em;margin-bottom:11px;}
+.adm-q{font-size:var(--fs-lg);font-style:italic;line-height:1.55;opacity:.94;margin-bottom:7px;letter-spacing:-.01em;}
+.adm-sub{font-size:var(--fs-xs);opacity:.45;line-height:1.5;margin-bottom:15px;}
+.adm-ta{width:100%;min-height:82px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);
+  border-radius:13px;padding:12px 13px;color:#ece9f2;font-family:inherit;font-size:var(--fs-sm);line-height:1.6;resize:vertical;}
+.adm-ta:focus{border-color:rgba(255,255,255,.45);outline:none;}
+.adm-ta::placeholder{color:rgba(255,255,255,.28);}
+.adm-go{margin-top:11px;width:100%;padding:12px;border-radius:13px;border:none;background:rgba(255,255,255,.13);
+  color:#ece9f2;font-family:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer;}
+.adm-priv{font-size:9px;opacity:.32;line-height:1.5;margin-top:9px;}
+.adm-out{display:none;margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,.1);}
+.adm-out.show{display:block;}
+.adm-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;opacity:.42;margin-bottom:7px;}
+.adm-qual{font-size:var(--fs-md);font-weight:800;letter-spacing:-.01em;margin-bottom:4px;}
+.adm-gloss{font-size:var(--fs-sm);opacity:.6;line-height:1.55;margin-bottom:11px;}
+.adm-act{padding:10px 15px;border-radius:11px;border:none;background:#ece9f2;color:#23212e;
+  font-family:inherit;font-size:var(--fs-xs);font-weight:800;cursor:pointer;}
+.adm-try{margin-top:16px;}
+.adm-try-t{font-size:var(--fs-sm);font-weight:700;margin-bottom:5px;}
+.adm-try-n{font-size:var(--fs-xs);opacity:.5;line-height:1.55;}
+.adm-try-n a{color:#ece9f2;font-weight:700;}
+.adm-none{margin-top:16px;width:100%;padding:10px;border-radius:11px;border:1px solid rgba(255,255,255,.14);
+  background:transparent;color:rgba(236,233,242,.55);font-family:inherit;font-size:var(--fs-xs);font-weight:600;cursor:pointer;}
+.adm-done{display:none;font-size:var(--fs-sm);line-height:1.6;opacity:.8;}
+.adm-done.show{display:block;}
+
+/* ── How to tell whether you actually liked something ── */
+.crit{background:var(--greige);border-radius:var(--r-card);padding:14px 15px;margin-bottom:9px;}
+.crit-h{font-size:var(--fs-xs);font-weight:800;margin-bottom:9px;}
+.crit-i{display:flex;gap:9px;font-size:var(--fs-sm);line-height:1.55;padding:7px 0;border-top:1px solid var(--line);}
+.crit-i:first-of-type{border-top:0;padding-top:0;}
+.crit-n{font-size:var(--fs-xs);font-weight:800;color:var(--accent);flex:none;width:13px;}
+.crit-warn{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);}
+.crit-warn b{color:var(--ink);font-weight:700;}
 @media(max-width:310px){.pattern-actions,.energy-grid{grid-template-columns:1fr;}}
 
 /* ── Past check-ins ── */
@@ -261,6 +300,68 @@
     </div>
   </div>
 
+  <!-- ── ADMIRATION → A QUALITY YOU COULD GROW ── -->
+  <div class="yhead">
+    <i class="ic ic-users yhead-ic"></i>
+    <div class="yhead-t">What you admired</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="yintro">Admiration is information. It usually points at something you could grow yourself &mdash; and sometimes at a world you could just walk into.</div>
+  <div class="adm">
+    <div class="adm-bg">
+      <div class="adm-meta">Whenever you notice it</div>
+      <div class="adm-q">"What have you admired &mdash; recently, or for a long time?"</div>
+      <div class="adm-sub">A person, a piece of work, a way someone was in a room. It can be from this week or from twenty years ago.</div>
+      <textarea class="adm-ta" id="admIn" placeholder="Describe what they did, or how they were. No names — Compass doesn't keep them."></textarea>
+      <button class="adm-go" onclick="readAdmiration()">Look at this &rarr;</button>
+      <div class="adm-priv">Stays on your device. Compass never stores a name, and will never suggest a move toward another person &mdash; only your own next one.</div>
+
+      <div class="adm-out" id="admOut">
+        <div class="adm-lbl">Underneath it, this looks like</div>
+        <div class="adm-qual" id="admQual">Non-attachment</div>
+        <div class="adm-gloss" id="admGloss">Wanting something fully, and not requiring it to happen.</div>
+        <button class="adm-act" onclick="admSeed()">Save as a seed</button>
+        <div class="adm-try" id="admTryWrap">
+          <div class="adm-lbl">And there's a world in it</div>
+          <div class="adm-try-t" id="admTry">Photography &mdash; one afternoon</div>
+          <div class="adm-try-n">No list needed. Put it in <a href="plan-horizon.html">Plan</a> if it needs time set aside; otherwise just go. Afterwards, record what you found below.</div>
+        </div>
+        <button class="adm-none" onclick="admNone()">Neither, actually &mdash; just keep the note</button>
+      </div>
+      <div class="adm-done" id="admDone"></div>
+    </div>
+  </div>
+
+  <!-- ── WHAT YOU'RE LEARNING YOU LIKE ── -->
+  <div class="yhead">
+    <i class="ic ic-flask yhead-ic"></i>
+    <div class="yhead-t">What you're learning you like</div>
+    <div class="yhead-rule"></div>
+  </div>
+  <div class="yintro">You find out what you like by trying things, not by thinking about them. Both answers are worth having &mdash; a clear <i>no</i> is as useful as a yes.</div>
+  <div class="crit">
+    <div class="crit-h">How to tell whether you actually liked it</div>
+    <div class="crit-i"><div class="crit-n">1</div><div>You thought about it afterwards without deciding to &mdash; on the way home, or the next day.</div></div>
+    <div class="crit-i"><div class="crit-n">2</div><div>You'd go again on your own, with nobody watching and nobody told.</div></div>
+    <div class="crit-i"><div class="crit-n">3</div><div>Time went strange &mdash; more had passed than you thought.</div></div>
+    <div class="crit-i"><div class="crit-n">4</div><div>You were interested in being bad at it, not only in being good at it.</div></div>
+    <div class="crit-warn">Watch for the gap between liking <b>the thing</b> and liking <b>the idea of being someone who does it</b>. Number 2 is the test. And one go isn't a verdict &mdash; most things need about three before you know, especially the ones you were nervous about.</div>
+  </div>
+  <div class="energy-grid">
+    <div class="energy-col">
+      <div class="eg-head energy"><i class="ic ic-check"></i>Turns out I like</div>
+      <div class="knowledge-item"><div class="knowledge-name">Long hikes alone</div><div class="knowledge-meta">3 tries · thought about the next one on the way home</div></div>
+      <div class="knowledge-item"><div class="knowledge-name">Films in a cinema by myself</div><div class="knowledge-meta">4 tries · would go again with nobody told</div></div>
+      <div class="knowledge-item"><div class="knowledge-name">Sweet and salty popcorn</div><div class="knowledge-meta">settled</div></div>
+    </div>
+    <div class="energy-col">
+      <div class="eg-head drain"><i class="ic ic-x"></i>Turns out I don't</div>
+      <div class="knowledge-item"><div class="knowledge-name">Pottery</div><div class="knowledge-meta">2 tries · liked the idea more than the evening</div></div>
+      <div class="knowledge-item"><div class="knowledge-name">Big social nights out</div><div class="knowledge-meta">enough tries · clear no</div></div>
+    </div>
+  </div>
+  <div class="xlink-note">Tried something and haven't recorded it? <a href="#" onclick="return false">Add what you found &rarr;</a> &nbsp;Still open: <b>a climbing wall</b>, <b>one album end to end</b> &mdash; from the Curiosity practice in <a href="plan-trails.html">Paths</a>.</div>
+
   <!-- ── ENERGY PATTERNS + CONFIRMED SELF-KNOWLEDGE ── -->
   <div class="yhead">
     <i class="ic ic-zap yhead-ic"></i>
@@ -323,6 +424,19 @@
   </div><!-- /histSection -->
 
 <script>
+// The router reads back at most two things and never acts on its own — the user chooses or declines.
+function readAdmiration(){
+  document.getElementById('admOut').classList.add('show');
+  document.getElementById('admDone').classList.remove('show');
+}
+function admClose(msg){
+  document.getElementById('admOut').classList.remove('show');
+  const d = document.getElementById('admDone');
+  d.textContent = msg; d.classList.add('show');
+}
+function admSeed(){ admClose('Saved as a seed. It\u2019s waiting on Paths \u2014 nothing starts until you start it.'); }
+function admNone(){ admClose('Kept as a note. Nothing was added anywhere.'); }
+
 const QUESTIONS = [
   'What gave you energy this week?',
   'What drained you most?',
