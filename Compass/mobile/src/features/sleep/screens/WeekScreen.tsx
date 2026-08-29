@@ -11,35 +11,27 @@ import {
   RefreshControl,
 } from 'react-native';
 import { theme } from '@styles/theme';
-import { useAuthStore, AuthStore } from '@hooks/useAuthStore';
 import { SleepChart } from '../components/SleepChart';
 import { AINoteCard } from '../components/AINoteCard';
 import { getSleepLastDays } from '@data/sleep';
 import { generateNote } from '@lib/ai';
 import { SleepEntry } from '../../../types/index';
-import { supabaseConfigured } from '@lib/env';
 
 export function WeekScreen() {
-  const user = useAuthStore((s: AuthStore) => s.user);
-
   const [entries, setEntries] = useState<SleepEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [isNoteLoading, setIsNoteLoading] = useState(false);
-  const [isNoteAI, setIsNoteAI] = useState(true);
 
   const loadData = useCallback(async (refresh = false) => {
-    if (!user?.id || !supabaseConfigured) { setIsLoading(false); setIsRefreshing(false); return; }
-
     if (refresh) setIsRefreshing(true);
     else setIsLoading(true);
 
     try {
-      const data = await getSleepLastDays(user.id, 7);
+      const data = await getSleepLastDays(7);
       setEntries(data);
 
-      // Fetch AI note if there are entries
       if (data.length > 0) {
         setIsNoteLoading(true);
         try {
@@ -49,11 +41,10 @@ export function WeekScreen() {
               sleep_end_utc: e.sleep_end_utc,
               timezone: e.timezone,
               duration_minutes: e.duration_minutes ?? 0,
-            })),
-            user.id
+            }),
+            ),
           );
           setNote(result.note);
-          setIsNoteAI(result.isAI);
         } finally {
           setIsNoteLoading(false);
         }
@@ -64,7 +55,7 @@ export function WeekScreen() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -106,7 +97,6 @@ export function WeekScreen() {
           <AINoteCard
             note={note}
             isLoading={isNoteLoading}
-            isAI={isNoteAI}
           />
         )}
       </ScrollView>

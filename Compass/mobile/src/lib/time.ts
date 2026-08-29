@@ -8,6 +8,12 @@ export function utcToLocal(utcTime: Date, timezone: string): string {
   return formatInTimeZone(utcTime, timezone, 'HH:mm');
 }
 
+/** Today's date as YYYY-MM-DD, computed in the given IANA timezone. */
+export function localDateISO(timezone?: string): string {
+  const tz = timezone ?? getDeviceTimezone();
+  return formatInTimeZone(new Date(), tz, 'yyyy-MM-dd');
+}
+
 // Minutes between two instants, plus a human "7h 35m" label. DST-safe.
 export function calculateDuration(
   startUtc: Date,

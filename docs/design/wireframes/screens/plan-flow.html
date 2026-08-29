@@ -92,8 +92,9 @@
   .msheet-title{font-size:var(--fs-md);font-weight:800;}
   .msheet-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--greige);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:16px;font-family:inherit;}
   .msheet-horizon{font-size:var(--fs-xs);color:var(--accent);font-weight:700;margin-bottom:12px;}
-  .add-field{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);background:var(--card);color:var(--ink);outline:none;}
-  .add-field:focus{border-color:var(--accent);}
+  .add-field{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:var(--fs-sm);font-weight:400;background:var(--card);color:var(--ink);outline:none;box-sizing:border-box;transition:border-color .15s,box-shadow .15s;}
+  .add-field::placeholder{color:var(--muted);opacity:.7;}
+  .add-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(118,132,113,.10);}
   .field-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin:10px 0 6px;}
   /* pillar multiselect in sheet */
   .sheet-pillars{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px;}
