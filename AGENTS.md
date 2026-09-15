@@ -13,11 +13,11 @@ the doc to match. Never ship a confusing screen because a spec said so.
 ## Read deeper docs only when needed
 
 - For emotional UX, identity, habits, paths, qualities, AI guidance, or gamification:
-  read `docs/product/compass-principles.md`
+  read `docs/product/principles.md`, then the relevant product document in `docs/product/`
 - For retention, habit loops, story, camps, streaks, rewards:
   read `docs/product/engagement-model.md`
-- For infrastructure, Supabase, privacy, auth, database, AI functions:
-  read `docs/architecture/infrastructure.md`
+- For infrastructure, privacy, auth, database, or AI functions:
+  read `ARCHITECTURE.md`
 - For colours, spacing, typography, components, navigation:
   read `docs/design/design-system.md`
 
