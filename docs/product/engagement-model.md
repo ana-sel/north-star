@@ -1,4 +1,6 @@
-# Engagement model
+# Engagement Model
+
+> Canonical engagement guidance. Product scope is locked in [`PLAN.md`](../../PLAN.md).
 
 > **Guidelines, not rules.** These are the current best answers, not a contract.
 > Get the design right first, then update this file to match it.
@@ -114,5 +116,5 @@ A path may carry no ritual at all, and one ritual may be shared by several paths
 
 ## Missed-day tone
 
-> "Welcome back. Nothing's lost."  
+> "Welcome back. Nothing's lost."
 > Never: "You broke your streak."
