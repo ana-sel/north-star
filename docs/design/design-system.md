@@ -1,4 +1,8 @@
-# Design system
+# Design System
+
+The warm neutral background is intentional. White cards provide contrast, while accents communicate semantic meaning. Path domain colours must remain visible: the deployed APK must not collapse into a beige-only interface.
+
+Follow the HTML wireframes' hierarchy, spacing, and density closely. Android may adapt only where native interaction or accessibility requires it.
 
 Source of truth: `docs/design/wireframes/shared/`
 
@@ -58,7 +62,7 @@ Source of truth: `docs/design/wireframes/shared/`
 
 ## Typography
 
-Font: **Inter** (400, 500, 600, 700, 800).  
+Font: **Inter** (400, 500, 600, 700, 800).
 Smoothing: `-webkit-font-smoothing: antialiased`.
 
 ## Navigation shell
