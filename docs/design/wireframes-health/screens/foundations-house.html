@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations</title>
+<link rel="stylesheet" href="../shared/health.css">
+<style>
+  .house { display: block; margin: 0 auto; font-family: var(--font); }
+  .house .piece { cursor: pointer; filter: url(#lift); transition: transform .12s; transform-box: fill-box; transform-origin: center; }
+  .house .piece:active { transform: scale(.97); }
+  .house text { pointer-events: none; }
+  .hint { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--stone-deep); margin-bottom: 8px; }
+  .legend { display: flex; justify-content: center; gap: 14px; font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .sheet[hidden], .scrim[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+  <nav class="nav"><a href="you-paths.html"><svg class="i lg"><use href="#i-back"/></svg>Paths</a></nav>
+
+  <div class="kicker" style="color:var(--foundation-deep)"><svg class="i sm"><use href="#i-layers"/></svg>13 basics</div>
+  <h1 class="title">Foundations</h1>
+  <p class="lede">What holds everything else up. Each part of the house is one foundation.</p>
+
+  <!-- Steps = The Ground (3), columns = Inner World (4), beams = Other People (2), frieze = Meeting Life (3), roof = Meaning (1). -->
+  <div class="card" style="margin-top:16px;padding:12px 0 10px">
+    <div class="hint"><svg class="i sm"><use href="#i-target"/></svg>Tap any part of the house</div>
+    <svg class="house" id="house" width="326" height="344" viewBox="0 0 326 344" role="group" aria-label="Foundations drawn as a house"></svg>
+    <div class="legend"><span><i style="background:var(--stone)"></i>Walking</span><span><i style="background:color-mix(in oklab, var(--stone) 40%, #fff)"></i>Selected tier</span></div>
+  </div>
+
+  <div class="sec"><h2 id="tier-name"></h2><span class="meta" id="tier-count"></span></div>
+  <p class="sub" id="tier-desc" style="margin:-2px 0 10px"></p>
+  <div class="list plain" id="tier-list"></div>
+  <p class="foot">The house is an order of support, not a gate. Any foundation can be started.</p>
+</div>
+
+<a class="scrim" id="scrim" hidden aria-label="Close"></a>
+<section class="sheet" id="sheet" role="dialog" hidden>
+  <div class="grabber"></div>
+  <div class="sheet-head">
+    <span class="tile" style="background:var(--foundation)"><svg class="i"><use href="#i-layers"/></svg></span>
+    <h2 id="s-title"></h2>
+    <a class="x-btn" id="s-close" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></a>
+  </div>
+  <p class="sub" id="s-tier" style="margin:0 0 6px"></p>
+  <p class="body" style="color:var(--ink-2)" id="s-summary"></p>
+  <div class="card" style="margin-top:14px">
+    <div class="card-head"><span class="cat" style="color:var(--foundation-deep)">The practice</span></div>
+    <p class="body" id="s-practice"></p>
+    <p class="counts" style="margin-top:8px"><b>It counts when</b> <span id="s-counts"></span></p>
+  </div>
+  <a class="btn" id="s-start" style="margin-top:6px">Start this foundation</a>
+  <a class="text-btn" href="foundation-detail.html">See full page</a>
+  <p class="meta-c" style="margin-top:0" id="s-meta"></p>
+</section>
+
+<nav data-tabbar="you"></nav>
+<script src="../shared/shell.js"></script>
+<script>
+  const tiers = [
+    { name: 'The Ground', part: 'the steps', desc: 'Body, settling and attention. Everything else stands on these.', items: [
+      ['Tend the Body', 'Support the physical floor required for everything else.', 'Notice one basic body need being neglected and meet it in the smallest useful way.', 'you meet one basic need in a small useful way.'],
+      ['Regulate', 'Notice activation and settle enough to choose the next action.', 'Notice activation. Use one settling tool. Continue when you have enough space to choose.', 'you use one settling tool and choose what comes next.', 'walking'],
+      ['Steady Your Attention', 'Notice when attention has been captured and deliberately return it.', 'Notice where attention went. Choose where to place it next. Return once.', 'you notice the capture and return once.'],
+    ] },
+    { name: 'Inner World', part: 'the columns', desc: 'Naming feelings, seeing clearly, a fairer inner voice, and knowing what you want.', items: [
+      ['Feel & Name', 'Recognise emotional experience rather than immediately acting from it.', 'Name the feeling as specifically as possible and identify what you may need.', 'you name one feeling, with an optional need.'],
+      ['See Clearly', 'Separate reality from interpretation, projection, and uncertainty.', 'Split the situation into Fact / Story / Unknown.', 'you name a fact, a story, and an unknown where relevant.'],
+      ['Self-relationship', 'Treat yourself as worthy of care rather than using self-attack as motivation.', 'Notice a harsh inner statement and answer it with a fairer, adult response.', 'you notice the harsh statement and offer a fairer response.'],
+      ['Know Yourself', 'Distinguish your values, wants, and needs from social approval.', 'Ask: What do I actually want here if nobody is watching?', 'you identify one genuine preference, value, or need.'],
+    ] },
+    { name: 'Other People', part: 'the beams', desc: 'Saying it clearly, and staying connected without losing yourself.', items: [
+      ['Communicate', 'Express needs, requests, limits, and repair clearly.', 'Say the need, request, or no clearly and without unnecessary aggression or over-explaining.', 'you make one clear expression of need, request, limit, or repair.'],
+      ['Relate', 'Stay connected without abandoning yourself.', 'Notice both sides: What is happening for them, and what remains true for me?', 'you make room for both perspectives.'],
+    ] },
+    { name: 'Meeting Life', part: 'the frieze', desc: 'Hard things, keeping your word, and the practical side of being an adult.', items: [
+      ['Handle Hard Things', 'Stay with pain, grief, uncertainty, or failure without forcing resolution.', 'Let the difficult thing be true for a moment without arguing with it or demanding immediate relief.', 'you allow the experience without requiring it to feel better.'],
+      ['Keep Your Word', 'Build reliability toward yourself and others.', 'Keep the commitment, renegotiate it early, or repair it honestly.', 'you keep, renegotiate, or repair one commitment honestly.'],
+      ['Live Practically', 'Deal with real-world money, admin, decisions, and responsibilities.', 'Identify the concrete practical move and do the smallest useful next step.', 'you take one concrete practical step.'],
+    ] },
+    { name: 'Meaning', part: 'the roof', desc: 'Small, real expressions of what matters to you.', items: [
+      ['Make Meaning', 'Connect life to values, beauty, service, purpose, and what matters.', 'Do one small thing that expresses what matters to you.', 'you make one small expression of what matters.'],
+    ] },
+  ];
+
+  // [tier, item, shape]. Steps bottom-up are Tend the Body, Regulate, Steady Your Attention.
+  const cols = [67.75, 131.25, 194.75, 258.25];
+  const pieces = [
+    [0, 0, { rect: [8, 320, 310, 20] }],
+    [0, 1, { rect: [20, 298, 286, 20] }],
+    [0, 2, { rect: [32, 276, 262, 20] }],
+    ...cols.map((c, j) => [1, j, { column: c }]),
+    [2, 0, { rect: [36, 146, 125, 26] }],
+    [2, 1, { rect: [165, 146, 125, 26] }],
+    [3, 0, { rect: [36, 102, 82, 40], lines: ['Handle', 'Hard Things'] }],
+    [3, 1, { rect: [122, 102, 82, 40], lines: ['Keep Your', 'Word'] }],
+    [3, 2, { rect: [208, 102, 82, 40], lines: ['Live', 'Practically'] }],
+    [4, 0, { roof: '163,14 26,96 300,96' }],
+  ];
+  let selected = 0;
+
+  function fills(t, j) {
+    const walking = tiers[t].items[j][4] === 'walking';
+    const line = t === selected ? 'var(--stone-deep)' : '#fff';
+    if (walking) return ['var(--stone)', '#fff', line];
+    if (t === selected) return ['color-mix(in oklab, var(--stone) 40%, #fff)', 'var(--stone-deep)', line];
+    return ['var(--stone-soft)', 'var(--stone-deep)', line];
+  }
+
+  function drawHouse() {
+    const out = pieces.map(([t, j, s]) => {
+      const [bg, fg, line] = fills(t, j);
+      const sw = t === selected ? 1.5 : 2;
+      const name = tiers[t].items[j][0];
+      const w = t === selected ? 700 : 600;
+      let g = '';
+      if (s.rect) {
+        const [x, y, wd, h] = s.rect;
+        g += `<rect x="${x}" y="${y}" width="${wd}" height="${h}" rx="4" fill="${bg}" stroke="${line}" stroke-width="${sw}"/>`;
+        if (s.lines) {
+          g += `<text x="${x + wd / 2}" y="${y + 17}" text-anchor="middle" font-size="11" font-weight="${w}" fill="${fg}">${s.lines[0]}</text>`;
+          g += `<text x="${x + wd / 2}" y="${y + 31}" text-anchor="middle" font-size="11" font-weight="${w}" fill="${fg}">${s.lines[1]}</text>`;
+        } else {
+          g += `<text x="${x + wd / 2}" y="${y + h / 2 + 4}" text-anchor="middle" font-size="12" font-weight="${w}" fill="${fg}">${name}</text>`;
+        }
+      } else if (s.column) {
+        const c = s.column;
+        g += `<rect x="${c - 24}" y="176" width="48" height="7" rx="2" fill="${bg}" stroke="${line}" stroke-width="${sw}"/>`;
+        g += `<rect x="${c - 17}" y="183" width="34" height="84" fill="${bg}" stroke="${line}" stroke-width="${sw}"/>`;
+        g += `<rect x="${c - 24}" y="267" width="48" height="7" rx="2" fill="${bg}" stroke="${line}" stroke-width="${sw}"/>`;
+        g += `<text transform="translate(${c + 4} 225) rotate(-90)" text-anchor="middle" font-size="10" font-weight="${w}" fill="${fg}">${name}</text>`;
+      } else if (s.roof) {
+        g += `<polygon points="${s.roof}" fill="${bg}" stroke="${line}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        g += `<text x="163" y="78" text-anchor="middle" font-size="13" font-weight="${w}" fill="${fg}">${name}</text>`;
+      }
+      return `<g class="piece" data-t="${t}" role="button" aria-label="${name}, ${tiers[t].name}">${g}</g>`;
+    }).join('');
+    const svg = document.getElementById('house');
+    svg.innerHTML = '<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#665849" flood-opacity=".22"/></filter></defs>' + out;
+    svg.querySelectorAll('.piece').forEach((p) => p.addEventListener('click', () => { selected = Number(p.dataset.t); render(); }));
+  }
+
+  function render() {
+    drawHouse();
+    const t = tiers[selected];
+    document.getElementById('tier-name').textContent = t.name;
+    document.getElementById('tier-count').textContent = `Tier ${selected + 1} · ${t.part}`;
+    document.getElementById('tier-desc').textContent = t.desc;
+    document.getElementById('tier-list').innerHTML = t.items.map(([name, summary, , , state], j) =>
+      `<a class="row" data-j="${j}"><div class="txt"><div class="t">${name}</div><div class="s">${summary}</div></div>
+        <span class="r">${state ? '<span class="tag" style="background:var(--stone-soft);color:var(--stone-deep)">Walking</span>' : ''}<svg class="chev"><use href="#i-chev"/></svg></span></a>`).join('');
+    document.querySelectorAll('#tier-list .row').forEach((row) => row.addEventListener('click', () => openSheet(t, t.items[Number(row.dataset.j)])));
+  }
+
+  function openSheet(tier, [name, summary, practice, counts, state]) {
+    document.getElementById('s-title').textContent = name;
+    document.getElementById('s-tier').textContent = `${tier.name} · Tier ${tiers.indexOf(tier) + 1}`;
+    document.getElementById('s-summary').textContent = summary;
+    document.getElementById('s-practice').textContent = practice;
+    document.getElementById('s-counts').textContent = counts;
+    document.getElementById('s-start').textContent = state ? 'I came back' : 'Start this foundation';
+    document.getElementById('s-meta').textContent = state ? 'Walking now · Watching · 2 returns' : 'Uses your last open slot · 2 of 3 active';
+    document.getElementById('sheet').hidden = false;
+    document.getElementById('scrim').hidden = false;
+  }
+  const close = () => { document.getElementById('sheet').hidden = true; document.getElementById('scrim').hidden = true; };
+  document.getElementById('scrim').addEventListener('click', close);
+  document.getElementById('s-close').addEventListener('click', close);
+
+  render();
+</script>
+</body>
+</html>

@@ -15,11 +15,9 @@ dist/
 build/
 
 .venv/
+__pycache__/
 
 *.zip
 
 .DS_Store
 Thumbs.db
-
-# Local repository archive
-Compass.zip

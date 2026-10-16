@@ -29,8 +29,6 @@ export interface TodayAISource {
   sleepDurationMinutes: number | null;
   sleepTargetMinutes: number | null;
   habits: AIHabitInput[];
-  planDueToday: number;
-  planCompletedToday: number;
   journey: AIJourneyInput | null;
 }
 
@@ -78,10 +76,6 @@ export function buildTodayAIContext(source: TodayAISource): TodayAIContext {
       morningCompleted,
       eveningScheduled,
       eveningCompleted,
-    },
-    plan: {
-      dueToday: source.planDueToday,
-      completedToday: source.planCompletedToday,
     },
   };
 

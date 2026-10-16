@@ -1,7 +1,7 @@
 // Timezone-aware time helpers.
 // Rule: store UTC, remember the timezone it was logged in, display it back in that zone.
 
-import { formatInTimeZone } from 'date-fns-tz';
+import { formatInTimeZone, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
 // Format a UTC instant as "HH:mm" in a given timezone.
 export function utcToLocal(utcTime: Date, timezone: string): string {
@@ -133,4 +133,19 @@ export function smartWakeTime(selected: Date, bedTime: Date): Date {
     candidate.setDate(candidate.getDate() + 1);
   }
   return candidate;
+}
+
+export function changeTimeInTimezone(instant: Date, selected: Date, timezone: string): Date {
+  const local = utcToZonedTime(instant, timezone);
+  local.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+  return zonedTimeToUtc(local, timezone);
+}
+
+export function wakeAfterBedInTimezone(selected: Date, bedTime: Date, timezone: string): Date {
+  const wake = changeTimeInTimezone(bedTime, selected, timezone);
+  if (wake > bedTime) return wake;
+  const nextDay = utcToZonedTime(bedTime, timezone);
+  nextDay.setDate(nextDay.getDate() + 1);
+  nextDay.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+  return zonedTimeToUtc(nextDay, timezone);
 }

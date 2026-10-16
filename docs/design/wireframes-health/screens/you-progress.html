@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You · Progress</title>
+<link rel="stylesheet" href="../shared/health.css">
+<style>
+  .week { display: flex; gap: 6px; height: 56px; align-items: flex-end; }
+  .week i { flex: 1; border-radius: 4px; background: currentColor; display: block; }
+  .week i.zero { height: 4px !important; background: color-mix(in oklab, currentColor 18%, #fff); }
+  .days { display: flex; gap: 6px; margin-top: 6px; }
+  .days span { flex: 1; text-align: center; font-size: 11px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+
+  <header class="header">
+    <h1 class="title">You</h1>
+    <a class="icon-btn" href="settings.html" aria-label="Settings"><svg class="i"><use href="#i-sliders"/></svg></a>
+  </header>
+  <div class="seg"><a class="on" href="you-progress.html">Progress</a><a href="you-paths.html">Paths</a></div>
+
+  <div class="sec first"><h2>This week</h2><div class="seg sm" style="width:150px"><span class="on">Week</span><span>Month</span></div></div>
+
+  <!-- Highlight: one factual sentence -->
+  <div class="card">
+    <div class="card-head"><span class="cat" style="color:var(--sleep-deep)"><svg class="i"><use href="#i-bed"/></svg>Highlight</span></div>
+    <p class="body">You logged all 7 nights. Your average was 7 hr 38 min, 22 minutes under your 8 hr target.</p>
+  </div>
+
+  <a class="card" href="log-sleep.html">
+    <div class="card-head">
+      <span class="cat" style="color:var(--sleep-deep)"><svg class="i"><use href="#i-bed"/></svg>Sleep</span>
+      <span class="when">7 of 7 nights <svg class="chev"><use href="#i-chev"/></svg></span>
+    </div>
+    <div class="value">7<small>hr</small>38<small>min</small></div>
+    <div class="sub">Average time asleep</div>
+    <div style="color:var(--sleep);margin-top:12px">
+      <div class="week"><i style="height:73%"></i><i style="height:81%"></i><i style="height:85%"></i><i style="height:68%"></i><i style="height:72%"></i><i style="height:77%"></i><i style="height:78%"></i></div>
+      <div class="days"><span>F</span><span>S</span><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="log-habits.html">
+    <div class="card-head">
+      <span class="cat" style="color:var(--habits-deep)"><svg class="i"><use href="#i-leaf"/></svg>Rituals</span>
+      <span class="when">28 of 42 ticks <svg class="chev"><use href="#i-chev"/></svg></span>
+    </div>
+    <div class="value">67<small>%</small></div>
+    <div class="sub">Of scheduled habits done</div>
+    <div style="color:var(--habits);margin-top:12px">
+      <div class="week"><i style="height:83%"></i><i style="height:83%"></i><i style="height:33%"></i><i style="height:83%"></i><i style="height:50%"></i><i style="height:83%"></i><i style="height:50%"></i></div>
+      <div class="days"><span>F</span><span>S</span><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span></div>
+    </div>
+  </a>
+
+  <a class="card" href="you-paths.html">
+    <div class="card-head">
+      <span class="cat" style="color:var(--primary)"><svg class="i"><use href="#i-compass"/></svg>Returns</span>
+      <span class="when"><svg class="chev"><use href="#i-chev"/></svg></span>
+    </div>
+    <div class="value">4<small>returns</small></div>
+    <div class="sub">Across 2 journeys</div>
+    <div data-marks="21,50,79,93" data-hue="primary" data-from="Friday" data-to="Today"></div>
+    <p class="sub" style="font-size:12px;margin-top:6px">Paths are spaced practice. The gaps are rest.</p>
+  </a>
+
+  <p class="foot">Counts, coverage and trends only. Gaps are normal: paths are practised a few times a week.</p>
+</div>
+
+<nav data-tabbar="you"></nav>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

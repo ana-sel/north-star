@@ -50,17 +50,6 @@ CREATE TABLE IF NOT EXISTS habit_completions (
 );
 CREATE INDEX IF NOT EXISTS idx_habit_completions_date ON habit_completions(local_date DESC);
 
-CREATE TABLE IF NOT EXISTS tasks (
-  id           TEXT PRIMARY KEY,
-  title        TEXT NOT NULL,
-  status       TEXT NOT NULL DEFAULT 'todo' CHECK (status IN ('todo','done','skipped')),
-  due_date     TEXT,
-  completed_at TEXT,
-  created_at   TEXT NOT NULL,
-  updated_at   TEXT NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
-CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
 CREATE TABLE IF NOT EXISTS journey_progress (
   journey_type  TEXT NOT NULL CHECK (journey_type IN ('path','foundation')),
   journey_id    TEXT NOT NULL,

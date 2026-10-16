@@ -17,12 +17,6 @@ import { schemaSQL } from './schema';
 const DB_NAME = 'compass.v1.db';
 const SCHEMA_VERSION = 'clean-v1';
 
-const DEV_SCHEMA_TABLES = [
-  'habit_completions', 'journey_returns', 'path_returns', 'tasks', 'goals',
-  'habits', 'journey_progress', 'path_progress', 'sleep_entries',
-  'energy_entries', 'journal_notes', 'user_prefs', 'schema_meta',
-];
-
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 /**
@@ -36,8 +30,11 @@ export function openDb(): Promise<SQLite.SQLiteDatabase> {
     await runMigrations(db);
     return db;
   });
-  dbPromise = promise;
-  return promise;
+  dbPromise = promise.catch((error) => {
+    dbPromise = null;
+    throw error;
+  });
+  return dbPromise;
 }
 
 async function runMigrations(db: SQLite.SQLiteDatabase): Promise<void> {
@@ -47,16 +44,15 @@ async function runMigrations(db: SQLite.SQLiteDatabase): Promise<void> {
   const version = hasMetadata
     ? await db.getFirstAsync<{ value: string }>('SELECT value FROM schema_meta WHERE key = ?', ['version'])
     : null;
-  if (!version || version.value !== SCHEMA_VERSION) {
-    const dropTables = DEV_SCHEMA_TABLES.map((table) => `DROP TABLE IF EXISTS ${table};`).join('\n');
-    await db.execAsync(`PRAGMA foreign_keys = OFF; ${dropTables} PRAGMA foreign_keys = ON;`);
-    await db.execAsync(schemaSQL);
+  if (version && version.value !== SCHEMA_VERSION) {
+    throw new Error(`Unsupported local schema version: ${version.value}`);
+  }
+  await db.execAsync(schemaSQL);
+  if (!version) {
     const nowISO = new Date().toISOString();
     await db.runAsync('INSERT INTO schema_meta (key, value) VALUES (?, ?)', ['version', SCHEMA_VERSION]);
     await db.runAsync('INSERT INTO schema_meta (key, value) VALUES (?, ?)', ['installed_at', nowISO]);
-    return;
   }
-  await db.execAsync(schemaSQL);
 }
 
 /** Typed SELECT. */
@@ -88,7 +84,6 @@ export async function wipeAll(): Promise<void> {
     'sleep_entries',
     'habit_completions',
     'habits',
-    'tasks',
     'journey_returns',
     'journey_progress',
     'user_prefs',

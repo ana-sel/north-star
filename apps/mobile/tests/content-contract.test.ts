@@ -6,7 +6,7 @@ import { DATA, V1_FEATURED_PATH_IDS, V1_PATH_CONTRACT } from '../src/features/pa
 import { habitExpectedDays } from '../src/data/habitRules';
 import { isHabitScheduledOnDate } from '../src/data/habitRules';
 import { schemaSQL } from '../src/lib/db/schema';
-import { localDateForInstant } from '../src/lib/time';
+import { changeTimeInTimezone, localDateForInstant, wakeAfterBedInTimezone } from '../src/lib/time';
 
 describe('shared journey rules', () => {
   it('caps Paths and Foundations at three active journeys', () => {
@@ -65,6 +65,13 @@ describe('local dates and habit cadence', () => {
     expect(localDateForInstant(instant, 'Asia/Tokyo')).toBe('2026-09-04');
   });
 
+  it('edits a stored sleep time in its original timezone, even after travel', () => {
+    const bed = new Date('2026-09-03T20:00:00.000Z');
+    const chosenTime = new Date(2026, 8, 30, 22, 30);
+    expect(changeTimeInTimezone(bed, chosenTime, 'Europe/Vilnius').toISOString()).toBe('2026-09-03T19:30:00.000Z');
+    expect(wakeAfterBedInTimezone(new Date(2026, 8, 30, 7, 0), bed, 'Europe/Vilnius').toISOString()).toBe('2026-09-04T04:00:00.000Z');
+  });
+
   it('counts only scheduled dates for daily, weekday, and custom habits', () => {
     const week = ['2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11', '2026-09-12', '2026-09-13'];
     expect(habitExpectedDays({ cadence: 'daily', days_mask: null }, week)).toBe(7);
@@ -81,11 +88,11 @@ describe('local dates and habit cadence', () => {
 });
 
 describe('clean V1 persistence contract', () => {
-  it('contains only the eight required local SQLite tables', () => {
+  it('contains only the seven required local SQLite tables', () => {
     const tables = [...schemaSQL.matchAll(/CREATE TABLE IF NOT EXISTS\s+(\w+)/g)].map((match) => match[1]);
     expect(tables).toEqual([
       'schema_meta', 'sleep_entries', 'habits', 'habit_completions',
-      'tasks', 'journey_progress', 'journey_returns', 'user_prefs',
+      'journey_progress', 'journey_returns', 'user_prefs',
     ]);
   });
 

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paths · Concept B · Compass</title>
+<link rel="stylesheet" href="../shared/health.css">
+<style>
+  .rose { display: block; margin: 4px auto 0; font-family: var(--font); }
+  .rose a { cursor: pointer; }
+  .rose .name { font-size: 13px; font-weight: 700; }
+  .rose .count { font-size: 11px; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+
+  <header class="header">
+    <h1 class="title">You</h1>
+    <a class="icon-btn" href="settings.html" aria-label="Settings"><svg class="i"><use href="#i-sliders"/></svg></a>
+  </header>
+  <div class="seg"><a href="you-progress.html">Progress</a><a class="on">Paths</a></div>
+
+  <!-- Foundations are the ground in the centre; paths lead out in four directions; rings are camps. -->
+  <div class="card" style="padding:12px 8px 14px">
+    <svg class="rose" width="300" height="300" viewBox="0 0 300 300" role="img" aria-label="Compass of growth paths">
+      <defs>
+        <path id="q" d="M54.52 47.6 A140 140 0 0 1 245.48 47.6 L184.1 113.43 A50 50 0 0 0 115.9 113.43 Z"/>
+      </defs>
+      <a href="paths-inward.html"><use href="#q" fill="var(--inward-soft)"/></a>
+      <a><use href="#q" fill="var(--together-soft)" transform="rotate(90 150 150)"/></a>
+      <a><use href="#q" fill="var(--craft-soft)" transform="rotate(180 150 150)"/></a>
+      <a><use href="#q" fill="var(--frontier-soft)" transform="rotate(270 150 150)"/></a>
+
+      <g fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 4">
+        <circle cx="150" cy="150" r="80"/><circle cx="150" cy="150" r="110"/>
+      </g>
+
+      <g text-anchor="middle">
+        <text class="name" x="150" y="34" fill="var(--inward-deep)">Inward</text><text class="count" x="150" y="49" fill="var(--inward-deep)">4</text>
+        <text class="name" x="258" y="147" fill="var(--together-deep)">Together</text><text class="count" x="258" y="162" fill="var(--together-deep)">5</text>
+        <text class="name" x="150" y="262" fill="var(--craft-deep)">Craft</text><text class="count" x="150" y="277" fill="var(--craft-deep)">2</text>
+        <text class="name" x="42" y="147" fill="var(--frontier-deep)">Frontier</text><text class="count" x="42" y="162" fill="var(--frontier-deep)">3</text>
+      </g>
+
+      <a href="foundations-ladder.html">
+        <circle cx="150" cy="150" r="44" fill="var(--foundation-soft)"/>
+        <text x="150" y="146" text-anchor="middle" font-size="11" font-weight="700" fill="var(--foundation-deep)">Foundations</text>
+        <text x="150" y="164" text-anchor="middle" font-size="16" font-weight="700" fill="var(--foundation-deep)">13</text>
+      </a>
+
+      <a href="path-detail.html"><circle cx="126.7" cy="63.1" r="9" fill="var(--inward)" stroke="#fff" stroke-width="3"/></a>
+      <a href="foundation-detail.html"><circle cx="181.1" cy="181.1" r="8" fill="var(--foundation)" stroke="#fff" stroke-width="3"/></a>
+    </svg>
+    <p class="sub" style="text-align:center;padding:0 12px">Foundations are the ground. Paths lead out in four directions. Your markers move outward through the camps as you return.</p>
+  </div>
+
+  <div class="sec"><h2>Walking now</h2><span class="meta">2 of 3</span></div>
+  <div class="list">
+    <a class="row" href="path-detail.html">
+      <span class="tile" style="background:var(--inward)"><svg class="i"><use href="#i-moon"/></svg></span>
+      <div class="txt"><div class="t">Stillness</div><div class="s">Inward · Doing · 5 returns</div></div>
+      <svg class="chev"><use href="#i-chev"/></svg>
+    </a>
+    <a class="row" href="foundation-detail.html">
+      <span class="tile" style="background:var(--foundation)"><svg class="i"><use href="#i-layers"/></svg></span>
+      <div class="txt"><div class="t">Regulate</div><div class="s">Foundation · Watching · 2 returns</div></div>
+      <svg class="chev"><use href="#i-chev"/></svg>
+    </a>
+  </div>
+  <p class="foot">Tap a direction to see its paths, or the centre for foundations.</p>
+</div>
+
+<nav data-tabbar="you"></nav>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

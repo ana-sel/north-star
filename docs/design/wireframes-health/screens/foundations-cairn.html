@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations</title>
+<link rel="stylesheet" href="../shared/health.css">
+<style>
+  .cairn { display: block; margin: 0 auto; }
+  .cairn g { cursor: pointer; }
+  .cairn text { font-family: var(--font); pointer-events: none; }
+  .sheet[hidden], .scrim[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+  <nav class="nav"><a href="you-paths.html"><svg class="i lg"><use href="#i-back"/></svg>Paths</a></nav>
+
+  <div class="kicker" style="color:var(--foundation-deep)"><svg class="i sm"><use href="#i-layers"/></svg>13 basics</div>
+  <h1 class="title">Foundations</h1>
+  <p class="lede">Built from the ground up, like a cairn on a trail. Start low, or wherever feels needed.</p>
+
+  <!-- A cairn: five stones, one per tier, the Ground at the bottom. Tap a stone to see its basics. -->
+  <div class="card" style="margin-top:16px;padding:10px 0 6px">
+    <svg class="cairn" id="cairn" width="326" height="292" viewBox="0 0 326 292" role="tablist" aria-label="Foundation tiers"></svg>
+  </div>
+
+  <div class="sec"><h2 id="tier-name">The Ground</h2><span class="meta" id="tier-count"></span></div>
+  <p class="sub" id="tier-desc" style="margin:-2px 0 10px"></p>
+  <div class="list plain" id="tier-list"></div>
+  <p class="foot">Tiers are an order of support, not a gate. Any foundation can be started.</p>
+</div>
+
+<a class="scrim" id="scrim" hidden aria-label="Close"></a>
+<section class="sheet" id="sheet" role="dialog" hidden>
+  <div class="grabber"></div>
+  <div class="sheet-head">
+    <span class="tile" style="background:var(--foundation)"><svg class="i"><use href="#i-layers"/></svg></span>
+    <h2 id="s-title"></h2>
+    <a class="x-btn" id="s-close" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></a>
+  </div>
+  <p class="body" style="color:var(--ink-2)" id="s-summary"></p>
+  <div class="card" style="margin-top:14px">
+    <div class="card-head"><span class="cat" style="color:var(--foundation-deep)">The practice</span></div>
+    <p class="body" id="s-practice"></p>
+    <p class="counts" style="margin-top:8px"><b>It counts when</b> <span id="s-counts"></span></p>
+  </div>
+  <a class="btn" id="s-start" style="margin-top:6px">Start this foundation</a>
+  <a class="text-btn" href="foundation-detail.html">See full page</a>
+  <p class="meta-c" style="margin-top:0" id="s-meta">Uses your last open slot · 2 of 3 active</p>
+</section>
+
+<nav data-tabbar="you"></nav>
+<script src="../shared/shell.js"></script>
+<script>
+  const tiers = [
+    { name: 'The Ground', desc: 'Body, settling and attention. The floor under everything else.', items: [
+      ['Tend the Body', 'Support the physical floor required for everything else.', 'Notice one basic body need being neglected and meet it in the smallest useful way.', 'you meet one basic need in a small useful way.'],
+      ['Regulate', 'Notice activation and settle enough to choose the next action.', 'Notice activation. Use one settling tool. Continue when you have enough space to choose.', 'you use one settling tool and choose what comes next.', 'walking'],
+      ['Steady Your Attention', 'Notice when attention has been captured and deliberately return it.', 'Notice where attention went. Choose where to place it next. Return once.', 'you notice the capture and return once.'],
+    ] },
+    { name: 'Inner World', desc: 'Naming feelings, seeing clearly, a fairer inner voice, and knowing what you want.', items: [
+      ['Feel & Name', 'Recognise emotional experience rather than immediately acting from it.', 'Name the feeling as specifically as possible and identify what you may need.', 'you name one feeling, with an optional need.'],
+      ['See Clearly', 'Separate reality from interpretation, projection, and uncertainty.', 'Split the situation into Fact / Story / Unknown.', 'you name a fact, a story, and an unknown where relevant.'],
+      ['Self-relationship', 'Treat yourself as worthy of care rather than using self-attack as motivation.', 'Notice a harsh inner statement and answer it with a fairer, adult response.', 'you notice the harsh statement and offer a fairer response.'],
+      ['Know Yourself', 'Distinguish your values, wants, and needs from social approval.', 'Ask: What do I actually want here if nobody is watching?', 'you identify one genuine preference, value, or need.'],
+    ] },
+    { name: 'Other People', desc: 'Saying it clearly, and staying connected without losing yourself.', items: [
+      ['Communicate', 'Express needs, requests, limits, and repair clearly.', 'Say the need, request, or no clearly and without unnecessary aggression or over-explaining.', 'you make one clear expression of need, request, limit, or repair.'],
+      ['Relate', 'Stay connected without abandoning yourself.', 'Notice both sides: What is happening for them, and what remains true for me?', 'you make room for both perspectives.'],
+    ] },
+    { name: 'Meeting Life', desc: 'Hard things, keeping your word, and the practical side of being an adult.', items: [
+      ['Handle Hard Things', 'Stay with pain, grief, uncertainty, or failure without forcing resolution.', 'Let the difficult thing be true for a moment without arguing with it or demanding immediate relief.', 'you allow the experience without requiring it to feel better.'],
+      ['Keep Your Word', 'Build reliability toward yourself and others.', 'Keep the commitment, renegotiate it early, or repair it honestly.', 'you keep, renegotiate, or repair one commitment honestly.'],
+      ['Live Practically', 'Deal with real-world money, admin, decisions, and responsibilities.', 'Identify the concrete practical move and do the smallest useful next step.', 'you take one concrete practical step.'],
+    ] },
+    { name: 'Meaning', desc: 'Small, real expressions of what matters to you.', items: [
+      ['Make Meaning', 'Connect life to values, beauty, service, purpose, and what matters.', 'Do one small thing that expresses what matters to you.', 'you make one small expression of what matters.'],
+    ] },
+  ];
+  // Stones bottom-up: [cx, cy, rx, ry, tilt]; each stone narrower than the one below it.
+  const stones = [[163, 252, 150, 31, -1.5], [160, 192, 128, 28, 2], [165, 137, 104, 26, -2.5], [161, 87, 82, 23, 1.5], [164, 44, 58, 21, -1]];
+  let selected = 0;
+
+  function drawCairn() {
+    document.getElementById('cairn').innerHTML = stones.map(([cx, cy, rx, ry, tilt], i) => {
+      const on = i === selected;
+      const walking = tiers[i].items.some((it) => it[4] === 'walking');
+      return `<g role="tab" aria-selected="${on}" data-i="${i}" transform="rotate(${tilt} ${cx} ${cy})">
+        <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${on ? 'var(--stone)' : 'var(--stone-soft)'}" stroke="#fff" stroke-width="3"/>
+        <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="${on ? '#fff' : 'var(--stone-deep)'}">${tiers[i].name}</text>
+        ${walking ? `<circle cx="${cx + rx - 18}" cy="${cy}" r="5" fill="${on ? '#fff' : 'var(--stone)'}"/>` : ''}
+      </g>`;
+    }).join('');
+    document.querySelectorAll('#cairn g').forEach((g) => g.addEventListener('click', () => { selected = Number(g.dataset.i); render(); }));
+  }
+
+  function render() {
+    drawCairn();
+    const t = tiers[selected];
+    document.getElementById('tier-name').textContent = t.name;
+    document.getElementById('tier-count').textContent = `Tier ${selected + 1} · ${t.items.length}`;
+    document.getElementById('tier-desc').textContent = t.desc;
+    document.getElementById('tier-list').innerHTML = t.items.map(([name, summary, , , state], j) =>
+      `<a class="row" data-j="${j}"><div class="txt"><div class="t">${name}</div><div class="s">${summary}</div></div>
+        <span class="r">${state ? '<span class="tag" style="background:var(--stone-soft);color:var(--stone-deep)">Walking</span>' : ''}<svg class="chev"><use href="#i-chev"/></svg></span></a>`).join('');
+    document.querySelectorAll('#tier-list .row').forEach((row) => row.addEventListener('click', () => openSheet(t.items[Number(row.dataset.j)])));
+  }
+
+  function openSheet([name, summary, practice, counts, state]) {
+    document.getElementById('s-title').textContent = name;
+    document.getElementById('s-summary').textContent = summary;
+    document.getElementById('s-practice').textContent = practice;
+    document.getElementById('s-counts').textContent = counts;
+    document.getElementById('s-start').textContent = state ? 'I came back' : 'Start this foundation';
+    document.getElementById('s-meta').textContent = state ? 'Walking now · Watching · 2 returns' : 'Uses your last open slot · 2 of 3 active';
+    document.getElementById('sheet').hidden = false;
+    document.getElementById('scrim').hidden = false;
+  }
+  const close = () => { document.getElementById('sheet').hidden = true; document.getElementById('scrim').hidden = true; };
+  document.getElementById('scrim').addEventListener('click', close);
+  document.getElementById('s-close').addEventListener('click', close);
+
+  render();
+</script>
+</body>
+</html>

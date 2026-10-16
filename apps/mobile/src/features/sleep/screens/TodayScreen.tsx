@@ -11,12 +11,15 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Modal,
+  Alert,
 } from 'react-native';
 import { theme } from '@styles/theme';
+import { utcToZonedTime } from 'date-fns-tz';
 import { SleepForm } from '../components/SleepForm';
-import { calculateDuration, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime, utcToLocal } from '@lib/time';
-import { saveSleepEntry } from '@data/sleep';
+import { calculateDuration, changeTimeInTimezone, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime, utcToLocal, wakeAfterBedInTimezone } from '@lib/time';
+import { deleteSleepEntry, getSleepHistory, saveSleepEntry, updateSleepEntry } from '@data/sleep';
 import { getPref, setPref } from '@data/prefs';
+import type { SleepEntry } from '../../../types';
 
 interface TodayScreenProps {
   onSaved?: () => void; // jump to the Week tab after saving
@@ -40,6 +43,11 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
 
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [history, setHistory] = useState<SleepEntry[]>([]);
+  const [historyError, setHistoryError] = useState(false);
+  const [editing, setEditing] = useState<SleepEntry | null>(null);
+  const [editBed, setEditBed] = useState<Date>(new Date());
+  const [editWake, setEditWake] = useState<Date>(new Date());
 
   // Target sleep times (persisted locally)
   const [targetBed, setTargetBed] = useState<Date>(() => {
@@ -63,6 +71,57 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
     };
     loadTarget();
   }, []);
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      setHistory(await getSleepHistory());
+      setHistoryError(false);
+    } catch {
+      setHistoryError(true);
+    }
+  }, []);
+
+  useEffect(() => { void refreshHistory(); }, [refreshHistory]);
+
+  const startEditing = (entry: SleepEntry) => {
+    setEditing(entry);
+    setEditBed(new Date(entry.sleep_start_utc));
+    setEditWake(new Date(entry.sleep_end_utc));
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    setIsSaving(true);
+    try {
+      await updateSleepEntry(editing.id, {
+        sleep_start_utc: editBed.toISOString(),
+        sleep_end_utc: editWake.toISOString(),
+      });
+      setEditing(null);
+      await refreshHistory();
+    } catch {
+      Alert.alert('Could not save', 'Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (!editing) return;
+    const id = editing.id;
+    Alert.alert('Delete sleep entry?', 'This entry will be removed from your history.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          await deleteSleepEntry(id);
+          setEditing(null);
+          await refreshHistory();
+        } catch {
+          Alert.alert('Could not delete', 'Please try again.');
+        }
+      } },
+    ]);
+  };
 
   const targetDurationLabel = useMemo(() => {
     let diff = (targetWake.getHours() * 60 + targetWake.getMinutes()) -
@@ -125,6 +184,7 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
         energy: null,
         mood: null,
       });
+      await refreshHistory();
       onSaved?.();
     } catch (err) {
       setErrorMsg('Could not save \u2014 please try again.');
@@ -132,7 +192,7 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [bedTime, wakeTime, timezone, onSaved]);
+  }, [bedTime, wakeTime, timezone, onSaved, refreshHistory]);
 
   const handleBedChange = useCallback((date: Date) => {
     const smart = smartBedTime(date);
@@ -224,6 +284,22 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
             <Text style={styles.saveBtnText}>Save night</Text>
           )}
         </TouchableOpacity>
+
+        <View style={styles.history}>
+          <Text style={styles.question}>Sleep history</Text>
+          {historyError ? (
+            <TouchableOpacity onPress={() => void refreshHistory()} accessibilityRole="button">
+              <Text style={styles.historyDetail}>History is unavailable. Tap to try again.</Text>
+            </TouchableOpacity>
+          ) : history.length === 0 ? (
+            <Text style={styles.historyDetail}>Your logged nights will appear here.</Text>
+          ) : history.map((entry) => (
+            <TouchableOpacity key={entry.id} style={styles.historyRow} onPress={() => startEditing(entry)} accessibilityRole="button" accessibilityLabel={`Edit sleep from ${new Date(entry.sleep_start_utc).toLocaleDateString()}`}>
+              <Text style={styles.historyTitle}>{new Date(entry.sleep_start_utc).toLocaleDateString()}</Text>
+              <Text style={styles.historyDetail}>{utcToLocal(new Date(entry.sleep_start_utc), entry.timezone)} to {utcToLocal(new Date(entry.sleep_end_utc), entry.timezone)} · {Math.floor((entry.duration_minutes ?? 0) / 60)}h {String((entry.duration_minutes ?? 0) % 60).padStart(2, '0')}m</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
 
       {/* Target setter modal */}
@@ -275,6 +351,43 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
               activeOpacity={0.85}
             >
               <Text style={styles.saveBtnText}>Save target</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal visible={editing !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setEditing(null)}>
+        <SafeAreaView style={styles.container}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit night</Text>
+              <TouchableOpacity onPress={() => setEditing(null)} style={styles.modalDone} accessibilityRole="button">
+                <Text style={styles.modalDoneText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            {editing && (
+              <View style={styles.card}>
+                <SleepForm
+                  bedTime={editBed}
+                  wakeTime={editWake}
+                  durationLabel={calculateDuration(editBed, editWake).formatted}
+                  timezone={editing.timezone}
+                  bedHint=""
+                  wakeHint=""
+                  onBedTimeChange={(date) => {
+                    const next = changeTimeInTimezone(editBed, date, editing.timezone);
+                    setEditBed(next);
+                    setEditWake(wakeAfterBedInTimezone(utcToZonedTime(editWake, editing.timezone), next, editing.timezone));
+                  }}
+                  onWakeTimeChange={(date) => setEditWake(wakeAfterBedInTimezone(date, editBed, editing.timezone))}
+                />
+              </View>
+            )}
+            <TouchableOpacity style={styles.saveBtn} onPress={saveEdit} disabled={isSaving} accessibilityRole="button">
+              <Text style={styles.saveBtnText}>Save changes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={confirmDelete} accessibilityRole="button">
+              <Text style={styles.deleteText}>Delete entry</Text>
             </TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
@@ -336,6 +449,11 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     ...theme.shadows.md,
   },
+  history: { gap: theme.spacing.sm },
+  historyRow: { padding: theme.spacing.md, backgroundColor: theme.colors.card, borderWidth: 1, borderColor: theme.colors.line, borderRadius: theme.radii.input, gap: theme.spacing.xs },
+  historyTitle: { fontSize: theme.typography.md, fontWeight: '600', color: theme.colors.ink },
+  historyDetail: { fontSize: theme.typography.sm, color: theme.colors.muted },
+  deleteText: { textAlign: 'center', color: theme.colors.error, fontSize: theme.typography.md },
   saveBtn: {
     backgroundColor: theme.colors.ink,
     borderRadius: theme.radii.input,

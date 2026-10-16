@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass palette</title>
+<link rel="stylesheet" href="shared/health.css">
+<style>
+  body { padding: 28px 40px; }
+  h1 { font-size: 28px; margin-bottom: 6px; }
+  .intro { color: var(--ink-2); max-width: 720px; line-height: 1.45; margin-bottom: 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; max-width: 1100px; }
+  .sw { background: var(--card); border-radius: 14px; overflow: hidden; }
+  .sw .bands { display: flex; height: 70px; }
+  .sw .bands div { flex: 1; display: flex; align-items: flex-end; padding: 6px; font-size: 11px; font-weight: 600; }
+  .sw .info { padding: 10px 12px; }
+  .sw .info b { display: block; font-size: 15px; }
+  .sw .info span { font-size: 13px; color: var(--ink-2); }
+  h2 { font-size: 20px; margin: 28px 0 10px; }
+  .rules { max-width: 720px; line-height: 1.6; color: var(--ink); padding-left: 18px; }
+</style>
+</head>
+<body>
+<h1>Palette</h1>
+<p class="intro">Six hues at the same perceptual lightness and strength, plus a warm stone for foundations and one deep slate for every button, link and selected state. Each hue has three steps: <b>soft</b> for tracks and chips, <b>base</b> for bars, tiles and rings, <b>deep</b> for coloured text.</p>
+
+<div class="grid" id="g"></div>
+
+<h2>Rules</h2>
+<ul class="rules">
+  <li>Buttons, links, selected tabs and Trello ticks are always <b>primary</b>. Colour never decides which button to press.</li>
+  <li>A colour always means the same thing: sleep is blue, rituals are sage, each path area keeps its own hue, foundations are stone.</li>
+  <li>Charts use base for data and soft for the empty track of the same hue, never grey bars next to coloured ones.</li>
+  <li>Coloured text uses deep, so labels stay readable on white.</li>
+</ul>
+
+<script>
+  const items = [
+    ['Primary', 'Buttons, links, selected', ['--fill', '--primary', '--primary']],
+    ['Sleep · blue', 'Sleep dial, sleep charts', ['--blue-soft', '--blue', '--blue-deep']],
+    ['Rituals · sage', 'Habits, ticks, ritual ring', ['--sage-soft', '--sage', '--sage-deep']],
+    ['Self-awareness · violet', 'How you meet yourself', ['--violet-soft', '--violet', '--violet-deep']],
+    ['Connection · rose', 'How you meet other people', ['--rose-soft', '--rose', '--rose-deep']],
+    ['Mastery · ochre', 'How you meet the work', ['--ochre-soft', '--ochre', '--ochre-deep']],
+    ['Aliveness · teal', 'How you meet what is new', ['--teal-soft', '--teal', '--teal-deep']],
+    ['Foundations · stone', 'The ground under everything', ['--stone-soft', '--stone', '--stone-deep']],
+  ];
+  const css = getComputedStyle(document.documentElement);
+  document.getElementById('g').innerHTML = items.map(([name, use, vars]) => `
+    <div class="sw">
+      <div class="bands">${vars.map((v, i) => `<div style="background:var(${v});color:${i ? '#fff' : 'var(--ink-2)'}">${css.getPropertyValue(v).trim()}</div>`).join('')}</div>
+      <div class="info"><b>${name}</b><span>${use}</span></div>
+    </div>`).join('');
+</script>
+</body>
+</html>

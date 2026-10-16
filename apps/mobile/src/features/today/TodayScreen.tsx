@@ -2,23 +2,23 @@
  * TodayScreen (v1) — the orientation screen.
  *
  * Bands mirror the Today wireframe: welcome-back → journey hero → arrival
- * (sleep) → pace → daily rituals → from the plan → signals (coach). Every
- * band reads real local data and adapts around what actually exists.
+ * (sleep) → pace → daily rituals → plan items from Trello → signals (coach). Local bands
+ * read real local data and adapt around what actually exists.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppState, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, spacing, typography } from '@styles/theme';
-import { EmptyState, Icon, InsightCard, LoadingState, RitualCard, SectionHeader, TaskRow } from '@ui';
+import { EmptyState, Icon, InsightCard, LoadingState, RitualCard, SectionHeader } from '@ui';
 import type { RitualItem } from '@ui';
 import { DATA } from '@features/paths/pathsContent';
 import { foundationForJourneyId } from '@features/foundations/foundationsContent';
 import { getPref, setPref } from '@data/prefs';
 import { habitsForDate, tickHabit, untickHabit } from '@data/habits';
 import type { HabitDayStatus } from '@data/habits';
-import { tasksForDate, toggleTask } from '@data/tasks';
-import type { Task } from '@data/tasks';
 import { getTodaySleep } from '@data/sleep';
+import type { TrelloCard, TrelloChecklist } from '@data/trello';
+import { createTrelloClient } from '@data/trello';
 import { listActiveJourneys, logReturn, recentReturns, subscribeToJourneyChanges } from '@data/paths';
 import type { PathProgress } from '@data/paths';
 import { getDeviceTimezone, localDateISO, localDateOffset } from '@lib/time';
@@ -46,11 +46,12 @@ interface TodayScreenProps {
   onOpenFoundationDetail: (foundationId: string) => void;
   onOpenSleep: () => void;
   onOpenHabits: () => void;
-  onOpenPlan: () => void;
+  trelloCards?: ReadonlyArray<{ id: string; title: string; url: string }>;
+  trelloClient?: ReturnType<typeof createTrelloClient>;
 }
 
 const TRAIL_DAYS = 14;
-const PLAN_PREVIEW = 3;
+const TRELLO_BOARD_URL = 'https://trello.com/b/ULAuklhQ/2-execution-today-next-up';
 
 interface RitualGroups {
   morning: HabitDayStatus[];
@@ -88,7 +89,8 @@ export function TodayScreen({
   onOpenFoundationDetail,
   onOpenSleep,
   onOpenHabits,
-  onOpenPlan,
+  trelloCards = [],
+  trelloClient,
 }: TodayScreenProps) {
   const [active, setActive] = useState<PathProgress[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -104,12 +106,20 @@ export function TodayScreen({
   const [morning, setMorning] = useState<HabitDayStatus[]>([]);
   const [evening, setEvening] = useState<HabitDayStatus[]>([]);
   const [anytime, setAnytime] = useState<HabitDayStatus[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
 
   const [pace, setPace] = useState<PaceMode>('full');
   const [welcome, setWelcome] = useState(false);
   const [coachDismissed, setCoachDismissed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [todayCards, setTodayCards] = useState<TrelloCard[]>([]);
+  const [doneCards, setDoneCards] = useState<TrelloCard[]>([]);
+  const [todayListId, setTodayListId] = useState<string | null>(null);
+  const [trelloLoading, setTrelloLoading] = useState(false);
+  const [trelloError, setTrelloError] = useState<string | null>(null);
+  const [selectedCard, setSelectedCard] = useState<TrelloCard | null>(null);
+  const [checklists, setChecklists] = useState<TrelloChecklist[]>([]);
+  const [cardLoading, setCardLoading] = useState(false);
+  const [trelloBusy, setTrelloBusy] = useState(false);
 
   const [aiInsight, setAiInsight] = useState<TodayAIInsight | null>(null);
   const aiClient = useMemo(() => getTodayAIClient(), []);
@@ -119,12 +129,11 @@ export function TodayScreen({
     if (!silent) setLoading(true);
     const today = localDateISO();
     try {
-      const [journeys, yest, sleep, todayTasks, allHabits, savedPace, savedTarget, lastActive] =
+      const [journeys, yest, sleep, allHabits, savedPace, savedTarget, lastActive] =
         await Promise.all([
           listActiveJourneys(),
           getPref<string | null>(`practicedOn:${localDateOffset(-1)}`, null),
           getTodaySleep(today),
-          tasksForDate(today),
           habitsForDate(today),
           getPref<PaceMode>(`pace:${today}`, 'full'),
           getPref<SleepTarget | null>('sleep-target', null),
@@ -144,7 +153,6 @@ export function TodayScreen({
       setSleepMood(sleep?.mood ?? null);
       setTargetMinutes(sleepTargetMinutes(savedTarget));
 
-      setTasks(todayTasks);
       const groups = partitionRituals(allHabits);
       setMorning(groups.morning);
       setEvening(groups.evening);
@@ -162,6 +170,78 @@ export function TodayScreen({
 
   useEffect(() => { hydrate(); }, [hydrate]);
   useEffect(() => subscribeToJourneyChanges(() => hydrate(true)), [hydrate]);
+
+  const refreshTrello = useCallback(async () => {
+    if (!trelloClient) return;
+    setTrelloLoading(true);
+    try {
+      const { today, done } = await trelloClient.lists();
+      const [current, finished] = await Promise.all([trelloClient.listCards(today.id), trelloClient.listCards(done.id)]);
+      setTodayListId(today.id);
+      setTodayCards(current);
+      setDoneCards(finished);
+      setTrelloError(null);
+    } catch {
+      setTrelloError('Trello could not refresh. Check the connection or reconnect your account.');
+    } finally {
+      setTrelloLoading(false);
+    }
+  }, [trelloClient]);
+
+  useEffect(() => {
+    void refreshTrello();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void refreshTrello();
+    });
+    return () => subscription.remove();
+  }, [refreshTrello]);
+
+  const showCard = async (card: TrelloCard) => {
+    if (!trelloClient) return;
+    setTrelloError(null);
+    setSelectedCard(card);
+    setChecklists([]);
+    setCardLoading(true);
+    try {
+      const detail = await trelloClient.cardDetails(card.id);
+      setSelectedCard(detail.card);
+      setChecklists(detail.checklists);
+      setTrelloError(null);
+    } catch {
+      setTrelloError('Card details could not refresh. Try again when connected.');
+    } finally {
+      setCardLoading(false);
+    }
+  };
+
+  const changeCard = async (completed: boolean) => {
+    if (!trelloClient || !selectedCard || trelloBusy) return;
+    setTrelloBusy(true);
+    try {
+      await trelloClient.moveCard(selectedCard.id, completed);
+      setSelectedCard(null);
+      await refreshTrello();
+    } catch {
+      setTrelloError('Trello could not move this card. Try again when connected.');
+    } finally {
+      setTrelloBusy(false);
+    }
+  };
+
+  const changeCheckItem = async (itemId: string, completed: boolean) => {
+    if (!trelloClient || !selectedCard || trelloBusy) return;
+    setTrelloBusy(true);
+    try {
+      await trelloClient.setCheckItem(selectedCard.id, itemId, completed);
+      const detail = await trelloClient.cardDetails(selectedCard.id);
+      setChecklists(detail.checklists);
+      setTrelloError(null);
+    } catch {
+      setTrelloError('Trello could not update this checklist item. Try again when connected.');
+    } finally {
+      setTrelloBusy(false);
+    }
+  };
 
   // Refresh the journey return trail whenever the selected journey changes.
   useEffect(() => {
@@ -207,8 +287,6 @@ export function TodayScreen({
           days_mask: row.habit.days_mask,
           completed: row.completed,
         })),
-        planDueToday: tasks.length,
-        planCompletedToday: tasks.filter((task) => task.status === 'done').length,
         journey: journey
           ? {
               pathId: journey.path_id,
@@ -234,7 +312,7 @@ export function TodayScreen({
     })();
 
     return () => { cancelled = true; };
-  }, [loading, pace, active, currentId, morning, evening, anytime, tasks, durationMinutes, targetMinutes, aiClient]);
+  }, [loading, pace, active, currentId, morning, evening, anytime, durationMinutes, targetMinutes, aiClient]);
 
   const eligible = useMemo(
     () => active.filter((j) => j.path_id !== yesterdayId),
@@ -272,11 +350,6 @@ export function TodayScreen({
     setMorning(groups.morning);
     setEvening(groups.evening);
     setAnytime(groups.anytime);
-  }, []);
-
-  const toggleTaskRow = useCallback(async (task: Task) => {
-    await toggleTask(task);
-    setTasks(await tasksForDate(localDateISO()));
   }, []);
 
   const changePace = useCallback(async (mode: PaceMode) => {
@@ -330,13 +403,12 @@ export function TodayScreen({
       }
     : null;
   const displayInsight = aiContent ?? insight;
+  const visibleTrelloCards = trelloClient
+    ? todayCards.map((card) => ({ id: card.id, title: card.name, url: card.url }))
+    : trelloCards;
 
   const now = new Date();
   const dateLabel = `${now.toLocaleDateString('en-GB', { weekday: 'long' })} · ${now.getDate()} ${now.toLocaleDateString('en-GB', { month: 'long' })}`;
-
-  const previewTasks = tasks.slice(0, PLAN_PREVIEW);
-  const tasksDone = tasks.filter((t) => t.status === 'done').length;
-  const moreTasks = tasks.length - previewTasks.length;
 
   const openJourneyDetail = () => {
     if (foundation) onOpenFoundationDetail(foundation.id);
@@ -430,39 +502,81 @@ export function TodayScreen({
         </>
       )}
 
-      {sections.showPlan ? (
-        <View style={sections.dimPlan ? styles.dimmed : undefined}>
-          <SectionHeader title="From the plan" icon="target" />
-          <View style={styles.planCard}>
-            {previewTasks.length === 0 ? (
-              <TouchableOpacity style={styles.planEmpty} onPress={onOpenPlan} activeOpacity={0.85}>
-                <Text style={styles.planEmptyText}>Nothing due today. Open Plan to add something.</Text>
-              </TouchableOpacity>
-            ) : (
-              <>
-                <View style={styles.planHead}>
-                  <Text style={styles.planHeadText}>{tasksDone} of {tasks.length} done</Text>
-                </View>
-                {previewTasks.map((task, index) => (
-                  <TaskRow
-                    key={task.id}
-                    title={task.title}
-                    done={task.status === 'done'}
-                    onToggle={() => toggleTaskRow(task)}
-                    showBorder={index < previewTasks.length - 1 || moreTasks > 0}
-                  />
-                ))}
-                {moreTasks > 0 ? (
-                  <TouchableOpacity style={styles.planMore} onPress={onOpenPlan} activeOpacity={0.7}>
-                    <Text style={styles.planMoreText}>{moreTasks} more in Plan</Text>
-                    <Icon name="chev" size={12} color={colors.accent} />
-                  </TouchableOpacity>
-                ) : null}
-              </>
-            )}
+      <View style={pace === 'lighter' ? styles.dimmed : undefined}>
+        <SectionHeader title="From the plan" icon="target" />
+        <View style={styles.planCard}>
+          <View style={styles.planHead}>
+            <Text style={styles.planHeadText}>Today · Trello</Text>
           </View>
+          {trelloError ? (
+            <TouchableOpacity onPress={() => selectedCard ? void showCard(selectedCard) : void refreshTrello()} accessibilityRole="button">
+              <Text style={styles.planGuidance}>{trelloError} Tap to retry.</Text>
+            </TouchableOpacity>
+          ) : null}
+          {trelloLoading ? <Text style={styles.planGuidance}>Refreshing Trello…</Text> : null}
+          {!trelloClient && visibleTrelloCards.length === 0 ? (
+            <TouchableOpacity style={styles.planRow} onPress={() => Linking.openURL(TRELLO_BOARD_URL)} accessibilityRole="link">
+              <Text style={styles.planRowText}>Cards aren't connected yet. Open your Today list in Trello.</Text>
+              <Icon name="chev" size={14} color={colors.accent} />
+            </TouchableOpacity>
+          ) : (
+            <>
+              {visibleTrelloCards.length > 3 ? (
+                <Text style={styles.planGuidance}>There is a lot on Today. You can move things when it suits you.</Text>
+              ) : null}
+              {trelloClient && visibleTrelloCards.length === 0 && !trelloLoading ? <Text style={styles.planGuidance}>No cards on Today.</Text> : null}
+              {visibleTrelloCards.map((card, index) => (
+                <TouchableOpacity
+                  key={card.id}
+                  style={[styles.planRow, index < visibleTrelloCards.length - 1 && styles.planRowBorder]}
+                  onPress={() => trelloClient ? void showCard(todayCards[index]) : Linking.openURL(card.url)}
+                  accessibilityRole={trelloClient ? 'button' : 'link'}
+                  accessibilityLabel={`${trelloClient ? 'View' : 'Open'} ${card.title}${trelloClient ? '' : ' in Trello'}`}
+                >
+                  <View style={styles.planMarker} />
+                  <Text style={styles.planRowText} numberOfLines={2}>{card.title}</Text>
+                </TouchableOpacity>
+              ))}
+              {trelloClient && doneCards.length > 0 ? (
+                <>
+                  <Text style={styles.planGuidance}>Done</Text>
+                  {doneCards.map((card) => (
+                    <TouchableOpacity key={card.id} style={styles.planRow} onPress={() => void showCard(card)} accessibilityRole="button" accessibilityLabel={`View completed card ${card.name}`}>
+                      <Icon name="check" size={18} color={colors.accent} />
+                      <Text style={styles.planRowText}>{card.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </>
+              ) : null}
+              {selectedCard && trelloClient ? (
+                <View style={styles.planDetails}>
+                  <Text style={styles.planDetailTitle}>{selectedCard.name}</Text>
+                  {selectedCard.desc ? <Text style={styles.planDetailText}>{selectedCard.desc}</Text> : null}
+                  {cardLoading ? <Text style={styles.planDetailText}>Loading details…</Text> : checklists.map((checklist) => (
+                    <View key={checklist.id} style={styles.planChecklist}>
+                      <Text style={styles.planDetailTitle}>{checklist.name}</Text>
+                      {checklist.checkItems.map((item) => (
+                        <TouchableOpacity key={item.id} style={styles.planRow} onPress={() => void changeCheckItem(item.id, item.state !== 'complete')} disabled={trelloBusy || !!trelloError} accessibilityRole="checkbox" accessibilityState={{ checked: item.state === 'complete', disabled: trelloBusy || !!trelloError }}>
+                          <Icon name="check" size={18} color={item.state === 'complete' ? colors.accent : colors.inkMuted} />
+                          <Text style={styles.planRowText}>{item.name}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  ))}
+                  <TouchableOpacity style={styles.planMore} onPress={() => void changeCard(selectedCard.idList === todayListId)} disabled={trelloBusy || cardLoading || !!trelloError || !todayListId} accessibilityRole="button">
+                    <Text style={styles.planMoreText}>{selectedCard.idList === todayListId ? 'Move to Done' : 'Return to Today'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.planMore} onPress={() => setSelectedCard(null)} accessibilityRole="button"><Text style={styles.planMoreText}>Close details</Text></TouchableOpacity>
+                </View>
+              ) : null}
+              <TouchableOpacity style={styles.planMore} onPress={() => Linking.openURL(TRELLO_BOARD_URL)} accessibilityRole="link">
+                <Text style={styles.planMoreText}>Open in Trello</Text>
+                <Icon name="chev" size={12} color={colors.accent} />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
-      ) : null}
+      </View>
 
       {sections.showSignals && displayInsight && !coachDismissed ? (
         <>
@@ -476,10 +590,10 @@ export function TodayScreen({
         </>
       ) : null}
 
-      {active.length === 0 && morning.length === 0 && evening.length === 0 && anytime.length === 0 && tasks.length === 0 ? (
+      {active.length === 0 && morning.length === 0 && evening.length === 0 && anytime.length === 0 ? (
         <EmptyState
           title="A calm, empty day"
-          body="Start a path, add a habit, or plan a task — Today will orient around it."
+          body="Start a path or add a habit. Your Trello tasks stay in Trello."
           action={{ label: 'Find a quality to grow', onPress: onOpenPaths }}
         />
       ) : null}
@@ -538,24 +652,24 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: 'hidden',
   },
-  planHead: {
+  planHead: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  planHeadText: { fontSize: typography.sizes.xs, fontWeight: '700', color: colors.inkMuted },
+  planGuidance: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, color: colors.inkMuted, fontSize: typography.sizes.sm },
+  planDetails: { padding: spacing.lg, borderTopWidth: 1, borderTopColor: colors.border, gap: spacing.sm },
+  planDetailTitle: { fontSize: typography.sizes.md, fontWeight: '700', color: colors.ink },
+  planDetailText: { fontSize: typography.sizes.sm, color: colors.inkMuted },
+  planChecklist: { gap: spacing.xs },
+  planRow: {
+    minHeight: 48,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  planHeadText: { fontSize: typography.sizes.xs, fontWeight: '700', color: colors.inkMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  planEmpty: { padding: spacing.lg },
-  planEmptyText: { fontSize: typography.sizes.sm, color: colors.inkMuted },
-  planMore: {
+    paddingVertical: 11,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingVertical: 11,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    gap: spacing.md,
   },
+  planRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  planMarker: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: colors.border, backgroundColor: colors.canvas },
+  planRowText: { flex: 1, fontSize: typography.sizes.md, color: colors.ink },
+  planMore: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderTopWidth: 1, borderTopColor: colors.border },
   planMoreText: { fontSize: typography.sizes.xs, fontWeight: '600', color: colors.accent },
 });

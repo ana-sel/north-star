@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass · Health-style redesign (draft)</title>
+<style>
+  body { margin: 0; background: #E7E6E3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; color: #1C1C1E; }
+  header { padding: 28px 40px 8px; max-width: 1100px; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  header p { color: #6E6E73; margin: 4px 0; max-width: 760px; line-height: 1.45; }
+  label.toggle { display: inline-flex; gap: 8px; align-items: center; margin-top: 12px; font-weight: 600; cursor: pointer; }
+  .grid { display: flex; flex-wrap: wrap; gap: 40px 48px; padding: 24px 40px 60px; }
+  .pair { display: flex; gap: 18px; align-items: flex-start; }
+  .shot { display: flex; flex-direction: column; gap: 10px; }
+  .shot h2 { font-size: 15px; margin: 0; }
+  .shot h2 span { color: #6E6E73; font-weight: 500; }
+  .phone { width: 390px; height: 844px; border-radius: 44px; overflow: hidden; background: #000; padding: 0; box-shadow: 0 20px 50px rgba(0,0,0,.18), 0 0 0 10px #1C1C1E; }
+  .phone iframe { width: 390px; height: 844px; border: 0; display: block; background: #F2F2F0; }
+  .phone img { width: 390px; height: 844px; object-fit: cover; object-position: top; display: block; }
+  .before { opacity: .92; }
+  body:not(.show-before) .before { display: none; }
+  header a { color: #2F3F4F; font-weight: 600; }
+  h2.band { font-size: 22px; margin: 18px 40px 0; }
+  .band-note { color: #6E6E73; margin: 6px 40px 0; max-width: 760px; line-height: 1.45; }
+  .shot .note { margin: 0; width: 390px; color: #6E6E73; font-size: 13px; line-height: 1.4; min-height: 36px; }
+</style>
+</head>
+<body class="show-before">
+<header>
+  <h1>Compass · Health-style redesign</h1>
+  <p>Draft wireframes. Large titles, grouped inset lists, one colour per category, and fewer boxes. V1 scope unchanged: Today · Log · You, Sleep and Habits, Progress and Paths, the sleep dial, Trello on Today and the 14 featured paths with 13 foundations.</p>
+  <p>Left of each pair is the current app (emulator, 15 Oct 2026); right is the redesign. Screens are clickable: tabs, rows and back buttons navigate.</p>
+  <label class="toggle"><input type="checkbox" checked onchange="document.body.classList.toggle('show-before', this.checked)"> Show current app next to each screen</label>
+  <p><a href="palette.html">Palette</a> · <a href="interactions.html">How things open</a> · <a href="journey-anatomy.html">One journey page</a> · <a href="naming.html">Names</a> · <a href="#details">Paths in detail</a> · <a href="#concepts">Paths flow</a></p>
+</header>
+
+<section id="details">
+  <h2 class="band">Paths in detail</h2>
+  <p class="band-note">Paths and foundations share one page template (see <a href="journey-anatomy.html">One journey page</a>). A path you are not walking opens as a preview sheet first. See <a href="interactions.html">How things open</a> for the full model.</p>
+  <div class="grid" id="detail-grid"></div>
+</section>
+
+<section class="concepts" id="concepts">
+  <h2 class="band">Paths · A + C combined</h2>
+  <p class="band-note">Walking now first (A). While a slot is open, one question helps you choose (C) and leads to at most three suggestions. Browse stays as two doors underneath. When all three slots are used, the question disappears.</p>
+  <div class="grid" id="concept-grid"></div>
+  <h2 class="band" style="font-size:17px">Earlier concepts, not chosen</h2>
+  <p class="band-note"><a href="screens/paths-a-list.html">A · Quiet list</a> · <a href="screens/paths-b-compass.html">B · Compass</a> · <a href="screens/paths-c-guided.html">C · Guided</a> · <a href="screens/foundations-ladder.html">Foundations ladder</a> · <a href="screens/foundations-cairn.html">Foundations cairn</a></p>
+</section>
+
+<h2 class="band">All screens</h2>
+<main class="grid" id="grid"></main>
+
+<script>
+  const concepts = [
+    ['Paths · slot open', 'you-paths.html', 'Walking now, then “What’s next?”, then Browse.'],
+    ['Suggestions', 'paths-c-suggest.html', 'After choosing “Feeling steadier inside”: at most three, each with Start.'],
+    ['Paths · all slots in use', 'you-paths-full.html', 'No question. A gentle note to pause one before starting another.'],
+    ['Growth paths', 'paths-areas.html', 'The first door: four areas, then a short list in each.'],
+    ['Foundations · house', 'foundations-house.html', 'The second door: steps, columns, beams, frieze and roof. Each part is one foundation; tap a part to see its tier, tap a basic for its preview.'],
+  ];
+  const details = [
+    ['Growth path · walking', 'path-detail.html', 'Stillness. The practice and its button first, then progress (tap for all returns), examples, the sentence, About.'],
+    ['Foundation · walking', 'foundation-regulate.html', 'Regulate. The same page: only the label (The Ground · Foundation) and the content differ.'],
+    ['Foundation · not started', 'foundation-detail.html', 'Tend the Body. Same page in its start state, with its daily habits.'],
+    ['All returns', 'path-returns.html', 'Health’s Show All Data: every return and when each camp opened.'],
+    ['Preview sheet', 'path-sheet.html', 'Tap a path you are not walking: the essentials and Start before the full page.'],
+    ['Foundations · house', 'foundations-house.html', 'Live: tap any part of the house to change the tier, tap a basic to open its sheet.'],
+  ];
+  document.getElementById('detail-grid').innerHTML = details.map(([name, page, note]) => `
+    <div class="shot"><h2>${name}</h2><p class="note">${note}</p>
+      <div class="phone"><iframe src="screens/${page}" title="${name}"></iframe></div></div>`).join('');
+  document.getElementById('concept-grid').innerHTML = concepts.map(([name, page, note]) => `
+    <div class="shot"><h2>${name}</h2><p class="note">${note}</p>
+      <div class="phone"><iframe src="screens/${page}" title="${name}"></iframe></div></div>`).join('');
+
+  const pairs = [
+    ['Today', 'today.html', '01-today.png'],
+    ['Today · first run', 'today-first-run.html', null],
+    ['Log · Sleep', 'log-sleep.html', '02-log-sleep-1.png'],
+    ['Log · Habits', 'log-habits.html', '03-log-habits.png'],
+    ['You · Progress', 'you-progress.html', '04-you-progress-1.png'],
+    ['You · Paths', 'you-paths.html', '05-you-paths.png'],
+    ['Paths · Self-awareness', 'paths-inward.html', '06-you-paths-browse-1.png'],
+    ['Foundations · list (alternative to the ladder)', 'foundations.html', '06-you-paths-browse-4.png'],
+    ['Path detail', 'path-detail.html', '07-path-detail-stillness-1.png'],
+    ['Foundation detail', 'foundation-detail.html', '08-foundation-detail-body-1.png'],
+    ['Settings', 'settings.html', '09-settings.png'],
+  ];
+  document.getElementById('grid').innerHTML = pairs.map(([name, page, before]) => `
+    <section class="pair">
+      ${before ? `<div class="shot before"><h2>${name} <span>· current</span></h2>
+        <div class="phone"><img src="../wireframes/collages%202/${before}" alt="Current ${name}"></div></div>` : ''}
+      <div class="shot"><h2>${name} <span>· redesign</span></h2>
+        <div class="phone"><iframe src="screens/${page}" title="${name}"></iframe></div></div>
+    </section>`).join('');
+</script>
+</body>
+</html>

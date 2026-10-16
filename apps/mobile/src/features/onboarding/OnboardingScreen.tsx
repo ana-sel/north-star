@@ -29,8 +29,8 @@ const SLIDES = [
   },
   {
     eyebrow: 'What lives here',
-    title: 'Today. Log. Plan. You.',
-    body: 'Today shows the practice. Log holds sleep and habits. Plan is where tasks land. You is where the paths grow.',
+    title: 'Today. Log. You.',
+    body: 'Today shows your practice and Trello tasks when connected. Log holds sleep and habits. You is where the paths grow.',
   },
 ];
 

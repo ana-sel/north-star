@@ -13,8 +13,6 @@ function baseSource(overrides: Partial<TodayAISource> = {}): TodayAISource {
     sleepDurationMinutes: null,
     sleepTargetMinutes: null,
     habits: [],
-    planDueToday: 0,
-    planCompletedToday: 0,
     journey: null,
     ...overrides,
   };
@@ -30,7 +28,6 @@ function baseContext(overrides: Partial<TodayAIContext> = {}): TodayAIContext {
       morningScheduled: 0, morningCompleted: 0,
       eveningScheduled: 0, eveningCompleted: 0,
     },
-    plan: { dueToday: 0, completedToday: 0 },
     ...overrides,
   };
 }
@@ -101,16 +98,13 @@ describe('Today AI context builder', () => {
 
   it('carries only structured fields — no task titles, habit names, or free text', () => {
     const context = buildTodayAIContext(baseSource({
-      planDueToday: 2,
-      planCompletedToday: 1,
       habits: [{ id: 'm', ritual: 'morning', cadence: 'daily', days_mask: null, completed: false }],
     }));
 
     const serialized = JSON.stringify(context);
-    expect(context.plan).toEqual({ dueToday: 2, completedToday: 1 });
     // Habit id is not part of the wire context at all.
     expect(serialized).not.toContain('"id"');
-    expect(Object.keys(context).sort()).toEqual(['habits', 'localDate', 'pace', 'plan', 'sleep']);
+    expect(Object.keys(context).sort()).toEqual(['habits', 'localDate', 'pace', 'sleep']);
   });
 });
 
@@ -124,7 +118,6 @@ describe('Today AI eligibility', () => {
     const context = baseContext({
       pace: 'rest',
       sleep: { logged: true },
-      plan: { dueToday: 3, completedToday: 0 },
       journey: { id: 'stillness', type: 'path', title: 'Stillness', stage: 'watching', practice: 'Pause.' },
     });
     expect(shouldRequestAI(context, { hasCacheForToday: false })).toBe(false);
@@ -134,7 +127,6 @@ describe('Today AI eligibility', () => {
     const context = baseContext({
       pace: 'lighter',
       sleep: { logged: true },
-      plan: { dueToday: 3, completedToday: 0 },
       journey: { id: 'stillness', type: 'path', title: 'Stillness', stage: 'watching', practice: 'Pause.' },
     });
     expect(shouldRequestAI(context, { hasCacheForToday: false })).toBe(false);
@@ -146,7 +138,7 @@ describe('Today AI eligibility', () => {
 
     const twoSignals = baseContext({
       sleep: { logged: true },
-      plan: { dueToday: 1, completedToday: 0 },
+      habits: { ...baseContext().habits, scheduled: 1 },
     });
     expect(shouldRequestAI(twoSignals, { hasCacheForToday: false })).toBe(true);
   });
@@ -200,7 +192,7 @@ describe('Mock Today AI client', () => {
   it('returns a valid structured insight without networking', async () => {
     const client = createMockTodayAIClient();
     const insight = await client.generate(baseContext({
-      plan: { dueToday: 2, completedToday: 0 },
+      habits: { ...baseContext().habits, scheduled: 2 },
       journey: { id: 'stillness', type: 'path', title: 'Stillness', stage: 'watching', practice: 'Pause.' },
     }));
 

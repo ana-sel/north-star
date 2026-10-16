@@ -40,11 +40,6 @@ type TodayAIContext = {
     eveningCompleted: number;
   };
 
-  plan: {
-    dueToday: number;
-    completedToday: number;
-  };
-
   journey?: {
     id: string;                      // canonical, UNPREFIXED (see below)
     type: 'path' | 'foundation';

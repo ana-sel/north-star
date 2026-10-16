@@ -2,17 +2,17 @@ import { buildInsight, isBelowSleepTarget, paceNote, sectionsForPace, shouldWelc
 
 describe('Today pace', () => {
   it('shows the full set on a full day', () => {
-    expect(sectionsForPace('full')).toEqual({ showPlan: true, dimPlan: false, showSignals: true, banner: null });
+    expect(sectionsForPace('full')).toEqual({ showSignals: true, banner: null });
     expect(paceNote('full')).toBeNull();
   });
 
-  it('dims the plan and hides signals on a lighter day', () => {
-    expect(sectionsForPace('lighter')).toEqual({ showPlan: true, dimPlan: true, showSignals: false, banner: 'lighter' });
+  it('hides signals on a lighter day', () => {
+    expect(sectionsForPace('lighter')).toEqual({ showSignals: false, banner: 'lighter' });
     expect(paceNote('lighter')).toMatch(/nothing is lost/i);
   });
 
   it('reduces to the essential floor on a rest day', () => {
-    expect(sectionsForPace('rest')).toEqual({ showPlan: false, dimPlan: false, showSignals: false, banner: 'rest' });
+    expect(sectionsForPace('rest')).toEqual({ showSignals: false, banner: 'rest' });
     expect(paceNote('rest')).toMatch(/rest/i);
   });
 });

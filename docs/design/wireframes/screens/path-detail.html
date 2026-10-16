@@ -100,7 +100,7 @@ function tryPoolHTML(id, p, dom){
     <div class="d-try-cats">${cats.map(c =>
       `<button class="d-try-cat${c===tryCat?' on':''}" onclick="pickTryCat('${id}','${c}')">${c}</button>`).join('')}</div>
     <div class="d-try-list">${p.tryPool.cats[tryCat].map(t => `<div class="d-try-item">${t}</div>`).join('')}</div>
-    <div class="d-try-foot">Book it into <a href="plan-horizon.html">Plan</a> only if it needs time set aside. Afterwards, record what you found in <a href="you-discover.html">Discover</a> &mdash; liking it and not liking it are equally useful.</div>
+    <div class="d-try-foot">Put it in Trello if it needs time set aside. Afterwards, record what you found in <a href="you-discover.html">Discover</a> &mdash; liking it and not liking it are equally useful.</div>
   </div>`;
 }
 function pickTryCat(id, c){ tryCat = c; renderPractice(id); }

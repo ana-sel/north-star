@@ -13,9 +13,8 @@ export interface TodayAIClient {
 export function createMockTodayAIClient(): TodayAIClient {
   return {
     async generate(context: TodayAIContext): Promise<TodayAIInsight> {
-      const pending = context.plan.dueToday - context.plan.completedToday;
-      const observation = pending > 0
-        ? 'You have a few things asking for attention today.'
+      const observation = context.habits.scheduled > 0
+        ? 'Your daily rituals are ready when you are.'
         : 'Today looks calm so far.';
 
       const orientation = context.journey

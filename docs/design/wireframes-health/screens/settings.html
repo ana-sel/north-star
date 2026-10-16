@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings</title>
+<link rel="stylesheet" href="../shared/health.css">
+</head>
+<body>
+<div class="app sheet">
+  <div data-status></div>
+  <nav class="nav"><span></span><span class="center">Settings</span><a class="done" href="today.html">Done</a></nav>
+
+  <div class="sec"><h2>Privacy</h2></div>
+  <div class="list">
+    <div class="row"><span class="tile" style="background:var(--tint)"><svg class="i"><use href="#i-lock"/></svg></span><div class="txt"><div class="t">Fully local</div><div class="s">No account, no server, no analytics</div></div></div>
+  </div>
+  <p class="foot">Compass keeps everything on this device. Nothing leaves it.</p>
+
+  <div class="sec"><h2>Your data</h2></div>
+  <div class="list plain">
+    <a class="row danger"><span class="txt t">Delete all my data</span></a>
+  </div>
+  <p class="foot">Removes every sleep entry, habit, path return and preference from this device. It cannot be undone.</p>
+
+  <div class="list plain" style="margin-top:24px">
+    <div class="row"><span class="txt t">Version</span><span class="r">1.0.0</span></div>
+  </div>
+</div>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

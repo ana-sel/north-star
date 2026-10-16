@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations · ladder</title>
+<link rel="stylesheet" href="../shared/health.css">
+<style>
+  .ladder { position: relative; padding-left: 40px; margin-top: 18px; }
+  .ladder::before { content: ""; position: absolute; left: 15px; top: 20px; bottom: 20px; width: 2px; background: var(--stone-soft); }
+  .rung { position: relative; }
+  .rung .n { position: absolute; left: -40px; top: 13px; width: 32px; height: 32px; border-radius: 50%; background: var(--stone-soft); color: var(--stone-deep); font-weight: 700; font-size: 14px; display: grid; place-items: center; }
+  .rung.ground .n { background: var(--stone); color: #fff; }
+  .rung h3 { font-size: 15px; font-weight: 700; }
+  .rung .card { padding: 12px 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { padding: 6px 12px; border-radius: 999px; background: var(--stone-soft); color: var(--stone-deep); font-size: 14px; font-weight: 600; }
+  .chip.on { background: var(--stone); color: #fff; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+  <nav class="nav"><a href="you-paths.html"><svg class="i lg"><use href="#i-back"/></svg>Paths</a></nav>
+
+  <div class="kicker" style="color:var(--foundation-deep)"><svg class="i sm"><use href="#i-layers"/></svg>13 basics</div>
+  <h1 class="title">Foundations</h1>
+  <p class="lede">Built from the ground up. Start low, or wherever feels needed.</p>
+
+  <!-- Tier 1 sits at the bottom: it is the floor. -->
+  <div class="ladder">
+    <div class="rung"><span class="n">5</span><div class="card"><h3>Meaning</h3>
+      <div class="chips"><a class="chip">Make Meaning</a></div></div></div>
+    <div class="rung"><span class="n">4</span><div class="card"><h3>Real life</h3>
+      <div class="chips"><a class="chip">Handle Hard Things</a><a class="chip">Keep Your Word</a><a class="chip">Live Practically</a></div></div></div>
+    <div class="rung"><span class="n">3</span><div class="card"><h3>With others</h3>
+      <div class="chips"><a class="chip">Communicate</a><a class="chip">Relate</a></div></div></div>
+    <div class="rung"><span class="n">2</span><div class="card"><h3>Knowing yourself</h3>
+      <div class="chips"><a class="chip">Feel &amp; Name</a><a class="chip">See Clearly</a><a class="chip">Self-relationship</a><a class="chip">Know Yourself</a></div></div></div>
+    <div class="rung ground"><span class="n">1</span><div class="card"><h3>The floor</h3>
+      <div class="chips"><a class="chip" href="foundation-detail.html">Tend the Body</a><a class="chip on">Regulate · walking</a><a class="chip">Steady Your Attention</a></div></div></div>
+  </div>
+  <p class="foot" style="margin-top:4px">Tap one to read its practice. Tiers are a suggestion, not a gate.</p>
+</div>
+
+<nav data-tabbar="you"></nav>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

@@ -17,6 +17,5 @@ export { SubNav } from './SubNav';
 export type { SubNavOption } from './SubNav';
 export { TabBar } from './TabBar';
 export type { TabItem } from './TabBar';
-export { TaskRow } from './TaskRow';
 export { TopBar } from './TopBar';
 export type { TopBarAction } from './TopBar';
