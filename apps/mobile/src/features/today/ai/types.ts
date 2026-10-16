@@ -23,11 +23,6 @@ export interface TodayAIContext {
     eveningCompleted: number;
   };
 
-  plan: {
-    dueToday: number;
-    completedToday: number;
-  };
-
   journey?: {
     id: string;
     type: AIJourneyType;

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today · first run</title>
+<link rel="stylesheet" href="../shared/health.css">
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+
+  <header class="header">
+    <div>
+      <div class="eyebrow">Thursday 15 October</div>
+      <h1 class="title">Today</h1>
+    </div>
+    <a class="icon-btn" href="settings.html" aria-label="Settings"><svg class="i"><use href="#i-sliders"/></svg></a>
+  </header>
+
+  <!-- One calm starting card replaces the separate empty boxes. -->
+  <div class="card">
+    <div class="card-head">
+      <span class="cat" style="color:var(--tint)"><svg class="i"><use href="#i-compass"/></svg>Getting started</span>
+      <span class="when">0 of 4</span>
+    </div>
+    <p class="body">Nothing here is a target. Do any of these, in any order.</p>
+  </div>
+  <div class="list">
+    <a class="row" href="you-paths.html"><span class="tile" style="background:var(--inward)"><svg class="i"><use href="#i-moon"/></svg></span><div class="txt"><div class="t">Choose a quality to grow</div><div class="s">Stillness is a quiet place to start</div></div><svg class="chev"><use href="#i-chev"/></svg></a>
+    <a class="row" href="log-sleep.html"><span class="tile" style="background:var(--sleep)"><svg class="i"><use href="#i-bed"/></svg></span><div class="txt"><div class="t">Log last night</div><div class="s">Two times on a dial</div></div><svg class="chev"><use href="#i-chev"/></svg></a>
+    <a class="row" href="log-habits.html"><span class="tile" style="background:var(--habits)"><svg class="i"><use href="#i-leaf"/></svg></span><div class="txt"><div class="t">Add a morning habit</div><div class="s">Templates are optional</div></div><svg class="chev"><use href="#i-chev"/></svg></a>
+    <a class="row" href="settings.html"><span class="tile" style="background:var(--primary)"><svg class="i"><use href="#i-board"/></svg></span><div class="txt"><div class="t">Connect Trello</div><div class="s">Your Today list shows here</div></div><svg class="chev"><use href="#i-chev"/></svg></a>
+  </div>
+
+  <div class="list plain">
+    <div class="row">
+      <span class="txt t">Pace</span>
+      <div class="seg sm"><span class="on">Full</span><span>Lighter</span><span>Rest</span></div>
+    </div>
+  </div>
+  <p class="foot">Each row disappears once it is set up. The Summary appears as soon as there is something to show.</p>
+</div>
+
+<nav data-tabbar="today"></nav>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

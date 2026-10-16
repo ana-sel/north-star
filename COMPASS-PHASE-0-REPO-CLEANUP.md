@@ -1,5 +1,7 @@
 # Compass — Phase 0 Repository Cleanup & Canonicalisation
 
+> Historical task record. The product and design files named below have since been consolidated into [the product and design guide](docs/product/product-guide.md), and the former Worker README is retained in [the architecture](ARCHITECTURE.md#compass-api-target). Use [PLAN.md](PLAN.md) for current V1 scope; the old paths in this checklist are preserved as written.
+
 ## Purpose
 
 This document is the **implementation contract for Phase 0 only**.
@@ -548,7 +550,7 @@ docs.zip
 ```
 
 Actions:
-- `log-energy.html` → archive if Energy is not in V1
+- `log-energy.html` → **removed** (Energy is OUT of V1)
 - `screen-habits-tree.png` → `docs/design/reference/` if useful
 - `.sel.png` → inspect; delete if accidental/temp
 - `Compass.zip` → delete from repo
@@ -635,13 +637,12 @@ Do not redesign Compass in Phase 0.
 
 # V1 FEATURES — DO NOT IMPLEMENT IN PHASE 0
 
-Frozen for later in `/PLAN.md`:
+This Phase 0 cleanup contract is historical. The current V1 navigation and Trello task integration are defined in `/PLAN.md`; the former Plan screen is no longer in scope.
 
 ```text
 Bottom navigation:
 - Today
 - Log
-- Plan
 - You
 
 Log:
@@ -659,7 +660,7 @@ Must-have:
 - circular sleep clock
 - Path practice loop
 - rituals / habits
-- simple Plan
+- up to three Trello cards on Today after a user-authorized connection
 - Progress
 - Foundations
 - V1 featured Paths
@@ -676,7 +677,7 @@ Body page
 Energy page
 Money
 Goals tree
-Plan Map
+in-app task planning or Map screens
 full multi-device sync
 complex AI chat
 full analytics platform

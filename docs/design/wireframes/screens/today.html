@@ -161,16 +161,11 @@
 .mode-lighter .day-band .tasks-card{opacity:.5;}
 .tasks-card{margin-bottom:10px;}
 .tasks-card .yritual-top{padding-bottom:12px;border-bottom:1px solid var(--line);}
-.task-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;}
+.task-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);color:inherit;text-decoration:none;}
 .task-row:last-of-type{border-bottom:none;}
-.t-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-size:12px;color:var(--line);flex-shrink:0;transition:all .15s;}
-.t-ck.done{background:var(--accent);border-color:var(--accent);color:#fff;}
+.t-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--bg);flex-shrink:0;}
 .t-name{flex:1;font-size:var(--fs-md);}
-.task-row.done .t-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line);}
-.t-tag{font-size:var(--fs-xs);font-weight:700;padding:2px 8px;border-radius:999px;flex-shrink:0;}
-.tag-inner{background:#ede8f6;color:var(--p-inner);}
-.tag-money{background:#e6eef5;color:var(--p-money);}
-.tc-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:11px;font-size:var(--fs-xs);font-weight:600;color:var(--accent);cursor:pointer;border-top:1px solid var(--line);text-decoration:none;}
+.tc-more{display:flex;align-items:center;justify-content:center;gap:5px;padding:11px;font-size:var(--fs-xs);font-weight:600;color:var(--accent);border-top:1px solid var(--line);text-decoration:none;}
 .tc-more .ic{font-size:12px;}
 
 /* ══════════ BAND 4 · SIGNALS ══════════ */
@@ -339,31 +334,31 @@
     <div class="yhead-rule"></div>
   </div>
   <div class="yritual tasks-card">
-    <div class="yritual-top" onclick="location.href='plan-month.html'">
+    <div class="yritual-top">
       <div class="yritual-badge task"><i class="ic ic-route"></i></div>
       <div class="yritual-head">
         <div class="yritual-name">From the plan</div>
-        <div class="yritual-meta" id="tCount">1 of 5 done</div>
+        <div class="yritual-meta">Today · Trello layout preview</div>
       </div>
       <i class="ic ic-chev yritual-chev"></i>
     </div>
-    <div class="task-row done" onclick="toggleTask(this)">
-      <div class="t-ck done">&#10003;</div>
-      <div class="t-name">Research mortgages</div>
-      <div class="t-tag tag-money">money</div>
-    </div>
-    <div class="task-row" onclick="toggleTask(this)">
-      <div class="t-ck">&#10003;</div>
-      <div class="t-name">Read chapter 3</div>
-      <div class="t-tag tag-inner">inner</div>
-    </div>
-    <div class="task-row" onclick="toggleTask(this)">
-      <div class="t-ck">&#10003;</div>
-      <div class="t-name">Set aside £200 land fund</div>
-      <div class="t-tag tag-money">money</div>
-    </div>
-    <a class="tc-more" href="plan-month.html">2 more in Plan <i class="ic ic-chev"></i></a>
+    <div class="task-row"><div class="t-ck"></div><div class="t-name">First Trello card</div></div>
+    <div class="task-row"><div class="t-ck"></div><div class="t-name">Second Trello card</div></div>
+    <div class="task-row"><div class="t-ck"></div><div class="t-name">Third Trello card</div></div>
+    <a class="tc-more" href="https://trello.com/b/ULAuklhQ/2-execution-today-next-up">Open in Trello <i class="ic ic-chev"></i></a>
   </div>
+  <template id="trello-disconnected">
+    <div class="yritual tasks-card">
+      <div class="yritual-top">
+        <div class="yritual-badge task"><i class="ic ic-route"></i></div>
+        <div class="yritual-head"><div class="yritual-name">From the plan</div><div class="yritual-meta">Today · Trello</div></div>
+      </div>
+      <a class="task-row" href="https://trello.com/b/ULAuklhQ/2-execution-today-next-up">
+        <span class="t-name">Cards aren't connected yet. Open your Today list in Trello.</span>
+        <i class="ic ic-chev"></i>
+      </a>
+    </div>
+  </template>
   </div>
 
   <!-- ══════════ BAND 4 · SIGNALS ══════════ -->
@@ -393,7 +388,6 @@
       </div>
       <div class="coach-body">Compare loan types before your next session — even a small rate difference adds up over a mortgage.</div>
       <div class="coach-btns">
-        <button class="coach-btn coach-accept" onclick="this.textContent='Added ✓';this.style.background='var(--olive)';this.style.color='#fff';this.style.borderColor='var(--olive)'">Add to plan</button>
         <button class="coach-btn" onclick="this.closest('.coach-card').style.opacity='.35'">Not now</button>
       </div>
     </div>
@@ -722,14 +716,6 @@ function recomputeCard(id){
   card.querySelector('.yritual-chev').classList.toggle('done',nodes.length>0&&done===nodes.length);
 }
 function toggleNode(node,id){node.classList.toggle('done');node.classList.remove('now');recomputeCard(id);updateFocus();}
-
-/* ── Tasks ── */
-var tDone=1,tTotal=5;
-function toggleTask(row){
-  var was=row.classList.contains('done');row.classList.toggle('done');
-  row.querySelector('.t-ck').classList.toggle('done');
-  tDone+=was?-1:1;document.getElementById('tCount').textContent=tDone+' of '+tTotal+' done';
-}
 
 /* ── Init ── */
 renderAnchor();recomputeCard('morning');recomputeCard('evening');updateFocus();syncEnergyFromStore();

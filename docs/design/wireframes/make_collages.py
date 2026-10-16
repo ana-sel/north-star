@@ -1,6 +1,6 @@
 """
-Generate 5 PNG collages from Compass wireframe screens.
-Groups: Today, Log, Plan, Money, You
+Generate PNG collages from Compass wireframe screens.
+Groups: Today, Log, Money, You
 """
 
 import os
@@ -26,33 +26,13 @@ GROUPS = {
         "screens": [
             ("screens/log-sleep.html", "Log · Sleep"),
             ("screens/log-habits.html", "Log · Habits"),
-            ("screens/log-body.html", "Log · Body"),
-            ("screens/log-energy.html", "Log · Energy"),
-        ],
-    },
-    "3-plan": {
-        "title": "Plan",
-        "screens": [
-            ("screens/plan-flow.html", "Plan · Flow"),
-            ("screens/plan-goals.html", "Plan · Goals"),
-            ("screens/plan-map.html", "Plan · Map"),
-            ("screens/plan-trails.html", "Paths"),
-        ],
-    },
-    "4-money": {
-        "title": "Money",
-        "screens": [
-            ("screens/money-overview.html", "Money · Overview"),
-            ("screens/money-add.html", "Money · Add"),
-            ("screens/money-trans.html", "Money · Transactions"),
-            ("screens/money-budget.html", "Money · Budget"),
-            ("screens/money-worth.html", "Money · Worth"),
         ],
     },
     "5-you": {
         "title": "You",
         "screens": [
             ("screens/you-progress.html", "You · Progress"),
+            ("screens/plan-trails.html", "Paths"),
             ("screens/you-discover.html", "You · Discover"),
             ("screens/you-identity.html", "You · Self"),
             ("screens/foundations.html", "Foundations"),

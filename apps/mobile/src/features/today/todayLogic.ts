@@ -7,8 +7,6 @@
 export type PaceMode = 'full' | 'lighter' | 'rest';
 
 export interface PaceSections {
-  showPlan: boolean;
-  dimPlan: boolean;
   showSignals: boolean;
   banner: 'rest' | 'lighter' | null;
 }
@@ -16,12 +14,12 @@ export interface PaceSections {
 export function sectionsForPace(mode: PaceMode): PaceSections {
   switch (mode) {
     case 'rest':
-      return { showPlan: false, dimPlan: false, showSignals: false, banner: 'rest' };
+      return { showSignals: false, banner: 'rest' };
     case 'lighter':
-      return { showPlan: true, dimPlan: true, showSignals: false, banner: 'lighter' };
+      return { showSignals: false, banner: 'lighter' };
     case 'full':
     default:
-      return { showPlan: true, dimPlan: false, showSignals: true, banner: null };
+      return { showSignals: true, banner: null };
   }
 }
 

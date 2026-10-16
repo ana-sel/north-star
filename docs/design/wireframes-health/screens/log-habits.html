@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log · Habits</title>
+<link rel="stylesheet" href="../shared/health.css">
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+
+  <header class="header">
+    <h1 class="title">Log</h1>
+    <a class="icon-btn" href="settings.html" aria-label="Settings"><svg class="i"><use href="#i-sliders"/></svg></a>
+  </header>
+  <div class="seg"><a href="log-sleep.html">Sleep</a><a class="on" href="log-habits.html">Habits</a></div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="cat" style="color:var(--habits-deep)"><svg class="i"><use href="#i-leaf"/></svg>Today</span>
+      <span class="when">Pace · Full</span>
+    </div>
+    <div class="split">
+      <div>
+        <div class="value">3<small>of 6 done</small></div>
+        <div class="sub">Daily baselines. Small is enough.</div>
+      </div>
+      <svg width="52" height="52" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="16" fill="none" stroke="var(--habits-soft)" stroke-width="6"/>
+        <circle cx="20" cy="20" r="16" fill="none" stroke="var(--habits)" stroke-width="6" stroke-linecap="round" stroke-dasharray="50.3 100.5" transform="rotate(-90 20 20)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sec"><h2>Morning</h2><a class="link">Edit</a></div>
+  <div class="list checks">
+    <div class="row is-done"><span class="check done"><svg class="i"><use href="#i-check"/></svg></span><div class="txt"><div class="t">Water on waking</div></div><span class="week-dots"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+    <div class="row is-done"><span class="check done"><svg class="i"><use href="#i-check"/></svg></span><div class="txt"><div class="t">Morning daylight</div></div><span class="week-dots"><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i></span></div>
+    <div class="row"><span class="check"></span><div class="txt"><div class="t">5-minute meditation</div><div class="s">Sit, breathe, or settle for five minutes</div></div><span class="week-dots"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
+    <div class="row is-done"><span class="check done"><svg class="i"><use href="#i-check"/></svg></span><div class="txt"><div class="t">First 15 minutes phone-free</div></div><span class="week-dots"><i></i><i class="on"></i><i></i><i></i><i></i><i class="on"></i><i class="on"></i></span></div>
+  </div>
+
+  <div class="sec"><h2>Evening</h2><a class="link">Edit</a></div>
+  <div class="list checks">
+    <div class="row"><span class="check"></span><div class="txt"><div class="t">Evening oral care</div></div><span class="week-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
+    <div class="row"><span class="check"></span><div class="txt"><div class="t">Wind-down before sleep</div></div><span class="week-dots"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i></i><i class="on"></i><i></i></span></div>
+  </div>
+
+  <div class="list plain">
+    <a class="row action"><svg class="i" style="color:var(--tint)"><use href="#i-plus"/></svg><span class="txt t">Add a habit</span></a>
+  </div>
+  <p class="foot">Dots show the last 7 days. Pace is set on Today; a lighter day asks only for the minimum version.</p>
+</div>
+
+<nav data-tabbar="log"></nav>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

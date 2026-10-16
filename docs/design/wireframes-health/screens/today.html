@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today</title>
+<link rel="stylesheet" href="../shared/health.css">
+</head>
+<body>
+<div class="app">
+  <div data-status></div>
+
+  <header class="header">
+    <div>
+      <div class="eyebrow">Thursday 15 October</div>
+      <h1 class="title">Today</h1>
+    </div>
+    <a class="icon-btn" href="settings.html" aria-label="Settings"><svg class="i"><use href="#i-sliders"/></svg></a>
+  </header>
+
+  <!-- 1 · Practice -->
+  <article class="card">
+    <div class="card-head">
+      <span class="cat" style="color:var(--inward-deep)"><svg class="i"><use href="#i-moon"/></svg>Stillness</span>
+      <a class="when" href="path-detail.html">Camp 2 · Doing <svg class="chev"><use href="#i-chev"/></svg></a>
+    </div>
+    <h3 class="hero-t">Pause before responding when you would normally react immediately</h3>
+    <p class="counts"><b>It counts when</b> you noticed the impulse and created even a small pause. You do not need to feel calm.</p>
+    <details class="voice">
+      <summary>The sentence <svg class="chev"><use href="#i-chev"/></svg></summary>
+      <p class="q tight"><span class="q-label">When it is tight</span>“I don’t have time for this. I should be getting on with something.”</p>
+      <p class="q"><span class="q-label">The one you are practising</span>“This is the thing I’m doing. It can take as long as it takes.”</p>
+    </details>
+    <div class="btn-row">
+      <a class="btn">Done</a>
+      <a class="btn soft">Not today</a>
+    </div>
+  </article>
+  <a class="also" href="you-paths.html"><span>Also walking · <b>Regulate</b></span><svg class="chev"><use href="#i-chev"/></svg></a>
+
+  <!-- 2–4 · Summary -->
+  <div class="sec"><h2>Summary</h2></div>
+
+  <a class="card" href="log-sleep.html">
+    <div class="card-head">
+      <span class="cat" style="color:var(--sleep-deep)"><svg class="i"><use href="#i-bed"/></svg>Sleep</span>
+      <span class="when">Woke 07:00 <svg class="chev"><use href="#i-chev"/></svg></span>
+    </div>
+    <div class="split">
+      <div>
+        <div class="value">7<small>hr</small>50<small>min</small></div>
+        <div class="sub">10 min under your 8 hr target</div>
+      </div>
+      <div class="bars" style="color:var(--sleep)">
+        <i class="dim" style="height:73%"></i><i class="dim" style="height:81%"></i><i class="dim" style="height:85%"></i><i class="dim" style="height:68%"></i><i class="dim" style="height:72%"></i><i class="dim" style="height:77%"></i><i style="height:78%"></i>
+      </div>
+    </div>
+  </a>
+
+  <div class="list plain">
+    <div class="row">
+      <span class="txt t">Pace</span>
+      <div class="seg sm"><span class="on">Full</span><span>Lighter</span><span>Rest</span></div>
+    </div>
+  </div>
+  <p class="foot">You choose the pace. A lighter day asks for less, and nothing is lost.</p>
+
+  <a class="card" href="log-habits.html">
+    <div class="card-head">
+      <span class="cat" style="color:var(--habits-deep)"><svg class="i"><use href="#i-leaf"/></svg>Rituals</span>
+      <span class="when"><svg class="chev"><use href="#i-chev"/></svg></span>
+    </div>
+    <div class="split">
+      <div>
+        <div class="value">3<small>of 6 done</small></div>
+        <div class="sub">Morning 3 of 4 · Evening 0 of 2</div>
+        <div class="sub">Next · 5-minute meditation</div>
+      </div>
+      <svg width="52" height="52" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="16" fill="none" stroke="var(--habits-soft)" stroke-width="6"/>
+        <circle cx="20" cy="20" r="16" fill="none" stroke="var(--habits)" stroke-width="6" stroke-linecap="round" stroke-dasharray="50.3 100.5" transform="rotate(-90 20 20)"/>
+      </svg>
+    </div>
+  </a>
+
+  <!-- 5 · Trello -->
+  <div class="sec"><h2>From Trello</h2><a class="link">Open</a></div>
+  <div class="list checks">
+    <div class="row is-done"><span class="check done trello"><svg class="i"><use href="#i-check"/></svg></span><div class="txt"><div class="t">Reply to Marta about Saturday</div></div></div>
+    <div class="row"><span class="check"></span><div class="txt"><div class="t">Renew passport form</div><div class="s">Checklist 2 of 4</div></div><svg class="chev"><use href="#i-chev"/></svg></div>
+    <div class="row"><span class="check"></span><div class="txt"><div class="t">Draft project outline</div></div><svg class="chev"><use href="#i-chev"/></svg></div>
+  </div>
+  <p class="foot">Your Today list, in Trello order.</p>
+
+  <!-- 6 · Compass note -->
+  <div class="sec"><h2>Compass note</h2></div>
+  <div class="card">
+    <div class="card-head">
+      <span class="cat" style="color:var(--primary)"><svg class="i"><use href="#i-compass"/></svg>From your last 7 nights</span>
+    </div>
+    <p class="body">On the three nights you went to bed after 23:30, you slept about 55 minutes less. Tonight’s target bed is 23:00.</p>
+  </div>
+</div>
+
+<nav data-tabbar="today"></nav>
+<script src="../shared/shell.js"></script>
+</body>
+</html>

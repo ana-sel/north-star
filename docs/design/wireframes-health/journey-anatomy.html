@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass · Journey page anatomy</title>
+<link rel="stylesheet" href="shared/health.css">
+<style>
+  body { padding: 28px 40px 60px; }
+  .doc { max-width: 1000px; }
+  h1 { font-size: 30px; margin-bottom: 6px; }
+  h2.h { font-size: 22px; margin: 30px 0 10px; }
+  p.p { color: var(--ink-2); line-height: 1.5; max-width: 780px; margin-bottom: 8px; }
+  .qs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+  .qs .card b { display: block; font-size: 17px; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: .5px solid var(--sep); vertical-align: top; line-height: 1.4; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-2); background: var(--fill-2); }
+  tr:last-child td { border-bottom: 0; }
+  .v { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .keep { background: var(--sage-soft); color: var(--sage-deep); }
+  .move { background: var(--blue-soft); color: var(--blue-deep); }
+  .merge { background: var(--violet-soft); color: var(--violet-deep); }
+  .cut { background: var(--rose-soft); color: var(--rose-deep); }
+  .add { background: var(--ochre-soft); color: var(--ochre-deep); }
+  td.c { text-align: center; }
+</style>
+</head>
+<body>
+<div class="doc">
+  <h1>One journey page</h1>
+  <p class="p">Growth Paths and Foundations run on the same machine: one practice, returns a few times a week, the same three camps, Steady claimed by you. The only difference is where they live (a path area, or a foundation tier). So they now share one page, drawn from one template, and a section appears only when that journey has content for it.</p>
+
+  <h2 class="h">What a person needs the moment it opens</h2>
+  <div class="qs">
+    <div class="card"><b>1 · What do I do?</b><span class="sub">The practice, in one sentence, with its button right under it.</span></div>
+    <div class="card"><b>2 · When does it count?</b><span class="sub">“It counts when…”, and what it does not depend on.</span></div>
+    <div class="card"><b>3 · Where am I?</b><span class="sub">One route, one line of text. History is one tap away.</span></div>
+  </div>
+  <p class="p" style="margin-top:10px">Everything else (what it looks like in real life, the inner sentence, daily habits, the longer explanation) is supporting material and sits below.</p>
+
+  <h2 class="h">How Apple solves it</h2>
+  <p class="p"><b>Health › Medications</b> is the closest match: a thing you do on a rhythm and log. The page leads with what it is and the <i>Log</i> action, keeps history one tap away, and puts details and options (archive, edit) underneath. <b>Health data pages</b> follow the same order: one chart up top, then Highlights, then an About text cut to three lines with Show more, then a plain Options list. Nothing scrolls sideways, and nothing important is hidden behind a disclosure.</p>
+
+  <h2 class="h">What changed on the page</h2>
+  <table>
+    <tr><th style="width:26%">Component</th><th style="width:12%">Verdict</th><th>Why</th></tr>
+    <tr><td>Practice card</td><td><span class="v move">Moved up</span></td><td>It was the fourth block. It is the reason the page exists, so it now comes first, with the button inside it. It is the same card as the Today practice, so it is learned once.</td></tr>
+    <tr><td>“I came back” between cards</td><td><span class="v merge">Merged</span></td><td>An action floating between two cards was unclear. It now sits with the instruction it completes.</td></tr>
+    <tr><td>Route + returns line + footnote</td><td><span class="v merge">Merged</span></td><td>Two drawings of the same returns in one card. Kept the route and one line of text; the returns line moved to <i>All returns</i> (Health’s Show All Data).</td></tr>
+    <tr><td>“Gives you” chips</td><td><span class="v move">Moved</span></td><td>On a page you already walk, they repeated the one-liner and About. They stay in the preview sheet, where you decide, and are said once in About.</td></tr>
+    <tr><td>Real-life swipe cards</td><td><span class="v move">Replaced</span></td><td>Sideways scrolling hid two of the three examples. Now a short plain list.</td></tr>
+    <tr><td>“Not when you feel calm”</td><td><span class="v keep">Kept</span></td><td>Rules out the outcome, as the product guide asks for every practice.</td></tr>
+    <tr><td>The sentence</td><td><span class="v keep">Kept</span></td><td>Only for paths that have a voice pair.</td></tr>
+    <tr><td>About + Show more</td><td><span class="v keep">Kept</span></td><td>Now also holds what it gives you and how camps work, which were scattered in footnotes.</td></tr>
+    <tr><td>Camp explanation under the route</td><td><span class="v cut">Removed</span></td><td>Repeated in About; the route line says only where you are and what opens next.</td></tr>
+    <tr><td>“How it unfolds” (foundations)</td><td><span class="v merge">Merged</span></td><td>Same component as the path route, now called Progress on both.</td></tr>
+    <tr><td>Habit supports</td><td><span class="v keep">Kept</span></td><td>Called Daily habits on both page types; shown only when habits are linked.</td></tr>
+    <tr><td>Examples for foundations</td><td><span class="v add">Added</span></td><td>Foundations had none. Now “What it covers” or “Tools you can use”, straight from the content freeze.</td></tr>
+    <tr><td>All returns page</td><td><span class="v add">Added</span></td><td>Dates of every return and when each camp opened, without crowding the main page.</td></tr>
+    <tr><td>Pause for now</td><td><span class="v keep">Kept</span></td><td>At the bottom, as Health places Options. “Keeps every return.”</td></tr>
+  </table>
+
+  <h2 class="h">The template</h2>
+  <table>
+    <tr><th style="width:30%">Section, in order</th><th class="c">Growth path</th><th class="c">Foundation</th><th>Notes</th></tr>
+    <tr><td>Area or tier · type, name, one line</td><td class="c">✓</td><td class="c">✓</td><td>“Self-awareness · Growth path” or “The Ground · Foundation”.</td></tr>
+    <tr><td>The practice + button</td><td class="c">✓</td><td class="c">✓</td><td>Start, I came back, or Resume, depending on state.</td></tr>
+    <tr><td>Progress</td><td class="c">✓</td><td class="c">✓</td><td>Tap for All returns once started.</td></tr>
+    <tr><td>Examples</td><td class="c">In real life</td><td class="c">What it covers / Tools</td><td>Plain list.</td></tr>
+    <tr><td>The sentence</td><td class="c">If it has one</td><td class="c">—</td><td></td></tr>
+    <tr><td>Daily habits</td><td class="c">If linked</td><td class="c">If linked</td><td>Never uses a journey slot.</td></tr>
+    <tr><td>About</td><td class="c">✓</td><td class="c">✓</td><td>Three lines, Show more.</td></tr>
+    <tr><td>Pause for now</td><td class="c">When walking</td><td class="c">When walking</td><td></td></tr>
+  </table>
+</div>
+</body>
+</html>

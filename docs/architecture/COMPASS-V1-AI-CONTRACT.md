@@ -116,12 +116,6 @@ text. Today-only shape:
     "eveningCompleted": 0
   },
 
-  "plan": {
-    "dueToday": 2,
-    "completedToday": 0
-    // NOTE: task titles are NOT sent (see §5)
-  },
-
   "journey": {                          // optional; the selected Today journey
     "id": "stillness",                  // UNPREFIXED canonical id
     "type": "path",                     // "path" | "foundation"
@@ -416,8 +410,7 @@ Explicitly frozen out of V1:
 
 **Acceptable**
 
-- observation: "Sleep was shorter than your usual target, and two tasks are
-  waiting." · orientation: "A lighter pace may leave room for your Stillness
+- observation: "Sleep was shorter than your usual target." · orientation: "A lighter pace may leave room for your Stillness
   practice."
 - observation: "Rest is the plan today." · orientation: "Your Journey can wait —
   nothing is lost."

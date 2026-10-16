@@ -10,6 +10,8 @@ import {
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { theme } from '@styles/theme';
 import { utcToLocal } from '@lib/time';
+import { utcToZonedTime } from 'date-fns-tz';
+import { SleepDial } from './SleepDial';
 
 interface SleepFormProps {
   bedTime: Date;
@@ -44,6 +46,14 @@ export function SleepForm({
 
   const bedDisplay = utcToLocal(bedTime, timezone);
   const wakeDisplay = utcToLocal(wakeTime, timezone);
+  const bedMinutes = bedTime.getHours() * 60 + bedTime.getMinutes();
+  const wakeMinutes = wakeTime.getHours() * 60 + wakeTime.getMinutes();
+
+  const changeDialTime = (mode: 'bed' | 'wake', minutes: number) => {
+    const date = new Date(mode === 'bed' ? bedTime : wakeTime);
+    date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+    (mode === 'bed' ? onBedTimeChange : onWakeTimeChange)(date);
+  };
 
   const handleChange =
     (mode: 'bed' | 'wake') => (event: DateTimePickerEvent, date?: Date) => {
@@ -55,6 +65,12 @@ export function SleepForm({
 
   return (
     <View style={styles.container}>
+      <SleepDial
+        bedMinutes={bedMinutes}
+        wakeMinutes={wakeMinutes}
+        onBedChange={(minutes) => changeDialTime('bed', minutes)}
+        onWakeChange={(minutes) => changeDialTime('wake', minutes)}
+      />
       {/* Bed time */}
       <View style={styles.field}>
         <Text style={styles.fieldLabel}>{bedLabel}</Text>
@@ -63,6 +79,8 @@ export function SleepForm({
             style={styles.timeBtn}
             onPress={() => setOpenPicker('bed')}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Set ${bedLabel.toLowerCase()} time, ${bedDisplay}`}
           >
             <Text style={styles.timeValue}>{bedDisplay}</Text>
           </TouchableOpacity>
@@ -78,6 +96,8 @@ export function SleepForm({
             style={styles.timeBtn}
             onPress={() => setOpenPicker('wake')}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Set ${wakeLabel.toLowerCase()} time, ${wakeDisplay}`}
           >
             <Text style={styles.timeValue}>{wakeDisplay}</Text>
           </TouchableOpacity>
@@ -94,7 +114,7 @@ export function SleepForm({
       {/* Native time dialog (Android shows it on demand) */}
       {openPicker && (
         <DateTimePicker
-          value={openPicker === 'bed' ? bedTime : wakeTime}
+          value={utcToZonedTime(openPicker === 'bed' ? bedTime : wakeTime, timezone)}
           mode="time"
           is24Hour
           onChange={handleChange(openPicker)}

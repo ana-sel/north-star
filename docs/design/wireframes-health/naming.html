@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass · Names</title>
+<link rel="stylesheet" href="shared/health.css">
+<style>
+  body { padding: 28px 40px 60px; }
+  .doc { max-width: 1100px; }
+  h1 { font-size: 30px; margin-bottom: 6px; }
+  h2.h { font-size: 22px; margin: 32px 0 10px; }
+  p.intro, p.p { color: var(--ink-2); line-height: 1.5; max-width: 780px; margin-bottom: 8px; }
+  .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .col { background: var(--card); border-radius: 14px; padding: 14px; }
+  .col h3 { font-size: 17px; display: flex; align-items: center; gap: 8px; }
+  .col .q { font-size: 13px; color: var(--ink-2); margin: 2px 0 10px; font-style: normal; }
+  .col .n { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .p-row { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-top: .5px solid var(--sep); font-size: 14px; }
+  .p-row .v { color: var(--ink-3); font-size: 12px; text-align: right; }
+  .p-row.f .name { font-weight: 700; }
+  .p-row.f .name::after { content: " ★"; font-size: 11px; }
+  .sub-h { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-3); margin: 10px 0 2px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; font-size: 14px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: .5px solid var(--sep); vertical-align: top; line-height: 1.4; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-2); background: var(--fill-2); }
+  tr:last-child td { border-bottom: 0; }
+  tr.rec td { background: color-mix(in oklab, var(--sage-soft) 60%, #fff); }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 600; font-size: 13px; margin: 0 4px 4px 0; }
+</style>
+</head>
+<body>
+<div class="doc">
+  <h1>Names</h1>
+  <p class="intro">A study of how the paths and foundations are grouped and named, using the full catalogue of 41 paths (★ = the 14 featured in V1) and the 13 foundations from the content freeze.</p>
+
+  <h2 class="h">Foundation tiers: the content freeze names (decided)</h2>
+  <p class="p">Kept as written in the content freeze. The Foundations screen uses them.</p>
+  <table>
+    <tr><th style="width:8%">Tier</th><th style="width:24%">Name</th><th>Holds</th></tr>
+    <tr><td>1</td><td><b>The Ground</b></td><td>Tend the Body · Regulate · Steady Your Attention</td></tr>
+    <tr><td>2</td><td><b>Inner World</b></td><td>Feel &amp; Name · See Clearly · Self-relationship · Know Yourself</td></tr>
+    <tr><td>3</td><td><b>Other People</b></td><td>Communicate · Relate</td></tr>
+    <tr><td>4</td><td><b>Meeting Life</b></td><td>Handle Hard Things · Keep Your Word · Live Practically</td></tr>
+    <tr><td>5</td><td><b>Meaning</b></td><td>Make Meaning</td></tr>
+  </table>
+
+  <h2 class="h">Path areas: the whole catalogue</h2>
+  <p class="p">The four areas are named after <i>where</i> you practise: yourself, other people, the work, the unfamiliar. Every path in the data also has two values, which say what the quality <i>gives you</i>. Those are shown in grey on the right.</p>
+  <div class="cols" id="cols"></div>
+
+  <h2 class="h">What the list shows</h2>
+  <ul style="line-height:1.6;padding-left:20px;max-width:820px">
+    <li><b>Mastery is the largest area: 15 of 41.</b> It mixes the work itself (Shipping, Rare skill), decisions (Calculated risk, Saying no) and long-term building (Leverage, Stewardship). As you said, each one is a kind of mastery that gives you something concrete.</li>
+    <li><b>“Where you practise” and “what it gives you” are both true,</b> but a name based on what you get answers the question people actually have when choosing: <i>why would I want this?</i></li>
+    <li><b>Aliveness is the smallest (6)</b> and its values cluster around joy, aliveness, adventure and becoming.</li>
+  </ul>
+
+  <h2 class="h">Area names (decided)</h2>
+  <table>
+    <tr><th style="width:22%">Was</th><th style="width:22%">Now</th><th>Subtitle</th></tr>
+    <tr class="rec"><td>Inward</td><td><span class="pill" style="background:var(--violet-soft);color:var(--violet-deep)">Self-awareness</span></td><td>How you meet yourself</td></tr>
+    <tr class="rec"><td>Together</td><td><span class="pill" style="background:var(--rose-soft);color:var(--rose-deep)">Connection</span></td><td>How you meet other people</td></tr>
+    <tr class="rec"><td>Craft</td><td><span class="pill" style="background:var(--ochre-soft);color:var(--ochre-deep)">Mastery</span></td><td>How you meet the work</td></tr>
+    <tr class="rec"><td>Frontier</td><td><span class="pill" style="background:var(--teal-soft);color:var(--teal-deep)">Aliveness</span></td><td>How you meet what is new</td></tr>
+  </table>
+  <p class="p" style="margin-top:10px">Display names only; internal IDs and colours stay the same. The content freeze and the product guide still say Inward / Together / Craft / Frontier and will need updating when this moves into the app.</p>
+
+  <h2 class="h">Later: when Mastery holds 15</h2>
+  <p class="p">V1 shows only two Mastery paths (Agency, Shipping), so no change is needed now. When the full catalogue opens, the Mastery area page can split into three short groups instead of one long list:</p>
+  <div class="cols" style="grid-template-columns:repeat(3,1fr)">
+    <div class="col"><h3>Doing the work</h3><p class="q">Craftsmanship · Follow-through · Shipping ★ · Physical discipline · Fast learning · Rare skill</p></div>
+    <div class="col"><h3>Deciding well</h3><p class="q">Agency ★ · Deciding under uncertainty · Calculated risk · Saying no · Long-view</p></div>
+    <div class="col"><h3>Building what lasts</h3><p class="q">Leverage · Systems thinking · Stewardship · Resourcefulness</p></div>
+  </div>
+</div>
+
+<script>
+  const areas = [
+    ['Self-awareness', 'Inward', 'violet', 'How you meet yourself', [
+      ['Stillness', 'Peace · Presence', 1], ['Self-possession', 'Self-respect · Honesty', 1], ['Non-attachment', 'Freedom · Acceptance', 1], ['Resilience', 'Steadiness · Courage', 1],
+      ['Presence', 'Presence · Connection'], ['Solitude', 'Independence · Peace'], ['Embodied awareness', 'Health · Awareness'], ['Gratitude', 'Presence · Contentment'], ['Acceptance', 'Peace · Clarity']]],
+    ['Connection', 'Together', 'rose', 'How you meet other people', [
+      ['Reciprocity', 'Self-respect · Connection', 1], ['Quiet authority', 'Self-respect · Composure', 1], ['Warmth', 'Kindness · Connection', 1], ['Seeing people', 'Attention · Respect', 1], ['Grace', 'Respect · Generosity', 1],
+      ['Repair', 'Integrity · Connection'], ['Sharing the light', 'Generosity · Leadership'], ['Tenderness', 'Tenderness · Aliveness'], ['Ease', 'Authenticity · Calm'], ['Humour', 'Lightness · Kindness'], ['Boundaries', 'Self-respect · Honesty']]],
+    ['Mastery', 'Craft', 'ochre', 'How you meet the work', [
+      ['Agency', 'Freedom · Courage', 1], ['Shipping', 'Courage · Momentum', 1],
+      ['Craftsmanship', 'Excellence · Discipline'], ['Follow-through', 'Integrity · Discipline'], ['Long-view', 'Freedom · Patience'], ['Stewardship', 'Freedom · Clarity'], ['Physical discipline', 'Vitality · Discipline'], ['Leverage', 'Freedom · Ownership'], ['Saying no', 'Focus · Self-respect'], ['Resourcefulness', 'Agency · Ingenuity'], ['Deciding under uncertainty', 'Clarity · Courage'], ['Calculated risk', 'Courage · Prudence'], ['Systems thinking', 'Clarity · Ownership'], ['Rare skill', 'Mastery · Freedom'], ['Fast learning', 'Curiosity · Agency']]],
+    ['Aliveness', 'Frontier', 'teal', 'How you meet what is new', [
+      ['Emotional courage', 'Honesty · Courage', 1], ['Curiosity', 'Curiosity · Adventure', 1], ['Play', 'Joy · Aliveness', 1],
+      ['Creative expression', 'Creativity · Expression'], ['Beauty', 'Beauty · Presence'], ['Reinvention', 'Freedom · Becoming']]],
+  ];
+  document.getElementById('cols').innerHTML = areas.map(([name, gives, hue, q, paths]) => `
+    <div class="col">
+      <h3><span class="tile" style="background:var(--${hue});width:22px;height:22px;border-radius:6px"></span>${name}</h3>
+      <p class="q">${q}</p>
+      <div class="n" style="color:var(--${hue}-deep)">${paths.length} paths · ${paths.filter((p) => p[2]).length} in V1 · was “${gives}”</div>
+      <div class="sub-h">Featured</div>
+      ${paths.filter((p) => p[2]).map(([n, v]) => `<div class="p-row f"><span class="name">${n}</span><span class="v">${v}</span></div>`).join('')}
+      <div class="sub-h">Later</div>
+      ${paths.filter((p) => !p[2]).map(([n, v]) => `<div class="p-row"><span class="name">${n}</span><span class="v">${v}</span></div>`).join('')}
+    </div>`).join('');
+</script>
+</body>
+</html>

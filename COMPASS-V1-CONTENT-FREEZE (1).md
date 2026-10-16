@@ -25,7 +25,8 @@ The most important mental model is:
 > **Foundations teach me how to function.**  
 > **Habits make the daily floor automatic.**  
 > **Growth Paths shape the qualities I deliberately practise.**  
-> **Plan builds the actual life.**  
+> **Trello holds practical tasks that build the actual life.**
+>
 > **Today shows only the small useful intersection of those systems.**
 
 Compass must not become:
@@ -112,7 +113,7 @@ then it is **not a Habit**.
 It belongs to:
 - a Path practice
 - a Foundation practice
-- Plan
+- a practical task in Trello
 - a training schedule
 - or an optional reminder outside the Habits engine
 
@@ -147,9 +148,9 @@ Never require the same Path every day.
 
 ---
 
-## 2.4 Plan
+## 2.4 Practical tasks in Trello
 
-Plan contains:
+Trello contains:
 - actual tasks
 - things being built
 - practical actions
@@ -457,7 +458,7 @@ Examples:
 - send required document
 - organise budget
 
-These often belong in Plan rather than Habits.
+These often belong in Trello rather than Habits.
 
 No daily Habit required.
 
@@ -764,7 +765,7 @@ No.
 No.
 
 Important:
-"Choose today's priority" belongs to Today / Plan, not as a duplicated Agency Habit.
+"Choose today's priority" belongs to Today / Trello, not as a duplicated Agency Habit.
 
 ---
 
@@ -1297,7 +1298,7 @@ A reasonable Today may show:
    - chosen from active Foundations / Growth Paths
 2. **Daily state / sleep**
 3. **Daily Habits**
-4. **1–3 Plan items**
+4. **Up to three Trello cards from the connected Today list**
 5. optional bounded AI insight
 
 Do not show all active Paths and all Foundations as simultaneous homework.
@@ -1549,7 +1550,7 @@ KEY RULE
 Habits = daily floor
 Paths = spaced / situational qualities
 Foundations = basic capabilities
-Plan = real-world construction
+Trello tasks = real-world construction
 ```
 
 ---

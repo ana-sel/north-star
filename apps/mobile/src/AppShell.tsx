@@ -1,5 +1,5 @@
 /**
- * AppShell (v1) — four bottom tabs, sub-nav where needed, a settings modal,
+ * AppShell (v1) — three bottom tabs, sub-nav where needed, a settings modal,
  * and a full-screen Path detail modal that can be opened from Today or Paths.
  * Uses shared UI primitives so the shell owns no local visual literals.
  */
@@ -13,28 +13,25 @@ import type { TabItem } from '@ui';
 import { TodayScreen } from '@features/today/TodayScreen';
 import { TodayScreen as LogSleepScreen } from '@features/sleep';
 import { HabitsScreen } from '@features/habits/HabitsScreen';
-import { PlanFlowScreen } from '@features/plan/PlanFlowScreen';
 import { ProgressScreen } from '@features/progress/ProgressScreen';
 import { PathsListScreen } from '@features/paths/PathsListScreen';
 import { PathDetailScreen } from '@features/paths/PathDetailScreen';
 import { FoundationDetailScreen } from '@features/foundations/FoundationDetailScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 
-type TabKey = 'today' | 'log' | 'plan' | 'you';
+type TabKey = 'today' | 'log' | 'you';
 type LogSub = 'sleep' | 'habits';
 type YouSub = 'progress' | 'paths';
 
 const TABS: TabItem[] = [
   { key: 'today', label: 'Today', icon: 'sun' },
   { key: 'log',   label: 'Log',   icon: 'activity' },
-  { key: 'plan',  label: 'Plan',  icon: 'target' },
   { key: 'you',   label: 'You',   icon: 'user' },
 ];
 
 const TITLES: Record<TabKey, string> = {
   today: 'Today',
   log: 'Log',
-  plan: 'Plan',
   you: 'You',
 };
 
@@ -80,12 +77,10 @@ export function AppShell() {
             onOpenFoundationDetail={setOpenFoundationId}
             onOpenSleep={() => { setTab('log'); setLogSub('sleep'); }}
             onOpenHabits={() => { setTab('log'); setLogSub('habits'); }}
-            onOpenPlan={() => setTab('plan')}
           />
         )}
         {tab === 'log' && logSub === 'sleep'        && <LogSleepScreen />}
         {tab === 'log' && logSub === 'habits'       && <HabitsScreen />}
-        {tab === 'plan' && <PlanFlowScreen />}
         {tab === 'you' && youSub === 'progress' && <ProgressScreen />}
         {tab === 'you' && youSub === 'paths'    && <PathsListScreen onOpenPathDetail={openPathDetail} onOpenFoundationDetail={setOpenFoundationId} />}
       </View>

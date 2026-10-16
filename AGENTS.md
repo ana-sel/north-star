@@ -1,6 +1,6 @@
 # Compass — Agent Instructions
 
-Compass is a private personal navigation app: a compass, not a map. It helps users orient their life gently through sleep, habits, energy, planning, money, identity, and a living world/story system.
+Compass is a private personal navigation app: a compass, not a map. V1 helps users orient through sleep, habits, Paths, Foundations, and Today; practical tasks live in Trello, with no in-app Plan screen.
 
 Keep agent context lean. Do not read long docs unless the task requires them.
 
@@ -13,13 +13,13 @@ the doc to match. Never ship a confusing screen because a spec said so.
 ## Read deeper docs only when needed
 
 - For emotional UX, identity, habits, paths, qualities, AI guidance, or gamification:
-  read `docs/product/principles.md`, then the relevant product document in `docs/product/`
+  read the relevant section of `docs/product/product-guide.md`
 - For retention, habit loops, story, camps, streaks, rewards:
-  read `docs/product/engagement-model.md`
+  read `docs/product/product-guide.md` under Engagement Model
 - For infrastructure, privacy, auth, database, or AI functions:
   read `ARCHITECTURE.md`
 - For colours, spacing, typography, components, navigation:
-  read `docs/design/design-system.md`
+  read `docs/product/product-guide.md` under Design System
 
 ## Context discipline
 

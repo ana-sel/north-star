@@ -83,7 +83,8 @@ User-facing copy must never say Compass “cures” or “treats” limerence.
 | Cloud DB role | Small metadata/auth/quota/backup index only; do **not** mirror every historical event into D1 |
 | Long-term history | Local SQLite + compressed R2 backup/history |
 | Auth | Use a proven auth library/service layer on Cloudflare; **do not hand-roll password/session crypto**. Preferred: Better Auth + D1. Local features must remain usable before sign-in. |
-| Navigation | **Today · Log · Plan · You** |
+| Navigation | **Today · Log · You**; no Plan tab or local task editor |
+| Tasks | Managed in Trello; Today shows all cards in the `Today — max 3` list on the `2 · Execution — Today & Next up` board, with card details, checklist ticks, and move-to-Done/return-to-Today actions |
 | Log sub-tabs | **Sleep · Habits only** |
 | You sub-tabs | **Progress · Paths only**; Foundations opens from Paths |
 | Discover | OUT |
@@ -108,7 +109,7 @@ User-facing copy must never say Compass “cures” or “treats” limerence.
 ## Bottom navigation
 
 ```text
-Today      Log      Plan      You
+Today      Log      You
 
 Log:       Sleep | Habits
 You:       Progress | Paths
@@ -143,7 +144,7 @@ Open Today
 → see how you are arriving
 → see one Path/Foundation practice
 → see a small ritual preview
-→ see 1–3 real tasks
+→ see Trello Today cards when connected
 → optionally receive one useful Compass AI note
 → live the day
 → return and mark what actually happened
@@ -186,9 +187,13 @@ Keep the visual richness of the HTML target; do not reproduce the current mostly
    - compact preview, not full habit management
    - tap opens `Log · Habits`
 
-5. **From the Plan**
-   - maximum 1–3 current tasks visible
-   - tap opens Plan
+5. **From the plan (Trello)**
+  - keep the compact Today task-card rows from the Today design; only the source and actions change
+  - show all cards in the connected Today list, in Trello order; three is guidance, not a hard limit
+  - show card details and checklist items; tick/untick items in Trello
+  - completing a card moves it to Trello Done; undoing completion returns it to Today, even if more than three cards are there
+  - when Today has more than three cards, show a gentle workload message without blocking actions or hiding cards
+  - an absent connection or network must not block the rest of Today
 
 6. **Compass AI note**
    - short, specific, evidence-based from the user's own logged data
@@ -321,41 +326,7 @@ Do not auto-award `Steady`.
 
 # 8. Growth Paths — locked V1 library
 
-The full project currently contains 41 Path definitions. **Do not delete the full catalog content.** For V1, expose only the following 15 in Browse using a `V1_PATH_IDS` allow-list. The remaining Path content stays dormant for later releases.
-
-This is a deliberate product cut, not an engineering limitation.
-
-## V1 Growth Paths (15)
-
-### A. Inner anchor / anti-limerence priority
-
-| ID | Quality | Why it stays |
-|---|---|---|
-| `stillness` | **Stillness** | Canonical first Path; teaches pause/return and the Path model |
-| `presence` | **Presence** | Return to the room/life in front of you instead of living in mental loops |
-| `selfpossession` | **Self-possession** | Stay yourself around approval, attraction and comparison |
-| `nonattachment` | **Non-attachment** | Want without requiring; central to stepping out of grasping/idealisation |
-| `resilience` | **Resilience** | Come back to life while something still stings |
-| `boundaries` | **Boundaries** | Keep self-respect and limits when attachment makes that difficult |
-| `reciprocity` | **Reciprocity** | Notice whether care/effort actually flows both ways |
-
-### B. Soft strength / relating
-
-| ID | Quality | Why it stays |
-|---|---|---|
-| `authority` | **Quiet authority** | Say it once; adult, calm self-respect without aggression |
-| `warmth` | **Warmth** | Let care be visible without performance |
-| `tenderness` | **Tenderness** | Practise softness toward what is fragile rather than armoring automatically |
-| `courage` | **Emotional courage** | Say/show what is true even when being seen feels exposing |
-
-### C. Build your own life
-
-| ID | Quality | Why it stays |
-|---|---|---|
-| `agency` | **Agency** | Find the move you can make; antidote to waiting for life to happen |
-| `followthrough` | **Follow-through** | Continue after novelty/excitement disappears |
-| `curiosity` | **Curiosity** | Explore, learn, and build a life larger than the current mental loop |
-| `play` | **Play** | A life cannot become only healing + optimisation; aliveness matters |
+The full catalog has 41 Path definitions. Preserve it, but expose only the 14 featured V1 Paths in Browse. Their exact IDs, content and ownership rules are frozen in `COMPASS-V1-CONTENT-FREEZE (1).md`; do not substitute an older allow-list.
 
 ## Public-default behavior
 
@@ -431,24 +402,9 @@ Habits are the **daily automatic engine**. Paths/Foundations are deliberate prac
 - cadence-aware progress; never assume every habit is daily
 - no strikethrough on completion in production UI
 
-## V1 starter template library (12)
+## V1 starter template library (9)
 
-These are the only curated starter templates needed for V1. Custom habits may still be added.
-
-| ID | Habit | Ritual | Starting dose | Default cadence | Pace | Main role |
-|---|---|---|---:|---|---|---|
-| `water_waking` | **Drink water on waking** | Morning | 1 glass / ~2 min | Daily | Rest | tiny first anchor |
-| `morning_light` | **Morning light** | Morning | 5 min → 10 min | Daily | Lighter | sleep/wake rhythm + outside world |
-| `grounding_breaths` | **Three grounding breaths** | Morning | 30 sec | Daily | Rest | pause before reactivity |
-| `morning_walk` | **Morning walk** | Morning | 10 min → 20 min | 3×/wk | Lighter | movement + leave the mental loop |
-| `silent_sit` | **Silent sit** | Morning | 2 min → 5 min | 3×/wk | Full | Stillness / attention return |
-| `phone_free_start` | **First 15 minutes phone-free** | Morning | 15 min → 30 min | Daily | Lighter | attention ownership; less immediate checking |
-| `one_priority` | **Choose one priority for today** | Morning | 1 min | Daily | Full | agency + Plan bridge |
-| `create_build` | **Create or build for 10 minutes before consuming** | Morning | 10 min | 3×/wk | Full | build one's own life; creativity/craft |
-| `real_connection` | **Reach toward one real person you value** | Evening / anytime | one message/call/plan | 2×/wk | Full | real reciprocal life outside fixation |
-| `wind_down` | **Dim lights · begin wind-down** | Evening | 10 min | Daily | Lighter | consistent evening cue |
-| `screen_free_bed` | **Screen-free before bed** | Evening | 15 → 30 → 45 → 60 min | 5×/wk | Lighter | protect wind-down time |
-| `journal_one_line` | **Journal · one true line** | Evening | 2 min | 3×/wk | Full | name what mattered; self-reflection |
+Use exactly the nine built-in daily Habit templates frozen in `COMPASS-V1-CONTENT-FREEZE (1).md`. Custom habits may still be added. Do not restore older template lists or turn Path practices into Habits.
 
 ### Important content note
 
@@ -477,7 +433,7 @@ V1 deterministic default:
 
 > **Drink water on waking**
 
-The user may skip it. Do not seed all 12 habits into a new account.
+The user may skip it. Do not seed all nine habits into a new account.
 
 ## V1 habit-management UI
 
@@ -506,31 +462,17 @@ Defer:
 
 ---
 
-# 10. Plan — V1 contract
+# 10. Trello tasks — V1 contract
 
-Plan must remain intentionally small.
+Trello owns task creation, ordering, completion and history. Compass has no Plan page or local task records; its card and checklist actions write directly to Trello.
 
-Do **not** build the old Flow + Goals + Map system in V1.
+Today keeps compact "From the plan" rows for every card in the `Today — max 3` list on the `2 · Execution — Today & Next up` board (`ULAuklhQ`), in Trello order. The list name is guidance, not a cap. Show card details and checklist items; allow checklist ticks and unticks. Complete a card by moving it to Trello Done; undo by moving it back to Today even when Today already has three cards. Keep Done cards accessible for that undo action. When Today has more than three cards, use a gentle workload message, never a penalty or hidden item. Editing card text can follow later; it is not required for these actions.
 
-Single Plan screen with segments:
+**Connection work before claiming this feature complete:** provide user-authorized Trello read/write access without embedding personal credentials in the APK. Review the Cloudflare-mediated authorization and secure storage design before implementation; restrict writes to intended cards, lists and checklist items. Refresh when Today is opened and cache the last successful card data for clearly labelled offline viewing; disable writes while offline. Handle disconnected, empty, failed, and expired-authorization states without blocking local Today features. Do not send Trello card content to AI or treat cached content as a completion signal. Verify list ordering, card details, checklist changes, Done/Today moves, more-than-three behavior, reconnection and offline behavior on Android.
 
-```text
-Today | Later | Done
-```
+Until the connection exists, Today must show a truthful disconnected state with a link to Trello, not fabricated cards or local SQLite tasks labelled as Trello data. Do not add production dependencies or implement credential exchange before reviewing and approving the auth design.
 
-Required actions:
-
-- add task
-- edit task
-- move Today ↔ Later
-- mark done / undo
-- delete
-- optional date
-- optional `done_when`
-
-Today surfaces only 1–3 tasks.
-
-Keep `goal_id`/future planning concepts out of the UI. A future schema field may remain reserved, but no Goals screen.
+There are no deployed local task records to migrate. The fresh V1 schema does not create a local tasks table.
 
 ---
 
@@ -543,10 +485,9 @@ Visual target: `docs/design/wireframes/screens/you-progress.html`, simplified to
 - Sleep: 7-day and 30-day average/trend
 - Habits: cadence-correct rhythm + total reps
 - Practices: returns by active Path/Foundation
-- Plan: tasks completed
+- Task history stays in Trello; do not calculate task progress from stale local records
 - Week / Month selector
 - small charts/tiles using the existing accent system
-- optional **weekly Compass AI reflection**
 
 ## Never show
 
@@ -590,10 +531,6 @@ Example input shape:
     recentReturns,
     activeJourneyIds
   },
-  plan: {
-    todayCount,
-    completed7d
-  },
   pace: 'full' | 'lighter' | 'rest',
   optionalUserNote?: string
 }
@@ -601,14 +538,7 @@ Example input shape:
 
 Do **not** upload the entire SQLite DB.
 
-### B. Progress · weekly reflection
-
-- one short summary of notable changes
-- observation, not diagnosis
-- state uncertainty honestly
-- user can disagree/dismiss it
-
-### C. Local fallback
+### B. Local fallback
 
 If AI is unavailable, show deterministic local observations. The app must never become unusable because the model/API is down.
 
@@ -620,7 +550,6 @@ Default V1 policy:
 
 - do not call on every app open
 - Today insight: maximum **1 newly generated result per user/day**
-- Weekly reflection: maximum **1/week**
 - cache generated response locally
 - reuse cache until meaningful input changed
 - user may explicitly refresh if server quota allows
@@ -771,20 +700,19 @@ The current schema contains useful work but also dormant V2 concepts and split s
 
 ## V1 tables
 
-Keep/migrate toward:
+The fresh V1 schema contains:
 
 1. `schema_meta`
 2. `user_prefs`
 3. `sleep_entries`
 4. `habits`
 5. `habit_completions`
-6. `tasks`
-7. `journey_progress`
-8. `journey_returns`
-9. `ai_insights`
-10. `sync_outbox` (optional but recommended for future sync readiness)
+6. `journey_progress`
+7. `journey_returns`
 
-## Journey schema migration
+`ai_insights` and `sync_outbox` are future additions requiring explicit schema migrations once user data exists. Trello owns tasks; there is no local `tasks` table.
+
+## Journey schema
 
 Replace Growth-Path-specific persistence with generic journey persistence so Foundations and Growth Paths share one engine.
 
@@ -823,7 +751,7 @@ note nullable
 UNIQUE (journey_type, journey_id, local_date)
 ```
 
-Migrate existing `path_progress` and `path_returns` rows to `journey_type='path'` before dropping old tables.
+This is the fresh V1 baseline. Future schema changes must migrate existing user data without dropping it.
 
 ## Fix current split-brain storage
 
@@ -988,14 +916,13 @@ Do not block the first personal APK on billing work.
 
 ### Free
 
-- local Today/Sleep/Habits/Plan/Paths/Foundations/Progress
+- local Today/Sleep/Habits/Paths/Foundations/Progress; Trello cards require a connection
 - limited AI trial/allowance (server-configurable)
 
 ### Compass Plus — £1.99/month
 
 - frequent AI Compass notes (within sensible quota)
-- weekly AI reflection
-- cloud backup/restore
+- cloud backup/restore, with a usable recovery route that does not depend on subscription status
 
 No annual plan, family plan or complex tiers in V1.
 
@@ -1057,7 +984,7 @@ This section is implementation bookkeeping. Do not skip it.
 - `mobile/src/data/foundations.ts`
 - `mobile/src/data/ai.ts` or a clear AI repository/service module
 - `mobile/src/data/backup.ts`
-- SQLite migration(s) for `journey_*`, `ai_insights`, and storage fixes
+- fresh `journey_*` schema; explicit migrations for later persisted-shape changes
 
 ### Backend
 
@@ -1086,11 +1013,10 @@ Exact internal naming may vary, but responsibilities may not.
 ### Product/design docs
 
 - `docs/product/v1 plan.md` → replace with a short pointer to root `PLAN.md` or delete after all references are changed
-- `docs/product/engagement-model.md` → add frozen camp targets and V1 scope
+- `docs/product/product-guide.md` (Engagement Model) → add frozen camp targets and V1 scope
 - `docs/design/spec-practice-model.md` → active cap = 3 across Foundations + Growth Paths; one daily theme; V1 camp targets
-- `docs/design/spec-habits.md` → freeze the 12 V1 templates; defer Lottie/story/video from V1
-- `docs/design/spec-you.md` → mark Discover/Self deferred; freeze V1 15-Path allow-list; keep full catalog as future content
-- `docs/design/design-system.md` → add four Path-domain colors if missing
+- `docs/product/product-guide.md` → keep frozen 9 Habit templates and 14 featured Paths; defer Lottie/story/video from V1
+- `docs/product/product-guide.md` (Design System) → add four Path-domain colors if missing
 - `docs/architecture/infrastructure.md` → rewrite Supabase architecture to Cloudflare/SQLite/D1/R2/Workers AI
 - `docs/architecture/infrastructure.html` → update or clearly mark as outdated until regenerated
 
@@ -1113,12 +1039,12 @@ Exact internal naming may vary, but responsibilities may not.
 - `features/paths/PathsListScreen.tsx` → V1 allow-list, live camp data, Foundations card, cap enforcement
 - `features/paths/PathDetailScreen.tsx` → real live camp state, pause/resume, self-claim only after camp 3
 - `features/paths/pathsContent.ts` → preserve full 41 but export/use `V1_PATH_IDS`; fix ghost integrated IDs
-- `features/plan/PlanFlowScreen.tsx` → Today/Later/Done only
-- `features/progress/ProgressScreen.tsx` → cadence-correct metrics + real chart data + weekly AI reflection
+- remove the former task screen and tab; use Trello for cards and checklist changes
+- `features/progress/ProgressScreen.tsx` → cadence-correct metrics + real chart data
 - `features/settings/SettingsScreen.tsx` → sleep target, AI/privacy, export/backup/account, wipe data
 - `src/lib/time.ts` → only path for local-date/timezone logic
 - `src/lib/ai.ts` → replace “local-only forever” implementation with local fallback + Worker client separation
-- `src/lib/db/schema.sql` / migrations → target schema in §14
+- `src/lib/db/schema.sql` → fresh V1 schema in §14; migrate any later persisted-shape changes
 - `src/styles/theme.ts` → match canonical tokens/domain colors; reduce current radius inflation where HTML target is tighter
 
 ## DELETE after references are removed
@@ -1202,14 +1128,14 @@ Sequence:
 
 - one timezone/local-date implementation
 - sleep target → SQLite prefs
-- journey schema + migration
+- fresh generic journey schema
 - live camp rules
 - cap enforcement
 - habit cadence-correct calculations
-- fix Plan SQLite query issues
+- remove the Plan UI and unused local task table (no deployed data exists)
 - fix Today refresh after changing Paths
 
-**Gate:** existing data survives migration; unit tests cover dates/camp thresholds/cadence.
+**Gate:** fresh install initializes SQLite, app restart preserves newly logged records, and unit tests cover dates/camp thresholds/cadence. Later schema changes require migration and existing-data proof.
 
 ---
 
@@ -1240,7 +1166,7 @@ Build shared components + token mapping before rewriting screens.
 
 ## Phase 4 — Habits
 
-- curated 12-template content
+- curated 9-template content
 - Morning/Evening ritual UI
 - Manage sheet
 - add/edit/reorder/archive
@@ -1255,7 +1181,7 @@ Build shared components + token mapping before rewriting screens.
 
 ## Phase 5 — Paths + Foundations
 
-- V1 15-path allow-list
+- V1 14-path allow-list
 - all 13 Foundations
 - generic journey persistence
 - 3 active total cap
@@ -1269,13 +1195,12 @@ Build shared components + token mapping before rewriting screens.
 
 ---
 
-## Phase 6 — Today + Plan + Progress
+## Phase 6 — Today + Trello + Progress
 
 - full Today composition
 - pace
 - ritual preview
-- 1–3 Plan tasks
-- simplified Plan
+- connect Trello with user-authorized read/write access; show all ordered Today cards, card details and checklist ticks, with Done/Today moves and a gentle message above three
 - cadence-correct Progress
 
 **Gate:** user can live one complete day without needing any deferred screen.
@@ -1292,7 +1217,6 @@ Build shared components + token mapping before rewriting screens.
 - local structured context builder
 - local fallback/caching
 - Today AI note
-- weekly Progress reflection
 
 **Gate:** AI secret never exists in APK; airplane/offline mode still works.
 
@@ -1338,6 +1262,23 @@ Build shared components + token mapping before rewriting screens.
 
 ---
 
+# 21a. Open V1 tickets
+
+These are local planning IDs, not tickets created in an external issue tracker. Every item is **To do** until its phase gate is verified; existing implementation and passing unit tests do not by themselves close a ticket.
+
+- [ ] **V1-01 — Verify earlier phase gates (To do).** Confirm clean `npm ci`, fresh-install/restart data preservation, shared component visual review, cadence and archive/restore behavior, and a real Stillness + Foundation journey (Phases 0–2, 4–5). Repair only failures found.
+- [ ] **V1-02 — Finish Sleep runtime gate (To do).** Check dial gestures on Android, overnight and same-day times, 10-minute snapping, travel/timezone edits, screen reader use, native picker fallback, and integrated history (Phase 3).
+- [ ] **V1-03 — Prove recoverable email authentication (To do).** Time-box a maintained Worker/D1 auth compatibility spike; establish an email sign-in and lost-device account recovery path before depending on identity for backups. Keep local features available without sign-in (Phases 7–8).
+- [ ] **V1-04 — Connect Trello Today (To do).** Review and approve the Cloudflare-mediated OAuth/secure-storage design, then provide user-authorized read/write access, ordered Today and Done cards, details, checklist ticks, Done/Today moves, gentle guidance above three, labelled offline cache, reconnection, and disabled offline writes. Verify against a real authorized board on Android (Phase 6).
+- [ ] **V1-05 — Deliver production Today AI (To do).** Add the Worker/D1 quota route and production mobile provider using only structured Today context; keep the deterministic offline fallback and verify no AI secret is in the APK (Phase 7).
+- [ ] **V1-06 — Deliver cloud backup (To do).** Compress versioned SQLite exports, upload authenticated R2 objects and manifests with bounded retention/frequency, and provide a manual backup control. Cloud outages must not interrupt local use (Phase 8).
+- [ ] **V1-07 — Prove fresh-install restore (To do).** Offer email sign-in and restore before onboarding creates records; reject corrupt/incompatible backups and refuse to overwrite a populated database. Restore on a fresh device/emulator and compare counts and recent records (Phase 8).
+- [ ] **V1-08 — Verify the complete-day experience (To do).** Exercise Today, Sleep, Habits, Paths, Foundations, Progress, connected/disconnected Trello, airplane mode, and the Phase 6 gate without a deferred screen; cover the applicable integration and manual Android matrix in section 22.
+- [ ] **V1-09 — Upgrade Android and run private beta (To do).** Isolate the Expo/API upgrade, align dependencies, rebuild and regression-test SQLite, gestures, auth, SecureStore, and Worker calls; build a clean APK, use it for at least 7–14 days, and verify the Phase 9 gate.
+- [ ] **V1-10 — Prepare public release (To do, after private beta).** Add the Phase 10 policy, account deletion/export, billing and receipt verification, server-configurable quotas, store material, and privacy-safe monitoring; sign off the release and claims gates.
+
+---
+
 # 22. Minimum test matrix
 
 ## Unit tests
@@ -1362,7 +1303,7 @@ Build shared components + token mapping before rewriting screens.
 - start Path → Today practice appears without remount bug
 - complete journey returns → camps advance
 - pause/resume journey
-- Plan Today task → Today card → complete → Progress
+- connected Trello Today list → all cards on Today → card details, checklist ticks and Done/Today moves; offline and disconnected states keep Today usable
 - Worker down → local fallback
 - backup → wipe/install → restore
 
@@ -1385,7 +1326,7 @@ Build shared components + token mapping before rewriting screens.
 
 - no large meaningless empty beige area
 - one clear primary practice
-- real data from Sleep/Habits/Plan/Paths
+- real data from Sleep/Habits/Paths; connected Trello cards remain optional when offline
 - AI note cached and bounded
 - visual hierarchy matches HTML spirit
 
@@ -1403,13 +1344,15 @@ Build shared components + token mapping before rewriting screens.
 - no strikethrough-shame completion treatment
 - reps + cadence-correct rhythm
 
-## Plan
+## Trello cards
 
-- user can manage Today/Later/Done without Goals/Map
+- Today shows all ordered cards from the user-authorized `Today — max 3` Trello list, with a gentle workload message above three
+- card details and checklist ticks work in Compass; completion moves a card to Trello Done and unticking returns it to Today
+- no Plan tab or local task records
 
 ## Paths
 
-- only locked 15 Growth Paths exposed in V1 Browse
+- only locked 14 Growth Paths exposed in V1 Browse
 - all 13 Foundations available through Foundations
 - 3 active total cap
 - trails use real returns
@@ -1442,7 +1385,7 @@ Do not implement these until V1 is stable unless this plan is deliberately revis
 - separate Energy page/history
 - Money/FIRE
 - Goals tree
-- Plan Map / complex planning AI
+- in-app task maps or task-planning AI
 - World visualisation
 - widgets
 - full multi-device live sync
@@ -1469,7 +1412,7 @@ V1 is done when a new Android user can:
 4. log sleep with the circular dial
 5. use morning/evening rituals
 6. see one meaningful daily practice
-7. plan a few real actions
+7. see all Trello Today cards when connected, view details, tick checklist items and move cards to Done or back
 8. see honest progress
 9. receive a useful bounded AI Compass note
 10. back up/restore their Compass
