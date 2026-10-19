@@ -9,6 +9,15 @@ export interface FoundationDefinition {
   habitTemplateIds: string[];
 }
 
+/** Frozen tier names (content freeze §5). */
+export const FOUNDATION_TIER_NAMES: Readonly<Record<FoundationDefinition['tier'], string>> = {
+  1: 'The Ground',
+  2: 'Inner World',
+  3: 'Other People',
+  4: 'Meeting Life',
+  5: 'Meaning',
+};
+
 export const FOUNDATIONS: readonly FoundationDefinition[] = [
   { id: 'body', title: 'Tend the Body', tier: 1, summary: 'Support the physical floor required for everything else.', practice: 'Notice one basic body need being neglected and meet it in the smallest useful way.', countsWhen: 'You meet one basic need in a small useful way.', habitTemplateIds: ['water-on-waking', 'morning-daylight', 'medication-supplements', 'daily-movement', 'morning-spf', 'evening-oral-care', 'wind-down'] },
   { id: 'regulate', title: 'Regulate', tier: 1, summary: 'Notice activation and settle enough to choose the next action.', practice: 'Notice activation. Use one settling tool. Continue when you have enough space to choose.', countsWhen: 'You use one settling tool and choose what comes next.', tools: ['Slow breathing', 'Orienting to surroundings', 'Grounding through senses', 'Longer exhale', 'Dropping shoulders'], habitTemplateIds: ['meditation-settling'] },

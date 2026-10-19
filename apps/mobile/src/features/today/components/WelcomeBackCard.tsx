@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, radii, spacing, typography } from '@styles/theme';
-import { Icon } from '@ui';
+import { colors, palette, radii, spacing } from '@styles/theme';
+import { Button, Icon } from '@ui';
 
 interface WelcomeBackCardProps {
   onDismiss: () => void;
@@ -17,39 +17,25 @@ export function WelcomeBackCard({ onDismiss, onStart }: WelcomeBackCardProps) {
         accessibilityLabel="Dismiss"
         hitSlop={8}
       >
-        <Icon name="x" size={16} color={colors.inkMuted} />
+        <Icon name="x" size={14} color={colors.inkMuted} strokeWidth={2.6} />
       </TouchableOpacity>
-      <Icon name="leaf" size={26} color={colors.olive} />
+      <View style={styles.label}>
+        <Icon name="leaf" size={17} color={palette.habits.deep} />
+        <Text style={[styles.labelText, { color: palette.habits.deep }]}>Welcome back</Text>
+      </View>
       <Text style={styles.greeting}>Welcome back. Nothing's lost.</Text>
       <Text style={styles.sub}>Life happened. Your path is still here, exactly where you left it.</Text>
-      <TouchableOpacity style={styles.action} onPress={onStart} activeOpacity={0.85}>
-        <Text style={styles.actionText}>Just do today's practice</Text>
-      </TouchableOpacity>
+      <Button label="Just do today's practice" onPress={onStart} style={styles.action} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.canvasDark,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.olive,
-    borderRadius: radii.feature,
-    padding: spacing.xl,
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  dismiss: { position: 'absolute', top: spacing.md, right: spacing.md, padding: spacing.xs },
-  greeting: { fontSize: typography.sizes.lg, fontWeight: '800', color: colors.ink, letterSpacing: -0.1 },
-  sub: { fontSize: typography.sizes.sm, color: colors.inkMuted, lineHeight: typography.sizes.sm * 1.55 },
-  action: {
-    marginTop: spacing.sm,
-    backgroundColor: colors.olive,
-    borderRadius: radii.control,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  actionText: { color: colors.onDark, fontSize: typography.sizes.sm, fontWeight: '700' },
+  card: { backgroundColor: colors.surface, borderRadius: radii.card, padding: spacing.lg, paddingTop: 14, marginBottom: spacing.sm },
+  dismiss: { position: 'absolute', top: spacing.md, right: spacing.md, width: 28, height: 28, borderRadius: 14, backgroundColor: colors.canvasDark, alignItems: 'center', justifyContent: 'center' },
+  label: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
+  labelText: { fontSize: 15, fontWeight: '600' },
+  greeting: { fontSize: 19, fontWeight: '700', color: colors.ink, letterSpacing: -0.2 },
+  sub: { fontSize: 15, color: colors.inkMuted, lineHeight: 21, marginTop: 4 },
+  action: { marginTop: spacing.md },
 });

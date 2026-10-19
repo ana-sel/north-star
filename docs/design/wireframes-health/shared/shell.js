@@ -65,19 +65,24 @@
       const reached = n >= t;
       s += `<circle cx="${X(t)}" cy="${y}" r="${nr}" fill="${reached ? c : '#fff'}" stroke="${reached ? '#fff' : faint}" stroke-width="${big ? 2.5 : 1.5}"/>`;
     });
-    s += `<circle cx="${x1}" cy="${y}" r="${big ? 8 : 4}" fill="#fff" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="${big ? '2.5 2.5' : '1.5 1.5'}"/>`;
-    if (big) s += `<circle cx="${wx}" cy="${y}" r="13" fill="var(--${hue}-soft)"/>`;
-    s += `<circle cx="${wx}" cy="${y}" r="${big ? 7 : 5}" fill="${c}" stroke="#fff" stroke-width="${big ? 3 : 2}"/>`;
+    const steady = el.dataset.steady === '1';
+    s += steady
+      ? `<circle cx="${x1}" cy="${y}" r="${big ? 9 : 4.5}" fill="${c}" stroke="#fff" stroke-width="2"/>`
+      : `<circle cx="${x1}" cy="${y}" r="${big ? 8 : 4}" fill="#fff" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="${big ? '2.5 2.5' : '1.5 1.5'}"/>`;
+    if (big && !steady) s += `<circle cx="${wx}" cy="${y}" r="13" fill="var(--${hue}-soft)"/>`;
+    if (!steady) s += `<circle cx="${wx}" cy="${y}" r="${big ? 7 : 5}" fill="${c}" stroke="#fff" stroke-width="${big ? 3 : 2}"/>`;
     if (big) {
       const stage = n >= 9 ? 2 : n >= 3 ? 1 : 0;
-      s += `<text x="${wx}" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="var(--${hue}-deep)">You · ${n}</text>`;
+      if (!steady) s += `<text x="${wx}" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="var(--${hue}-deep)">You · ${n}</text>`;
       // Each stage name sits under its own stretch of the route.
       const ends = [0, 3, 9, 15];
       CAMPS.forEach(([, label], i) => {
         const mid = (X(ends[i]) + X(ends[i + 1])) / 2;
-        s += `<text x="${mid}" y="${H - 4}" text-anchor="middle" font-size="11" font-weight="${i === stage ? 700 : 500}" fill="${i === stage ? 'var(--ink)' : 'var(--ink-2)'}">${label}</text>`;
+        const on = !steady && i === stage;
+        s += `<text x="${mid}" y="${H - 4}" text-anchor="middle" font-size="11" font-weight="${on ? 700 : 500}" fill="${on ? 'var(--ink)' : 'var(--ink-2)'}">${label}</text>`;
       });
-      if (n < 13) s += `<text x="${x1}" y="12" text-anchor="end" font-size="11" fill="var(--ink-2)">Steady</text>`;
+      if (steady) s += `<text x="${x1}" y="12" text-anchor="end" font-size="11" font-weight="700" fill="var(--${hue}-deep)">Steady</text>`;
+      else if (n < 13) s += `<text x="${x1}" y="12" text-anchor="end" font-size="11" fill="var(--ink-2)">Steady</text>`;
     }
     el.innerHTML = s + '</svg>';
   });

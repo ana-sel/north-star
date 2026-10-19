@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
-import { colors, radii, shadows, spacing, typography } from '@styles/theme';
+import { colors, radii, spacing } from '@styles/theme';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
 
@@ -65,14 +65,14 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: spacing.xl,
     borderRadius: radii.control,
-    minHeight: 44,
+    minHeight: 48,
   },
   fullWidth: { alignSelf: 'stretch' },
-  primary: { backgroundColor: colors.btn, ...shadows.sm },
-  secondary: { backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.border },
+  primary: { backgroundColor: colors.btn },
+  secondary: { backgroundColor: colors.canvasDark },
   ghost: { backgroundColor: 'transparent' },
-  disabled: { opacity: 0.55 },
-  label: { fontSize: typography.sizes.md, fontWeight: '700', letterSpacing: 0.1 },
+  disabled: { opacity: 0.5 },
+  label: { fontSize: 17, fontWeight: '600' },
   labelOnDark: { color: colors.onDark },
   labelOnLight: { color: colors.ink },
   labelGhost: { color: colors.accent },

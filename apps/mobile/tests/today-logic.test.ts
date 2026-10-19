@@ -1,4 +1,4 @@
-import { buildInsight, isBelowSleepTarget, paceNote, sectionsForPace, shouldWelcomeBack, sleepTargetMinutes } from '../src/features/today/todayLogic';
+import { buildInsight, formatSleepDuration, isBelowSleepTarget, paceNote, sectionsForPace, shouldWelcomeBack, sleepTargetMinutes, sleepVsTarget } from '../src/features/today/todayLogic';
 
 describe('Today pace', () => {
   it('shows the full set on a full day', () => {
@@ -19,9 +19,6 @@ describe('Today pace', () => {
 
 describe('Today coach fallback', () => {
   const base = {
-    hasJourney: true,
-    journeyPractice: 'Pause before you react.',
-    journeyTicked: false,
     morningTotal: 3,
     morningDone: 1,
     sleptBelowTarget: false,
@@ -31,19 +28,13 @@ describe('Today coach fallback', () => {
     expect(buildInsight({ ...base, sleptBelowTarget: true })?.tag).toBe('Gentle note');
   });
 
-  it('reminds of the journey practice when nothing is logged yet', () => {
-    const insight = buildInsight(base);
-    expect(insight?.tag).toBe('Today’s practice');
-    expect(insight?.body).toBe('Pause before you react.');
-  });
-
   it('acknowledges a completed morning ritual', () => {
-    const insight = buildInsight({ ...base, journeyTicked: true, morningDone: 3 });
+    const insight = buildInsight({ ...base, morningDone: 3 });
     expect(insight?.tag).toBe('Nicely done');
   });
 
   it('returns nothing when there is no signal worth surfacing', () => {
-    expect(buildInsight({ ...base, journeyTicked: true, morningDone: 1 })).toBeNull();
+    expect(buildInsight(base)).toBeNull();
   });
 });
 
@@ -74,5 +65,15 @@ describe('Today sleep target', () => {
     expect(isBelowSleepTarget(470, 480)).toBe(false);
     expect(isBelowSleepTarget(300, null)).toBe(false);
     expect(isBelowSleepTarget(null, 480)).toBe(false);
+  });
+
+  it('formats durations and compares them factually with the saved target', () => {
+    expect(formatSleepDuration(470)).toBe('7 hr 50 min');
+    expect(formatSleepDuration(480)).toBe('8 hr');
+    expect(formatSleepDuration(45)).toBe('45 min');
+    expect(sleepVsTarget(470, 480)).toBe('10 min under your 8 hr target');
+    expect(sleepVsTarget(510, 480)).toBe('30 min over your 8 hr target');
+    expect(sleepVsTarget(480, 480)).toBe('Right on your 8 hr target');
+    expect(sleepVsTarget(470, null)).toBeNull();
   });
 });

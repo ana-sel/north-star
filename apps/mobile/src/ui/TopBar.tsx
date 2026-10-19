@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { colors, radii, shadows, spacing, typography } from '@styles/theme';
+import { colors, radii, spacing, typography } from '@styles/theme';
 import { Icon, IconName } from './Icon';
 
 export interface TopBarAction {
@@ -11,12 +11,14 @@ export interface TopBarAction {
 
 interface TopBarProps {
   title: string;
+  /** Small line above the large title (Today shows the date). */
+  eyebrow?: string;
   actions?: TopBarAction[];
   leading?: TopBarAction;
   style?: ViewStyle;
 }
 
-export function TopBar({ title, actions = [], leading, style }: TopBarProps) {
+export function TopBar({ title, eyebrow, actions = [], leading, style }: TopBarProps) {
   return (
     <View style={[styles.bar, style]}>
       {leading ? (
@@ -31,9 +33,12 @@ export function TopBar({ title, actions = [], leading, style }: TopBarProps) {
       ) : (
         <View style={styles.leadingSpacer} />
       )}
-      <Text style={styles.title} numberOfLines={1}>
-        {title}
-      </Text>
+      <View style={styles.titleWrap}>
+        {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
+        <Text style={styles.title} numberOfLines={1} accessibilityRole="header">
+          {title}
+        </Text>
+      </View>
       <View style={styles.actions}>
         {actions.map((action) => (
           <TouchableOpacity
@@ -56,33 +61,29 @@ const ACTION_SIZE = 36;
 const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingBottom: spacing.md,
     backgroundColor: colors.canvas,
   },
+  titleWrap: { flex: 1 },
+  eyebrow: { fontSize: 13, fontWeight: '600', color: colors.inkMuted, textTransform: 'uppercase', letterSpacing: 0.4 },
   title: {
-    flex: 1,
-    fontSize: typography.sizes.xl,
+    fontSize: typography.sizes.hero,
     fontWeight: '800',
     color: colors.ink,
-    letterSpacing: -0.5,
+    letterSpacing: -0.7,
   },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: 2 },
   action: {
     width: ACTION_SIZE,
     height: ACTION_SIZE,
-    borderRadius: radii.control,
+    borderRadius: radii.pill,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.sm,
   },
-  leadingSpacer: { width: ACTION_SIZE, height: ACTION_SIZE, marginRight: spacing.sm },
+  leadingSpacer: { width: 0, height: ACTION_SIZE },
 });

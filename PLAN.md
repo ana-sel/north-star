@@ -18,7 +18,7 @@ This plan is intentionally explicit so a less-capable coding AI can implement it
 If two files disagree, use this order:
 
 1. **`PLAN.md` / this document** — V1 scope, behavior, architecture, keep/cut decisions.
-2. **HTML wireframes** — visual contract for screens that are included in V1.
+2. **HTML wireframes** — visual contract for screens that are included in V1. `docs/design/wireframes-health/` (Apple Health–style redesign, approved 16 Oct 2026) supersedes `docs/design/wireframes/` for every screen it covers; its `interactions.html` and `journey-anatomy.html` define how screens open and how the journey page is built.
 3. **Design tokens / shared CSS** — colors, spacing, visual language.
 4. **Product specs** — supporting behavior/content when they do not conflict with this plan.
 5. **Current React Native implementation** — useful code, but not a product/design source of truth.
@@ -113,11 +113,12 @@ Today      Log      You
 
 Log:       Sleep | Habits
 You:       Progress | Paths
-Paths:     Walking now | Browse
-           └── Foundations (sub-screen)
+Paths:     one scroll — Walking now · What’s next? (only while a slot is open) · Browse
+           Browse → Growth paths → area → path
+           Browse → Foundations (house of five tiers)
 ```
 
-No additional bottom tab or top-level lens in V1.
+No additional bottom tab or top-level lens in V1. Paths has no third row of tabs: Walking now and Browse share one scroll. A path or foundation the user is not walking opens as a preview sheet first; one being walked opens its journey page directly. Paths and Foundations share one journey page layout (see `docs/design/wireframes-health/journey-anatomy.html`).
 
 ## Explicit removals from current app navigation
 
@@ -157,7 +158,7 @@ A good V1 should already feel complete with no Discover, Self, Body, Energy or M
 
 # 5. Today screen — V1 contract
 
-Visual target: `docs/design/wireframes/screens/today.html`.
+Visual target: `docs/design/wireframes-health/screens/today.html` (first run: `today-first-run.html`).
 
 Keep the visual richness of the HTML target; do not reproduce the current mostly-empty beige screen.
 
@@ -214,7 +215,7 @@ Keep the visual richness of the HTML target; do not reproduce the current mostly
 
 # 6. Sleep — V1 contract
 
-Visual target: `docs/design/wireframes/screens/log-sleep.html`.
+Visual target: `docs/design/wireframes-health/screens/log-sleep.html`.
 
 ## Circular sleep clock is mandatory
 
@@ -273,7 +274,7 @@ Prefer factual comparison with a user's own target:
 
 **Foundations stay in V1.** They are the floor, separate from the curated Growth Path library.
 
-All 13 Foundations remain browseable and startable.
+All 13 Foundations remain browseable and startable. They are shown as a house (visual target `docs/design/wireframes-health/screens/foundations-house.html`): steps = Tier 1, columns = Tier 2, beams = Tier 3, frieze = Tier 4, roof = Tier 5. Each part is one foundation, with a plain list of the selected tier underneath for accessibility.
 
 ## Foundation list
 
@@ -437,7 +438,7 @@ The user may skip it. Do not seed all nine habits into a new account.
 
 ## V1 habit-management UI
 
-Use the HTML `log-habits.html` as the visual target, but cut the expensive media layer.
+Use `docs/design/wireframes-health/screens/log-habits.html` as the visual target. Today's pace is set on Today only; Habits shows it but does not repeat the selector.
 
 Include:
 
@@ -478,7 +479,7 @@ There are no deployed local task records to migrate. The fresh V1 schema does no
 
 # 11. Progress — V1 contract
 
-Visual target: `docs/design/wireframes/screens/you-progress.html`, simplified to V1 data.
+Visual target: `docs/design/wireframes-health/screens/you-progress.html`, simplified to V1 data.
 
 ## Show
 
@@ -780,28 +781,38 @@ Keep the warm-neutral system and restore the missing visual hierarchy/accent den
 
 ## Canonical neutral tokens
 
-```text
-Background  #F6F5F2
-Card        #FFFEFC
-Greige      #F0ECE5
-Line        #E2DFD9
-Muted       #65645F
-Ink         #24231F
-Steel       #7E8E9F
-Olive       #768471
-Button      #3C3A34
-```
-
-## Path domain colors
+Source: `docs/design/wireframes-health/shared/health.css` and `palette.html`.
 
 ```text
-Inward      #9B8FD6
-Together    #CF8F94
-Craft       #D3AA62
-Frontier    #7FA8B8
+Background  #F5F3F0
+Card        #FFFFFF
+Fill        #E9E7E5
+Ink         #1C1C1E
+Ink 2       #6E6E73
+Ink 3       #AEAEB2
+Primary     #2F3F4F   every button, link, selected tab and Trello tick
 ```
 
-## Existing pillar accents
+## Palette (equal OKLCH lightness and chroma; soft / base / deep)
+
+```text
+Sleep       blue    #E5EDFE / #708BC6 / #43598B
+Rituals     sage    #E2F2E4 / #609D6D / #346841
+Foundation  stone   #F2ECE4 / #988979 / #665849
+```
+
+## Path areas (internal domain id → display name, colour)
+
+```text
+Inward    → Self-awareness  violet #EEEAFC / #9080C0 / #5E5085
+Together  → Connection      rose   #FDE6E7 / #BF7479 / #84454B
+Craft     → Mastery         ochre  #F7EBDB / #AE8446 / #76531B
+Frontier  → Aliveness       teal   #DEF1F3 / #5299A1 / #25656C
+```
+
+Base is for bars, tiles and rings; soft for empty tracks and chips; deep for coloured text. Colour never decides which button to press.
+
+## Existing pillar accents (legacy, not used by V1 screens)
 
 ```text
 Health      #77936F

@@ -1,3 +1,5 @@
+import type { IconName } from '@ui';
+
 export interface HabitTemplate {
   id: string;
   name: string;
@@ -17,3 +19,20 @@ export const V1_HABIT_TEMPLATES: readonly HabitTemplate[] = [
   { id: 'evening-oral-care', name: 'Evening oral care', ritual: 'evening', ownerFoundationId: 'body', minimumVersion: 'Complete your chosen evening brushing or interdental routine.' },
   { id: 'wind-down', name: 'Wind-down before sleep', ritual: 'evening', ownerFoundationId: 'body', minimumVersion: 'Begin your chosen wind-down and reduce screen use before bed.' },
 ];
+
+export const TEMPLATE_ICON_BY_ID: Record<string, IconName> = {
+  'water-on-waking': 'drop',
+  'morning-daylight': 'sun',
+  'medication-supplements': 'shield',
+  'daily-movement': 'activity',
+  'meditation-settling': 'brain',
+  'phone-free-first-15': 'moon',
+  'morning-spf': 'sun',
+  'evening-oral-care': 'sparkle',
+  'wind-down': 'wind',
+};
+
+/** Habits keep no template link, so a template counts as added when an active habit has its name. */
+export function normalizeHabitName(name: string): string {
+  return name.trim().toLowerCase();
+}

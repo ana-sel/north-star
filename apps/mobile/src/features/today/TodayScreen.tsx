@@ -1,20 +1,21 @@
 /**
  * TodayScreen (v1) — the orientation screen.
  *
- * Bands mirror the Today wireframe: welcome-back → journey hero → arrival
- * (sleep) → pace → daily rituals → plan items from Trello → signals (coach). Local bands
- * read real local data and adapt around what actually exists.
+ * Layout follows docs/design/wireframes-health/screens/today.html: practice →
+ * Summary (sleep, pace, rituals) → From Trello → Compass note. On first run a
+ * single Getting started list replaces the empty boxes. Local bands read real
+ * local data and adapt around what actually exists.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, spacing, typography } from '@styles/theme';
-import { EmptyState, Icon, InsightCard, LoadingState, RitualCard, SectionHeader } from '@ui';
-import type { RitualItem } from '@ui';
-import { DATA } from '@features/paths/pathsContent';
+import { colors, palette, radii, spacing } from '@styles/theme';
+import { Button, CheckCircle, Icon, ListGroup, ListRow, LoadingState, PracticeCard, Ring, SectionHeader, Sheet, SummaryCard, SummaryValue, Tile } from '@ui';
+import { DATA, STAGES } from '@features/paths/pathsContent';
+import { journeyContent } from '@features/paths/journeyContent';
 import { foundationForJourneyId } from '@features/foundations/foundationsContent';
 import { getPref, setPref } from '@data/prefs';
-import { habitsForDate, tickHabit, untickHabit } from '@data/habits';
+import { habitsForDate } from '@data/habits';
 import type { HabitDayStatus } from '@data/habits';
 import { getTodaySleep } from '@data/sleep';
 import type { TrelloCard, TrelloChecklist } from '@data/trello';
@@ -22,11 +23,9 @@ import { createTrelloClient } from '@data/trello';
 import { listActiveJourneys, logReturn, recentReturns, subscribeToJourneyChanges } from '@data/paths';
 import type { PathProgress } from '@data/paths';
 import { getDeviceTimezone, localDateISO, localDateOffset } from '@lib/time';
-import { JourneyHero } from './components/JourneyHero';
 import { PaceSelector } from './components/PaceSelector';
 import { ArrivalCard } from './components/ArrivalCard';
 import { WelcomeBackCard } from './components/WelcomeBackCard';
-import type { HeroDot } from './components/JourneyHero';
 import { buildInsight, isBelowSleepTarget, paceNote, sectionsForPace, shouldWelcomeBack, sleepTargetMinutes } from './todayLogic';
 import type { PaceMode, SleepTarget } from './todayLogic';
 import {
@@ -68,10 +67,6 @@ function partitionRituals(all: HabitDayStatus[]): RitualGroups {
   };
 }
 
-function ordinalReturns(count: number): string {
-  return `${count} return${count === 1 ? '' : 's'} · 2 weeks`;
-}
-
 function doneCount(items: HabitDayStatus[]): number {
   return items.filter((h) => h.completed).length;
 }
@@ -95,8 +90,9 @@ export function TodayScreen({
   const [active, setActive] = useState<PathProgress[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [yesterdayId, setYesterdayId] = useState<string | null>(null);
-  const [returnDates, setReturnDates] = useState<string[]>([]);
   const [journeyTicked, setJourneyTicked] = useState(false);
+  /** Journeys set aside with "Not today" in this session; nothing is stored. */
+  const [skipped, setSkipped] = useState<string[]>([]);
 
   const [durationMinutes, setDurationMinutes] = useState<number | null>(null);
   const [sleepEnergy, setSleepEnergy] = useState<number | null>(null);
@@ -245,10 +241,9 @@ export function TodayScreen({
 
   // Refresh the journey return trail whenever the selected journey changes.
   useEffect(() => {
-    if (!currentId) { setReturnDates([]); setJourneyTicked(false); return; }
+    if (!currentId) { setJourneyTicked(false); return; }
     const today = localDateISO();
     recentReturns(currentId, TRAIL_DAYS).then((rows) => {
-      setReturnDates(rows.map((r) => r.local_date));
       setJourneyTicked(rows.some((r) => r.local_date === today));
     });
   }, [currentId]);
@@ -336,21 +331,17 @@ export function TodayScreen({
     const done = await logReturn(currentId, localDateISO(), getDeviceTimezone(), progress.current_camp);
     if (done) {
       setJourneyTicked(true);
-      const fresh = await recentReturns(currentId, TRAIL_DAYS);
-      setReturnDates(fresh.map((r) => r.local_date));
       await setPref(`practicedOn:${localDateISO()}`, currentId);
     }
   }, [currentId, journeyTicked, active]);
 
-  const toggleHabit = useCallback(async (id: string, done: boolean) => {
-    const today = localDateISO();
-    if (done) await untickHabit(id, today);
-    else await tickHabit(id, today, getDeviceTimezone());
-    const groups = partitionRituals(await habitsForDate(today));
-    setMorning(groups.morning);
-    setEvening(groups.evening);
-    setAnytime(groups.anytime);
-  }, []);
+  const skipToday = useCallback(() => {
+    if (!currentId) return;
+    const next = [...skipped, currentId];
+    setSkipped(next);
+    const other = eligible.find((j) => !next.includes(j.path_id));
+    if (other) setCurrentId(other.path_id);
+  }, [currentId, skipped, eligible]);
 
   const changePace = useCallback(async (mode: PaceMode) => {
     setPace(mode);
@@ -364,30 +355,39 @@ export function TodayScreen({
 
   const currentJourney = currentId ? active.find((j) => j.path_id === currentId) ?? null : null;
   const foundation = currentJourney?.journey_type === 'foundation' ? foundationForJourneyId(currentId!) : undefined;
-  const path = currentJourney && !foundation ? DATA[currentId!] : undefined;
-
-  const eyebrow = foundation
-    ? `FOUNDATION · TIER ${foundation.tier}`
-    : path
-      ? `${path.domain.toUpperCase()} · ${path.quality.toUpperCase()}`
-      : '';
-  const practice = foundation?.practice ?? path?.practice.what ?? '';
-  const countsWhen = foundation?.countsWhen ?? path?.practice.counts ?? '';
-  const summary = foundation?.summary ?? path?.shows ?? '';
-  const freqText = journeyTicked ? summary : ordinalReturns(returnDates.length);
+  const content = currentJourney ? journeyContent(currentId!) : null;
+  const campLabel = currentJourney
+    ? foundation
+      ? content?.category ?? 'Foundation'
+      : `Camp ${currentJourney.current_camp} · ${STAGES[currentJourney.current_camp - 1]}`
+    : '';
 
   const nextEligible = eligible.length > 1 ? eligible[(currentIdx + 1) % eligible.length] : null;
-  const dots: HeroDot[] = active.map((j) => ({
-    key: j.path_id,
-    current: j.path_id === currentId,
-    yesterday: j.path_id === yesterdayId,
-  }));
+
+  const allHabits = [...morning, ...evening, ...anytime];
+  const nextHabit = allHabits.find((h) => !h.completed);
+  const ritualBreakdown = [
+    morning.length ? `Morning ${doneCount(morning)} of ${morning.length}` : null,
+    evening.length ? `Evening ${doneCount(evening)} of ${evening.length}` : null,
+    anytime.length ? `Anytime ${doneCount(anytime)} of ${anytime.length}` : null,
+  ].filter(Boolean).join(' · ');
+
+  const setupRows = [
+    active.length === 0
+      ? { key: 'path', title: 'Choose a quality to grow', subtitle: 'Stillness is a quiet place to start', icon: 'moon' as const, color: palette.Inward.base, onPress: onOpenPaths }
+      : null,
+    durationMinutes == null
+      ? { key: 'sleep', title: 'Log last night', subtitle: 'Two times on a dial', icon: 'bed' as const, color: palette.sleep.base, onPress: onOpenSleep }
+      : null,
+    allHabits.length === 0
+      ? { key: 'habit', title: 'Add a morning habit', subtitle: 'Templates are optional', icon: 'leaf' as const, color: palette.habits.base, onPress: onOpenHabits }
+      : null,
+  ].filter((row): row is NonNullable<typeof row> => row !== null);
+  const firstRun = active.length === 0;
+  const showSleepCard = !firstRun || durationMinutes != null;
 
   const morningDone = doneCount(morning);
   const insight = buildInsight({
-    hasJourney: !!currentJourney,
-    journeyPractice: practice || null,
-    journeyTicked,
     morningTotal: morning.length,
     morningDone,
     sleptBelowTarget: isBelowSleepTarget(durationMinutes, targetMinutes),
@@ -407,9 +407,6 @@ export function TodayScreen({
     ? todayCards.map((card) => ({ id: card.id, title: card.name, url: card.url }))
     : trelloCards;
 
-  const now = new Date();
-  const dateLabel = `${now.toLocaleDateString('en-GB', { weekday: 'long' })} · ${now.getDate()} ${now.toLocaleDateString('en-GB', { month: 'long' })}`;
-
   const openJourneyDetail = () => {
     if (foundation) onOpenFoundationDetail(foundation.id);
     else if (currentId) onOpenPathDetail(currentId);
@@ -421,255 +418,247 @@ export function TodayScreen({
         <WelcomeBackCard onDismiss={() => setWelcome(false)} onStart={() => setWelcome(false)} />
       ) : null}
 
-      {currentJourney ? (
-        <JourneyHero
-          eyebrow={eyebrow}
-          practice={practice}
-          countsWhen={countsWhen}
-          ticked={journeyTicked}
-          freqText={freqText}
-          returnDates={returnDates}
-          trailDays={TRAIL_DAYS}
-          peekName={nextEligible ? journeyTitle(nextEligible) : null}
-          dots={dots}
-          restMode={pace === 'rest'}
-          onTick={handleJourneyTick}
-          onOpenDetail={openJourneyDetail}
-          onCycle={cycleJourney}
-        />
-      ) : (
-        <TouchableOpacity style={styles.journeyEmpty} onPress={onOpenPaths} activeOpacity={0.85}>
-          <Text style={styles.journeyEmptyTitle}>Choose a quality to grow</Text>
-          <Text style={styles.journeyEmptyBody}>Today's practice lives here once you start a path or foundation.</Text>
-        </TouchableOpacity>
-      )}
-
-      <Text style={styles.date}>{dateLabel}</Text>
-
-      <ArrivalCard
-        durationMinutes={durationMinutes}
-        targetMinutes={targetMinutes}
-        energy={sleepEnergy}
-        mood={sleepMood}
-        onOpen={onOpenSleep}
-      />
-
-      <PaceSelector value={pace} onChange={changePace} />
-      {note ? (
-        <View style={styles.paceNote}>
-          <Icon name="compass" size={18} color={colors.steel} />
-          <Text style={styles.paceNoteText}>{note}</Text>
-        </View>
-      ) : null}
-
-      <SectionHeader title="Daily rituals" icon="sun" />
-      {morning.length === 0 && evening.length === 0 && anytime.length === 0 ? (
-        <TouchableOpacity style={styles.ritualEmpty} onPress={onOpenHabits} activeOpacity={0.85}>
-          <Text style={styles.ritualEmptyText}>No rituals yet. Add daily habits in Log · Habits.</Text>
-        </TouchableOpacity>
-      ) : (
+      {currentJourney && content ? (
         <>
-          {morning.length > 0 ? (
-            <RitualCard
-              variant="morning"
-              title="Morning ritual"
-              meta={`Right after waking · ${morningDone} of ${morning.length} done`}
-              items={toItems(morning)}
-              onToggleItem={(id) => toggleHabit(id, isDone(morning, id))}
-              onOpen={onOpenHabits}
-            />
-          ) : null}
-          {evening.length > 0 ? (
-            <RitualCard
-              variant="evening"
-              title="Evening ritual"
-              meta={`Before sleep · ${doneCount(evening)} of ${evening.length} done`}
-              items={toItems(evening)}
-              onToggleItem={(id) => toggleHabit(id, isDone(evening, id))}
-              onOpen={onOpenHabits}
-            />
-          ) : null}
-          {anytime.length > 0 ? (
-            <RitualCard
-              variant="anytime"
-              title="Anytime"
-              meta={`${doneCount(anytime)} of ${anytime.length} done`}
-              items={toItems(anytime)}
-              onToggleItem={(id) => toggleHabit(id, isDone(anytime, id))}
-              onOpen={onOpenHabits}
-            />
+          <PracticeCard
+            label={content.title}
+            labelColor={content.tone.deep}
+            labelIcon={content.icon}
+            headerAction={{ label: campLabel, onPress: openJourneyDetail }}
+            practice={content.practice}
+            counts={content.counts}
+          >
+            {pace === 'rest' ? (
+              <Text style={styles.quiet}>Today is for rest. The practice holds — nothing is lost.</Text>
+            ) : journeyTicked ? (
+              <View style={[styles.doneBand, { backgroundColor: content.tone.soft }]}>
+                <Icon name="check" size={18} color={content.tone.deep} strokeWidth={2.6} />
+                <Text style={[styles.doneText, { color: content.tone.deep }]}>Done for today. You came back.</Text>
+              </View>
+            ) : skipped.includes(currentJourney.path_id) ? (
+              <Text style={styles.quiet}>Not today. It will be here tomorrow — nothing is lost.</Text>
+            ) : (
+              <View style={styles.btnRow}>
+                <Button label="Done" onPress={() => void handleJourneyTick()} style={styles.flex} />
+                <Button label="Not today" variant="secondary" onPress={skipToday} style={styles.flex} />
+              </View>
+            )}
+          </PracticeCard>
+          {nextEligible && nextEligible.path_id !== currentId ? (
+            <TouchableOpacity
+              style={styles.also}
+              onPress={() => cycleJourney(1)}
+              accessibilityRole="button"
+              accessibilityLabel={`Also walking: ${journeyTitle(nextEligible)}. Show it`}
+            >
+              <Text style={styles.alsoText}>
+                Also walking · <Text style={styles.alsoName}>{journeyTitle(nextEligible)}</Text>
+              </Text>
+              <Icon name="chev" size={14} color={colors.inkFaint} strokeWidth={2.4} />
+            </TouchableOpacity>
           ) : null}
         </>
-      )}
+      ) : null}
+
+      {firstRun && setupRows.length > 0 ? (
+        <>
+          <SummaryCard label="Getting started" icon="compass" color={colors.btn} right={`${3 - setupRows.length} of 3`}>
+            <Text style={styles.body}>Nothing here is a target. Do any of these, in any order.</Text>
+          </SummaryCard>
+          <ListGroup inset={58}>
+            {setupRows.map((row) => (
+              <ListRow
+                key={row.key}
+                title={row.title}
+                subtitle={row.subtitle}
+                leading={<Tile icon={row.icon} color={row.color} />}
+                chevron
+                onPress={row.onPress}
+              />
+            ))}
+          </ListGroup>
+        </>
+      ) : null}
+
+      {showSleepCard || allHabits.length > 0 ? <SectionHeader title="Summary" /> : null}
+
+      {showSleepCard ? (
+        <ArrivalCard
+          durationMinutes={durationMinutes}
+          targetMinutes={targetMinutes}
+          energy={sleepEnergy}
+          mood={sleepMood}
+          onOpen={onOpenSleep}
+        />
+      ) : null}
+
+      <PaceSelector value={pace} onChange={changePace} />
+      <Text style={styles.foot}>{note ?? 'You choose the pace. A lighter day asks for less, and nothing is lost.'}</Text>
+
+      {allHabits.length > 0 ? (
+        <SummaryCard label="Rituals" icon="leaf" color={palette.habits.deep} onPress={onOpenHabits}>
+          <View style={styles.split}>
+            <View style={styles.flex}>
+              <SummaryValue parts={[{ value: String(doneCount(allHabits)), unit: `of ${allHabits.length} done` }]} />
+              {ritualBreakdown ? <Text style={styles.sub}>{ritualBreakdown}</Text> : null}
+              <Text style={styles.sub}>{nextHabit ? `Next · ${nextHabit.habit.name}` : 'All done for today'}</Text>
+            </View>
+            <Ring
+              value={doneCount(allHabits) / allHabits.length}
+              size={52}
+              stroke={7}
+              color={palette.habits.base}
+              trackColor={palette.habits.soft}
+            />
+          </View>
+        </SummaryCard>
+      ) : null}
 
       <View style={pace === 'lighter' ? styles.dimmed : undefined}>
-        <SectionHeader title="From the plan" icon="target" />
-        <View style={styles.planCard}>
-          <View style={styles.planHead}>
-            <Text style={styles.planHeadText}>Today · Trello</Text>
-          </View>
-          {trelloError ? (
-            <TouchableOpacity onPress={() => selectedCard ? void showCard(selectedCard) : void refreshTrello()} accessibilityRole="button">
-              <Text style={styles.planGuidance}>{trelloError} Tap to retry.</Text>
-            </TouchableOpacity>
-          ) : null}
-          {trelloLoading ? <Text style={styles.planGuidance}>Refreshing Trello…</Text> : null}
-          {!trelloClient && visibleTrelloCards.length === 0 ? (
-            <TouchableOpacity style={styles.planRow} onPress={() => Linking.openURL(TRELLO_BOARD_URL)} accessibilityRole="link">
-              <Text style={styles.planRowText}>Cards aren't connected yet. Open your Today list in Trello.</Text>
-              <Icon name="chev" size={14} color={colors.accent} />
-            </TouchableOpacity>
-          ) : (
-            <>
-              {visibleTrelloCards.length > 3 ? (
-                <Text style={styles.planGuidance}>There is a lot on Today. You can move things when it suits you.</Text>
-              ) : null}
-              {trelloClient && visibleTrelloCards.length === 0 && !trelloLoading ? <Text style={styles.planGuidance}>No cards on Today.</Text> : null}
-              {visibleTrelloCards.map((card, index) => (
-                <TouchableOpacity
-                  key={card.id}
-                  style={[styles.planRow, index < visibleTrelloCards.length - 1 && styles.planRowBorder]}
-                  onPress={() => trelloClient ? void showCard(todayCards[index]) : Linking.openURL(card.url)}
-                  accessibilityRole={trelloClient ? 'button' : 'link'}
-                  accessibilityLabel={`${trelloClient ? 'View' : 'Open'} ${card.title}${trelloClient ? '' : ' in Trello'}`}
-                >
-                  <View style={styles.planMarker} />
-                  <Text style={styles.planRowText} numberOfLines={2}>{card.title}</Text>
-                </TouchableOpacity>
-              ))}
-              {trelloClient && doneCards.length > 0 ? (
-                <>
-                  <Text style={styles.planGuidance}>Done</Text>
-                  {doneCards.map((card) => (
-                    <TouchableOpacity key={card.id} style={styles.planRow} onPress={() => void showCard(card)} accessibilityRole="button" accessibilityLabel={`View completed card ${card.name}`}>
-                      <Icon name="check" size={18} color={colors.accent} />
-                      <Text style={styles.planRowText}>{card.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </>
-              ) : null}
-              {selectedCard && trelloClient ? (
-                <View style={styles.planDetails}>
-                  <Text style={styles.planDetailTitle}>{selectedCard.name}</Text>
-                  {selectedCard.desc ? <Text style={styles.planDetailText}>{selectedCard.desc}</Text> : null}
-                  {cardLoading ? <Text style={styles.planDetailText}>Loading details…</Text> : checklists.map((checklist) => (
-                    <View key={checklist.id} style={styles.planChecklist}>
-                      <Text style={styles.planDetailTitle}>{checklist.name}</Text>
-                      {checklist.checkItems.map((item) => (
-                        <TouchableOpacity key={item.id} style={styles.planRow} onPress={() => void changeCheckItem(item.id, item.state !== 'complete')} disabled={trelloBusy || !!trelloError} accessibilityRole="checkbox" accessibilityState={{ checked: item.state === 'complete', disabled: trelloBusy || !!trelloError }}>
-                          <Icon name="check" size={18} color={item.state === 'complete' ? colors.accent : colors.inkMuted} />
-                          <Text style={styles.planRowText}>{item.name}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  ))}
-                  <TouchableOpacity style={styles.planMore} onPress={() => void changeCard(selectedCard.idList === todayListId)} disabled={trelloBusy || cardLoading || !!trelloError || !todayListId} accessibilityRole="button">
-                    <Text style={styles.planMoreText}>{selectedCard.idList === todayListId ? 'Move to Done' : 'Return to Today'}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.planMore} onPress={() => setSelectedCard(null)} accessibilityRole="button"><Text style={styles.planMoreText}>Close details</Text></TouchableOpacity>
-                </View>
-              ) : null}
-              <TouchableOpacity style={styles.planMore} onPress={() => Linking.openURL(TRELLO_BOARD_URL)} accessibilityRole="link">
-                <Text style={styles.planMoreText}>Open in Trello</Text>
-                <Icon name="chev" size={12} color={colors.accent} />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+        <SectionHeader title="From Trello" action={{ label: 'Open', onPress: () => void Linking.openURL(TRELLO_BOARD_URL) }} />
+        {trelloError && !selectedCard ? (
+          <ListGroup>
+            <ListRow title={trelloError} subtitle="Tap to retry" onPress={() => void refreshTrello()} />
+          </ListGroup>
+        ) : null}
+        {!trelloClient && visibleTrelloCards.length === 0 ? (
+          <ListGroup inset={58}>
+            <ListRow
+              leading={<Tile icon="board" color={colors.btn} />}
+              title="Cards aren't connected yet"
+              subtitle="Open your Today list in Trello"
+              chevron
+              onPress={() => void Linking.openURL(TRELLO_BOARD_URL)}
+            />
+          </ListGroup>
+        ) : (
+          <>
+            {visibleTrelloCards.length > 0 || (trelloClient && doneCards.length > 0) ? (
+              <ListGroup inset={52}>
+                {visibleTrelloCards.map((card, index) => (
+                  <ListRow
+                    key={card.id}
+                    title={card.title}
+                    leading={<CheckCircle done={false} />}
+                    chevron
+                    onPress={() => (trelloClient ? void showCard(todayCards[index]) : void Linking.openURL(card.url))}
+                    accessibilityLabel={`${trelloClient ? 'View' : 'Open'} ${card.title}${trelloClient ? '' : ' in Trello'}`}
+                  />
+                ))}
+                {trelloClient
+                  ? doneCards.map((card) => (
+                      <ListRow
+                        key={card.id}
+                        title={card.name}
+                        leading={<CheckCircle done />}
+                        onPress={() => void showCard(card)}
+                        accessibilityLabel={`View completed card ${card.name}`}
+                      />
+                    ))
+                  : null}
+              </ListGroup>
+            ) : null}
+            <Text style={styles.foot}>
+              {trelloLoading
+                ? 'Refreshing Trello…'
+                : trelloClient && visibleTrelloCards.length === 0
+                  ? 'No cards on Today.'
+                  : visibleTrelloCards.length > 3
+                    ? 'There is a lot on Today. You can move things when it suits you.'
+                    : 'Your Today list, in Trello order.'}
+            </Text>
+          </>
+        )}
       </View>
 
       {sections.showSignals && displayInsight && !coachDismissed ? (
         <>
-          <SectionHeader title="Signals" icon="sparkle" />
-          <InsightCard
-            insight={displayInsight}
-            title={`Coach · ${displayInsight.tag}`}
-            meta="A gentle nudge from today"
-            onDismiss={() => setCoachDismissed(true)}
-          />
+          <SectionHeader title="Compass note" action={{ label: 'Hide', onPress: () => setCoachDismissed(true) }} />
+          <View style={styles.card}>
+            <View style={styles.cat}>
+              <Icon name="compass" size={17} color={colors.btn} />
+              <Text style={[styles.catText, { color: colors.btn }]}>{displayInsight.tag}</Text>
+            </View>
+            <Text style={styles.body}>{displayInsight.body}</Text>
+          </View>
         </>
       ) : null}
 
-      {active.length === 0 && morning.length === 0 && evening.length === 0 && anytime.length === 0 ? (
-        <EmptyState
-          title="A calm, empty day"
-          body="Start a path or add a habit. Your Trello tasks stay in Trello."
-          action={{ label: 'Find a quality to grow', onPress: onOpenPaths }}
-        />
-      ) : null}
+      <Sheet visible={!!selectedCard && !!trelloClient} onClose={() => setSelectedCard(null)} title={selectedCard?.name}>
+        {selectedCard ? (
+          <View style={styles.sheetBody}>
+            {selectedCard.desc ? <Text style={styles.body}>{selectedCard.desc}</Text> : null}
+            {trelloError ? (
+              <TouchableOpacity onPress={() => void showCard(selectedCard)} accessibilityRole="button">
+                <Text style={styles.sub}>{trelloError} Tap to retry.</Text>
+              </TouchableOpacity>
+            ) : null}
+            {cardLoading ? (
+              <Text style={styles.sub}>Loading details…</Text>
+            ) : (
+              checklists.map((checklist) => (
+                <View key={checklist.id}>
+                  <SectionHeader title={checklist.name} />
+                  <ListGroup inset={52}>
+                    {checklist.checkItems.map((item) => {
+                      const checked = item.state === 'complete';
+                      const disabled = trelloBusy || !!trelloError;
+                      return (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={styles.checkRow}
+                          onPress={() => void changeCheckItem(item.id, !checked)}
+                          disabled={disabled}
+                          accessibilityRole="checkbox"
+                          accessibilityLabel={item.name}
+                          accessibilityState={{ checked, disabled }}
+                        >
+                          <CheckCircle done={checked} />
+                          <Text style={styles.checkText}>{item.name}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ListGroup>
+                </View>
+              ))
+            )}
+            <Button
+              label={selectedCard.idList === todayListId ? 'Move to Done' : 'Return to Today'}
+              onPress={() => void changeCard(selectedCard.idList === todayListId)}
+              disabled={trelloBusy || cardLoading || !!trelloError || !todayListId}
+              loading={trelloBusy}
+            />
+            <Button label="Open in Trello" variant="secondary" onPress={() => void Linking.openURL(selectedCard.url)} />
+          </View>
+        ) : null}
+      </Sheet>
     </ScrollView>
   );
 }
 
-function toItems(statuses: HabitDayStatus[]): RitualItem[] {
-  return statuses.map((s) => ({ id: s.habit.id, label: s.habit.name, done: s.completed }));
-}
-
-function isDone(statuses: HabitDayStatus[], id: string): boolean {
-  return statuses.find((s) => s.habit.id === id)?.completed ?? false;
-}
-
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.md },
-  date: { fontSize: typography.sizes.sm, color: colors.inkMuted, fontWeight: '500', marginTop: spacing.xs },
+  content: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.xxxl },
+  flex: { flex: 1 },
 
-  journeyEmpty: {
-    backgroundColor: '#2d2b27',
-    borderRadius: 20,
-    padding: spacing.xl,
-    gap: spacing.xs,
-  },
-  journeyEmptyTitle: { fontSize: typography.sizes.lg, fontWeight: '800', color: '#F1EDE6' },
-  journeyEmptyBody: { fontSize: typography.sizes.sm, color: 'rgba(241,237,230,0.6)', lineHeight: 20 },
+  card: { backgroundColor: colors.surface, borderRadius: radii.card, padding: spacing.lg, paddingTop: 14, marginBottom: spacing.sm },
+  cat: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
+  catText: { fontSize: 15, fontWeight: '600' },
+  body: { fontSize: 16, color: colors.ink, lineHeight: 22 },
+  sub: { fontSize: 14, color: colors.inkMuted, marginTop: 3 },
+  foot: { fontSize: 13, color: colors.inkMuted, lineHeight: 18, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  split: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md },
 
-  paceNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.canvasDark,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 16,
-    padding: 13,
-  },
-  paceNoteText: { flex: 1, fontSize: typography.sizes.sm, color: colors.inkMuted, lineHeight: 20 },
-
-  ritualEmpty: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 18,
-    padding: spacing.lg,
-  },
-  ritualEmptyText: { fontSize: typography.sizes.sm, color: colors.inkMuted },
+  btnRow: { flexDirection: 'row', gap: spacing.sm },
+  quiet: { fontSize: 15, color: colors.inkMuted, lineHeight: 21 },
+  doneBand: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderRadius: radii.control, paddingVertical: 12, paddingHorizontal: spacing.md },
+  doneText: { fontSize: 16, fontWeight: '600' },
+  also: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, marginBottom: spacing.xs },
+  alsoText: { fontSize: 15, color: colors.inkMuted },
+  alsoName: { color: colors.ink, fontWeight: '600' },
 
   dimmed: { opacity: 0.5 },
-  planCard: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 18,
-    overflow: 'hidden',
-  },
-  planHead: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  planHeadText: { fontSize: typography.sizes.xs, fontWeight: '700', color: colors.inkMuted },
-  planGuidance: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, color: colors.inkMuted, fontSize: typography.sizes.sm },
-  planDetails: { padding: spacing.lg, borderTopWidth: 1, borderTopColor: colors.border, gap: spacing.sm },
-  planDetailTitle: { fontSize: typography.sizes.md, fontWeight: '700', color: colors.ink },
-  planDetailText: { fontSize: typography.sizes.sm, color: colors.inkMuted },
-  planChecklist: { gap: spacing.xs },
-  planRow: {
-    minHeight: 48,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 11,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  planRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-  planMarker: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: colors.border, backgroundColor: colors.canvas },
-  planRowText: { flex: 1, fontSize: typography.sizes.md, color: colors.ink },
-  planMore: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 11, borderTopWidth: 1, borderTopColor: colors.border },
-  planMoreText: { fontSize: typography.sizes.xs, fontWeight: '600', color: colors.accent },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 48, paddingVertical: 11, paddingHorizontal: spacing.lg },
+  checkText: { flex: 1, fontSize: 16, color: colors.ink },
+  sheetBody: { gap: spacing.md, paddingTop: spacing.sm },
 });

@@ -7,8 +7,9 @@
  */
 
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import { theme } from '@styles/theme';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { colors, palette, spacing } from '@styles/theme';
+import { Button, Tile } from '@ui';
 import { startPath } from '@data/paths';
 import { setPref } from '@data/prefs';
 
@@ -66,14 +67,15 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
       <View style={styles.body}>
         {!isLast ? (
           <>
-            <Text style={styles.eyebrow}>{SLIDES[idx].eyebrow.toUpperCase()}</Text>
-            <Text style={styles.title}>{SLIDES[idx].title}</Text>
+            <Text style={styles.eyebrow}>{SLIDES[idx].eyebrow}</Text>
+            <Text style={styles.title} accessibilityRole="header">{SLIDES[idx].title}</Text>
             <Text style={styles.text}>{SLIDES[idx].body}</Text>
           </>
         ) : (
           <>
-            <Text style={styles.eyebrow}>SUGGESTED FIRST PATH</Text>
-            <Text style={styles.title}>{FIRST_PATH_NAME}</Text>
+            <Tile icon="moon" color={palette.Inward.base} size={44} />
+            <Text style={[styles.eyebrow, { color: palette.Inward.deep }]}>Suggested first path</Text>
+            <Text style={styles.title} accessibilityRole="header">{FIRST_PATH_NAME}</Text>
             <Text style={styles.text}>
               You pause before you react, instead of after. A quiet, well-known place to start —
               you can always change paths on the You tab.
@@ -82,7 +84,7 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
         )}
       </View>
 
-      <View style={styles.dots}>
+      <View style={styles.dots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         {SLIDES.concat([{ eyebrow: '', title: '', body: '' }]).map((_, i) => (
           <View key={i} style={[styles.dot, i === idx && styles.dotOn]} />
         ))}
@@ -91,17 +93,11 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
       <View style={styles.actions}>
         {isLast ? (
           <>
-            <TouchableOpacity style={styles.primary} onPress={handleStart} disabled={busy}>
-              <Text style={styles.primaryText}>Start with {FIRST_PATH_NAME}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.secondary} onPress={handleSkip}>
-              <Text style={styles.secondaryText}>I'll choose later</Text>
-            </TouchableOpacity>
+            <Button label={`Start with ${FIRST_PATH_NAME}`} onPress={() => void handleStart()} loading={busy} />
+            <Button label="I'll choose later" variant="ghost" onPress={() => void handleSkip()} />
           </>
         ) : (
-          <TouchableOpacity style={styles.primary} onPress={handleNext}>
-            <Text style={styles.primaryText}>Continue</Text>
-          </TouchableOpacity>
+          <Button label="Continue" onPress={handleNext} />
         )}
       </View>
     </SafeAreaView>
@@ -109,22 +105,13 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.bg, padding: theme.spacing.lg, justifyContent: 'space-between' },
-  body: { flex: 1, justifyContent: 'center', gap: theme.spacing.md, paddingHorizontal: theme.spacing.sm },
-  eyebrow: { fontSize: theme.typography.xs, letterSpacing: 1.5, fontWeight: '700', color: theme.colors.olive },
-  title: { fontSize: 28, fontWeight: '800', color: theme.colors.ink, letterSpacing: -0.5, lineHeight: 34 },
-  text: { fontSize: theme.typography.md, color: theme.colors.muted, lineHeight: 24 },
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginVertical: theme.spacing.md },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.line },
-  dotOn: { width: 20, backgroundColor: theme.colors.olive },
-  actions: { gap: theme.spacing.sm },
-  primary: {
-    backgroundColor: theme.colors.ink, borderRadius: theme.radii.full,
-    paddingVertical: theme.spacing.md, alignItems: 'center',
-  },
-  primaryText: { color: theme.colors.card, fontWeight: '700', fontSize: theme.typography.md },
-  secondary: {
-    paddingVertical: theme.spacing.md, alignItems: 'center',
-  },
-  secondaryText: { color: theme.colors.muted, fontWeight: '600', fontSize: theme.typography.sm },
+  container: { flex: 1, backgroundColor: colors.canvas, padding: spacing.lg, justifyContent: 'space-between' },
+  body: { flex: 1, justifyContent: 'center', gap: spacing.md, paddingHorizontal: spacing.sm },
+  eyebrow: { fontSize: 13, fontWeight: '600', color: colors.inkMuted, textTransform: 'uppercase', letterSpacing: 0.4 },
+  title: { fontSize: 34, fontWeight: '800', color: colors.ink, letterSpacing: -0.5, lineHeight: 40 },
+  text: { fontSize: 17, color: colors.inkMuted, lineHeight: 24 },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginVertical: spacing.md },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.canvasDark },
+  dotOn: { width: 20, backgroundColor: colors.btn },
+  actions: { gap: spacing.sm },
 });

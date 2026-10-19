@@ -1,18 +1,11 @@
 // SettingsScreen — v1: delete-my-data flow, no auth.
 
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
-import { theme } from '@styles/theme';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { colors, spacing } from '@styles/theme';
+import { ListGroup, ListRow, SectionHeader, Tile } from '@ui';
 import { wipeAll } from '@lib/db';
+import appConfig from '../../../app.json';
 
 interface SettingsScreenProps {
   onClose?: () => void;
@@ -49,117 +42,57 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <Text style={styles.title}>Settings</Text>
-          {onClose && (
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
-              <Text style={styles.closeBtnText}>Done</Text>
+      <View style={styles.nav}>
+        <View style={styles.navSide} />
+        <Text style={styles.navTitle} accessibilityRole="header">Settings</Text>
+        <View style={[styles.navSide, styles.navRight]}>
+          {onClose ? (
+            <TouchableOpacity onPress={onClose} accessibilityRole="button" hitSlop={8}>
+              <Text style={styles.done}>Done</Text>
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
+      </View>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <SectionHeader title="Privacy" />
+        <ListGroup inset={58}>
+          <ListRow
+            leading={<Tile icon="lock" color={colors.btn} />}
+            title="Fully local"
+            subtitle="No account, no server, no analytics"
+          />
+        </ListGroup>
+        <Text style={styles.foot}>Compass keeps everything on this device. Nothing leaves it.</Text>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Privacy</Text>
-          <View style={styles.card}>
-            <Text style={styles.privacyText}>
-              Compass v1 is fully local. Nothing leaves this device — no account,
-              no server, no analytics.
-            </Text>
-          </View>
-        </View>
+        <SectionHeader title="Your data" />
+        <ListGroup>
+          <ListRow
+            title={isWiping ? 'Deleting…' : 'Delete all my data'}
+            tone="destructive"
+            trailing={isWiping ? <ActivityIndicator color={colors.error} size="small" /> : undefined}
+            onPress={isWiping ? undefined : handleDeleteMyData}
+          />
+        </ListGroup>
+        <Text style={styles.foot}>
+          Removes every sleep entry, habit, path return and preference from this device. It cannot be undone.
+        </Text>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Your data</Text>
-          <TouchableOpacity
-            style={[styles.destructiveBtn, isWiping && styles.destructiveBtnDisabled]}
-            onPress={handleDeleteMyData}
-            disabled={isWiping}
-            activeOpacity={0.7}
-          >
-            {isWiping ? (
-              <ActivityIndicator color={theme.colors.error} size="small" />
-            ) : (
-              <Text style={styles.destructiveBtnText}>Delete all my data</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+        <ListGroup style={styles.version}>
+          <ListRow title="Version" value={appConfig.expo.version} />
+        </ListGroup>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
-  scrollContent: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxxl,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: theme.spacing.md,
-  },
-  title: {
-    fontSize: theme.typography.xl,
-    fontWeight: '800',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
-  },
-  section: {
-    gap: theme.spacing.sm,
-  },
-  sectionLabel: {
-    fontSize: theme.typography.xs,
-    fontWeight: '600',
-    color: theme.colors.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  card: {
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.card,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
-  },
-  privacyText: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    lineHeight: 22,
-  },
-  closeBtn: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-  },
-  closeBtnText: {
-    fontSize: theme.typography.md,
-    fontWeight: '600',
-    color: theme.colors.olive,
-  },
-  destructiveBtn: {
-    borderWidth: 1,
-    borderColor: theme.colors.error,
-    borderRadius: theme.radii.input,
-    paddingVertical: theme.spacing.md,
-    alignItems: 'center',
-    marginTop: theme.spacing.md,
-  },
-  destructiveBtnDisabled: {
-    opacity: 0.5,
-  },
-  destructiveBtnText: {
-    fontSize: theme.typography.md,
-    fontWeight: '600',
-    color: theme.colors.error,
-  },
+  container: { flex: 1, backgroundColor: colors.canvas },
+  nav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm },
+  navSide: { width: 64 },
+  navRight: { alignItems: 'flex-end' },
+  navTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: colors.ink },
+  done: { fontSize: 17, fontWeight: '600', color: colors.accent },
+  scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl },
+  foot: { fontSize: 13, color: colors.inkMuted, lineHeight: 18, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  version: { marginTop: spacing.lg },
 });

@@ -1,4 +1,4 @@
-// SleepForm — bed and wake time pickers (Android native time dialog).
+// SleepForm — sleep dial plus tappable bed and wake times (Android native time dialog as the accessible fallback).
 
 import { useState } from 'react';
 import {
@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { theme } from '@styles/theme';
+import { colors, spacing } from '@styles/theme';
+import { Icon } from '@ui';
 import { utcToLocal } from '@lib/time';
 import { utcToZonedTime } from 'date-fns-tz';
 import { SleepDial } from './SleepDial';
@@ -16,7 +17,6 @@ import { SleepDial } from './SleepDial';
 interface SleepFormProps {
   bedTime: Date;
   wakeTime: Date;
-  durationLabel: string;
   timezone: string;
   bedHint: string;
   wakeHint: string;
@@ -32,15 +32,14 @@ type PickerMode = 'bed' | 'wake' | null;
 export function SleepForm({
   bedTime,
   wakeTime,
-  durationLabel,
   timezone,
   bedHint,
   wakeHint,
   onBedTimeChange,
   onWakeTimeChange,
-  bedLabel = 'Went to bed',
-  wakeLabel = 'Woke up',
-  durationSuffix = 'time asleep',
+  bedLabel = 'Bedtime',
+  wakeLabel = 'Wake',
+  durationSuffix = 'hr asleep',
 }: SleepFormProps) {
   const [openPicker, setOpenPicker] = useState<PickerMode>(null);
 
@@ -64,51 +63,17 @@ export function SleepForm({
     };
 
   return (
-    <View style={styles.container}>
+    <View>
       <SleepDial
         bedMinutes={bedMinutes}
         wakeMinutes={wakeMinutes}
         onBedChange={(minutes) => changeDialTime('bed', minutes)}
         onWakeChange={(minutes) => changeDialTime('wake', minutes)}
+        caption={durationSuffix}
       />
-      {/* Bed time */}
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{bedLabel}</Text>
-        <View style={styles.timeRow}>
-          <TouchableOpacity
-            style={styles.timeBtn}
-            onPress={() => setOpenPicker('bed')}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel={`Set ${bedLabel.toLowerCase()} time, ${bedDisplay}`}
-          >
-            <Text style={styles.timeValue}>{bedDisplay}</Text>
-          </TouchableOpacity>
-          <Text style={styles.hint}>{bedHint}</Text>
-        </View>
-      </View>
-
-      {/* Wake time */}
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>{wakeLabel}</Text>
-        <View style={styles.timeRow}>
-          <TouchableOpacity
-            style={styles.timeBtn}
-            onPress={() => setOpenPicker('wake')}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel={`Set ${wakeLabel.toLowerCase()} time, ${wakeDisplay}`}
-          >
-            <Text style={styles.timeValue}>{wakeDisplay}</Text>
-          </TouchableOpacity>
-          <Text style={styles.hint}>{wakeHint}</Text>
-        </View>
-      </View>
-
-      {/* Duration */}
-      <View style={styles.duration}>
-        <Text style={styles.durationBig}>{durationLabel}</Text>
-        <Text style={styles.durationSmall}>{durationSuffix}</Text>
+      <View style={styles.times}>
+        <TimeBox icon="moon" label={bedLabel} value={bedDisplay} hint={bedHint} onPress={() => setOpenPicker('bed')} />
+        <TimeBox icon="sun" label={wakeLabel} value={wakeDisplay} hint={wakeHint} onPress={() => setOpenPicker('wake')} />
       </View>
 
       {/* Native time dialog (Android shows it on demand) */}
@@ -124,66 +89,38 @@ export function SleepForm({
   );
 }
 
+interface TimeBoxProps {
+  icon: 'moon' | 'sun';
+  label: string;
+  value: string;
+  hint: string;
+  onPress: () => void;
+}
+
+function TimeBox({ icon, label, value, hint, onPress }: TimeBoxProps) {
+  return (
+    <TouchableOpacity
+      style={styles.box}
+      onPress={onPress}
+      activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${label}, ${value}${hint ? `, ${hint}` : ''}. Change time`}
+    >
+      <View style={styles.boxLabel}>
+        <Icon name={icon} size={14} color={colors.inkMuted} strokeWidth={2.4} />
+        <Text style={styles.boxLabelText}>{label}</Text>
+      </View>
+      <Text style={styles.boxValue}>{value}</Text>
+      {hint ? <Text style={styles.boxHint}>{hint}</Text> : null}
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    gap: theme.spacing.lg,
-  },
-  field: {
-    gap: theme.spacing.sm,
-  },
-  fieldLabel: {
-    fontSize: theme.typography.xs,
-    fontWeight: '600',
-    color: theme.colors.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  timeBtn: {
-    backgroundColor: theme.colors.bg,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.input,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  timeValue: {
-    fontSize: theme.typography.xl,
-    fontWeight: '700',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
-  },
-  hint: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '500',
-  },
-  duration: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    backgroundColor: theme.colors.greige,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.input,
-    paddingVertical: theme.spacing.md,
-  },
-  durationBig: {
-    fontSize: theme.typography.xl,
-    fontWeight: '800',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
-  },
-  durationSmall: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '500',
-  },
+  times: { flexDirection: 'row', gap: 10 },
+  box: { flex: 1, backgroundColor: colors.canvasDark, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
+  boxLabel: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  boxLabelText: { fontSize: 13, fontWeight: '600', color: colors.inkMuted },
+  boxValue: { fontSize: 22, fontWeight: '700', color: colors.ink, marginTop: 2 },
+  boxHint: { fontSize: 12, color: colors.inkFaint, marginTop: spacing.xs / 2 },
 });

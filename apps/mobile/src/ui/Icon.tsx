@@ -1,5 +1,5 @@
 /**
- * Line icon set mirroring docs/design/wireframes/shared/you.css.
+ * Line icon set (docs/design/wireframes-health/shared/shell.js).
  * Add new icons here as screens need them. Keep stroke width and viewBox
  * consistent so sizes read the same across the app.
  */
@@ -19,9 +19,7 @@ export type IconName =
   | 'target'
   | 'user'
   | 'sliders'
-  | 'msg'
   | 'chev'
-  | 'chev-down'
   | 'plus'
   | 'check'
   | 'x'
@@ -29,7 +27,12 @@ export type IconName =
   | 'leaf'
   | 'layers'
   | 'compass'
-  | 'sparkle';
+  | 'sparkle'
+  | 'users'
+  | 'bed'
+  | 'back'
+  | 'board'
+  | 'lock';
 
 export interface IconProps {
   name: IconName;
@@ -118,22 +121,10 @@ function IconInner({ name, size = 20, color = colors.ink, strokeWidth = 2 }: Ico
           <Line x1={16} x2={16} y1={18} y2={22} {...p} />
         </Svg>
       );
-    case 'msg':
-      return (
-        <Svg width={size} height={size} viewBox="0 0 24 24">
-          <Path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" {...p} />
-        </Svg>
-      );
     case 'chev':
       return (
         <Svg width={size} height={size} viewBox="0 0 24 24">
           <Path d="M9 6l6 6-6 6" {...p} strokeWidth={strokeWidth + 0.2} />
-        </Svg>
-      );
-    case 'chev-down':
-      return (
-        <Svg width={size} height={size} viewBox="0 0 24 24">
-          <Path d="M6 9l6 6 6-6" {...p} strokeWidth={strokeWidth + 0.2} />
         </Svg>
       );
     case 'plus':
@@ -186,6 +177,42 @@ function IconInner({ name, size = 20, color = colors.ink, strokeWidth = 2 }: Ico
       return (
         <Svg width={size} height={size} viewBox="0 0 24 24">
           <Polygon points="12 2 14 10 22 12 14 14 12 22 10 14 2 12 10 10" {...p} />
+        </Svg>
+      );
+    case 'users':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+          <Circle cx={9} cy={8} r={3.2} {...p} />
+          <Path d="M3 20c.8-3.3 3-5 6-5s5.2 1.7 6 5" {...p} />
+          <Circle cx={17} cy={9} r={2.4} {...p} />
+          <Path d="M17 14.5c2 .3 3.4 1.8 4 4.5" {...p} />
+        </Svg>
+      );
+    case 'bed':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+          <Path d="M3 18V6M3 14h18v4M21 14v-1.5A3.5 3.5 0 0 0 17.5 9H11v5" {...p} />
+          <Circle cx={7} cy={11} r={1.6} {...p} />
+        </Svg>
+      );
+    case 'back':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+          <Path d="M15 5l-7 7 7 7" {...p} strokeWidth={strokeWidth + 0.3} />
+        </Svg>
+      );
+    case 'board':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+          <Path d="M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z" {...p} />
+          <Path d="M8.5 8v8M15.5 8v4" {...p} />
+        </Svg>
+      );
+    case 'lock':
+      return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+          <Path d="M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" {...p} />
+          <Path d="M8 11V8a4 4 0 0 1 8 0v3" {...p} />
         </Svg>
       );
   }

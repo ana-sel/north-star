@@ -240,85 +240,68 @@ A path may carry no ritual at all, and one ritual may be shared by several paths
 
 ## Design System
 
-The warm neutral background is intentional. White cards provide contrast, while accents communicate semantic meaning. Path domain colours must remain visible: the deployed APK must not collapse into a beige-only interface.
+Compass follows Apple Health: large titles, white grouped cards on a warm light background, one colour per meaning, and few boxes. Approved 16 October 2026.
 
-Follow the HTML wireframes' hierarchy, spacing, and density closely. Android may adapt only where native interaction or accessibility requires it.
+Source of truth: `docs/design/wireframes-health/` — `index.html` (every screen, beside the old app), `palette.html`, `interactions.html` (how things open), `journey-anatomy.html` (the shared path and foundation page) and `naming.html`. Android may adapt only where native interaction or accessibility requires it. The older `docs/design/wireframes/` folder is superseded for every screen the new folder covers.
 
-Source of truth: `docs/design/wireframes/shared/`
-
-### Tokens (`tokens.css`)
+### Tokens (`shared/health.css`)
 
 ```css
-/* Surfaces */
---bg: #F6F5F2        /* page background */
---card: #FFFEFC      /* card surface */
---greige: #F0ECE5    /* subtle fill */
---line: #E2DFD9      /* borders, dividers */
---muted: #65645F     /* secondary text */
---ink: #24231F       /* primary text */
---steel: #7E8E9F     /* neutral accent */
---olive: #768471     /* positive/done */
---btn: #3C3A34       /* primary button */
-
-/* Pillar accents */
---p-health: #77936f
---p-inner:  #937caf
---p-admin:  #958572
---p-family: #b77980
---p-joy:    #c99554
---p-money:  #7395ad
---p-contrib:#8d8f63
-
-/* Type scale */
---fs-xl: 26px   /* screen title */
---fs-lg: 17px   /* section heading */
---fs-md: 14px   /* body */
---fs-sm: 12px   /* secondary */
---fs-xs: 10px   /* labels, tags */
-
-/* Shape & depth */
---r-card: 18px
---shadow:    0 1px 2px rgba(36,35,31,.04), 0 10px 28px rgba(36,35,31,.08)
---shadow-sm: 0 1px 2px rgba(36,35,31,.03), 0 4px 14px rgba(36,35,31,.05)
+--bg: #F5F3F0       /* page background */
+--card: #FFFFFF     /* cards and grouped lists */
+--fill: #E9E7E5     /* segmented control, soft buttons */
+--ink: #1C1C1E      /* primary text */
+--ink-2: #6E6E73    /* secondary text */
+--ink-3: #AEAEB2    /* tertiary text, chevrons */
+--primary: #2F3F4F  /* every button, link, selected tab, Trello tick */
+--r: 14px           /* card radius */
 ```
 
-### Components (`components.css`)
+Type: large title 34/800, section title 22/700, card value 28/700, body 16, secondary 14, labels 12–13. System font (Inter as fallback).
 
-| Class | Purpose |
+### Palette
+
+Six hues at equal OKLCH lightness and chroma, plus stone. Each has three steps: **soft** for empty tracks and chips, **base** for bars, tiles and rings, **deep** for coloured text.
+
+| Meaning | Hue | Soft / base / deep |
+|---|---|---|
+| Sleep | blue | `#E5EDFE` / `#708BC6` / `#43598B` |
+| Rituals (habits) | sage | `#E2F2E4` / `#609D6D` / `#346841` |
+| Self-awareness | violet | `#EEEAFC` / `#9080C0` / `#5E5085` |
+| Connection | rose | `#FDE6E7` / `#BF7479` / `#84454B` |
+| Mastery | ochre | `#F7EBDB` / `#AE8446` / `#76531B` |
+| Aliveness | teal | `#DEF1F3` / `#5299A1` / `#25656C` |
+| Foundations | stone | `#F2ECE4` / `#988979` / `#665849` |
+
+Rules: a colour always means the same thing; colour never decides which button to press; charts never mix grey and coloured bars; empty is a pale tint of the same hue.
+
+### Path areas
+
+The four path areas are shown by what they give you. Internal domain IDs stay unchanged.
+
+| Domain ID | Display name | Subtitle |
+|---|---|---|
+| `Inward` | Self-awareness | How you meet yourself |
+| `Together` | Connection | How you meet other people |
+| `Craft` | Mastery | How you meet the work |
+| `Frontier` | Aliveness | How you meet what is new |
+
+Foundation tiers use the content-freeze names: The Ground, Inner World, Other People, Meeting Life, Meaning.
+
+### Components
+
+| Component | Purpose |
 |---|---|
-| `.screen-body` | Applied to every screen loaded in iframe |
-| `.card` | White card with border, radius, shadow |
-| `.card-h` | Uppercase eyebrow label inside a card |
-| `.row` | Flex row with dot + label + tag, bottom-bordered |
-| `.dot` | 10 px colored circle (pillar color) |
-| `.tag` | Small greige pill label |
-| `.check` / `.check.done` | Circular checkbox; `.done` fills olive |
-| `.qstrip` / `.qbtn` | Quick-log button strip |
-| `.pill-row` / `.pill` / `.pill.on` | Filter pills; `.on` is dark filled |
-| `.prog-row` / `.prog-bar` / `.prog-fill` | Progress bar row |
-| `.kanban-wrap` / `.kanban` / `.k-col` / `.k-card` | Horizontal scrollable kanban |
-| `.goal-grid` / `.goal-tile` | 2-col goal tile grid |
-| `.ai-card` | Dark gradient AI/coach card |
+| Large title header | Title that collapses into the bar on scroll; back label names the previous page |
+| Segmented control | Two or three peers (Sleep / Habits, Week / Month, pace) |
+| Grouped list + row | Inset white list; tile, title, subtitle, value, chevron |
+| Summary card | Coloured category label, value with small unit, small chart |
+| Practice card | The practice, “It counts when”, and its button; identical on Today and the journey page |
+| Route | Camp nodes at 0 / 3 / 9 returns, a walker that only moves forward, and a self-claimed Steady end |
+| Returns line | Marks only on days with a return; gaps are rest |
+| Bottom sheet | Previews and short edits; grabber, ×, swipe down; never a sheet on a sheet |
+| Show more | Long text cut to three lines |
 
-### Typography
+### Navigation
 
-Font: **Inter** (400, 500, 600, 700, 800).
-Smoothing: `-webkit-font-smoothing: antialiased`.
-
-### Navigation shell
-
-`nav-modular.html` is the single wireframe shell. It loads individual screens from `screens/*.html` into an iframe. Edit screens independently; the shell provides chrome, tabs, and navigation.
-
-### Pillars
-
-7 life pillars, each with a named accent colour:
-
-| Pillar | Token |
-|---|---|
-| Health | `--p-health` |
-| Inner | `--p-inner` |
-| Admin | `--p-admin` |
-| Family | `--p-family` |
-| Joy | `--p-joy` |
-| Money | `--p-money` |
-| Contrib | `--p-contrib` |
+Tabs: Today · Log · You. Deeper levels push a page with a back button (at most three below a tab). Quick looks and edits use sheets. Full rules: `interactions.html`.

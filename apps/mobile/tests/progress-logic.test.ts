@@ -1,6 +1,7 @@
 import {
   buildProgressSnapshot,
   localDatesForPeriod,
+  progressHighlight,
   summarizeHabits,
   summarizeJourneys,
   summarizeSleep,
@@ -39,7 +40,6 @@ describe('Progress logic', () => {
     expect(sleep.loggedNights).toBe(2);
     expect(sleep.coverageLabel).toBe('2 of 7 nights');
     expect(sleep.averageMinutes).toBe(405);
-    expect(sleep.averageLabel).toBe('6h 45m');
     expect(sleep.points).toHaveLength(7);
     expect(sleep.points[0]).toMatchObject({ localDate: '2026-09-07', hasData: true });
   });
@@ -71,8 +71,24 @@ describe('Progress logic', () => {
     expect(summary.expectedTotal).toBe(15);
     expect(summary.doneTotal).toBe(11);
     expect(summary.adherencePercent).toBe(73);
-    expect(summary.adherenceLabel).toBe('73%');
-    expect(summary.coverageLabel).toBe('7 of 7 scheduled days');
+  });
+
+  it('does not count days before a habit existed', () => {
+    const localDates = localDatesForPeriod('week', '2026-09-13');
+    const summary = summarizeHabits(
+      [{ id: 'new', cadence: 'daily', days_mask: null, startLocalDate: '2026-09-11' }],
+      [
+        { habit_id: 'new', local_date: '2026-09-11' },
+        { habit_id: 'new', local_date: '2026-09-12' },
+      ],
+      localDates,
+      'week',
+    );
+
+    expect(summary.expectedTotal).toBe(3);
+    expect(summary.doneTotal).toBe(2);
+    expect(summary.adherencePercent).toBe(67);
+    expect(summary.points.slice(0, 4).every((p) => !p.hasData)).toBe(true);
   });
 
   it('counts journey returns and unique journeys by period', () => {
@@ -86,17 +102,34 @@ describe('Progress logic', () => {
         { journey_type: 'path', journey_id: 'stillness', local_date: '2026-09-12' },
       ],
       localDates,
-      'week',
     );
 
     expect(summary.totalReturns).toBe(4);
     expect(summary.distinctJourneys).toBe(3);
-    expect(summary.activeDays).toBe(3);
-    expect(summary.coverageLabel).toBe('3 of 7 days');
-    expect(summary.points).toHaveLength(7);
+    expect(summary.marks).toEqual([1.5 / 7, 3.5 / 7, 5.5 / 7]);
+    expect(summary).not.toHaveProperty('coverageLabel');
   });
 
-  it('builds a snapshot with factual tiles and headings', () => {
+  it('writes one factual sleep highlight, against the target only when one is saved', () => {
+    const localDates = localDatesForPeriod('week', '2026-09-13');
+    const all = summarizeSleep(
+      localDates.map((d) => ({ sleep_end_utc: `${d}T06:30:00.000Z`, timezone: 'UTC', duration_minutes: 458 })),
+      localDates,
+      'week',
+    );
+    expect(progressHighlight(all, 480)).toBe('You logged all 7 nights. Your average was 7 hr 38 min, 22 min under your 8 hr target.');
+    expect(progressHighlight(all, null)).toBe('You logged all 7 nights. Your average was 7 hr 38 min.');
+
+    const some = summarizeSleep(
+      [{ sleep_end_utc: '2026-09-12T06:30:00.000Z', timezone: 'UTC', duration_minutes: 480 }],
+      localDates,
+      'week',
+    );
+    expect(progressHighlight(some, 480)).toBe('You logged 1 of 7 nights. Your average was 8 hr, right on your 8 hr target.');
+    expect(progressHighlight(summarizeSleep([], localDates, 'week'), 480)).toBeNull();
+  });
+
+  it('builds an empty month snapshot without inventing values', () => {
     const snapshot = buildProgressSnapshot({
       period: 'month',
       today: '2026-09-30',
@@ -107,9 +140,9 @@ describe('Progress logic', () => {
     });
 
     expect(snapshot.heading).toBe('This month');
-    expect(snapshot.tiles.map((tile) => tile.label)).toEqual(['Sleep', 'Habits', 'Returns']);
-    expect(snapshot.tiles[0].value).toBe('No data');
-    expect(snapshot.tiles[1].value).toBe('No data');
-    expect(snapshot.tiles[2].value).toBe('0');
+    expect(snapshot.sleep.averageMinutes).toBeNull();
+    expect(snapshot.habits.adherencePercent).toBeNull();
+    expect(snapshot.journeys.totalReturns).toBe(0);
+    expect(snapshot.journeys.marks).toEqual([]);
   });
 });

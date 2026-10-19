@@ -1,4 +1,5 @@
 import { isHabitScheduledOnDate } from '@data/habitRules';
+import { formatSleepDuration, sleepVsTarget } from '@features/today/todayLogic';
 
 export type ProgressPeriod = 'week' | 'month';
 
@@ -12,6 +13,8 @@ export interface HabitLike {
   id: string;
   cadence: 'daily' | 'weekdays' | 'custom';
   days_mask: number | null;
+  /** Local date the habit was created; earlier days are not counted as due. */
+  startLocalDate?: string | null;
 }
 
 export interface HabitCompletionLike {
@@ -29,14 +32,12 @@ export interface TrendPoint {
   localDate: string;
   label: string;
   value: number | null;
-  displayValue: string;
   normalized: number;
   hasData: boolean;
 }
 
 export interface SleepProgress {
   averageMinutes: number | null;
-  averageLabel: string;
   coverageLabel: string;
   loggedNights: number;
   totalNights: number;
@@ -45,9 +46,6 @@ export interface SleepProgress {
 
 export interface HabitsProgress {
   adherencePercent: number | null;
-  adherenceLabel: string;
-  coverageLabel: string;
-  activeHabits: number;
   doneTotal: number;
   expectedTotal: number;
   points: TrendPoint[];
@@ -55,17 +53,9 @@ export interface HabitsProgress {
 
 export interface JourneyProgress {
   totalReturns: number;
-  coverageLabel: string;
   distinctJourneys: number;
-  activeDays: number;
-  points: TrendPoint[];
-}
-
-export interface ProgressTile {
-  key: 'sleep' | 'habits' | 'journeys';
-  label: string;
-  value: string;
-  meta: string;
+  /** 0–1 positions of days with a return; gaps are rest, never empty cells. */
+  marks: number[];
 }
 
 export interface ProgressSnapshot {
@@ -75,7 +65,6 @@ export interface ProgressSnapshot {
   sleep: SleepProgress;
   habits: HabitsProgress;
   journeys: JourneyProgress;
-  tiles: ProgressTile[];
 }
 
 export interface ProgressSnapshotInput {
@@ -106,7 +95,7 @@ export function buildProgressSnapshot(input: ProgressSnapshotInput): ProgressSna
   const localDates = localDatesForPeriod(input.period, input.today);
   const sleep = summarizeSleep(input.sleepEntries, localDates, input.period);
   const habits = summarizeHabits(input.habits, input.habitCompletions, localDates, input.period);
-  const journeys = summarizeJourneys(input.journeyReturns, localDates, input.period);
+  const journeys = summarizeJourneys(input.journeyReturns, localDates);
 
   return {
     period: input.period,
@@ -115,26 +104,6 @@ export function buildProgressSnapshot(input: ProgressSnapshotInput): ProgressSna
     sleep,
     habits,
     journeys,
-    tiles: [
-      {
-        key: 'sleep',
-        label: 'Sleep',
-        value: sleep.averageLabel,
-        meta: sleep.coverageLabel,
-      },
-      {
-        key: 'habits',
-        label: 'Habits',
-        value: habits.adherenceLabel,
-        meta: `${habits.activeHabits} active`,
-      },
-      {
-        key: 'journeys',
-        label: 'Returns',
-        value: String(journeys.totalReturns),
-        meta: `${journeys.distinctJourneys} journeys`,
-      },
-    ],
   };
 }
 
@@ -173,12 +142,10 @@ export function summarizeSleep(
     period,
     values: nightlyAverages,
     hasData: nightlyAverages.map((value) => value != null),
-    formatValue: (value) => (value == null ? 'No entry' : formatDuration(value)),
   });
 
   return {
     averageMinutes,
-    averageLabel: averageMinutes == null ? 'No data' : formatDuration(averageMinutes),
     coverageLabel: `${loggedNights} of ${localDates.length} nights`,
     loggedNights,
     totalNights: localDates.length,
@@ -202,7 +169,6 @@ export function summarizeHabits(
 
   let expectedTotal = 0;
   let doneTotal = 0;
-  let coveredDays = 0;
 
   const dayValues: Array<number | null> = [];
   const hasData: boolean[] = [];
@@ -212,6 +178,7 @@ export function summarizeHabits(
     let done = 0;
 
     for (const habit of habits) {
+      if (habit.startLocalDate && localDate < habit.startLocalDate) continue;
       if (!isHabitScheduledOnDate(habit, localDate)) continue;
       expected += 1;
       if (completionSet.has(`${habit.id}:${localDate}`)) done += 1;
@@ -221,7 +188,6 @@ export function summarizeHabits(
     doneTotal += done;
 
     if (expected > 0) {
-      coveredDays += 1;
       hasData.push(true);
       dayValues.push(Math.round((done / expected) * 100));
     } else {
@@ -239,17 +205,10 @@ export function summarizeHabits(
     period,
     values: dayValues,
     hasData,
-    formatValue: (value) => (value == null ? 'No scheduled habits' : `${value}%`),
   });
 
   return {
     adherencePercent,
-    adherenceLabel: adherencePercent == null ? 'No data' : `${adherencePercent}%`,
-    coverageLabel:
-      habits.length === 0
-        ? 'No active habits'
-        : `${coveredDays} of ${localDates.length} scheduled days`,
-    activeHabits: habits.length,
     doneTotal,
     expectedTotal,
     points,
@@ -259,36 +218,28 @@ export function summarizeHabits(
 export function summarizeJourneys(
   returns: JourneyReturnLike[],
   localDates: string[],
-  period: ProgressPeriod,
 ): JourneyProgress {
   const dateSet = new Set(localDates);
   const rows = returns.filter((row) => dateSet.has(row.local_date));
-  const byDate: Record<string, number> = {};
-  const uniqueJourneys = new Set<string>();
-
-  for (const row of rows) {
-    byDate[row.local_date] = (byDate[row.local_date] ?? 0) + 1;
-    uniqueJourneys.add(`${row.journey_type}:${row.journey_id}`);
-  }
-
-  const dayValues = localDates.map((date) => byDate[date] ?? 0);
-  const activeDays = dayValues.filter((count) => count > 0).length;
-
-  const points = buildTrendPoints({
-    localDates,
-    period,
-    values: dayValues,
-    hasData: dayValues.map((count) => count > 0),
-    formatValue: (value) => `${value ?? 0}`,
-  });
+  const returnDays = new Set(rows.map((row) => row.local_date));
+  const uniqueJourneys = new Set(rows.map((row) => `${row.journey_type}:${row.journey_id}`));
 
   return {
     totalReturns: rows.length,
-    coverageLabel: `${activeDays} of ${localDates.length} days`,
     distinctJourneys: uniqueJourneys.size,
-    activeDays,
-    points,
+    marks: localDates.flatMap((date, index) => (returnDays.has(date) ? [(index + 0.5) / localDates.length] : [])),
   };
+}
+
+/** One factual sentence about sleep in the period; null when nothing was logged. */
+export function progressHighlight(sleep: SleepProgress, targetMinutes: number | null): string | null {
+  if (sleep.loggedNights === 0 || sleep.averageMinutes == null) return null;
+  const nights = sleep.loggedNights === sleep.totalNights
+    ? `You logged all ${sleep.totalNights} nights.`
+    : `You logged ${sleep.loggedNights} of ${sleep.totalNights} nights.`;
+  const average = `Your average was ${formatSleepDuration(sleep.averageMinutes)}`;
+  const compare = sleepVsTarget(sleep.averageMinutes, targetMinutes);
+  return compare ? `${nights} ${average}, ${compare.charAt(0).toLowerCase()}${compare.slice(1)}.` : `${nights} ${average}.`;
 }
 
 interface BuildTrendPointsInput {
@@ -296,7 +247,6 @@ interface BuildTrendPointsInput {
   period: ProgressPeriod;
   values: Array<number | null>;
   hasData: boolean[];
-  formatValue: (value: number | null) => string;
 }
 
 function buildTrendPoints(input: BuildTrendPointsInput): TrendPoint[] {
@@ -313,7 +263,6 @@ function buildTrendPoints(input: BuildTrendPointsInput): TrendPoint[] {
       localDate,
       label: labels[index],
       value,
-      displayValue: input.formatValue(value),
       normalized: normalizedHeight(value, hasData, max),
       hasData,
     };
@@ -338,13 +287,6 @@ function dayLabels(localDates: string[], period: ProgressPeriod): string[] {
     }
     return '';
   });
-}
-
-function formatDuration(minutes: number): string {
-  const wholeMinutes = Math.max(0, Math.round(minutes));
-  const hours = Math.floor(wholeMinutes / 60);
-  const mins = wholeMinutes % 60;
-  return `${hours}h ${mins}m`;
 }
 
 function trailingLocalDates(endDate: string, days: number): string[] {

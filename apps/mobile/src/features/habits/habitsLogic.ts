@@ -40,21 +40,6 @@ export function buildWeeklyDots(
   }));
 }
 
-export function ritualStreakDays(
-  habitIds: string[],
-  localDatesNewestFirst: string[],
-  completionLookup: Record<string, Set<string>>,
-): number {
-  if (habitIds.length === 0) return 0;
-  let streak = 0;
-  for (const localDate of localDatesNewestFirst) {
-    const allDone = habitIds.every((id) => completionLookup[id]?.has(localDate));
-    if (!allDone) break;
-    streak += 1;
-  }
-  return streak;
-}
-
 export function completionLookupWithSets(
   completionByHabit: Record<string, string[]>,
 ): Record<string, Set<string>> {

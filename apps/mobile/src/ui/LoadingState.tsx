@@ -4,7 +4,7 @@ import { colors } from '@styles/theme';
 export function LoadingState() {
   return (
     <View style={styles.wrap}>
-      <ActivityIndicator color={colors.olive} />
+      <ActivityIndicator color={colors.accent} />
     </View>
   );
 }

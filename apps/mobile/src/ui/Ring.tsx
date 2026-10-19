@@ -1,6 +1,6 @@
 import Svg, { Circle } from 'react-native-svg';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '@styles/theme';
+import { colors, palette } from '@styles/theme';
 
 interface RingProps {
   /** 0..1 completion. */
@@ -17,8 +17,8 @@ export function Ring({
   value,
   size = 88,
   stroke = 9,
-  color = colors.olive,
-  trackColor = colors.surfaceMuted,
+  color = palette.habits.base,
+  trackColor = palette.habits.soft,
   label,
   sublabel,
 }: RingProps) {

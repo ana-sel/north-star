@@ -1,23 +1,17 @@
-// TodayScreen — log last night's bed and wake time.
+// Log · Sleep — log last night's bed and wake time, see the last 7 nights, edit history.
 // Stores UTC + the timezone it was logged in (GDPR: minimal data).
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-  ActivityIndicator,
-  Modal,
-  Alert,
-} from 'react-native';
-import { theme } from '@styles/theme';
-import { utcToZonedTime } from 'date-fns-tz';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { colors, palette, radii, spacing } from '@styles/theme';
+import { Button, Icon, ListGroup, ListRow, SectionHeader, Sheet, SummaryValue } from '@ui';
+import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
 import { SleepForm } from '../components/SleepForm';
-import { calculateDuration, changeTimeInTimezone, getDeviceTimezone, getTimezoneOffset, smartBedTime, smartWakeTime, utcToLocal, wakeAfterBedInTimezone } from '@lib/time';
-import { deleteSleepEntry, getSleepHistory, saveSleepEntry, updateSleepEntry } from '@data/sleep';
+import { SleepChart } from '../components/SleepChart';
+import { averageNightMinutes, nightBars, nightRowLabels, nightWindow } from '../sleepNights';
+import { formatSleepDuration } from '@features/today/todayLogic';
+import { changeTimeInTimezone, getDeviceTimezone, getTimezoneOffset, localDateISO, localDateWindow, smartBedTime, smartWakeTime, utcToLocal, wakeAfterBedInTimezone } from '@lib/time';
+import { deleteSleepEntry, getSleepHistory, getTodaySleep, saveSleepEntry, updateSleepEntry } from '@data/sleep';
 import { getPref, setPref } from '@data/prefs';
 import type { SleepEntry } from '../../../types';
 
@@ -45,11 +39,14 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [history, setHistory] = useState<SleepEntry[]>([]);
   const [historyError, setHistoryError] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [lastNight, setLastNight] = useState<SleepEntry | null>(null);
   const [editing, setEditing] = useState<SleepEntry | null>(null);
   const [editBed, setEditBed] = useState<Date>(new Date());
   const [editWake, setEditWake] = useState<Date>(new Date());
 
   // Target sleep times (persisted locally)
+  const [hasTarget, setHasTarget] = useState(false);
   const [targetBed, setTargetBed] = useState<Date>(() => {
     const d = new Date(); d.setHours(23, 0, 0, 0); return d;
   });
@@ -68,13 +65,21 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
       const d2 = new Date(); d2.setHours(saved.wake.h, saved.wake.m, 0, 0);
       setTargetBed(d1);
       setTargetWake(d2);
+      setHasTarget(true);
     };
     loadTarget();
   }, []);
 
   const refreshHistory = useCallback(async () => {
     try {
-      setHistory(await getSleepHistory());
+      const [rows, today] = await Promise.all([getSleepHistory(), getTodaySleep(localDateISO())]);
+      setHistory(rows);
+      // A night already saved for today opens in the dial, so saving again updates it.
+      setLastNight(today);
+      if (today) {
+        setBedTime(new Date(today.sleep_start_utc));
+        setWakeTime(new Date(today.sleep_end_utc));
+      }
       setHistoryError(false);
     } catch {
       setHistoryError(true);
@@ -123,19 +128,11 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
     ]);
   };
 
-  const targetDurationLabel = useMemo(() => {
-    let diff = (targetWake.getHours() * 60 + targetWake.getMinutes()) -
-               (targetBed.getHours() * 60 + targetBed.getMinutes());
-    if (diff <= 0) diff += 24 * 60;
-    return `${Math.floor(diff / 60)}h ${diff % 60 === 0 ? '00' : diff % 60}m`;
+  const targetMinutes = useMemo(() => {
+    const diff = (targetWake.getHours() * 60 + targetWake.getMinutes()) -
+                 (targetBed.getHours() * 60 + targetBed.getMinutes());
+    return diff <= 0 ? diff + 24 * 60 : diff;
   }, [targetBed, targetWake]);
-
-  const draftDurationLabel = useMemo(() => {
-    let diff = (draftWake.getHours() * 60 + draftWake.getMinutes()) -
-               (draftBed.getHours() * 60 + draftBed.getMinutes());
-    if (diff <= 0) diff += 24 * 60;
-    return `${Math.floor(diff / 60)}h ${diff % 60 === 0 ? '00' : diff % 60}m`;
-  }, [draftBed, draftWake]);
 
   const openTargetModal = useCallback(() => {
     setDraftBed(targetBed);
@@ -150,20 +147,11 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
       bed:  { h: draftBed.getHours(),  m: draftBed.getMinutes() },
       wake: { h: draftWake.getHours(), m: draftWake.getMinutes() },
     });
+    setHasTarget(true);
     setShowTargetModal(false);
   }, [draftBed, draftWake]);
 
-  // Day hint shown next to each time: "↩ yesterday" / "↩ today"
-  const dayHint = (d: Date): string => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (d.toDateString() === today.toDateString()) return '↩ today';
-    if (d.toDateString() === yesterday.toDateString()) return '↩ yesterday';
-    return `↩ ${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' })}`;
-  };
-
-  const { formatted: durationLabel } = calculateDuration(bedTime, wakeTime);
+  const dayName = (d: Date, tz: string): string => formatInTimeZone(d, tz, 'EEEE');
 
   const handleSave = useCallback(async () => {
     setErrorMsg(null);
@@ -175,15 +163,23 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
 
     setIsSaving(true);
     try {
-      await saveSleepEntry({
-        sleep_start_utc: bedTime.toISOString(),
-        sleep_end_utc: wakeTime.toISOString(),
-        timezone,
-        duration_minutes: null,
-        note: null,
-        energy: null,
-        mood: null,
-      });
+      if (lastNight) {
+        await updateSleepEntry(lastNight.id, {
+          sleep_start_utc: bedTime.toISOString(),
+          sleep_end_utc: wakeTime.toISOString(),
+          timezone,
+        });
+      } else {
+        await saveSleepEntry({
+          sleep_start_utc: bedTime.toISOString(),
+          sleep_end_utc: wakeTime.toISOString(),
+          timezone,
+          duration_minutes: null,
+          note: null,
+          energy: null,
+          mood: null,
+        });
+      }
       await refreshHistory();
       onSaved?.();
     } catch (err) {
@@ -192,7 +188,7 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [bedTime, wakeTime, timezone, onSaved, refreshHistory]);
+  }, [bedTime, wakeTime, timezone, onSaved, refreshHistory, lastNight]);
 
   const handleBedChange = useCallback((date: Date) => {
     const smart = smartBedTime(date);
@@ -207,345 +203,160 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
     setErrorMsg(null);
   }, [bedTime]);
 
-  const today = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
+  const dates = localDateWindow(7);
+  const bars = nightBars(history, dates);
+  const targetClock = hasTarget
+    ? { bed: targetBed.getHours() * 60 + targetBed.getMinutes(), wake: targetWake.getHours() * 60 + targetWake.getMinutes() }
+    : null;
+  const average = averageNightMinutes(bars);
+  const shownHistory = showAll ? history : history.slice(0, 7);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Date */}
-        <Text style={styles.date}>{today}</Text>
-
-        {/* Timezone pill */}
-        <View style={styles.tzPill}>
-          <View style={styles.tzDot} />
-          <Text style={styles.tzText}>
-            {timezone} · {offsetLabel}
-          </Text>
-        </View>
-
-        {/* Error banner */}
-        {errorMsg && (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>{errorMsg}</Text>
-          </View>
-        )}
-
-        {/* Target sleep card */}
-        <TouchableOpacity style={styles.targetCard} onPress={openTargetModal} activeOpacity={0.8}>
-          <Text style={styles.targetHeading}>Target</Text>
-          <View style={styles.targetRow}>
-            <View style={styles.targetTime}>
-              <Text style={styles.targetIcon}>🌙</Text>
-              <Text style={styles.targetTimeValue}>{utcToLocal(targetBed, timezone)}</Text>
-            </View>
-            <Text style={styles.targetSep}>→</Text>
-            <View style={styles.targetTime}>
-              <Text style={styles.targetIcon}>☀</Text>
-              <Text style={styles.targetTimeValue}>{utcToLocal(targetWake, timezone)}</Text>
-            </View>
-            <Text style={styles.targetDur}>{targetDurationLabel}</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Question */}
-        <Text style={styles.question}>How did you sleep?</Text>
-
-        {/* Sleep form (time pickers) */}
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
+          <View style={styles.head}>
+            <View style={styles.cat}>
+              <Icon name="bed" size={17} color={palette.sleep.deep} />
+              <Text style={[styles.catText, { color: palette.sleep.deep }]}>Last night</Text>
+            </View>
+            {lastNight ? <Text style={styles.tag}>Saved</Text> : null}
+          </View>
           <SleepForm
             bedTime={bedTime}
             wakeTime={wakeTime}
-            durationLabel={durationLabel}
             timezone={timezone}
-            bedHint={dayHint(bedTime)}
-            wakeHint={dayHint(wakeTime)}
+            bedHint={dayName(bedTime, timezone)}
+            wakeHint={dayName(wakeTime, timezone)}
             onBedTimeChange={handleBedChange}
             onWakeTimeChange={handleWakeChange}
           />
+          {errorMsg ? <Text style={styles.error}>{errorMsg}</Text> : null}
+          <Button
+            label={lastNight ? 'Update night' : 'Save night'}
+            variant={lastNight ? 'secondary' : 'primary'}
+            onPress={() => void handleSave()}
+            loading={isSaving}
+            style={styles.save}
+          />
         </View>
+        <Text style={styles.foot}>
+          Drag the handles in 10-minute steps, or tap a time to type it. Times in {timezone} ({offsetLabel}).
+        </Text>
 
-        {/* Save button */}
-        <TouchableOpacity
-          style={[styles.saveBtn, isSaving && styles.saveBtnDisabled]}
-          onPress={handleSave}
-          disabled={isSaving}
-          activeOpacity={0.85}
-        >
-          {isSaving ? (
-            <ActivityIndicator color={theme.colors.card} size="small" />
+        <SectionHeader title="Last 7 nights" />
+        <View style={styles.card}>
+          <Text style={styles.sub}>Average time asleep</Text>
+          {average != null ? (
+            <SummaryValue parts={durationParts(average)} />
           ) : (
-            <Text style={styles.saveBtnText}>Save night</Text>
+            <Text style={styles.empty}>No nights logged this week yet.</Text>
           )}
-        </TouchableOpacity>
-
-        <View style={styles.history}>
-          <Text style={styles.question}>Sleep history</Text>
-          {historyError ? (
-            <TouchableOpacity onPress={() => void refreshHistory()} accessibilityRole="button">
-              <Text style={styles.historyDetail}>History is unavailable. Tap to try again.</Text>
-            </TouchableOpacity>
-          ) : history.length === 0 ? (
-            <Text style={styles.historyDetail}>Your logged nights will appear here.</Text>
-          ) : history.map((entry) => (
-            <TouchableOpacity key={entry.id} style={styles.historyRow} onPress={() => startEditing(entry)} accessibilityRole="button" accessibilityLabel={`Edit sleep from ${new Date(entry.sleep_start_utc).toLocaleDateString()}`}>
-              <Text style={styles.historyTitle}>{new Date(entry.sleep_start_utc).toLocaleDateString()}</Text>
-              <Text style={styles.historyDetail}>{utcToLocal(new Date(entry.sleep_start_utc), entry.timezone)} to {utcToLocal(new Date(entry.sleep_end_utc), entry.timezone)} · {Math.floor((entry.duration_minutes ?? 0) / 60)}h {String((entry.duration_minutes ?? 0) % 60).padStart(2, '0')}m</Text>
-            </TouchableOpacity>
-          ))}
+          <SleepChart dates={dates} bars={bars} window={nightWindow(bars, targetClock)} color={palette.sleep.base} target={targetClock} />
         </View>
+
+        <ListGroup>
+          <ListRow
+            title="Sleep target"
+            value={hasTarget ? `${utcToLocal(targetBed, timezone)} – ${utcToLocal(targetWake, timezone)} · ${formatSleepDuration(targetMinutes)}` : 'Not set'}
+            chevron
+            onPress={openTargetModal}
+          />
+        </ListGroup>
+
+        <SectionHeader
+          title="History"
+          action={history.length > 7 ? { label: showAll ? 'Show less' : 'Show all', onPress: () => setShowAll((v) => !v) } : undefined}
+        />
+        {historyError ? (
+          <ListGroup>
+            <ListRow title="History is unavailable" subtitle="Tap to try again" onPress={() => void refreshHistory()} />
+          </ListGroup>
+        ) : history.length === 0 ? (
+          <Text style={styles.foot}>Your logged nights will appear here.</Text>
+        ) : (
+          <ListGroup>
+            {shownHistory.map((entry) => {
+              const labels = nightRowLabels(entry);
+              return (
+                <ListRow
+                  key={entry.id}
+                  title={labels.title}
+                  subtitle={labels.times}
+                  value={formatSleepDuration(entry.duration_minutes ?? 0)}
+                  chevron
+                  onPress={() => startEditing(entry)}
+                  accessibilityLabel={`Edit night of ${labels.title}, ${labels.times}`}
+                />
+              );
+            })}
+          </ListGroup>
+        )}
       </ScrollView>
 
-      {/* Target setter modal */}
-      <Modal
-        visible={showTargetModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowTargetModal(false)}
-      >
-        <SafeAreaView style={styles.container}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Modal header */}
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Sleep target</Text>
-              <TouchableOpacity
-                onPress={() => setShowTargetModal(false)}
-                style={styles.modalDone}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.modalDoneText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
+      <Sheet visible={showTargetModal} onClose={() => setShowTargetModal(false)} title="Sleep target">
+        <View style={styles.sheetBody}>
+          <SleepForm
+            bedTime={draftBed}
+            wakeTime={draftWake}
+            timezone={timezone}
+            bedHint=""
+            wakeHint=""
+            bedLabel="Target bed"
+            wakeLabel="Target wake"
+            durationSuffix="hr target"
+            onBedTimeChange={(d) => setDraftBed(d)}
+            onWakeTimeChange={(d) => setDraftWake(d)}
+          />
+          <Button label="Save target" onPress={() => void handleSaveTarget()} />
+        </View>
+      </Sheet>
 
-            <Text style={styles.question}>What's your target?</Text>
-
-            {/* Reuse the same card + SleepForm layout */}
-            <View style={styles.card}>
-              <SleepForm
-                bedTime={draftBed}
-                wakeTime={draftWake}
-                durationLabel={draftDurationLabel}
-                timezone={timezone}
-                bedHint=""
-                wakeHint=""
-                bedLabel="Target bed"
-                wakeLabel="Target wake"
-                durationSuffix="target"
-                onBedTimeChange={(d) => setDraftBed(d)}
-                onWakeTimeChange={(d) => setDraftWake(d)}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={styles.saveBtn}
-              onPress={handleSaveTarget}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.saveBtnText}>Save target</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      <Modal visible={editing !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setEditing(null)}>
-        <SafeAreaView style={styles.container}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit night</Text>
-              <TouchableOpacity onPress={() => setEditing(null)} style={styles.modalDone} accessibilityRole="button">
-                <Text style={styles.modalDoneText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-            {editing && (
-              <View style={styles.card}>
-                <SleepForm
-                  bedTime={editBed}
-                  wakeTime={editWake}
-                  durationLabel={calculateDuration(editBed, editWake).formatted}
-                  timezone={editing.timezone}
-                  bedHint=""
-                  wakeHint=""
-                  onBedTimeChange={(date) => {
-                    const next = changeTimeInTimezone(editBed, date, editing.timezone);
-                    setEditBed(next);
-                    setEditWake(wakeAfterBedInTimezone(utcToZonedTime(editWake, editing.timezone), next, editing.timezone));
-                  }}
-                  onWakeTimeChange={(date) => setEditWake(wakeAfterBedInTimezone(date, editBed, editing.timezone))}
-                />
-              </View>
-            )}
-            <TouchableOpacity style={styles.saveBtn} onPress={saveEdit} disabled={isSaving} accessibilityRole="button">
-              <Text style={styles.saveBtnText}>Save changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={confirmDelete} accessibilityRole="button">
-              <Text style={styles.deleteText}>Delete entry</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-    </SafeAreaView>
+      <Sheet visible={editing !== null} onClose={() => setEditing(null)} title="Edit night">
+        {editing ? (
+          <View style={styles.sheetBody}>
+            <SleepForm
+              bedTime={editBed}
+              wakeTime={editWake}
+              timezone={editing.timezone}
+              bedHint={dayName(editBed, editing.timezone)}
+              wakeHint={dayName(editWake, editing.timezone)}
+              onBedTimeChange={(date) => {
+                const next = changeTimeInTimezone(editBed, date, editing.timezone);
+                setEditBed(next);
+                setEditWake(wakeAfterBedInTimezone(utcToZonedTime(editWake, editing.timezone), next, editing.timezone));
+              }}
+              onWakeTimeChange={(date) => setEditWake(wakeAfterBedInTimezone(date, editBed, editing.timezone))}
+            />
+            <Button label="Save changes" onPress={() => void saveEdit()} loading={isSaving} />
+            <ListGroup>
+              <ListRow title="Delete this night" tone="destructive" onPress={confirmDelete} />
+            </ListGroup>
+          </View>
+        ) : null}
+      </Sheet>
+    </View>
   );
 }
 
+function durationParts(minutes: number): { value: string; unit: string }[] {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m ? [{ value: String(h), unit: 'hr' }, { value: String(m), unit: 'min' }] : [{ value: String(h), unit: 'hr' }];
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
-  scrollContent: {
-    padding: theme.spacing.lg,
-    gap: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxxl,
-  },
-  date: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '500',
-    marginTop: 4,
-  },
-  tzPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    alignSelf: 'flex-start',
-    backgroundColor: theme.colors.greige,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.full,
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.md,
-  },
-  tzDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: theme.colors.olive,
-  },
-  tzText: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.muted,
-    fontWeight: '500',
-  },
-  question: {
-    fontSize: theme.typography.lg,
-    fontWeight: '700',
-    color: theme.colors.ink,
-    letterSpacing: -0.3,
-  },
-  card: {
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.card,
-    padding: theme.spacing.lg,
-    ...theme.shadows.md,
-  },
-  history: { gap: theme.spacing.sm },
-  historyRow: { padding: theme.spacing.md, backgroundColor: theme.colors.card, borderWidth: 1, borderColor: theme.colors.line, borderRadius: theme.radii.input, gap: theme.spacing.xs },
-  historyTitle: { fontSize: theme.typography.md, fontWeight: '600', color: theme.colors.ink },
-  historyDetail: { fontSize: theme.typography.sm, color: theme.colors.muted },
-  deleteText: { textAlign: 'center', color: theme.colors.error, fontSize: theme.typography.md },
-  saveBtn: {
-    backgroundColor: theme.colors.ink,
-    borderRadius: theme.radii.input,
-    paddingVertical: theme.spacing.md,
-    alignItems: 'center',
-  },
-  saveBtnDisabled: {
-    opacity: 0.5,
-  },
-  saveBtnText: {
-    fontSize: theme.typography.md,
-    fontWeight: '600',
-    color: theme.colors.card,
-  },
-  errorBanner: {
-    backgroundColor: '#FDF4F3',
-    borderLeftWidth: 3,
-    borderLeftColor: theme.colors.error,
-    borderRadius: theme.radii.input,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-  },
-  errorText: {
-    fontSize: theme.typography.sm,
-    color: theme.colors.error,
-    fontWeight: '500',
-    lineHeight: 20,
-  },
-  targetCard: {
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    borderRadius: theme.radii.card,
-    padding: theme.spacing.lg,
-    gap: theme.spacing.sm,
-    ...theme.shadows.sm,
-  },
-  targetHeading: {
-    fontSize: theme.typography.xs,
-    fontWeight: '600',
-    color: theme.colors.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  targetRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  targetTime: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  targetIcon: {
-    fontSize: theme.typography.md,
-  },
-  targetTimeValue: {
-    fontSize: theme.typography.lg,
-    fontWeight: '700',
-    color: theme.colors.ink,
-    letterSpacing: -0.3,
-  },
-  targetSep: {
-    fontSize: theme.typography.md,
-    color: theme.colors.muted,
-  },
-  targetDur: {
-    marginLeft: 'auto',
-    fontSize: theme.typography.md,
-    fontWeight: '600',
-    color: theme.colors.muted,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: theme.spacing.md,
-  },
-  modalTitle: {
-    fontSize: theme.typography.xl,
-    fontWeight: '800',
-    color: theme.colors.ink,
-    letterSpacing: -0.5,
-  },
-  modalDone: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-  },
-  modalDoneText: {
-    fontSize: theme.typography.md,
-    fontWeight: '600',
-    color: theme.colors.muted,
-  },
+  container: { flex: 1, backgroundColor: colors.canvas },
+  scrollContent: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.xxxl },
+  card: { backgroundColor: colors.surface, borderRadius: radii.card, padding: spacing.lg, paddingTop: 14, marginBottom: spacing.sm },
+  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cat: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  catText: { fontSize: 15, fontWeight: '600' },
+  tag: { fontSize: 12, fontWeight: '600', color: colors.inkMuted, backgroundColor: colors.canvasDark, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, overflow: 'hidden' },
+  error: { fontSize: 14, color: colors.error, marginTop: spacing.md },
+  save: { marginTop: 14 },
+  foot: { fontSize: 13, color: colors.inkMuted, lineHeight: 18, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  sub: { fontSize: 14, color: colors.inkMuted, marginBottom: 2 },
+  empty: { fontSize: 16, color: colors.ink, marginTop: 2 },
+  sheetBody: { gap: spacing.md, paddingTop: spacing.sm },
 });

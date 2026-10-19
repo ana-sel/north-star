@@ -1,21 +1,32 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
-import { theme } from '@styles/theme';
+import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
+import { colors, palette } from '@styles/theme';
+import { Icon } from '@ui';
 import { dialDurationMinutes, dialMinutesFromPoint, dialPoint } from './sleepDialMath';
 
-const SIZE = 216;
+const SIZE = 220;
 const CENTER = SIZE / 2;
-const RADIUS = 76;
+const RADIUS = 88;
+const TRACK = 22;
+const HANDLE = 13;
+const HOURS = [
+  { label: '00', x: CENTER, y: 50 },
+  { label: '06', x: 172, y: 114 },
+  { label: '12', x: CENTER, y: 178 },
+  { label: '18', x: 48, y: 114 },
+];
 
 interface SleepDialProps {
   bedMinutes: number;
   wakeMinutes: number;
   onBedChange: (minutes: number) => void;
   onWakeChange: (minutes: number) => void;
+  caption?: string;
 }
 
-export function SleepDial({ bedMinutes, wakeMinutes, onBedChange, onWakeChange }: SleepDialProps) {
+export function SleepDial({ bedMinutes, wakeMinutes, onBedChange, onWakeChange, caption = 'hr asleep' }: SleepDialProps) {
+  const tone = palette.sleep;
   const [dragging, setDragging] = useState<'bed' | 'wake' | null>(null);
   const bed = dialPoint(bedMinutes, CENTER, RADIUS);
   const wake = dialPoint(wakeMinutes, CENTER, RADIUS);
@@ -45,19 +56,29 @@ export function SleepDial({ bedMinutes, wakeMinutes, onBedChange, onWakeChange }
         accessible={false}
       >
         <Svg width={SIZE} height={SIZE} pointerEvents="none">
-          <Circle cx={CENTER} cy={CENTER} r={98} fill={theme.colors.greige} />
-          <Circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke={theme.colors.line} strokeWidth={2} />
+          <Circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke={tone.soft} strokeWidth={TRACK} />
           {duration === 1440 ? (
-            <Circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke={theme.colors.olive} strokeWidth={6} />
+            <Circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke={tone.base} strokeWidth={TRACK} />
           ) : (
-            <Path d={arc} fill="none" stroke={theme.colors.olive} strokeWidth={6} strokeLinecap="round" />
+            <Path d={arc} fill="none" stroke={tone.base} strokeWidth={TRACK} strokeLinecap="round" />
           )}
-          <Circle cx={bed.x} cy={bed.y} r={14} fill={theme.colors.ink} stroke={theme.colors.card} strokeWidth={3} />
-          <Circle cx={wake.x} cy={wake.y} r={14} fill={theme.colors.olive} stroke={theme.colors.card} strokeWidth={3} />
+          {HOURS.map((h) => (
+            <SvgText key={h.label} x={h.x} y={h.y} fontSize={11} fontWeight="600" fill={colors.inkFaint} textAnchor="middle">
+              {h.label}
+            </SvgText>
+          ))}
+          <Circle cx={bed.x} cy={bed.y} r={HANDLE} fill={colors.surface} stroke={tone.base} strokeWidth={2} />
+          <Circle cx={wake.x} cy={wake.y} r={HANDLE} fill={colors.surface} stroke={tone.base} strokeWidth={2} />
         </Svg>
+        <View pointerEvents="none" style={[styles.handleIcon, { left: bed.x - 7, top: bed.y - 7 }]}>
+          <Icon name="moon" size={14} color={tone.base} strokeWidth={2.4} />
+        </View>
+        <View pointerEvents="none" style={[styles.handleIcon, { left: wake.x - 7, top: wake.y - 7 }]}>
+          <Icon name="sun" size={14} color={tone.base} strokeWidth={2.4} />
+        </View>
         <View pointerEvents="none" style={styles.centerLabel}>
-          <Text style={styles.duration}>{Math.floor(duration / 60)}h {String(duration % 60).padStart(2, '0')}m</Text>
-          <Text style={styles.caption}>Sleep window</Text>
+          <Text style={styles.duration}>{Math.floor(duration / 60)}:{String(duration % 60).padStart(2, '0')}</Text>
+          <Text style={styles.caption}>{caption}</Text>
         </View>
       </View>
     </View>
@@ -65,9 +86,10 @@ export function SleepDial({ bedMinutes, wakeMinutes, onBedChange, onWakeChange }
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center' },
+  container: { alignItems: 'center', marginVertical: 4 },
   face: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
-  centerLabel: { position: 'absolute', alignItems: 'center', gap: theme.spacing.xs },
-  duration: { fontSize: theme.typography.xl, fontWeight: '700', color: theme.colors.ink },
-  caption: { fontSize: theme.typography.xs, color: theme.colors.muted },
+  handleIcon: { position: 'absolute', width: 14, height: 14 },
+  centerLabel: { position: 'absolute', alignItems: 'center' },
+  duration: { fontSize: 26, fontWeight: '700', color: colors.ink },
+  caption: { fontSize: 12, color: colors.inkMuted },
 });

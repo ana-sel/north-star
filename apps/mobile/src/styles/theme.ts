@@ -1,82 +1,47 @@
 /**
  * Compass V1 design tokens.
- * Source of truth: docs/design/wireframes/shared/tokens.css + you.css.
- * Feature screens still read the legacy fields — do not remove them.
+ * Source of truth: docs/design/wireframes-health/shared/health.css (palette.html).
  */
 
 const surfaces = {
-  canvas: '#F6F5F2',
+  canvas: '#F5F3F0',
   canvasLight: '#FBFAF8',
-  canvasDark: '#EFEDE8',
-  surface: '#FFFEFC',
-  surfaceMuted: '#F0ECE5',
-  border: '#E2DFD9',
+  canvasDark: '#E9E7E5',
+  surface: '#FFFFFF',
+  surfaceMuted: '#F4F3F1',
+  border: '#E5E3E0',
 } as const;
 
 const inks = {
-  ink: '#24231F',
-  inkMuted: '#65645F',
-  inkFaint: '#A19F9A',
-  onDark: '#FBFAF8',
+  ink: '#1C1C1E',
+  inkMuted: '#6E6E73',
+  inkFaint: '#AEAEB2',
+  onDark: '#FFFFFF',
 } as const;
 
 const brand = {
-  btn: '#3C3A34',
-  olive: '#768471',
-  steel: '#7E8E9F',
-  mauve: '#898095',
-  accent: '#5F6B5A',
-  accentSoft: '#EEF1EC',
-  gold: '#A8843F',
-  goldSoft: '#F4EEE0',
+  btn: '#2F3F4F',
+  accent: '#2F3F4F',
 } as const;
 
-const pillar = {
-  health: '#77936F',
-  inner: '#937CAF',
-  admin: '#958572',
-  family: '#B77980',
-  joy: '#C99554',
-  money: '#7395AD',
-  contrib: '#8D8F63',
-} as const;
+/** Each meaning has soft (tracks, chips), base (bars, tiles, rings) and deep (coloured text). */
+export interface Tone { soft: string; base: string; deep: string }
 
-const path = {
-  Inward: '#9B8FD6',
-  Together: '#CF8F94',
-  Craft: '#D3AA62',
-  Frontier: '#7FA8B8',
-} as const;
-
-const status = {
-  success: '#768471',
-  warning: '#B89150',
-  error: '#B0746C',
-  info: '#7E8E9F',
-  disabled: '#C4BFBA',
-} as const;
+export const palette = {
+  sleep: { soft: '#E5EDFE', base: '#708BC6', deep: '#43598B' },
+  habits: { soft: '#E2F2E4', base: '#609D6D', deep: '#346841' },
+  foundation: { soft: '#F2ECE4', base: '#988979', deep: '#665849' },
+  Inward: { soft: '#EEEAFC', base: '#9080C0', deep: '#5E5085' },
+  Together: { soft: '#FDE6E7', base: '#BF7479', deep: '#84454B' },
+  Craft: { soft: '#F7EBDB', base: '#AE8446', deep: '#76531B' },
+  Frontier: { soft: '#DEF1F3', base: '#5299A1', deep: '#25656C' },
+} as const satisfies Record<string, Tone>;
 
 export const colors = {
   ...surfaces,
   ...inks,
   ...brand,
-  ...status,
-  pillar,
-  path,
-  bg: surfaces.canvas,
-  card: surfaces.surface,
-  greige: surfaces.surfaceMuted,
-  line: surfaces.border,
-  muted: inks.inkMuted,
-  bgLight: surfaces.canvasLight,
-  bgDark: surfaces.canvasDark,
-  text: inks.ink,
-  textMuted: inks.inkMuted,
-  textLight: inks.inkFaint,
-  primary: brand.olive,
-  secondary: brand.steel,
-  active: inks.ink,
-  inactive: inks.inkMuted,
+  error: '#C4453C',
 } as const;
 
 export const typography = {
@@ -87,26 +52,6 @@ export const typography = {
     lg: 17,
     xl: 26,
     hero: 34,
-  },
-  lineHeights: {
-    tight: 1.25,
-    body: 1.5,
-    relaxed: 1.6,
-  },
-  weights: {
-    regular: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-    extrabold: '800',
-  },
-  letterSpacing: {
-    tight: -0.4,
-    normal: 0,
-    label: 0.9,
-  },
-  fontFamily: {
-    body: 'Inter',
   },
 } as const;
 
@@ -123,67 +68,24 @@ export const spacing = {
 
 export const radii = {
   control: 12,
-  card: 18,
-  feature: 20,
-  sheet: 22,
+  card: 14,
+  sheet: 16,
   pill: 999,
-  sm: 12,
-  md: 18,
-  lg: 22,
-  input: 12,
-  full: 999,
 } as const;
 
 export const shadows = {
   sm: {
-    shadowColor: '#24231F',
+    shadowColor: '#1C1C1E',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: '#24231F',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 0,
   },
   lg: {
-    shadowColor: '#24231F',
-    shadowOffset: { width: 0, height: 10 },
+    shadowColor: '#1C1C1E',
+    shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.12,
-    shadowRadius: 28,
-    elevation: 6,
+    shadowRadius: 24,
+    elevation: 8,
   },
 } as const;
-
-export const motion = {
-  duration: { fast: 120, base: 180, slow: 240 },
-  easing: 'ease-out',
-} as const;
-
-export const layout = {
-  minTouch: 44,
-  screenPadding: spacing.lg,
-} as const;
-
-export const theme = {
-  colors,
-  typography: {
-    hero: typography.sizes.hero,
-    xl: typography.sizes.xl,
-    lg: typography.sizes.lg,
-    md: typography.sizes.md,
-    sm: typography.sizes.sm,
-    xs: typography.sizes.xs,
-  },
-  type: typography,
-  spacing,
-  radii,
-  shadows,
-  motion,
-  layout,
-} as const;
-
-export type Theme = typeof colors;

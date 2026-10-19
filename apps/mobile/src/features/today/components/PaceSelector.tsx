@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, radii, shadows, spacing, typography } from '@styles/theme';
+import { colors, radii, spacing } from '@styles/theme';
 import type { PaceMode } from '../todayLogic';
 
 interface PaceSelectorProps {
@@ -16,7 +16,7 @@ const OPTIONS: { key: PaceMode; label: string }[] = [
 export function PaceSelector({ value, onChange }: PaceSelectorProps) {
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>Today's pace</Text>
+      <Text style={styles.label}>Pace</Text>
       <View style={styles.seg}>
         {OPTIONS.map((option) => {
           const active = option.key === value;
@@ -39,18 +39,33 @@ export function PaceSelector({ value, onChange }: PaceSelectorProps) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  label: { fontSize: typography.sizes.xs, fontWeight: '600', color: colors.inkMuted },
-  seg: {
-    flex: 1,
+  row: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radii.control,
-    padding: 3,
-    gap: 2,
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card,
+    paddingVertical: 10,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xs,
   },
-  btn: { flex: 1, paddingVertical: spacing.sm, borderRadius: 9, alignItems: 'center' },
-  btnOn: { backgroundColor: colors.surface, ...shadows.sm },
-  btnText: { fontSize: typography.sizes.xs, fontWeight: '700', color: colors.inkMuted },
+  label: { fontSize: 16, color: colors.ink, flex: 1 },
+  seg: {
+    width: 200,
+    flexDirection: 'row',
+    backgroundColor: colors.canvasDark,
+    borderRadius: 9,
+    padding: 2,
+  },
+  btn: { flex: 1, paddingVertical: 6, borderRadius: 7, alignItems: 'center' },
+  btnOn: {
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  btnText: { fontSize: 13, fontWeight: '600', color: colors.ink },
   btnTextOn: { color: colors.ink },
 });
