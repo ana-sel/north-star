@@ -509,6 +509,17 @@ into the featured V1 set unless explicitly approved.
 
 Those remain in the full catalogue for later versions.
 
+## Domain display names (approved 16 October 2026)
+
+The `Domain:` values below are internal IDs and stay unchanged. The app shows each domain by what it gives you:
+
+| Domain ID | Display name | Subtitle |
+|---|---|---|
+| Inward | Self-awareness | How you meet yourself |
+| Together | Connection | How you meet other people |
+| Craft | Mastery | How you meet the work |
+| Frontier | Aliveness | How you meet what is new |
+
 ---
 
 # 7. EXACT V1 PATH PRACTICES / RETURNS

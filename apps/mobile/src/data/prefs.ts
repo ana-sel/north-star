@@ -30,7 +30,3 @@ export async function setPref<T>(key: string, value: T): Promise<void> {
     [key, JSON.stringify(value), now],
   );
 }
-
-export async function deletePref(key: string): Promise<void> {
-  await exec('DELETE FROM user_prefs WHERE key = ?', [key]);
-}

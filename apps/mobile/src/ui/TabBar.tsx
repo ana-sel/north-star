@@ -31,7 +31,7 @@ export function TabBar({ tabs, value, onChange }: TabBarProps) {
             onPress={() => onChange(tab.key)}
             activeOpacity={0.7}
           >
-            <Icon name={tab.icon} size={20} color={active ? colors.ink : colors.inkMuted} />
+            <Icon name={tab.icon} size={24} color={active ? colors.btn : colors.inkFaint} />
             <Text style={[styles.label, active && styles.labelActive]}>{tab.label}</Text>
           </TouchableOpacity>
         );
@@ -43,16 +43,11 @@ export function TabBar({ tabs, value, onChange }: TabBarProps) {
 const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.canvasLight,
   },
-  tab: { flex: 1, paddingTop: spacing.sm, alignItems: 'center', gap: 4 },
-  label: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.inkMuted,
-    letterSpacing: 0.3,
-  },
-  labelActive: { color: colors.ink },
+  tab: { flex: 1, paddingTop: 7, alignItems: 'center', gap: 3 },
+  label: { fontSize: 10, fontWeight: '600', color: colors.inkFaint },
+  labelActive: { color: colors.btn },
 });

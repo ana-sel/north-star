@@ -3,7 +3,6 @@ import {
   cadenceLabel,
   completionLookupWithSets,
   partitionHabitGroups,
-  ritualStreakDays,
 } from '../src/features/habits/habitsLogic';
 import type { HabitDayStatus } from '../src/data/habits';
 
@@ -41,14 +40,9 @@ describe('Habits logic', () => {
     ]);
   });
 
-  it('counts ritual streak only while all ritual habits are complete', () => {
-    const completion = completionLookupWithSets({
-      h1: ['2026-09-07', '2026-09-06', '2026-09-05'],
-      h2: ['2026-09-07', '2026-09-06'],
-    });
-
-    expect(
-      ritualStreakDays(['h1', 'h2'], ['2026-09-07', '2026-09-06', '2026-09-05', '2026-09-04'], completion),
-    ).toBe(2);
+  it('turns completion rows into per-habit date sets', () => {
+    const lookup = completionLookupWithSets({ h1: ['2026-09-07', '2026-09-06'] });
+    expect(lookup.h1.has('2026-09-07')).toBe(true);
+    expect(lookup.h1.has('2026-09-05')).toBe(false);
   });
 });

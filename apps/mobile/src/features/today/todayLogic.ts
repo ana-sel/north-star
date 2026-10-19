@@ -36,9 +36,6 @@ export function paceNote(mode: PaceMode): string | null {
 }
 
 export interface InsightState {
-  hasJourney: boolean;
-  journeyPractice: string | null;
-  journeyTicked: boolean;
   morningTotal: number;
   morningDone: number;
   sleptBelowTarget: boolean;
@@ -50,8 +47,9 @@ export interface Insight {
 }
 
 /**
- * A small, transparent rules-based Coach fallback derived from real Today
- * state. Returns null when there is nothing worth surfacing.
+ * A small, transparent rules-based fallback for the Compass note, derived from
+ * real Today state. It never repeats the practice card. Returns null when there
+ * is nothing worth surfacing.
  */
 export function buildInsight(state: InsightState): Insight | null {
   if (state.sleptBelowTarget) {
@@ -59,9 +57,6 @@ export function buildInsight(state: InsightState): Insight | null {
       tag: 'Gentle note',
       body: 'Shorter sleep than your target. Keep today lighter where you can — nothing is lost.',
     };
-  }
-  if (state.hasJourney && !state.journeyTicked && state.journeyPractice) {
-    return { tag: 'Today’s practice', body: state.journeyPractice };
   }
   if (state.morningTotal > 0 && state.morningDone === state.morningTotal) {
     return {
@@ -103,4 +98,23 @@ export function sleepTargetMinutes(target: SleepTarget | null): number | null {
 export function isBelowSleepTarget(durationMinutes: number | null, targetMinutes: number | null): boolean {
   if (durationMinutes == null || targetMinutes == null) return false;
   return durationMinutes < targetMinutes - 30;
+}
+
+/** "7 hr 50 min", "8 hr", "45 min". */
+export function formatSleepDuration(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h && m) return `${h} hr ${m} min`;
+  return h ? `${h} hr` : `${m} min`;
+}
+
+/** One factual line against the person's own target; nothing when no target is saved. */
+export function sleepVsTarget(durationMinutes: number, targetMinutes: number | null): string | null {
+  if (targetMinutes == null) return null;
+  const diff = targetMinutes - durationMinutes;
+  const target = formatSleepDuration(targetMinutes);
+  if (diff === 0) return `Right on your ${target} target`;
+  return diff > 0
+    ? `${formatSleepDuration(diff)} under your ${target} target`
+    : `${formatSleepDuration(-diff)} over your ${target} target`;
 }

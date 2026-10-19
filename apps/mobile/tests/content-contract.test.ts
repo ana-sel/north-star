@@ -1,8 +1,9 @@
 import { ACTIVE_JOURNEY_CAP, canResumeJourney, canStartJourney, journeyCampForReturns, REFLECTION_RETURNS } from '../src/data/journeyRules';
-import { FOUNDATION_IDS, FOUNDATIONS } from '../src/features/foundations/foundationsContent';
+import { FOUNDATION_IDS, FOUNDATION_TIER_NAMES, FOUNDATIONS } from '../src/features/foundations/foundationsContent';
 import { foundationJourneyId } from '../src/features/foundations/foundationsContent';
 import { V1_HABIT_TEMPLATES } from '../src/features/habits/habitTemplates';
-import { DATA, V1_FEATURED_PATH_IDS, V1_PATH_CONTRACT } from '../src/features/paths/pathsContent';
+import { DATA, DOMAINS, V1_FEATURED_PATH_IDS, V1_PATH_CONTRACT } from '../src/features/paths/pathsContent';
+import { journeyContent } from '../src/features/paths/journeyContent';
 import { habitExpectedDays } from '../src/data/habitRules';
 import { isHabitScheduledOnDate } from '../src/data/habitRules';
 import { schemaSQL } from '../src/lib/db/schema';
@@ -55,6 +56,35 @@ describe('frozen V1 content', () => {
       expect(FOUNDATION_IDS.has(template.ownerFoundationId)).toBe(true);
       expect(['morning', 'evening']).toContain(template.ritual);
     }
+  });
+
+  it('shows the four domain IDs by their approved display names', () => {
+    expect(Object.fromEntries(Object.entries(DOMAINS).map(([id, d]) => [id, d.label]))).toEqual({
+      Inward: 'Self-awareness',
+      Together: 'Connection',
+      Craft: 'Mastery',
+      Frontier: 'Aliveness',
+    });
+    for (const pathId of Object.keys(DATA)) expect(DOMAINS[DATA[pathId].domain]).toBeDefined();
+  });
+
+  it('names every Foundation tier with the frozen tier names', () => {
+    expect(FOUNDATION_TIER_NAMES).toEqual({ 1: 'The Ground', 2: 'Inner World', 3: 'Other People', 4: 'Meeting Life', 5: 'Meaning' });
+    for (const foundation of FOUNDATIONS) expect(FOUNDATION_TIER_NAMES[foundation.tier]).toBeTruthy();
+  });
+
+  it('adapts every featured Path and every Foundation to one journey page shape', () => {
+    const ids = [...V1_FEATURED_PATH_IDS, ...FOUNDATIONS.map((f) => foundationJourneyId(f.id))];
+    for (const id of ids) {
+      const content = journeyContent(id);
+      expect(content).not.toBeNull();
+      expect(content!.practice.length).toBeGreaterThan(0);
+      expect(content!.counts).toMatch(/^[a-z]/);
+      expect(content!.counts).not.toMatch(/<[^>]+>/);
+    }
+    expect(journeyContent('stillness')).toMatchObject({ kind: 'path', category: 'Self-awareness', freq: '2\u20134\u00d7 a week' });
+    expect(journeyContent('foundation:regulate')).toMatchObject({ kind: 'foundation', category: 'The Ground', examplesTitle: 'Tools you can use' });
+    expect(journeyContent('missing')).toBeNull();
   });
 });
 

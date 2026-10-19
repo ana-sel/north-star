@@ -72,19 +72,6 @@ export async function saveSleepEntry(entry: NewSleepEntry): Promise<SleepEntry> 
   return rowToEntry(saved);
 }
 
-/** Sleep entries whose start falls within the last N days (UTC). */
-export async function getSleepLastDays(days: number = 7): Promise<SleepEntry[]> {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - days);
-  const rows = await query<Record<string, unknown>>(
-    `SELECT * FROM sleep_entries
-     WHERE sleep_start_utc >= ?
-     ORDER BY sleep_start_utc DESC`,
-    [cutoff.toISOString()],
-  );
-  return rows.map(rowToEntry);
-}
-
 /** Paginated history. */
 export async function getSleepHistory(
   limit: number = 50,
@@ -152,12 +139,3 @@ export async function updateSleepEntry(
 export async function deleteSleepEntry(id: string): Promise<void> {
   await exec('DELETE FROM sleep_entries WHERE id = ?', [id]);
 }
-
-export default {
-  saveSleepEntry,
-  getSleepLastDays,
-  getSleepHistory,
-  getTodaySleep,
-  updateSleepEntry,
-  deleteSleepEntry,
-};

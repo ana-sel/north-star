@@ -81,13 +81,6 @@ export async function listAllProgress(): Promise<PathProgress[]> {
   return rows.map(rowToProgress);
 }
 
-export async function listActivePaths(): Promise<PathProgress[]> {
-  const rows = await query<Record<string, unknown>>(
-    "SELECT * FROM journey_progress WHERE status = 'active' AND journey_type = 'path' ORDER BY started_at",
-  );
-  return rows.map(rowToProgress);
-}
-
 /** Active Paths and Foundations share this single journey pool and cap. */
 export async function listActiveJourneys(): Promise<PathProgress[]> {
   const rows = await query<Record<string, unknown>>(
@@ -143,9 +136,6 @@ export async function startPath(pathId: string): Promise<PathProgress> {
   return progress;
 }
 
-/** Start any V1 journey. Foundation IDs use the `foundation:` namespace. */
-export const startJourney = startPath;
-
 /** Pause a journey without losing its returns or current camp. */
 export async function pauseJourney(journeyId: string): Promise<PathProgress> {
   const now = nowISO();
@@ -160,25 +150,6 @@ export async function pauseJourney(journeyId: string): Promise<PathProgress> {
   );
   if (!row) throw new Error(`Journey ${journeyId} not found to pause`);
   const progress = rowToProgress(row);
-  notifyJourneyChanged();
-  return progress;
-}
-
-/** Save as a seed (noticed, not committed). */
-export async function seedPath(pathId: string): Promise<PathProgress> {
-  const now = nowISO();
-  const journey = journeyParts(pathId);
-  await exec(
-    `INSERT INTO journey_progress (journey_type, journey_id, status, current_camp, started_at, updated_at)
-     VALUES (?, ?, 'seeded', 1, ?, ?)
-     ON CONFLICT(journey_type, journey_id) DO UPDATE SET status = 'seeded', updated_at = excluded.updated_at`,
-    [journey.type, journey.id, now, now],
-  );
-  const row = await queryOne<Record<string, unknown>>(
-    'SELECT * FROM journey_progress WHERE journey_type = ? AND journey_id = ?',
-    [journey.type, journey.id],
-  );
-  const progress = rowToProgress(row!);
   notifyJourneyChanged();
   return progress;
 }

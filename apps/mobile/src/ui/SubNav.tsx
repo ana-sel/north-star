@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { colors, shadows, spacing, typography } from '@styles/theme';
+import { colors, spacing } from '@styles/theme';
 
 export interface SubNavOption {
   key: string;
@@ -39,22 +39,21 @@ export function SubNav({ options, value, onChange, style }: SubNavProps) {
 const styles = StyleSheet.create({
   wrap: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    padding: 3,
-    gap: 2,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
+    backgroundColor: colors.canvasDark,
+    borderRadius: 9,
+    padding: 2,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
-  item: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: 11 },
-  itemActive: { backgroundColor: colors.surface, ...shadows.sm },
-  label: {
-    fontSize: typography.sizes.xs,
-    fontWeight: '700',
-    color: colors.inkMuted,
-    letterSpacing: 0.3,
+  item: { flex: 1, paddingVertical: 6, alignItems: 'center', borderRadius: 7 },
+  itemActive: {
+    backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 1,
   },
+  label: { fontSize: 13, fontWeight: '600', color: colors.ink },
   labelActive: { color: colors.ink },
 });

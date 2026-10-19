@@ -12,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppShell } from './AppShell';
 import { OnboardingScreen } from '@features/onboarding/OnboardingScreen';
 import { getPref } from '@data/prefs';
-import { theme } from '@styles/theme';
+import { colors } from '@styles/theme';
 
 export default function App() {
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
@@ -25,8 +25,8 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         {onboarded === null ? (
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.bg }}>
-            <ActivityIndicator color={theme.colors.olive} />
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.canvas }}>
+            <ActivityIndicator color={colors.accent} />
           </View>
         ) : onboarded ? (
           <AppShell />

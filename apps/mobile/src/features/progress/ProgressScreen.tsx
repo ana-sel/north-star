@@ -1,20 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { formatInTimeZone } from 'date-fns-tz';
 import { listActiveHabits } from '@data/habits';
 import { getSleepHistory } from '@data/sleep';
 import { query } from '@lib/db';
-import { localDateISO, localDateOffset } from '@lib/time';
-import { colors, radii, spacing, typography } from '@styles/theme';
-import { Card, Icon, LoadingState, SubNav } from '@ui';
+import { localDateForInstant, localDateISO, localDateOffset } from '@lib/time';
+import { colors, palette, radii, spacing } from '@styles/theme';
+import { Icon, LoadingState, ReturnMarks, SubNav, SummaryCard, SummaryValue } from '@ui';
+import { sleepTargetMinutes } from '@features/today/todayLogic';
+import type { SleepTarget } from '@features/today/todayLogic';
 import {
   asProgressPeriod,
   buildProgressSnapshot,
+  progressHighlight,
   type HabitCompletionLike,
   type HabitLike,
   type JourneyReturnLike,
@@ -54,28 +52,37 @@ async function loadProgressRawData(cutoffDate: string): Promise<ProgressRawData>
 
   return {
     sleepEntries,
-    habits,
+    habits: habits.map((habit) => ({ ...habit, startLocalDate: localDateForInstant(new Date(habit.created_at)) })),
     habitCompletions,
     journeyReturns,
   };
 }
 
-export function ProgressScreen() {
+interface ProgressScreenProps {
+  onOpenSleep?: () => void;
+  onOpenHabits?: () => void;
+  onOpenPaths?: () => void;
+}
+
+export function ProgressScreen({ onOpenSleep, onOpenHabits, onOpenPaths }: ProgressScreenProps) {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<ProgressPeriod>('week');
   const [rawData, setRawData] = useState<ProgressRawData | null>(null);
+  const [targetMinutes, setTargetMinutes] = useState<number | null>(null);
   const [today] = useState(() => localDateISO());
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [savedPeriod, raw] = await Promise.all([
+      const [savedPeriod, raw, target] = await Promise.all([
         getPref<string>(PERIOD_PREF_KEY, 'week'),
         loadProgressRawData(localDateOffset(-(MAX_PERIOD_WINDOW_DAYS - 1))),
+        getPref<SleepTarget | null>('sleep-target', null),
       ]);
 
       setPeriod(asProgressPeriod(savedPeriod));
       setRawData(raw);
+      setTargetMinutes(sleepTargetMinutes(target));
     } finally {
       setLoading(false);
     }
@@ -106,19 +113,17 @@ export function ProgressScreen() {
 
   if (loading || !snapshot) return <LoadingState />;
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.lens}>
-          <View style={styles.lensBadge}>
-            <Icon name="activity" size={18} color={colors.onDark} />
-          </View>
-          <View style={styles.lensTextWrap}>
-            <Text style={styles.lensTitle}>Progress</Text>
-            <Text style={styles.lensSub}>What the numbers say</Text>
-          </View>
-        </View>
+  const { sleep, habits, journeys } = snapshot;
+  const highlight = progressHighlight(sleep, targetMinutes);
+  const firstDay = snapshot.localDates[0];
+  const fromLabel = firstDay
+    ? formatInTimeZone(new Date(`${firstDay}T12:00:00Z`), 'UTC', period === 'week' ? 'EEEE' : 'd MMM')
+    : '';
 
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <View style={styles.secRow}>
+        <Text style={styles.secTitle} accessibilityRole="header">{snapshot.heading}</Text>
         <SubNav
           options={[
             { key: 'week', label: 'Week' },
@@ -126,282 +131,112 @@ export function ProgressScreen() {
           ]}
           value={period}
           onChange={(key) => setPeriod(asProgressPeriod(key))}
-          style={styles.periodTabs}
+          style={styles.period}
         />
+      </View>
 
-        <Text style={styles.sectionLabel}>{snapshot.heading}</Text>
-        <View style={styles.tileGrid}>
-          {snapshot.tiles.map((tile, index) => (
-            <Card
-              key={tile.key}
-              style={[styles.tile, index === 2 && styles.tileWide]}
-            >
-              <Text style={styles.tileLabel}>{tile.label}</Text>
-              <Text style={styles.tileValue}>{tile.value}</Text>
-              <Text style={styles.tileMeta}>{tile.meta}</Text>
-            </Card>
-          ))}
+      {highlight ? (
+        <View style={styles.card}>
+          <View style={styles.cat}>
+            <Icon name="bed" size={17} color={palette.sleep.deep} />
+            <Text style={[styles.catText, { color: palette.sleep.deep }]}>Highlight</Text>
+          </View>
+          <Text style={styles.body}>{highlight}</Text>
         </View>
+      ) : null}
 
-        <TrendCard
-          title="Sleep trend"
-          value={snapshot.sleep.averageLabel}
-          subtitle="Average of logged nights"
-          coverage={snapshot.sleep.coverageLabel}
-          points={snapshot.sleep.points}
-          color={colors.mauve}
-          emptyHint="No sleep entries recorded in this period."
-        />
+      <SummaryCard label="Sleep" icon="bed" color={palette.sleep.deep} right={sleep.coverageLabel} onPress={onOpenSleep}>
+        {sleep.averageMinutes != null ? (
+          <SummaryValue parts={durationParts(sleep.averageMinutes)} />
+        ) : (
+          <Text style={styles.emptyValue}>No nights logged</Text>
+        )}
+        <Text style={styles.sub}>Average time asleep</Text>
+        <Bars points={sleep.points} color={palette.sleep.base} soft={palette.sleep.soft} />
+      </SummaryCard>
 
-        <TrendCard
-          title="Habits trend"
-          value={snapshot.habits.adherenceLabel}
-          subtitle={
-            snapshot.habits.expectedTotal > 0
-              ? `${snapshot.habits.doneTotal} of ${snapshot.habits.expectedTotal} scheduled ticks`
-              : 'No scheduled ticks in this period'
-          }
-          coverage={snapshot.habits.coverageLabel}
-          points={snapshot.habits.points}
-          color={colors.olive}
-          emptyHint="No scheduled habit days in this period."
-        />
+      <SummaryCard
+        label="Rituals"
+        icon="leaf"
+        color={palette.habits.deep}
+        right={habits.expectedTotal > 0 ? `${habits.doneTotal} of ${habits.expectedTotal} ticks` : undefined}
+        onPress={onOpenHabits}
+      >
+        {habits.adherencePercent != null ? (
+          <SummaryValue parts={[{ value: String(habits.adherencePercent), unit: '%' }]} />
+        ) : (
+          <Text style={styles.emptyValue}>No scheduled habits</Text>
+        )}
+        <Text style={styles.sub}>Of scheduled habits done</Text>
+        <Bars points={habits.points} color={palette.habits.base} soft={palette.habits.soft} />
+      </SummaryCard>
 
-        <TrendCard
-          title="Journey returns"
-          value={String(snapshot.journeys.totalReturns)}
-          subtitle={`${snapshot.journeys.distinctJourneys} journeys touched`}
-          coverage={snapshot.journeys.coverageLabel}
-          points={snapshot.journeys.points}
-          color={colors.steel}
-          emptyHint="No journey returns logged in this period."
-        />
-
-        <Text style={styles.note}>
-          This view stays factual: counts, coverage, and trend lines only.
+      <SummaryCard label="Returns" icon="compass" color={colors.btn} onPress={onOpenPaths}>
+        <SummaryValue parts={[{ value: String(journeys.totalReturns), unit: journeys.totalReturns === 1 ? 'return' : 'returns' }]} />
+        <Text style={styles.sub}>
+          {journeys.distinctJourneys === 0
+            ? 'No returns in this period yet'
+            : `Across ${journeys.distinctJourneys} journey${journeys.distinctJourneys === 1 ? '' : 's'}`}
         </Text>
-      </ScrollView>
-    </SafeAreaView>
+        <ReturnMarks marks={journeys.marks} color={colors.btn} from={fromLabel} to="Today" />
+        <Text style={styles.small}>Paths are spaced practice. The gaps are rest.</Text>
+      </SummaryCard>
+
+      <Text style={styles.foot}>Counts, coverage and trends only. Gaps are normal: paths are practised a few times a week.</Text>
+    </ScrollView>
   );
 }
 
-interface TrendCardProps {
-  title: string;
-  value: string;
-  subtitle: string;
-  coverage: string;
-  points: TrendPoint[];
-  color: string;
-  emptyHint: string;
+function durationParts(minutes: number): { value: string; unit: string }[] {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m ? [{ value: String(h), unit: 'hr' }, { value: String(m), unit: 'min' }] : [{ value: String(h), unit: 'hr' }];
 }
 
-function TrendCard({ title, value, subtitle, coverage, points, color, emptyHint }: TrendCardProps) {
-  const hasAnyData = points.some((point) => point.hasData);
-  const chartWidth = Math.max(points.length * 12, 260);
-
+/** Week or month columns; days without data get a short soft stub, not an empty cell. */
+function Bars({ points, color, soft }: { points: TrendPoint[]; color: string; soft: string }) {
+  const gap = points.length > 7 ? 2 : 6;
   return (
-    <Card style={styles.trendCard}>
-      <View style={styles.trendTop}>
-        <View style={styles.trendCopy}>
-          <Text style={styles.trendTitle}>{title}</Text>
-          <Text style={styles.trendValue}>{value}</Text>
-          <Text style={styles.trendSub}>{subtitle}</Text>
-        </View>
-        <View style={styles.coveragePill}>
-          <Text style={styles.coverageText}>{coverage}</Text>
-        </View>
-      </View>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.chart, { width: chartWidth }]}>
+    <View style={styles.chart} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={[styles.bars, { gap }]}>
         {points.map((point) => (
-          <View key={point.localDate} style={styles.dayCol}>
-            <View style={styles.barTrack}>
-              <View
-                style={[
-                  styles.bar,
-                  {
-                    height: point.hasData ? Math.max(6, point.normalized * 74) : 2,
-                    backgroundColor: point.hasData ? color : colors.border,
-                    opacity: point.hasData ? 1 : 0.45,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={styles.dayLabel}>{point.label}</Text>
-          </View>
+          <View
+            key={point.localDate}
+            style={[
+              styles.bar,
+              point.hasData && (point.value ?? 0) > 0
+                ? { height: `${Math.round(point.normalized * 100)}%`, backgroundColor: color }
+                : { height: 4, backgroundColor: soft },
+            ]}
+          />
         ))}
-      </ScrollView>
-
-      {!hasAnyData ? <Text style={styles.emptyHint}>{emptyHint}</Text> : null}
-    </Card>
+      </View>
+      <View style={[styles.days, { gap }]}>
+        {points.map((point) => (
+          <Text key={point.localDate} style={styles.day} numberOfLines={1}>{point.label}</Text>
+        ))}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.canvas,
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.xxxl,
-    gap: spacing.md,
-  },
-  lens: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.xs,
-  },
-  lensBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lensTextWrap: {
-    gap: 2,
-  },
-  lensTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: colors.ink,
-    letterSpacing: -0.5,
-  },
-  lensSub: {
-    fontSize: typography.sizes.sm,
-    color: colors.inkMuted,
-  },
-  periodTabs: {
-    marginHorizontal: 0,
-    marginTop: 0,
-    marginBottom: spacing.sm,
-  },
-  sectionLabel: {
-    fontSize: typography.sizes.xs,
-    fontWeight: '700',
-    color: colors.inkMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.9,
-  },
-  tileGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  tile: {
-    flexBasis: '48%',
-    borderRadius: radii.card,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    gap: 3,
-  },
-  tileWide: {
-    flexBasis: '100%',
-  },
-  tileLabel: {
-    fontSize: typography.sizes.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: colors.inkMuted,
-    fontWeight: '700',
-  },
-  tileValue: {
-    fontSize: 24,
-    color: colors.ink,
-    fontWeight: '800',
-    letterSpacing: -0.7,
-  },
-  tileMeta: {
-    fontSize: typography.sizes.xs,
-    color: colors.inkMuted,
-  },
-  trendCard: {
-    gap: spacing.sm,
-  },
-  trendTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-  },
-  trendCopy: {
-    flexShrink: 1,
-    gap: 1,
-  },
-  trendTitle: {
-    fontSize: typography.sizes.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: colors.inkMuted,
-    fontWeight: '700',
-  },
-  trendValue: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: colors.ink,
-    letterSpacing: -0.7,
-  },
-  trendSub: {
-    fontSize: typography.sizes.xs,
-    color: colors.inkMuted,
-    lineHeight: 16,
-  },
-  coveragePill: {
-    borderRadius: radii.pill,
-    backgroundColor: colors.accentSoft,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
-  },
-  coverageText: {
-    fontSize: typography.sizes.xs,
-    color: colors.accent,
-    fontWeight: '700',
-  },
-  chart: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 3,
-    minHeight: 98,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  dayCol: {
-    width: 10,
-    alignItems: 'center',
-    gap: 3,
-  },
-  barTrack: {
-    width: 8,
-    height: 78,
-    justifyContent: 'flex-end',
-  },
-  bar: {
-    width: 8,
-    borderRadius: 4,
-  },
-  dayLabel: {
-    fontSize: 9,
-    color: colors.inkMuted,
-    minHeight: 11,
-  },
-  emptyHint: {
-    marginTop: spacing.xs,
-    fontSize: typography.sizes.xs,
-    color: colors.inkMuted,
-  },
-  note: {
-    marginTop: spacing.xs,
-    fontSize: typography.sizes.xs,
-    color: colors.inkMuted,
-    lineHeight: 18,
-  },
+  screen: { flex: 1, backgroundColor: colors.canvas },
+  content: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.xxxl },
+  secRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
+  secTitle: { fontSize: 22, fontWeight: '700', color: colors.ink, letterSpacing: -0.2 },
+  period: { width: 150, marginHorizontal: 0, marginBottom: 0 },
+  card: { backgroundColor: colors.surface, borderRadius: radii.card, padding: spacing.lg, paddingTop: 14, marginBottom: spacing.sm },
+  cat: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
+  catText: { fontSize: 15, fontWeight: '600' },
+  body: { fontSize: 16, color: colors.ink, lineHeight: 22 },
+  sub: { fontSize: 14, color: colors.inkMuted, marginTop: 3 },
+  small: { fontSize: 12, color: colors.inkMuted, marginTop: 6 },
+  emptyValue: { fontSize: 17, fontWeight: '600', color: colors.ink },
+  foot: { fontSize: 13, color: colors.inkMuted, lineHeight: 18, paddingHorizontal: spacing.lg, marginTop: spacing.xs },
+  chart: { marginTop: 12 },
+  bars: { flexDirection: 'row', alignItems: 'flex-end', height: 56 },
+  bar: { flex: 1, borderRadius: 4 },
+  days: { flexDirection: 'row', marginTop: 6 },
+  day: { flex: 1, textAlign: 'center', fontSize: 11, color: colors.inkFaint },
 });

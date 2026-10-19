@@ -9,7 +9,7 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any, prefer-const */
 
-export interface DomainInfo { icon: string; colour: string; q: string; }
+export interface DomainInfo { icon: string; colour: string; q: string; label: string; }
 export interface PathVoice { tight: string; open: string; }
 export interface PathPractice { what: string; freq: string; do: string; counts: string; }
 export interface PathCamp {
@@ -53,12 +53,13 @@ export interface PathQuality {
    Four arenas, defined by WHERE the quality is exercised, so they
    don't overlap. Colour belongs to the domain, not the quality —
    the palette teaches the taxonomy. Every domain always gets a
-   chip; an empty one explains itself rather than disappearing. */
+   chip; an empty one explains itself rather than disappearing.
+   `label` is the display name (approved 16 Oct 2026); the keys stay as internal IDs. */
 export const DOMAINS: Record<string, DomainInfo> = {
-  Inward:   {icon:'ic-moon',    colour:'#9b8fd6', q:'How you meet yourself'},
-  Together: {icon:'ic-users',   colour:'#cf8f94', q:'How you meet other people'},
-  Craft:    {icon:'ic-pen',     colour:'#d3aa62', q:'How you meet the work'},
-  Frontier: {icon:'ic-compass', colour:'#7fa8b8', q:'How you meet what is new'},
+  Inward:   {icon:'ic-moon',    colour:'#9080C0', q:'How you meet yourself',      label:'Self-awareness'},
+  Together: {icon:'ic-users',   colour:'#BF7479', q:'How you meet other people',  label:'Connection'},
+  Craft:    {icon:'ic-pen',     colour:'#AE8446', q:'How you meet the work',      label:'Mastery'},
+  Frontier: {icon:'ic-compass', colour:'#5299A1', q:'How you meet what is new',   label:'Aliveness'},
 };
 
 /* ── The three camps ───────────────────────────────────────────
@@ -1344,61 +1345,6 @@ export const DATA: Record<string, PathQuality> = {
   },
 };
 
-/* ── What each quality buys you ────────────────────────────────
-   Domain says WHERE a quality lives. This says WHAT IT'S FOR.
-   Qualities serving three aims at once are the leverage points —
-   objective information, not a score. */
-export const AIMS: readonly string[] = ['Freedom','Peace','Love','Aliveness','Mastery'];
-export const AIM_NOTE: Record<string, string> = {
-  Freedom:'money, autonomy, options',
-  Peace:'steadiness, non-reactivity',
-  Love:'reciprocal adult relationships',
-  Aliveness:'curiosity, creativity, an interesting life',
-  Mastery:'skill, discipline, execution',
-};
-export const SERVES: Record<string, string[]> = {
-  stillness:['Peace'],                       presence:['Peace','Love','Aliveness'],
-  selfpossession:['Peace','Love'],           solitude:['Peace','Freedom'],
-  nonattachment:['Peace','Freedom','Love'],  embodied:['Peace','Mastery'],
-  resilience:['Peace','Mastery','Freedom'],  gratitude:['Peace','Love','Aliveness'],
-  acceptance:['Peace','Freedom'],
-  warmth:['Love','Aliveness'],               authority:['Love','Freedom','Mastery'],
-  reciprocity:['Love','Peace'],              repair:['Love','Peace'],
-  sharing:['Love','Aliveness','Mastery'],    seeing:['Love','Aliveness','Peace'],
-  tenderness:['Love','Aliveness'],
-  craft:['Mastery','Freedom'],               followthrough:['Mastery','Freedom'],
-  longview:['Freedom','Peace'],              agency:['Freedom','Mastery','Peace'],
-  stewardship:['Freedom','Peace'],           discipline:['Mastery','Peace'],
-  leverage:['Freedom','Mastery'],            shipping:['Freedom','Mastery'],
-  sayno:['Freedom','Peace','Mastery'],       resourceful:['Freedom','Mastery'],
-  deciding:['Freedom','Mastery'],            risk:['Freedom','Mastery'],
-  systems:['Freedom','Mastery'],             rareskill:['Freedom','Mastery'],
-  fastlearn:['Freedom','Mastery','Aliveness'],
-  curiosity:['Aliveness','Freedom','Peace'], courage:['Love','Aliveness','Peace'],
-  creative:['Aliveness','Love'],             play:['Aliveness','Peace','Love'],
-  beauty:['Aliveness','Peace'],              reinvention:['Aliveness','Freedom'],
-  ease:['Love','Peace','Aliveness'],         humour:['Love','Aliveness','Peace'],
-  grace:['Love','Peace','Mastery'],          boundaries:['Love','Peace','Freedom'],
-};
-
-/* Each domain already implies one aim — every Inward quality buys Peace,
-   every Together one buys Love, and so on. Showing it again on the card was
-   a tag carrying no information, so cards show only what a quality pays into
-   BEYOND its own home. */
-export const DOMAIN_AIM: Record<string, string> = { Inward:'Peace', Together:'Love', Craft:'Freedom', Frontier:'Aliveness' };
-export const extraAims = (id: string): string[] =>
-  ((SERVES as Record<string, string[]>)[id] || []).filter(
-    (a: string) => a !== DOMAIN_AIM[(DATA as Record<string, { domain: string }>)[id].domain],
-  );
-
-/* Marked by the user, not assigned by the app — the shortlist that
-   matters most to them, for whatever reason they don't have to state. */
-export let CORE = new Set(['selfpossession','solitude','nonattachment','boundaries','curiosity','creative','play','gratitude','courage','reciprocity','reinvention']);
-
-/* Self-claimed, permanent, gold. Never re-offered in Browse: you cannot
-   start something that has already become part of you. */
-export const INTEGRATED = new Set<string>();
-
 export const V1_PATH_CONTRACT: Readonly<Record<(typeof V1_FEATURED_PATH_IDS)[number], Pick<PathQuality, 'domain' | 'quality' | 'shows' | 'ritual' | 'practice'>>> = {
   stillness: { domain: 'Inward', quality: 'Stillness', shows: 'Pause before you react, not only after.', ritual: null, practice: { what: 'Pause before responding when you would normally react immediately', freq: '2-4x / week', do: 'In a moment where you would normally react immediately, pause before responding.', counts: 'You noticed the impulse and created even a small pause. You do not need to feel calm.' } },
   selfpossession: { domain: 'Inward', quality: 'Self-possession', shows: 'Stay yourself around someone you want to impress.', ritual: null, practice: { what: 'Say or do one thing that is genuinely yours', freq: '2-4x / week', do: 'Say or do one thing that is genuinely yours when you feel tempted to perform, impress, shrink, or become what someone else wants.', counts: 'You chose one authentic action, preference, or sentence.' } },
@@ -1420,10 +1366,6 @@ for (const pathId of V1_FEATURED_PATH_IDS) {
   Object.assign(DATA[pathId], V1_PATH_CONTRACT[pathId]);
 }
 
-export const WINDOW_DAYS = 14;
-
 export const plural = (n: number, w: string): string => `${n} ${w}${n === 1 ? '' : 's'}`;
-export const sinceLine = (c: { returnsTotal: number; weeks: number; campsClosed: number }): string =>
-  `${plural(c.returnsTotal,'return')} \u00b7 ${plural(c.weeks,'week')} \u00b7 ${plural(c.campsClosed,'camp')} closed`;
 
 

@@ -22,23 +22,11 @@
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
       "@lib/*": [
         "src/lib/*"
       ],
-      "@auth/*": [
-        "src/auth/*"
-      ],
       "@features/*": [
         "src/features/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
-      "@types/*": [
-        "src/types/*"
       ],
       "@styles/*": [
         "src/styles/*"
