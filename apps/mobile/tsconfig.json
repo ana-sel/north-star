@@ -19,26 +19,24 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
     "paths": {
       "@lib/*": [
-        "src/lib/*"
+        "./src/lib/*"
       ],
       "@features/*": [
-        "src/features/*"
+        "./src/features/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "./src/styles/*"
       ],
       "@data/*": [
-        "src/data/*"
+        "./src/data/*"
       ],
       "@ui": [
-        "src/ui"
+        "./src/ui"
       ],
       "@ui/*": [
-        "src/ui/*"
+        "./src/ui/*"
       ]
     },
     "jsx": "react-jsx"
