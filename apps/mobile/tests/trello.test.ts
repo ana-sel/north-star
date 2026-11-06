@@ -1,4 +1,4 @@
-import { createTrelloClient } from '../src/data/trello';
+import { checklistProgress, createTrelloClient } from '../src/data/trello';
 
 const responses = new Map<string, unknown>();
 const request = jest.fn(async (url: string) => ({ ok: true, status: 200, json: async () => responses.get(url) }));
@@ -15,13 +15,19 @@ beforeEach(() => {
 });
 
 it('returns every Today card in Trello order even above three', async () => {
-  responses.set(`${api}/lists/today-id/cards?fields=id,name,desc,url,idBoard,idList,pos`, [
+  responses.set(`${api}/lists/today-id/cards?fields=id,name,desc,url,idBoard,idList,pos,badges`, [
     { id: 'fourth', pos: 4 }, { id: 'third', pos: 3 }, { id: 'second', pos: 2 }, { id: 'first', pos: 1 },
   ]);
 
   const { today } = await client.lists();
   expect((await client.listCards(today.id)).map((card) => card.id)).toEqual(['first', 'second', 'third', 'fourth']);
   expect(request).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer authorized-token' }) }));
+});
+
+it('describes checklist progress only when a card has checklist items', () => {
+  expect(checklistProgress({ badges: { checkItems: 4, checkItemsChecked: 2 } })).toBe('Checklist 2 of 4');
+  expect(checklistProgress({ badges: { checkItems: 0, checkItemsChecked: 0 } })).toBeNull();
+  expect(checklistProgress({})).toBeNull();
 });
 
 it('moves a card to Done and back to Today without a capacity check', async () => {

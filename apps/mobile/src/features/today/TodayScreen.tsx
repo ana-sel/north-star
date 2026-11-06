@@ -17,12 +17,13 @@ import { foundationForJourneyId } from '@features/foundations/foundationsContent
 import { getPref, setPref } from '@data/prefs';
 import { habitsForDate } from '@data/habits';
 import type { HabitDayStatus } from '@data/habits';
-import { getTodaySleep } from '@data/sleep';
+import { getSleepHistory, getTodaySleep } from '@data/sleep';
 import type { TrelloCard, TrelloChecklist } from '@data/trello';
-import { createTrelloClient } from '@data/trello';
+import { checklistProgress, createTrelloClient } from '@data/trello';
 import { listActiveJourneys, logReturn, recentReturns, subscribeToJourneyChanges } from '@data/paths';
 import type { PathProgress } from '@data/paths';
-import { getDeviceTimezone, localDateISO, localDateOffset } from '@lib/time';
+import { getDeviceTimezone, localDateISO, localDateOffset, localDateWindow, utcToLocal } from '@lib/time';
+import { nightBars } from '@features/sleep/sleepNights';
 import { PaceSelector } from './components/PaceSelector';
 import { ArrivalCard } from './components/ArrivalCard';
 import { WelcomeBackCard } from './components/WelcomeBackCard';
@@ -91,10 +92,12 @@ export function TodayScreen({
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [yesterdayId, setYesterdayId] = useState<string | null>(null);
   const [journeyTicked, setJourneyTicked] = useState(false);
-  /** Journeys set aside with "Not today" in this session; nothing is stored. */
+  /** Journeys set aside with "Not today"; stored per local date, so tomorrow starts fresh. */
   const [skipped, setSkipped] = useState<string[]>([]);
 
   const [durationMinutes, setDurationMinutes] = useState<number | null>(null);
+  const [wokeAt, setWokeAt] = useState<string | null>(null);
+  const [weekNights, setWeekNights] = useState<(number | null)[]>([]);
   const [sleepEnergy, setSleepEnergy] = useState<number | null>(null);
   const [sleepMood, setSleepMood] = useState<number | null>(null);
   const [targetMinutes, setTargetMinutes] = useState<number | null>(null);
@@ -125,7 +128,7 @@ export function TodayScreen({
     if (!silent) setLoading(true);
     const today = localDateISO();
     try {
-      const [journeys, yest, sleep, allHabits, savedPace, savedTarget, lastActive] =
+      const [journeys, yest, sleep, allHabits, savedPace, savedTarget, lastActive, sleepHistory, skippedToday] =
         await Promise.all([
           listActiveJourneys(),
           getPref<string | null>(`practicedOn:${localDateOffset(-1)}`, null),
@@ -134,17 +137,23 @@ export function TodayScreen({
           getPref<PaceMode>(`pace:${today}`, 'full'),
           getPref<SleepTarget | null>('sleep-target', null),
           getPref<string | null>('lastActiveDate', null),
+          getSleepHistory(14),
+          getPref<string[]>(`notToday:${today}`, []),
         ]);
 
       setActive(journeys);
       setYesterdayId(yest);
+      setSkipped(skippedToday);
       setCurrentId((prev) => {
         if (prev && journeys.some((j) => j.path_id === prev)) return prev;
         const eligible = journeys.filter((j) => j.path_id !== yest);
-        return (eligible[0] ?? journeys[0] ?? null)?.path_id ?? null;
+        const open = eligible.filter((j) => !skippedToday.includes(j.path_id));
+        return (open[0] ?? eligible[0] ?? journeys[0] ?? null)?.path_id ?? null;
       });
 
       setDurationMinutes(sleep?.duration_minutes ?? null);
+      setWokeAt(sleep ? utcToLocal(new Date(sleep.sleep_end_utc), sleep.timezone) : null);
+      setWeekNights(nightBars(sleepHistory, localDateWindow(7)).map((bar) => bar?.minutes ?? null));
       setSleepEnergy(sleep?.energy ?? null);
       setSleepMood(sleep?.mood ?? null);
       setTargetMinutes(sleepTargetMinutes(savedTarget));
@@ -335,12 +344,13 @@ export function TodayScreen({
     }
   }, [currentId, journeyTicked, active]);
 
-  const skipToday = useCallback(() => {
+  const skipToday = useCallback(async () => {
     if (!currentId) return;
     const next = [...skipped, currentId];
     setSkipped(next);
     const other = eligible.find((j) => !next.includes(j.path_id));
     if (other) setCurrentId(other.path_id);
+    await setPref(`notToday:${localDateISO()}`, next);
   }, [currentId, skipped, eligible]);
 
   const changePace = useCallback(async (mode: PaceMode) => {
@@ -403,8 +413,8 @@ export function TodayScreen({
       }
     : null;
   const displayInsight = aiContent ?? insight;
-  const visibleTrelloCards = trelloClient
-    ? todayCards.map((card) => ({ id: card.id, title: card.name, url: card.url }))
+  const visibleTrelloCards: ReadonlyArray<{ id: string; title: string; url: string; subtitle?: string | null }> = trelloClient
+    ? todayCards.map((card) => ({ id: card.id, title: card.name, url: card.url, subtitle: checklistProgress(card) }))
     : trelloCards;
 
   const openJourneyDetail = () => {
@@ -427,6 +437,7 @@ export function TodayScreen({
             headerAction={{ label: campLabel, onPress: openJourneyDetail }}
             practice={content.practice}
             counts={content.counts}
+            voice={content.voice}
           >
             {pace === 'rest' ? (
               <Text style={styles.quiet}>Today is for rest. The practice holds — nothing is lost.</Text>
@@ -440,7 +451,7 @@ export function TodayScreen({
             ) : (
               <View style={styles.btnRow}>
                 <Button label="Done" onPress={() => void handleJourneyTick()} style={styles.flex} />
-                <Button label="Not today" variant="secondary" onPress={skipToday} style={styles.flex} />
+                <Button label="Not today" variant="secondary" onPress={() => void skipToday()} style={styles.flex} />
               </View>
             )}
           </PracticeCard>
@@ -488,6 +499,8 @@ export function TodayScreen({
           targetMinutes={targetMinutes}
           energy={sleepEnergy}
           mood={sleepMood}
+          wokeAt={wokeAt}
+          week={weekNights}
           onOpen={onOpenSleep}
         />
       ) : null}
@@ -539,6 +552,7 @@ export function TodayScreen({
                   <ListRow
                     key={card.id}
                     title={card.title}
+                    subtitle={card.subtitle ?? undefined}
                     leading={<CheckCircle done={false} />}
                     chevron
                     onPress={() => (trelloClient ? void showCard(todayCards[index]) : void Linking.openURL(card.url))}

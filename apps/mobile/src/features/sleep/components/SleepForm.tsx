@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors, spacing } from '@styles/theme';
 import { Icon } from '@ui';
 import { utcToLocal } from '@lib/time';
@@ -54,13 +54,10 @@ export function SleepForm({
     (mode === 'bed' ? onBedTimeChange : onWakeTimeChange)(date);
   };
 
-  const handleChange =
-    (mode: 'bed' | 'wake') => (event: DateTimePickerEvent, date?: Date) => {
-      setOpenPicker(null);
-      if (event.type === 'set' && date) {
-        (mode === 'bed' ? onBedTimeChange : onWakeTimeChange)(date);
-      }
-    };
+  const handlePicked = (mode: 'bed' | 'wake') => (_event: unknown, date: Date) => {
+    setOpenPicker(null);
+    (mode === 'bed' ? onBedTimeChange : onWakeTimeChange)(date);
+  };
 
   return (
     <View>
@@ -82,7 +79,8 @@ export function SleepForm({
           value={utcToZonedTime(openPicker === 'bed' ? bedTime : wakeTime, timezone)}
           mode="time"
           is24Hour
-          onChange={handleChange(openPicker)}
+          onValueChange={handlePicked(openPicker)}
+          onDismiss={() => setOpenPicker(null)}
         />
       )}
     </View>

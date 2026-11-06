@@ -181,7 +181,7 @@ export function AppShell() {
                 onOpenHabits={() => { goTab('log'); setLogSub('habits'); }}
               />
             )}
-            {tab === 'log' && logSub === 'sleep' && <LogSleepScreen />}
+            {tab === 'log' && logSub === 'sleep' && <LogSleepScreen onOpenTrends={() => { goTab('you'); setYouSub('progress'); }} />}
             {tab === 'log' && logSub === 'habits' && <HabitsScreen />}
             {tab === 'you' && youSub === 'progress' && (
               <ProgressScreen

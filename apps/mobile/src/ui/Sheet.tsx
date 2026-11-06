@@ -1,5 +1,5 @@
-import { ReactNode, useEffect, useRef } from 'react';
-import { Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ReactNode, useEffect, useMemo, useRef } from 'react';
+import { Animated, Easing, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radii, shadows, spacing } from '@styles/theme';
 import { Icon } from './Icon';
@@ -12,7 +12,7 @@ interface SheetProps {
   children: ReactNode;
 }
 
-/** Bottom sheet for previews and short edits. Closes with ×, the scrim, or Android back. */
+/** Bottom sheet for previews and short edits. Closes with ×, the scrim, Android back, or dragging the top down. */
 export function Sheet({ visible, onClose, title, leading, children }: SheetProps) {
   const insets = useSafeAreaInsets();
   const offset = useRef(new Animated.Value(480)).current;
@@ -23,6 +23,25 @@ export function Sheet({ visible, onClose, title, leading, children }: SheetProps
     Animated.timing(offset, { toValue: 0, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   }, [visible, offset]);
 
+  // Only the grabber and header drag, so content scrolling and the sleep dial keep their gestures.
+  const drag = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: (_e, g) => g.dy > 6 && Math.abs(g.dy) > Math.abs(g.dx),
+        onPanResponderMove: (_e, g) => offset.setValue(Math.max(0, g.dy)),
+        onPanResponderRelease: (_e, g) => {
+          if (g.dy > 120 || g.vy > 0.8) {
+            Animated.timing(offset, { toValue: 600, duration: 180, useNativeDriver: true }).start(() => onClose());
+          } else {
+            Animated.spring(offset, { toValue: 0, useNativeDriver: true, bounciness: 0 }).start();
+          }
+        },
+        onPanResponderTerminate: () => Animated.spring(offset, { toValue: 0, useNativeDriver: true, bounciness: 0 }).start(),
+      }),
+    [offset, onClose],
+  );
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <Pressable style={styles.scrim} onPress={onClose} accessibilityRole="button" accessibilityLabel="Close" />
@@ -30,18 +49,20 @@ export function Sheet({ visible, onClose, title, leading, children }: SheetProps
         accessibilityViewIsModal
         style={[styles.sheet, { paddingBottom: insets.bottom + spacing.xl, transform: [{ translateY: offset }] }]}
       >
-        <View style={styles.grabber} />
-        {title ? (
-          <View style={styles.head}>
-            {leading}
-            <Text style={styles.title} accessibilityRole="header" numberOfLines={2}>
-              {title}
-            </Text>
-            <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel="Close" style={styles.close} hitSlop={8}>
-              <Icon name="x" size={14} color={colors.inkMuted} strokeWidth={2.6} />
-            </TouchableOpacity>
-          </View>
-        ) : null}
+        <View {...drag.panHandlers}>
+          <View style={styles.grabber} />
+          {title ? (
+            <View style={styles.head}>
+              {leading}
+              <Text style={styles.title} accessibilityRole="header" numberOfLines={2}>
+                {title}
+              </Text>
+              <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel="Close" style={styles.close} hitSlop={8}>
+                <Icon name="x" size={14} color={colors.inkMuted} strokeWidth={2.6} />
+              </TouchableOpacity>
+            </View>
+          ) : null}
+        </View>
         <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
           {children}
         </ScrollView>

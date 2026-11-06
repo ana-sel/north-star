@@ -9,6 +9,13 @@ export interface TrelloCard {
   idBoard: string;
   idList: string;
   pos: number;
+  badges?: { checkItems: number; checkItemsChecked: number };
+}
+
+/** "Checklist 2 of 4" from Trello's card badges; null when the card has no checklist items. */
+export function checklistProgress(card: Pick<TrelloCard, 'badges'>): string | null {
+  if (!card.badges || card.badges.checkItems === 0) return null;
+  return `Checklist ${card.badges.checkItemsChecked} of ${card.badges.checkItems}`;
 }
 
 export interface TrelloChecklist {
@@ -49,7 +56,7 @@ export function createTrelloClient(getToken: () => Promise<string>, request: typ
   }
 
   async function listCards(listId: string): Promise<TrelloCard[]> {
-    const cards = await api<TrelloCard[]>(`/lists/${encodeURIComponent(listId)}/cards?fields=id,name,desc,url,idBoard,idList,pos`);
+    const cards = await api<TrelloCard[]>(`/lists/${encodeURIComponent(listId)}/cards?fields=id,name,desc,url,idBoard,idList,pos,badges`);
     return cards.sort((first, second) => first.pos - second.pos);
   }
 

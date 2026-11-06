@@ -16,7 +16,7 @@ import { getPref, setPref } from '@data/prefs';
 import type { SleepEntry } from '../../../types';
 
 interface TodayScreenProps {
-  onSaved?: () => void; // jump to the Week tab after saving
+  onOpenTrends?: () => void;
 }
 
 interface SleepTarget {
@@ -24,7 +24,7 @@ interface SleepTarget {
   wake: { h: number; m: number };
 }
 
-export function TodayScreen({ onSaved }: TodayScreenProps) {
+export function TodayScreen({ onOpenTrends }: TodayScreenProps) {
   const timezone = getDeviceTimezone();
   const offsetLabel = getTimezoneOffset(timezone);
 
@@ -181,14 +181,13 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
         });
       }
       await refreshHistory();
-      onSaved?.();
     } catch (err) {
       setErrorMsg('Could not save \u2014 please try again.');
       console.error('Save sleep entry error:', err);
     } finally {
       setIsSaving(false);
     }
-  }, [bedTime, wakeTime, timezone, onSaved, refreshHistory, lastNight]);
+  }, [bedTime, wakeTime, timezone, refreshHistory, lastNight]);
 
   const handleBedChange = useCallback((date: Date) => {
     const smart = smartBedTime(date);
@@ -244,7 +243,7 @@ export function TodayScreen({ onSaved }: TodayScreenProps) {
           Drag the handles in 10-minute steps, or tap a time to type it. Times in {timezone} ({offsetLabel}).
         </Text>
 
-        <SectionHeader title="Last 7 nights" />
+        <SectionHeader title="Last 7 nights" action={onOpenTrends ? { label: 'Trends', onPress: onOpenTrends } : undefined} />
         <View style={styles.card}>
           <Text style={styles.sub}>Average time asleep</Text>
           {average != null ? (
